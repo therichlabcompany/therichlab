@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>프로필 수정 확인</title>
+
+    <link rel="stylesheet" href="../assets/css/reset.css" />
+    <link rel="stylesheet" href="../assets/css/common.css" />
+    <link rel="stylesheet" href="../assets/css/layout.css" />
+    <link rel="stylesheet" href="../assets/css/main.css" />
+    <link rel="stylesheet" href="../assets/css/content.css" />
+  </head>
+  <body class="popup-open">
+    <div class="c-modal sm is-open" role="dialog" aria-modal="true">
+      <button type="button" class="c-modal-backdrop" data-popup-close aria-label="닫기"></button>
+      <div class="c-modal-panel">
+        <button type="button" class="c-modal-close" data-popup-close aria-label="닫기"></button>
+        <div class="c-modal-body">
+          <p class="modal-text">
+            <strong>
+              입력하신 내용은 관리자 승인 없이<br />
+              즉시 프로필에 반영됩니다.</strong
+            >
+          </p>
+          <br />
+          <p class="form-text">
+            수정된 프로필 및 소개 자료와 제출한 심의필 번호 및 보험계약 체결 전 주의 사항이 사실과 다를 경우 등의 모든 법적 책임(민원, 분쟁,
+            준법 위반 등)은 전적으로 FC 본인에게 있습니다.
+          </p>
+        </div>
+        <div class="c-modal-foot">
+          <div class="c-modal-btns">
+            <button type="button" class="btn btn-primary">수정 확인</button>
+            <button type="button" class="btn btn-sub" data-popup-close>닫기</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="../assets/js/ui.js"></script>
+    <script src="../assets/js/popup.js"></script>
+    <script src="../assets/js/common.js"></script>
+  </body>
+</html>

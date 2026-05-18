@@ -1,0 +1,344 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>상담 신청 관리</title>
+
+    <link rel="stylesheet" href="../assets/css/reset.css" />
+    <link rel="stylesheet" href="../assets/css/common.css" />
+    <link rel="stylesheet" href="../assets/css/layout.css" />
+    <link rel="stylesheet" href="../assets/css/main.css" />
+    <link rel="stylesheet" href="../assets/css/content.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+  </head>
+  <body>
+    <div class="layout-wrapper consult-status-page fc-consult-mgmt">
+      <header class="site-header member">
+        <div class="header-mo">
+          <a href="MFC005_L01.html" aria-label="뒤로">
+            <img src="../assets/images/ic-chevron-left.svg" alt="" />
+          </a>
+          <div class="header-mo-spacer" aria-hidden="true"></div>
+        </div>
+        <div class="header-inner">
+          <div class="logo">
+            <a href="MFC001.html">
+              <img src="../assets/images/logo.png" alt="보험사 연계 서비스" class="logo-img" />
+            </a>
+          </div>
+          <nav class="gnb">
+            <ul>
+              <li>
+                <a href="MFC002.html" class="gnb-search">
+                  <img src="../assets/images/ic-search.svg" alt="" class="gnb-ico" />
+                </a>
+              </li>
+              <li>
+                <a href="#" class="gnb-bell">
+                  <img src="../assets/images/ic-bell.svg" alt="" class="gnb-ico" />
+                </a>
+              </li>
+              <li class="guest">
+                <a href="#" class="gnb-btn-line">회원가입</a>
+              </li>
+              <li class="guest">
+                <a href="#" class="gnb-btn-line">로그인</a>
+              </li>
+              <li class="member">
+                <button type="button" class="gnb-avatar" aria-label="마이페이지 메뉴 열기">
+                  <img src="../assets/images/temp/@profile-m.png" alt="" class="gnb-avatar-img" />
+                </button>
+              </li>
+            </ul>
+          </nav>
+        </div>
+      </header>
+
+      <main>
+        <div class="page-inner-narrow">
+          <h1 class="page-main-title">상담 신청 관리</h1>
+
+          <form class="consult-search-form" action="#" method="get">
+            <div class="search-field">
+              <label class="search-field-label">
+                <input
+                  type="search"
+                  name="q"
+                  class="search-field-input"
+                  placeholder="상담신청 고객명으로 검색"
+                  autocomplete="off"
+                  enterkeyhint="search"
+                  title="고객명 검색"
+                />
+              </label>
+              <button type="submit" class="search-field-submit" aria-label="검색">
+                <img src="../assets/images/ic-search.svg" alt="" />
+              </button>
+            </div>
+          </form>
+
+          <section>
+            <div class="c-tabs" role="tablist">
+              <button type="button" role="tab" aria-selected="true">전체</button>
+              <button type="button" role="tab" aria-selected="false">상담대기</button>
+              <button type="button" role="tab" aria-selected="false">상담완료</button>
+              <button type="button" role="tab" aria-selected="false">상담거부</button>
+            </div>
+
+            <div class="recommend-list-head">
+              <div class="control-box">
+                <button type="button" class="control-btn swiper-nav-prev" aria-label="이전"></button>
+                <button type="button" class="control-btn swiper-nav-next" aria-label="다음"></button>
+              </div>
+            </div>
+
+            <div class="swiper recommend-list recommend-list-swiper">
+              <div class="swiper-wrapper">
+                <!-- Swiper Grid 미사용: 슬라이드 = 페이지 1장. 각 페이지 안은 DOM 순서대로 CSS 2×2 그리드 -->
+                <div class="swiper-slide">
+                  <div class="swiper-page-grid">
+                    <article class="card">
+                      <div class="card-body">
+                        <div class="card-link">
+                          <a href="MFC005_L01_03_01.html" class="consult-card-hit" aria-label="상담 요청 상세 보기">
+                            <div class="profile">
+                              <div>
+                                <p class="profile-name">김소연</p>
+                                <p class="consult-contact">username@gmail.com</p>
+                                <p class="consult-contact">01012345678</p>
+                              </div>
+                            </div>
+                            <p class="date">상담 요청 일자 <time>2025.10.03</time></p>
+                          </a>
+                          <button type="button" class="consult-status-action">상담 완료</button>
+                        </div>
+                      </div>
+                    </article>
+                    <article class="card">
+                      <div class="card-body">
+                        <div class="card-link">
+                          <a href="MFC005_L01_03_01.html" class="consult-card-hit" aria-label="상담 요청 상세 보기">
+                            <div class="profile">
+                              <div>
+                                <p class="profile-name">박지희</p>
+                                <p class="consult-contact">username@gmail.com</p>
+                                <p class="consult-contact">01012345678</p>
+                              </div>
+                            </div>
+                            <p class="date">상담 요청 일자 <time>2025.10.03</time></p>
+                          </a>
+                          <button type="button" class="consult-status-action">상담 거부</button>
+                        </div>
+                      </div>
+                    </article>
+                    <article class="card">
+                      <div class="card-body">
+                        <div class="card-link">
+                          <a href="MFC005_L01_03_01.html" class="consult-card-hit" aria-label="상담 요청 상세 보기">
+                            <div class="profile">
+                              <div>
+                                <p class="profile-name">한예린</p>
+                                <p class="consult-contact">yerin@gmail.com</p>
+                                <p class="consult-contact">01098765432</p>
+                              </div>
+                            </div>
+                            <p class="date">상담 요청 일자 <time>2025.09.28</time></p>
+                          </a>
+                          <button type="button" class="consult-status-action" disabled>후기 작성 완료</button>
+                        </div>
+                      </div>
+                    </article>
+                    <article class="card">
+                      <div class="card-body">
+                        <div class="card-link">
+                          <a href="MFC005_L01_03_01.html" class="consult-card-hit" aria-label="상담 요청 상세 보기">
+                            <div class="profile">
+                              <div>
+                                <p class="profile-name">정민식</p>
+                                <p class="consult-contact">minsik@gmail.com</p>
+                                <p class="consult-contact">01055551234</p>
+                              </div>
+                            </div>
+                            <p class="date">상담 요청 일자 <time>2025.09.15</time></p>
+                          </a>
+                          <button type="button" class="consult-status-action" disabled>상담 대기</button>
+                        </div>
+                      </div>
+                    </article>
+                  </div>
+                </div>
+                <div class="swiper-slide">
+                  <div class="swiper-page-grid">
+                    <article class="card">
+                      <div class="card-body">
+                        <div class="card-link">
+                          <a href="MFC005_L01_03_01.html" class="consult-card-hit" aria-label="상담 요청 상세 보기">
+                            <div class="profile">
+                              <div>
+                                <p class="profile-name">김소연</p>
+                                <p class="consult-contact">username@gmail.com</p>
+                                <p class="consult-contact">01012345678</p>
+                              </div>
+                            </div>
+                            <p class="date">상담 요청 일자 <time>2025.10.03</time></p>
+                          </a>
+                          <button type="button" class="consult-status-action">상담 완료</button>
+                        </div>
+                      </div>
+                    </article>
+                    <article class="card">
+                      <div class="card-body">
+                        <div class="card-link">
+                          <a href="MFC005_L01_03_01.html" class="consult-card-hit" aria-label="상담 요청 상세 보기">
+                            <div class="profile">
+                              <div>
+                                <p class="profile-name">박지희</p>
+                                <p class="consult-contact">username@gmail.com</p>
+                                <p class="consult-contact">01012345678</p>
+                              </div>
+                            </div>
+                            <p class="date">상담 요청 일자 <time>2025.10.03</time></p>
+                          </a>
+                          <button type="button" class="consult-status-action">상담 거부</button>
+                        </div>
+                      </div>
+                    </article>
+                    <article class="card">
+                      <div class="card-body">
+                        <div class="card-link">
+                          <a href="MFC005_L01_03_01.html" class="consult-card-hit" aria-label="상담 요청 상세 보기">
+                            <div class="profile">
+                              <div>
+                                <p class="profile-name">한예린</p>
+                                <p class="consult-contact">yerin@gmail.com</p>
+                                <p class="consult-contact">01098765432</p>
+                              </div>
+                            </div>
+                            <p class="date">상담 요청 일자 <time>2025.09.28</time></p>
+                          </a>
+                          <button type="button" class="consult-status-action" disabled>후기 작성 완료</button>
+                        </div>
+                      </div>
+                    </article>
+                    <article class="card">
+                      <div class="card-body">
+                        <div class="card-link">
+                          <a href="MFC005_L01_03_01.html" class="consult-card-hit" aria-label="상담 요청 상세 보기">
+                            <div class="profile">
+                              <div>
+                                <p class="profile-name">정민식</p>
+                                <p class="consult-contact">minsik@gmail.com</p>
+                                <p class="consult-contact">01055551234</p>
+                              </div>
+                            </div>
+                            <p class="date">상담 요청 일자 <time>2025.09.15</time></p>
+                          </a>
+                          <button type="button" class="consult-status-action" disabled>상담 대기</button>
+                        </div>
+                      </div>
+                    </article>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="consult-empty">
+              <p>아직 접수된 상담 요청이 없습니다.</p>
+              <p>
+                고객의 상담 요청이 등록되면<br />
+                이곳에서 확인하실 수 있습니다.
+              </p>
+            </div>
+          </section>
+        </div>
+      </main>
+
+      <!-- 푸터 -->
+      <footer class="site-footer">
+        <div class="footer-inner">
+          <div class="footer-columns">
+            <div class="footer-col">
+              <p class="footer-logo">
+                <a href="MFC001.html" class="footer-logo-link"><img src="../assets/images/footer-logo.svg" alt="MyFC" /></a>
+              </p>
+              <div class="footer-info">
+                <p class="footer-ceo">
+                  <span>(주)더리치랩</span>
+                  <span>대표이사 박영진</span>
+                </p>
+                <p class="footer-info-split">
+                  <span>서울특별시 강남구 테헤란로 507, 8층 131호</span>
+                  <span>E-mail : <a href="mailto:myfc.helpdesk@gmail.com">myfc.helpdesk@gmail.com</a></span>
+                </p>
+                <p class="footer-info-split">
+                  <span>사업자등록번호 : 762-88-02797</span>
+                  <span>통신판매번호 : 제 2025-서울강남-06308호</span>
+                </p>
+                <p class="footer-info-split">
+                  <span>이용문의 : 010-9941-2899</span>
+                </p>
+              </div>
+              <p class="copyright">© 2026 TheRichLab Corp.</p>
+            </div>
+            <div class="footer-trail">
+              <ul class="footer-links">
+                <li><a href="#">회사소개</a></li>
+                <li><a href="#">이용약관</a></li>
+                <li><a href="#">개인정보 처리방침</a></li>
+                <li><a href="#">법적책임</a></li>
+              </ul>
+              <div class="footer-patent">
+                <p class="footer-patent-mark">
+                  <img src="../assets/images/kipo-logo.svg" alt="특허청" />
+                  <span>특허청</span>
+                </p>
+                <div class="footer-patent-text">
+                  <p>MyFC의 서비스는 여러 건의 특허가 출원되어 있습니다</p>
+                  <p>(특허번호 : 10-2026-0062616 / 10-2026-0064554 외 다수)</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </footer>
+    </div>
+
+    <script src="../assets/js/ui.js"></script>
+    <script src="../assets/js/popup.js"></script>
+    <script src="../assets/js/common.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+    <script>
+      (function () {
+        'use strict';
+        if (typeof MyFC === 'undefined' || typeof Swiper === 'undefined') return;
+
+        var scope = document.querySelector('.consult-status-page.fc-consult-mgmt main section');
+        var el = scope && scope.querySelector('.recommend-list-swiper');
+        if (!el || !scope) return;
+
+        var swiper = MyFC.initSwiper(el, scope, {
+          navigation: false,
+          speed: 400,
+          slidesPerView: 1,
+          spaceBetween: 12,
+          watchOverflow: true,
+        });
+
+        var prevBtn = scope.querySelector('.swiper-nav-prev');
+        var nextBtn = scope.querySelector('.swiper-nav-next');
+        if (swiper && prevBtn && nextBtn) {
+          prevBtn.addEventListener('click', function (e) {
+            e.preventDefault();
+            swiper.slidePrev();
+          });
+          nextBtn.addEventListener('click', function (e) {
+            e.preventDefault();
+            swiper.slideNext();
+          });
+        }
+      })();
+    </script>
+  </body>
+</html>

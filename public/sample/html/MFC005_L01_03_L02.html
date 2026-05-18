@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>상담 거부 사유 등록</title>
+
+    <link rel="stylesheet" href="../assets/css/reset.css" />
+    <link rel="stylesheet" href="../assets/css/common.css" />
+    <link rel="stylesheet" href="../assets/css/layout.css" />
+    <link rel="stylesheet" href="../assets/css/content.css" />
+  </head>
+  <body class="popup-open">
+    <div class="c-modal sm is-open" role="dialog" aria-modal="true">
+      <button type="button" class="c-modal-backdrop" data-popup-close aria-label="닫기"></button>
+      <div class="c-modal-panel">
+        <div class="c-modal-head">
+          <h2 class="c-modal-title">상담 거부 사유</h2>
+          <button type="button" class="c-modal-close" data-popup-close aria-label="닫기"></button>
+        </div>
+        <div class="c-modal-body">
+          <textarea class="form-textarea" name="reject_reason" maxlength="50" rows="6" placeholder="50자 이내로 입력해주세요."></textarea>
+        </div>
+        <div class="c-modal-foot">
+          <button type="button" class="btn btn-line" data-popup-close>닫기</button>
+        </div>
+      </div>
+    </div>
+
+    <script src="../assets/js/ui.js"></script>
+    <script src="../assets/js/popup.js"></script>
+    <script src="../assets/js/common.js"></script>
+  </body>
+</html>

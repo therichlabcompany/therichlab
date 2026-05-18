@@ -1,0 +1,81 @@
+CRITICAL - 2026-05-18 00:39:24 --> CodeIgniter\Router\Exceptions\RouterException: The namespace delimiter is a backslash (\), not a slash (/). Route handler: "\App\Controllers\Admin/Dashboard::index"
+[Method: GET, Route: admin]
+in SYSTEMPATH/Router/Router.php on line 521.
+ 1 SYSTEMPATH/Router/Router.php(521): CodeIgniter\Router\Exceptions\RouterException::forInvalidControllerName()
+ 2 SYSTEMPATH/Router/Router.php(223): CodeIgniter\Router\Router->checkRoutes()
+ 3 SYSTEMPATH/CodeIgniter.php(829): CodeIgniter\Router\Router->handle()
+ 4 SYSTEMPATH/CodeIgniter.php(441): CodeIgniter\CodeIgniter->tryToRouteIt()
+ 5 SYSTEMPATH/CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest()
+ 6 SYSTEMPATH/Boot.php(417): CodeIgniter\CodeIgniter->run()
+ 7 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
+ 8 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb()
+CRITICAL - 2026-05-18 00:41:12 --> Error: Call to undefined function App\Controllers\Admin\renderAdminView()
+[Method: GET, Route: admin]
+in APPPATH/Controllers/Admin/Dashboard.php on line 24.
+ 1 SYSTEMPATH/CodeIgniter.php(951): App\Controllers\Admin\Dashboard->index()
+ 2 SYSTEMPATH/CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController()
+ 3 SYSTEMPATH/CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest()
+ 4 SYSTEMPATH/Boot.php(417): CodeIgniter\CodeIgniter->run()
+ 5 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
+ 6 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb()
+ERROR - 2026-05-18 01:25:56 --> Error connecting to the database: mysqli_sql_exception: Access denied for user 'therichlab'@'localhost' in /home/yongpil/home/myfc_server/therichlab/system/Database/MySQLi/Connection.php:201
+Stack trace:
+#0 /home/yongpil/home/myfc_server/therichlab/system/Database/MySQLi/Connection.php(201): mysqli->real_connect()
+#1 /home/yongpil/home/myfc_server/therichlab/system/Database/BaseConnection.php(555): CodeIgniter\Database\MySQLi\Connection->connect()
+#2 /home/yongpil/home/myfc_server/therichlab/system/Database/BaseConnection.php(795): CodeIgniter\Database\BaseConnection->initialize()
+#3 /home/yongpil/home/myfc_server/therichlab/system/Database/BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query()
+#4 /home/yongpil/home/myfc_server/therichlab/system/Model.php(295): CodeIgniter\Database\BaseBuilder->get()
+#5 /home/yongpil/home/myfc_server/therichlab/system/BaseModel.php(714): CodeIgniter\Model->doFirst()
+#6 /home/yongpil/home/myfc_server/therichlab/app/Controllers/Admin/Auth.php(40): CodeIgniter\BaseModel->first()
+#7 /home/yongpil/home/myfc_server/therichlab/system/CodeIgniter.php(951): App\Controllers\Admin\Auth->login()
+#8 /home/yongpil/home/myfc_server/therichlab/system/CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController()
+#9 /home/yongpil/home/myfc_server/therichlab/system/CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest()
+#10 /home/yongpil/home/myfc_server/therichlab/system/Boot.php(417): CodeIgniter\CodeIgniter->run()
+#11 /home/yongpil/home/myfc_server/therichlab/system/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
+#12 /home/yongpil/home/myfc_server/therichlab/public/index.php(59): CodeIgniter\Boot::bootWeb()
+#13 {main}
+
+Next CodeIgniter\Database\Exceptions\DatabaseException: Access denied for user '****'@'localhost' in /home/yongpil/home/myfc_server/therichlab/system/Database/MySQLi/Connection.php:231
+Stack trace:
+#0 /home/yongpil/home/myfc_server/therichlab/system/Database/BaseConnection.php(555): CodeIgniter\Database\MySQLi\Connection->connect()
+#1 /home/yongpil/home/myfc_server/therichlab/system/Database/BaseConnection.php(795): CodeIgniter\Database\BaseConnection->initialize()
+#2 /home/yongpil/home/myfc_server/therichlab/system/Database/BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query()
+#3 /home/yongpil/home/myfc_server/therichlab/system/Model.php(295): CodeIgniter\Database\BaseBuilder->get()
+#4 /home/yongpil/home/myfc_server/therichlab/system/BaseModel.php(714): CodeIgniter\Model->doFirst()
+#5 /home/yongpil/home/myfc_server/therichlab/app/Controllers/Admin/Auth.php(40): CodeIgniter\BaseModel->first()
+#6 /home/yongpil/home/myfc_server/therichlab/system/CodeIgniter.php(951): App\Controllers\Admin\Auth->login()
+#7 /home/yongpil/home/myfc_server/therichlab/system/CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController()
+#8 /home/yongpil/home/myfc_server/therichlab/system/CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest()
+#9 /home/yongpil/home/myfc_server/therichlab/system/Boot.php(417): CodeIgniter\CodeIgniter->run()
+#10 /home/yongpil/home/myfc_server/therichlab/system/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
+#11 /home/yongpil/home/myfc_server/therichlab/public/index.php(59): CodeIgniter\Boot::bootWeb()
+#12 {main}
+CRITICAL - 2026-05-18 01:25:56 --> CodeIgniter\Database\Exceptions\DatabaseException: Unable to connect to the database.
+Main connection [MySQLi]: Access denied for user '****'@'localhost'
+[Method: POST, Route: admin/login]
+in SYSTEMPATH/Database/BaseConnection.php on line 606.
+ 1 SYSTEMPATH/Database/BaseConnection.php(795): CodeIgniter\Database\BaseConnection->initialize()
+ 2 SYSTEMPATH/Database/BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query()
+ 3 SYSTEMPATH/Model.php(295): CodeIgniter\Database\BaseBuilder->get()
+ 4 SYSTEMPATH/BaseModel.php(714): CodeIgniter\Model->doFirst()
+ 5 APPPATH/Controllers/Admin/Auth.php(40): CodeIgniter\BaseModel->first()
+ 6 SYSTEMPATH/CodeIgniter.php(951): App\Controllers\Admin\Auth->login()
+ 7 SYSTEMPATH/CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController()
+ 8 SYSTEMPATH/CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest()
+ 9 SYSTEMPATH/Boot.php(417): CodeIgniter\CodeIgniter->run()
+10 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
+11 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb()
+CRITICAL - 2026-05-18 01:30:28 --> ParseError: syntax error, unexpected token "if"
+[Method: GET, Route: admin/login]
+in APPPATH/Controllers/Admin/Auth.php on line 18.
+ 1 SYSTEMPATH/Autoloader/Autoloader.php(299): CodeIgniter\Autoloader\Autoloader->includeFile()
+ 2 SYSTEMPATH/Autoloader/Autoloader.php(275): CodeIgniter\Autoloader\Autoloader->loadInNamespace()
+ 3 [internal function]: CodeIgniter\Autoloader\Autoloader->loadClass()
+ 4 SYSTEMPATH/Router/Router.php(790): class_exists()
+ 5 SYSTEMPATH/Router/Router.php(228): CodeIgniter\Router\Router->processRouteAttributes()
+ 6 SYSTEMPATH/CodeIgniter.php(829): CodeIgniter\Router\Router->handle()
+ 7 SYSTEMPATH/CodeIgniter.php(441): CodeIgniter\CodeIgniter->tryToRouteIt()
+ 8 SYSTEMPATH/CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest()
+ 9 SYSTEMPATH/Boot.php(417): CodeIgniter\CodeIgniter->run()
+10 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
+11 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb()

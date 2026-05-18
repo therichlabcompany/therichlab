@@ -1,0 +1,707 @@
+<!doctype html>
+<html lang="ko">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>FC 목록</title>
+
+  <link rel="stylesheet" href="../assets/css/reset.css" />
+  <link rel="stylesheet" href="../assets/css/common.css" />
+  <link rel="stylesheet" href="../assets/css/layout.css" />
+  <link rel="stylesheet" href="../assets/css/content.css" />
+</head>
+
+<body>
+  <div class="layout-wrapper search-page results">
+    <header class="site-header member">
+      <div class="header-inner">
+        <div class="logo">
+          <a href="MFC001.html">
+            <img src="../assets/images/logo.png" alt="보험사 연계 서비스" class="logo-img" />
+          </a>
+        </div>
+        <nav class="gnb">
+          <ul>
+            <li>
+              <a href="MFC002.html" class="gnb-search">
+                <img src="../assets/images/ic-search.svg" alt="" class="gnb-ico" />
+              </a>
+            </li>
+            <li>
+              <a href="#" class="gnb-bell">
+                <img src="../assets/images/ic-bell.svg" alt="" class="gnb-ico" />
+              </a>
+            </li>
+            <li class="guest">
+              <a href="#" class="gnb-btn-line">회원가입</a>
+            </li>
+            <li class="guest">
+              <a href="#" class="gnb-btn-line">로그인</a>
+            </li>
+            <li class="member">
+              <button type="button" class="gnb-avatar" aria-label="마이페이지 메뉴 열기">
+                <img src="../assets/images/temp/@profile-m.png" alt="" class="gnb-avatar-img" />
+              </button>
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+
+    <main>
+      <div class="page-inner">
+        <h1 class="visually-hidden">보험설계사 목록</h1>
+        <section class="fc-directory">
+          <div class="directory-toolbar">
+            <div class="directory-filters">
+              <div class="select-field">
+                <span class="visually-hidden">보험 종류</span>
+                <button type="button" class="directory-select" data-popup-target="#popup-insurance"
+                  data-popup-sync="#fc-filter-insurance-value">
+                  <span>전체</span>
+                </button>
+                <input type="hidden" id="fc-filter-insurance-value" name="insurance" value="" />
+              </div>
+              <div class="select-field">
+                <span class="visually-hidden">지역</span>
+                <div class="fc-region-inline">
+                  <button type="button" class="directory-select fc-region-select" data-popup-target="#popup-region"
+                    data-popup-sync="#fc-filter-region-value">
+                    <span>전체</span>
+                  </button>
+                </div>
+                <input type="hidden" id="fc-filter-region-value" name="region" value="" />
+              </div>
+            </div>
+            <div class="fc-directory-sort">
+              <button type="button" class="fc-sort-btn is-active">추천순</button>
+              <button type="button" class="fc-sort-btn">인기순</button>
+              <button type="button" class="fc-sort-btn">평점순</button>
+            </div>
+          </div>
+
+          <div class="fc-profile-grid">
+            <article class="card">
+              <div class="card-body">
+                <a class="card-link" href="MFC003_01.html">
+                  <div class="profile">
+                    <img src="../assets/images/temp/@profile-m.png" alt="" class="avatar" />
+                    <div>
+                      <p class="profile-name">정민식</p>
+                      <p class="c-rate">
+                        <span class="c-rate-star">★</span> 5.0
+                        <span class="c-rate-count">(1,495)</span>
+                      </p>
+                      <p class="c-dot-line">
+                        <span>KB손해보험</span><span class="location"><span>전국</span></span>
+                      </p>
+                      <div class="list-tags">
+                        <span>생명보험</span>
+                        <span>건강보험</span>
+                        <span>실손보험</span>
+                        <span>연금보험</span>
+                        <span>자녀보험</span>
+                        <span>사업자보험</span>
+                      </div>
+                    </div>
+                  </div>
+                </a>
+              </div>
+            </article>
+            <article class="card">
+              <div class="card-body">
+                <a class="card-link" href="MFC003_01.html">
+                  <div class="profile">
+                    <img src="../assets/images/temp/@profile-w.png" alt="" class="avatar" />
+                    <div>
+                      <p class="profile-name">이서연</p>
+                      <p class="c-rate">
+                        <span class="c-rate-star">★</span> 5.0
+                        <span class="c-rate-count">(2,018)</span>
+                      </p>
+                      <p class="c-dot-line">
+                        <span>삼성화재</span><span class="location"><span>서울·경기</span></span>
+                      </p>
+                      <div class="list-tags">
+                        <span>종신보험</span>
+                        <span>암보험</span>
+                        <span>실비보험</span>
+                        <span>운전자보험</span>
+                      </div>
+                    </div>
+                  </div>
+                </a>
+              </div>
+            </article>
+            <article class="card">
+              <div class="card-body">
+                <a class="card-link" href="MFC003_01.html">
+                  <div class="profile">
+                    <img src="../assets/images/temp/@profile-m.png" alt="" class="avatar" />
+                    <div>
+                      <p class="profile-name">박준호</p>
+                      <p class="c-rate">
+                        <span class="c-rate-star">★</span> 4.9
+                        <span class="c-rate-count">(892)</span>
+                      </p>
+                      <p class="c-dot-line">
+                        <span>현대해상</span><span class="location"><span>부산·울산</span></span>
+                      </p>
+                      <div class="list-tags">
+                        <span>화재보험</span>
+                        <span>자동차보험</span>
+                        <span>사업자보험</span>
+                      </div>
+                    </div>
+                  </div>
+                </a>
+              </div>
+            </article>
+            <article class="card">
+              <div class="card-body">
+                <a class="card-link" href="MFC003_01.html">
+                  <div class="profile">
+                    <img src="../assets/images/temp/@profile-w.png" alt="" class="avatar" />
+                    <div>
+                      <p class="profile-name">최유진</p>
+                      <p class="c-rate">
+                        <span class="c-rate-star">★</span> 5.0
+                        <span class="c-rate-count">(1,120)</span>
+                      </p>
+                      <p class="c-dot-line">
+                        <span>교보생명</span><span class="location"><span>인천·경기</span></span>
+                      </p>
+                      <div class="list-tags">
+                        <span>연금</span>
+                        <span>변액</span>
+                        <span>자녀보험</span>
+                        <span>치아보험</span>
+                      </div>
+                    </div>
+                  </div>
+                </a>
+              </div>
+            </article>
+            <article class="card">
+              <div class="card-body">
+                <a class="card-link" href="MFC003_01.html">
+                  <div class="profile">
+                    <img src="../assets/images/temp/@profile-m.png" alt="" class="avatar" />
+                    <div>
+                      <p class="profile-name">강도윤</p>
+                      <p class="c-rate">
+                        <span class="c-rate-star">★</span> 4.8
+                        <span class="c-rate-count">(634)</span>
+                      </p>
+                      <p class="c-dot-line">
+                        <span>메리츠화재</span><span class="location"><span>대전·세종</span></span>
+                      </p>
+                      <div class="list-tags">
+                        <span>실손</span>
+                        <span>뇌심장</span>
+                        <span>치매간병</span>
+                      </div>
+                    </div>
+                  </div>
+                </a>
+              </div>
+            </article>
+            <article class="card">
+              <div class="card-body">
+                <a class="card-link" href="MFC003_01.html">
+                  <div class="profile">
+                    <img src="../assets/images/temp/@profile-w.png" alt="" class="avatar" />
+                    <div>
+                      <p class="profile-name">한지민</p>
+                      <p class="c-rate">
+                        <span class="c-rate-star">★</span> 5.0
+                        <span class="c-rate-count">(2,341)</span>
+                      </p>
+                      <p class="c-dot-line">
+                        <span>한화손보</span><span class="location"><span>광주·전남</span></span>
+                      </p>
+                      <div class="list-tags">
+                        <span>생명보험</span>
+                        <span>건강보험</span>
+                        <span>태아보험</span>
+                      </div>
+                    </div>
+                  </div>
+                </a>
+              </div>
+            </article>
+
+            <article class="card">
+              <div class="card-body">
+                <a class="card-link" href="MFC003_01.html">
+                  <div class="profile">
+                    <img src="../assets/images/temp/@profile-w.png" alt="" class="avatar" />
+                    <div>
+                      <p class="profile-name">임하은</p>
+                      <p class="c-rate">
+                        <span class="c-rate-star">★</span> 5.0
+                        <span class="c-rate-count">(756)</span>
+                      </p>
+                      <p class="c-dot-line">
+                        <span>NH농협생명</span><span class="location"><span>제주</span></span>
+                      </p>
+                      <div class="list-tags">
+                        <span>연금보험</span>
+                        <span>저축보험</span>
+                        <span>자녀</span>
+                      </div>
+                    </div>
+                  </div>
+                </a>
+              </div>
+            </article>
+            <article class="card">
+              <div class="card-body">
+                <a class="card-link" href="MFC003_01.html">
+                  <div class="profile">
+                    <img src="../assets/images/temp/@profile-m.png" alt="" class="avatar" />
+                    <div>
+                      <p class="profile-name">정민식</p>
+                      <p class="c-rate">
+                        <span class="c-rate-star">★</span> 5.0
+                        <span class="c-rate-count">(1,495)</span>
+                      </p>
+                      <p class="c-dot-line">
+                        <span>KB손해보험</span><span class="location"><span>전국</span></span>
+                      </p>
+                      <div class="list-tags">
+                        <span>생명보험</span>
+                        <span>건강보험</span>
+                        <span>실손보험</span>
+                        <span>연금보험</span>
+                        <span>자녀보험</span>
+                        <span>사업자보험</span>
+                      </div>
+                    </div>
+                  </div>
+                </a>
+              </div>
+            </article>
+            <article class="card">
+              <div class="card-body">
+                <a class="card-link" href="MFC003_01.html">
+                  <div class="profile">
+                    <img src="../assets/images/temp/@profile-w.png" alt="" class="avatar" />
+                    <div>
+                      <p class="profile-name">이서연</p>
+                      <p class="c-rate">
+                        <span class="c-rate-star">★</span> 5.0
+                        <span class="c-rate-count">(2,018)</span>
+                      </p>
+                      <p class="c-dot-line">
+                        <span>삼성화재</span><span class="location"><span>서울·경기</span></span>
+                      </p>
+                      <div class="list-tags">
+                        <span>종신보험</span>
+                        <span>암보험</span>
+                        <span>실비보험</span>
+                        <span>운전자보험</span>
+                      </div>
+                    </div>
+                  </div>
+                </a>
+              </div>
+            </article>
+            <article class="card">
+              <div class="card-body">
+                <a class="card-link" href="MFC003_01.html">
+                  <div class="profile">
+                    <img src="../assets/images/temp/@profile-m.png" alt="" class="avatar" />
+                    <div>
+                      <p class="profile-name">박준호</p>
+                      <p class="c-rate">
+                        <span class="c-rate-star">★</span> 4.9
+                        <span class="c-rate-count">(892)</span>
+                      </p>
+                      <p class="c-dot-line">
+                        <span>현대해상</span><span class="location"><span>부산·울산</span></span>
+                      </p>
+                      <div class="list-tags">
+                        <span>화재보험</span>
+                        <span>자동차보험</span>
+                        <span>사업자보험</span>
+                      </div>
+                    </div>
+                  </div>
+                </a>
+              </div>
+            </article>
+            <article class="card">
+              <div class="card-body">
+                <a class="card-link" href="MFC003_01.html">
+                  <div class="profile">
+                    <img src="../assets/images/temp/@profile-w.png" alt="" class="avatar" />
+                    <div>
+                      <p class="profile-name">최유진</p>
+                      <p class="c-rate">
+                        <span class="c-rate-star">★</span> 5.0
+                        <span class="c-rate-count">(1,120)</span>
+                      </p>
+                      <p class="c-dot-line">
+                        <span>교보생명</span><span class="location"><span>인천·경기</span></span>
+                      </p>
+                      <div class="list-tags">
+                        <span>연금</span>
+                        <span>변액</span>
+                        <span>자녀보험</span>
+                        <span>치아보험</span>
+                      </div>
+                    </div>
+                  </div>
+                </a>
+              </div>
+            </article>
+            <article class="card">
+              <div class="card-body">
+                <a class="card-link" href="MFC003_01.html">
+                  <div class="profile">
+                    <img src="../assets/images/temp/@profile-m.png" alt="" class="avatar" />
+                    <div>
+                      <p class="profile-name">강도윤</p>
+                      <p class="c-rate">
+                        <span class="c-rate-star">★</span> 4.8
+                        <span class="c-rate-count">(634)</span>
+                      </p>
+                      <p class="c-dot-line">
+                        <span>메리츠화재</span><span class="location"><span>대전·세종</span></span>
+                      </p>
+                      <div class="list-tags">
+                        <span>실손</span>
+                        <span>뇌심장</span>
+                        <span>치매간병</span>
+                      </div>
+                    </div>
+                  </div>
+                </a>
+              </div>
+            </article>
+            <article class="card">
+              <div class="card-body">
+                <a class="card-link" href="MFC003_01.html">
+                  <div class="profile">
+                    <img src="../assets/images/temp/@profile-w.png" alt="" class="avatar" />
+                    <div>
+                      <p class="profile-name">한지민</p>
+                      <p class="c-rate">
+                        <span class="c-rate-star">★</span> 5.0
+                        <span class="c-rate-count">(2,341)</span>
+                      </p>
+                      <p class="c-dot-line">
+                        <span>한화손보</span><span class="location"><span>광주·전남</span></span>
+                      </p>
+                      <div class="list-tags">
+                        <span>생명보험</span>
+                        <span>건강보험</span>
+                        <span>태아보험</span>
+                      </div>
+                    </div>
+                  </div>
+                </a>
+              </div>
+            </article>
+
+            <article class="card">
+              <div class="card-body">
+                <a class="card-link" href="MFC003_01.html">
+                  <div class="profile">
+                    <img src="../assets/images/temp/@profile-w.png" alt="" class="avatar" />
+                    <div>
+                      <p class="profile-name">임하은</p>
+                      <p class="c-rate">
+                        <span class="c-rate-star">★</span> 5.0
+                        <span class="c-rate-count">(756)</span>
+                      </p>
+                      <p class="c-dot-line">
+                        <span>NH농협생명</span><span class="location"><span>제주</span></span>
+                      </p>
+                      <div class="list-tags">
+                        <span>연금보험</span>
+                        <span>저축보험</span>
+                        <span>자녀</span>
+                      </div>
+                    </div>
+                  </div>
+                </a>
+              </div>
+            </article>
+          </div>
+        </section>
+        <nav class="c-paging">
+          <ul>
+            <li>
+              <a href="#" rel="prev"><span class="visually-hidden">이전 페이지</span></a>
+            </li>
+            <li>
+              <a href="#" aria-current="page">1</a>
+            </li>
+            <li>
+              <a href="#">2</a>
+            </li>
+            <li>
+              <a href="#">3</a>
+            </li>
+            <li>
+              <a href="#">4</a>
+            </li>
+            <li>
+              <a href="#">5</a>
+            </li>
+            <li>
+              <a href="#" rel="next"><span class="visually-hidden">다음 페이지</span></a>
+            </li>
+          </ul>
+          <div>
+            <a href="#">더보기</a>
+          </div>
+        </nav>
+      </div>
+    </main>
+
+    <!-- 푸터 -->
+    <footer class="site-footer">
+      <div class="footer-inner">
+        <div class="footer-columns">
+          <div class="footer-col">
+            <p class="footer-logo">
+              <a href="MFC001.html" class="footer-logo-link"><img src="../assets/images/footer-logo.svg"
+                  alt="MyFC" /></a>
+            </p>
+            <div class="footer-info">
+              <p class="footer-ceo">
+                <span>(주)더리치랩</span>
+                <span>대표이사 박영진</span>
+              </p>
+              <p class="footer-info-split">
+                <span>서울특별시 강남구 테헤란로 507, 8층 131호</span>
+                <span>E-mail : <a href="mailto:myfc.helpdesk@gmail.com">myfc.helpdesk@gmail.com</a></span>
+              </p>
+              <p class="footer-info-split">
+                <span>사업자등록번호 : 762-88-02797</span>
+                <span>통신판매번호 : 제 2025-서울강남-06308호</span>
+              </p>
+              <p class="footer-info-split">
+                <span>이용문의 : 010-9941-2899</span>
+              </p>
+            </div>
+            <p class="copyright">© 2026 TheRichLab Corp.</p>
+          </div>
+          <div class="footer-trail">
+            <ul class="footer-links">
+              <li><a href="#">회사소개</a></li>
+              <li><a href="#">이용약관</a></li>
+              <li><a href="#">개인정보 처리방침</a></li>
+              <li><a href="#">법적책임</a></li>
+            </ul>
+            <div class="footer-patent">
+              <p class="footer-patent-mark">
+                <img src="../assets/images/kipo-logo.svg" alt="특허청" />
+                <span>특허청</span>
+              </p>
+              <div class="footer-patent-text">
+                <p>MyFC의 서비스는 여러 건의 특허가 출원되어 있습니다</p>
+                <p>(특허번호 : 10-2026-0062616 / 10-2026-0064554 외 다수)</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <div id="popup-insurance" class="c-modal" data-popup-multiselect>
+    <button type="button" class="c-modal-backdrop" data-popup-close></button>
+    <div class="c-modal-panel">
+      <div class="c-modal-head">
+        <h2 class="c-modal-title">보험 선택</h2>
+        <button type="button" class="c-modal-close" data-popup-close aria-label="닫기"></button>
+      </div>
+      <div class="c-modal-body">
+        <ul class="c-modal-list">
+          <li>
+            <button type="button" class="c-modal-option" data-value="">
+              <span class="c-modal-option-label">전체</span>
+              <span class="c-modal-option-ico"></span>
+            </button>
+          </li>
+          <li>
+            <button type="button" class="c-modal-option" data-value="whole_life">
+              <span class="c-modal-option-label">종신보험</span>
+              <span class="c-modal-option-ico"></span>
+            </button>
+          </li>
+          <li>
+            <button type="button" class="c-modal-option" data-value="cancer">
+              <span class="c-modal-option-label">암보험</span>
+              <span class="c-modal-option-ico"></span>
+            </button>
+          </li>
+          <li>
+            <button type="button" class="c-modal-option" data-value="brain_cardio">
+              <span class="c-modal-option-label">뇌심장보험</span>
+              <span class="c-modal-option-ico"></span>
+            </button>
+          </li>
+          <li>
+            <button type="button" class="c-modal-option" data-value="indemnity">
+              <span class="c-modal-option-label">실비보험</span>
+              <span class="c-modal-option-ico"></span>
+            </button>
+          </li>
+          <li>
+            <button type="button" class="c-modal-option" data-value="child">
+              <span class="c-modal-option-label">자녀/태아보험</span>
+              <span class="c-modal-option-ico"></span>
+            </button>
+          </li>
+          <li>
+            <button type="button" class="c-modal-option" data-value="dementia">
+              <span class="c-modal-option-label">치매/간병보험</span>
+              <span class="c-modal-option-ico"></span>
+            </button>
+          </li>
+          <li>
+            <button type="button" class="c-modal-option" data-value="dental">
+              <span class="c-modal-option-label">치아보험</span>
+              <span class="c-modal-option-ico"></span>
+            </button>
+          </li>
+          <li>
+            <button type="button" class="c-modal-option" data-value="pension">
+              <span class="c-modal-option-label">연금/변액보험</span>
+              <span class="c-modal-option-ico"></span>
+            </button>
+          </li>
+          <li>
+            <button type="button" class="c-modal-option" data-value="business">
+              <span class="c-modal-option-label">사업자보험</span>
+              <span class="c-modal-option-ico"></span>
+            </button>
+          </li>
+          <li>
+            <button type="button" class="c-modal-option" data-value="driver">
+              <span class="c-modal-option-label">운전자보험</span>
+              <span class="c-modal-option-ico"></span>
+            </button>
+          </li>
+          <li>
+            <button type="button" class="c-modal-option" data-value="car">
+              <span class="c-modal-option-label">자동차보험</span>
+              <span class="c-modal-option-ico"></span>
+            </button>
+          </li>
+          <li>
+            <button type="button" class="c-modal-option" data-value="fire">
+              <span class="c-modal-option-label">화재보험</span>
+              <span class="c-modal-option-ico"></span>
+            </button>
+          </li>
+        </ul>
+      </div>
+      <div class="c-modal-foot">
+        <button type="button" class="btn btn-line" data-popup-confirm>확인</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="popup-region" class="c-modal" data-popup-multiselect>
+    <button type="button" class="c-modal-backdrop" data-popup-close></button>
+    <div class="c-modal-panel">
+      <div class="c-modal-head">
+        <h2 class="c-modal-title">지역 선택</h2>
+        <button type="button" class="c-modal-close" data-popup-close aria-label="닫기"></button>
+      </div>
+      <div class="c-modal-body">
+        <ul class="c-modal-list">
+          <li>
+            <button type="button" class="c-modal-option" data-value="">
+              <span class="c-modal-option-label">전체</span>
+              <span class="c-modal-option-ico"></span>
+            </button>
+          </li>
+          <li>
+            <button type="button" class="c-modal-option" data-value="seoul">
+              <span class="c-modal-option-label">서울</span>
+              <span class="c-modal-option-ico"></span>
+            </button>
+          </li>
+          <li>
+            <button type="button" class="c-modal-option" data-value="gyeonggi">
+              <span class="c-modal-option-label">경기</span>
+              <span class="c-modal-option-ico"></span>
+            </button>
+          </li>
+          <li>
+            <button type="button" class="c-modal-option" data-value="incheon_bucheon">
+              <span class="c-modal-option-label">인천/부천</span>
+              <span class="c-modal-option-ico"></span>
+            </button>
+          </li>
+          <li>
+            <button type="button" class="c-modal-option" data-value="busan_ulsan_gyeongnam">
+              <span class="c-modal-option-label">부산/울산/경남</span>
+              <span class="c-modal-option-ico"></span>
+            </button>
+          </li>
+          <li>
+            <button type="button" class="c-modal-option" data-value="daegu_gyeongbuk">
+              <span class="c-modal-option-label">대구/경북</span>
+              <span class="c-modal-option-ico"></span>
+            </button>
+          </li>
+          <li>
+            <button type="button" class="c-modal-option" data-value="daejeon_sejong_chungnam">
+              <span class="c-modal-option-label">대전/세종/충남</span>
+              <span class="c-modal-option-ico"></span>
+            </button>
+          </li>
+          <li>
+            <button type="button" class="c-modal-option" data-value="cheongju_chungbuk">
+              <span class="c-modal-option-label">청주/충북</span>
+              <span class="c-modal-option-ico"></span>
+            </button>
+          </li>
+          <li>
+            <button type="button" class="c-modal-option" data-value="gwangju_jeonnam">
+              <span class="c-modal-option-label">광주/전남</span>
+              <span class="c-modal-option-ico"></span>
+            </button>
+          </li>
+          <li>
+            <button type="button" class="c-modal-option" data-value="jeonju_jeonbuk">
+              <span class="c-modal-option-label">전주/전북</span>
+              <span class="c-modal-option-ico"></span>
+            </button>
+          </li>
+          <li>
+            <button type="button" class="c-modal-option" data-value="chuncheon_gangwon">
+              <span class="c-modal-option-label">춘천/강원</span>
+              <span class="c-modal-option-ico"></span>
+            </button>
+          </li>
+          <li>
+            <button type="button" class="c-modal-option" data-value="jeju">
+              <span class="c-modal-option-label">제주</span>
+              <span class="c-modal-option-ico"></span>
+            </button>
+          </li>
+        </ul>
+      </div>
+      <div class="c-modal-foot">
+        <button type="button" class="btn btn-line" data-popup-confirm>확인</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="../assets/js/ui.js"></script>
+  <script src="../assets/js/popup.js"></script>
+  <script src="../assets/js/common.js"></script>
+</body>
+
+</html>

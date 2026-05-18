@@ -1,0 +1,357 @@
+
+<main>
+    <div class="page-inner">
+        <article class="fc-detail-card">
+            <div class="fc-detail-head">
+                <img src="<?= SITE_IMG_URL ?>images/temp/@profile-w.png" alt="" />
+                <div class="fc-detail-head-main">
+                    <!-- 소속: 보험사 최대 2곳 또는 GA 최대 1곳(데이터에 맞게 노출) -->
+                    <p>신한라이프 · KB생명보험</p>
+                    <h1>한지은 FC <span>10년차 이사</span></h1>
+                </div>
+                <div class="fc-detail-head-actions">
+                    <button type="button" class="detail-capture-btn">화면캡쳐</button>
+                    <button type="button" class="fc-detail-icon-btn c-bookmark-btn" aria-label="북마크" aria-pressed="false"></button>
+                    <button
+                        type="button"
+                        class="fc-detail-icon-btn detail-share-btn"
+                        aria-label="공유"
+                        data-toast="공유 링크를 준비 중입니다."></button>
+                </div>
+            </div>
+
+            <div class="fc-detail">
+                <div class="fc-detail-item">
+                    <h3>활동 지역</h3>
+                    <p>서울 경기 인천/부천 청주/충북 광주/전남</p>
+                </div>
+                <div class="fc-detail-item">
+                    <h3>운영 가능 보험 항목</h3>
+                    <p>종신보험 암보험 뇌심장보험 실비보험</p>
+                </div>
+                <div class="fc-detail-item">
+                    <h3>전문 분야</h3>
+                    <p>가족 맞춤 보험, 상해 질병 대비 컨설팅<br />재테크 상담 가능</p>
+                </div>
+                <div class="fc-detail-item">
+                    <h3>심의필 번호</h3>
+                    <p>KMI에셋준법 심의필 제20260120001호(2026.01.20.~2027.01.19.)</p>
+                </div>
+                <div class="fc-detail-item">
+                    <h3>상담 가능 시간</h3>
+                    <p>09:00 ~ 21:00</p>
+                </div>
+                <div class="fc-detail-item">
+                    <h3>상담 가능한 언어</h3>
+                    <p>한국어, 영어, 일어</p>
+                </div>
+            </div>
+
+            <div class="fc-detail-cta-wrap">
+                <a href="/fc/counsel" class="fc-detail-cta">상담 요청하기</a>
+            </div>
+        </article>
+
+        <section class="section fc-detail-bio">
+            <h2 class="section-title">경력사항</h2>
+            <ul>
+                <li>- 한화생명 FC (2005 ~ 현재 / 9년차 활동)</li>
+                <li>- 신한라이프 FC (2003 ~ 2005 / 2년차 활동)</li>
+                <li>- MDRT 회원 (2023, 2024)</li>
+            </ul>
+        </section>
+
+        <section class="section fc-detail-certs-section">
+            <div class="fc-detail-certs-block">
+                <h2 class="section-title">이력 및 인증</h2>
+                <ul class="fc-detail-certs">
+                    <li>
+                        <span>- MDRT</span>
+                        <a
+                            href="<?= SITE_IMG_URL ?>images/ic-success-circle.svg"
+                            download
+                            class="fc-detail-cert-dl"
+                            aria-label="MDRT 증빙 파일 다운로드"></a>
+                    </li>
+                    <li>
+                        <span>- CFP 자격</span>
+                        <a
+                            href="<?= SITE_IMG_URL ?>images/ic-success-circle.svg"
+                            class="fc-detail-cert-dl fc-detail-cert-link"
+                            aria-label="CFP 자격 증빙 링크 이동"></a>
+                    </li>
+                </ul>
+            </div>
+        </section>
+
+        <section class="section fc-detail-about">
+            <h2 class="section-title">자기소개</h2>
+            <p>
+                9년간 보험 설계 경험을 바탕으로 고객님의 상황에 꼭 맞는 맞춤형 솔루션을 제안합니다. 단순한 상품 판매가 아니라, 가족의 미래와
+                삶의 질을 지킬 수 있는 실질적인 보장을 함께 고민합니다. 상담 과정에서는 불필요한 권유 없이 필요한 정보를 투명하게 설명드리며,
+                언제든 안심하고 편하게 상담받으실 수 있도록 최선을 다하겠습니다.
+            </p>
+        </section>
+
+        <section class="section detail-reviews">
+            <header>
+                <div class="section-head">
+                    <div>
+                        <h2 class="section-title">최근 등록 후기</h2>
+                        <p class="c-rate"><span class="c-rate-star">★</span> 0.0</p>
+                        <p class="review-count"><span>1,106</span> 건</p>
+                    </div>
+                    <div class="section-head-right">
+                        <div class="control-box">
+                            <button type="button" class="control-btn swiper-nav-prev" aria-label="이전 후기"></button>
+                            <button type="button" class="control-btn swiper-nav-next" aria-label="다음 후기"></button>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <div class="detail-reviews-panel">
+                <div class="swiper detail-reviews-swiper">
+                    <div class="swiper-wrapper">
+                        <div class="swiper-slide">
+                            <div>
+                                <a href="#" class="review-card">
+                                    <div class="review-card-meta">
+                                        <p class="c-rate"><span class="c-rate-star">★</span> 4.9</p>
+                                        <p class="review-author">정**</p>
+                                        <time class="review-date">2025.10.01</time>
+                                    </div>
+                                    <h4>여러 보험 정보를 한눈에 비교할 수 있어 확실히 전문성이 느껴졌습니다</h4>
+                                    <p class="review-card-body">
+                                        그동안은 한 보험사 설계사만 만나 상품을 추천받는 게 당연하다고 생각했습니다. 하지만 MyFC에서는 여러 FC의 조건과
+                                        이력을 한눈에 비교할 수 있어 훨씬 도움이 됐습니다. 원하던 보장은 충분하면서도 불필요한 비용은 줄이는 것에 딱 맞는
+                                        결과를 얻을 수 있었고, 플랜 조율 덕분에 불필요한 지출을 줄일 수 있었습니다.
+                                    </p>
+                                </a>
+                                <a href="#" class="review-card">
+                                    <div class="review-card-meta">
+                                        <p class="c-rate"><span class="c-rate-star">★</span> 5.0</p>
+                                        <p class="review-author">박**</p>
+                                        <time class="review-date">2025.10.01</time>
+                                    </div>
+                                    <h4>꼼꼼한 상담과 빠른 대응으로 믿음이 갔습니다</h4>
+                                    <p class="review-card-body">
+                                        보험은 늘 어렵다고만 생각했는데, FC님이 제 상황을 자세히 들어주고 맞는 상품만 비교해 주셔서 안심할 수 있었습니다.
+                                        특히 상담 후에도 카톡으로 궁금한 점을 빠르게 답변해 주셔서 신뢰가 갔습니다.
+                                    </p>
+                                </a>
+                                <a href="#" class="review-card">
+                                    <div class="review-card-meta">
+                                        <p class="c-rate"><span class="c-rate-star">★</span> 4.9</p>
+                                        <p class="review-author">이**</p>
+                                        <time class="review-date">2025.10.01</time>
+                                    </div>
+                                    <h4>아이 보험을 제대로 준비할 수 있었어요</h4>
+                                    <p class="review-card-body">
+                                        아이 보험은 항상 고민이었는데, FC님이 자녀 전용 상품들을 비교해 주셔서 불필요한 부분은 빼고 꼭 필요한 보장만
+                                        선택할 수 있었습니다. 덕분에 보험료도 줄이고 마음도 놓였습니다.
+                                    </p>
+                                </a>
+                                <a href="#" class="review-card">
+                                    <div class="review-card-meta">
+                                        <p class="c-rate"><span class="c-rate-star">★</span> 4.9</p>
+                                        <p class="review-author">정**</p>
+                                        <time class="review-date">2025.10.01</time>
+                                    </div>
+                                    <h4>전문성이 돋보이는 상담, 부담 없는 설명</h4>
+                                    <p class="review-card-body">
+                                        과거에는 권유 위주의 상담만 받아왔는데, 이번엔 제 소득·생활 패턴을 고려해 객관적으로 설명해 주셔서 정말 신뢰가
+                                        갔습니다. 단순히 판매가 아닌 전문가의 컨설팅 같았어요.
+                                    </p>
+                                </a>
+                                <a href="#" class="review-card">
+                                    <div class="review-card-meta">
+                                        <p class="c-rate"><span class="c-rate-star">★</span> 5.0</p>
+                                        <p class="review-author">김**</p>
+                                        <time class="review-date">2025.10.01</time>
+                                    </div>
+                                    <h4>복잡한 보험 정리가 한 번에 끝났습니다</h4>
+                                    <p class="review-card-body">
+                                        그동안 여러 군데에서 가입한 보험이 생애에서 정리가 안 됐는데, FC님이 전부 검토하고 중복된 부분을 꼼꼼히 정리해
+                                        주셨습니다. 덕분에 비용도 줄고, 필요한 보장만 남길 수 있었습니다.
+                                    </p>
+                                </a>
+                            </div>
+                        </div>
+                        <div class="swiper-slide">
+                            <div>
+                                <a href="#" class="review-card">
+                                    <div class="review-card-meta">
+                                        <p class="c-rate"><span class="c-rate-star">★</span> 4.8</p>
+                                        <p class="review-author">최**</p>
+                                        <time class="review-date">2025.09.28</time>
+                                    </div>
+                                    <h4>부모님 실비 보장을 같이 잡아 주셔서 든든했습니다</h4>
+                                    <p class="review-card-body">
+                                        연세 있으신 부모님 상품은 조건이 까다로워 막막했는데, FC님이 병력과 예산에 맞는 범위에서 현실적으로 정리해
+                                        주셨습니다. 설명도 차분해서 부모님께도 이해시키기 쉬웠습니다.
+                                    </p>
+                                </a>
+                                <a href="#" class="review-card">
+                                    <div class="review-card-meta">
+                                        <p class="c-rate"><span class="c-rate-star">★</span> 5.0</p>
+                                        <p class="review-author">한**</p>
+                                        <time class="review-date">2025.09.25</time>
+                                    </div>
+                                    <h4>이직 준비하며 실업급여·실손 정리를 한 번에</h4>
+                                    <p class="review-card-body">
+                                        소득 공백이 걱정됐는데 공단 연계와 보험 중복까지 같이 봐 주셔서 불안이 많이 줄었습니다. 다음 직장 정해지면 다시 한
+                                        번 봐도 된다고 해서 부담 없이 상담받았습니다.
+                                    </p>
+                                </a>
+                                <a href="#" class="review-card">
+                                    <div class="review-card-meta">
+                                        <p class="c-rate"><span class="c-rate-star">★</span> 4.9</p>
+                                        <p class="review-author">윤**</p>
+                                        <time class="review-date">2025.09.20</time>
+                                    </div>
+                                    <h4>비교표로 보니 제가 놓치던 특약이 보였어요</h4>
+                                    <p class="review-card-body">
+                                        약관만 혼자 읽기엔 한계가 있는데, 표로 정리해 주신 덕분에 보장 범위 차이가 한눈에 들어왔습니다. 필요 없는 특약은
+                                        과감히 빼고 핵심만 남겼습니다.
+                                    </p>
+                                </a>
+                                <a href="#" class="review-card">
+                                    <div class="review-card-meta">
+                                        <p class="c-rate"><span class="c-rate-star">★</span> 4.7</p>
+                                        <p class="review-author">조**</p>
+                                        <time class="review-date">2025.09.15</time>
+                                    </div>
+                                    <h4>야근이 잦아도 상담 일정 맞춰 주셔서 감사했습니다</h4>
+                                    <p class="review-card-body">
+                                        평일 저녁이나 짧은 통화로도 진행이 가능해서 직장인에게 부담이 적었습니다. 다음 단계 진행 시에도 같은 방식으로
+                                        이어가고 싶습니다.
+                                    </p>
+                                </a>
+                                <a href="#" class="review-card">
+                                    <div class="review-card-meta">
+                                        <p class="c-rate"><span class="c-rate-star">★</span> 5.0</p>
+                                        <p class="review-author">송**</p>
+                                        <time class="review-date">2025.09.10</time>
+                                    </div>
+                                    <h4>주택담보대출과 보험료 밸런스를 같이 봐 주셨어요</h4>
+                                    <p class="review-card-body">
+                                        월 상환과 보험료가 겹쳐 총 현금 흐름이 빠듯했는데, 우선순위를 정해 단계적으로 조정할 수 있었습니다. 숫자 근거가
+                                        있어 설득력이 있었습니다.
+                                    </p>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="section fc-detail-story">
+            <header class="section-head">
+                <h2 class="section-title">영상 스토리</h2>
+            </header>
+
+            <div>
+                <img src="https://i.ytimg.com/vi/oYwT7UuUOEA/sddefault.jpg" alt="" />
+            </div>
+        </section>
+
+        <section class="section fc-detail-story fc-detail-story-images">
+            <header class="section-head">
+                <h2 class="section-title">활동 이미지</h2>
+                <div class="section-head-right">
+                    <div class="control-box">
+                        <button type="button" class="control-btn swiper-nav-prev" aria-label="이전 활동 이미지"></button>
+                        <button type="button" class="control-btn swiper-nav-next" aria-label="다음 활동 이미지"></button>
+                    </div>
+                </div>
+            </header>
+
+            <div class="swiper fc-detail-story-swiper">
+                <div class="swiper-wrapper">
+                    <div class="swiper-slide">
+                        <a href="MFC003_01_L02.html?index=0" class="fc-story-trigger" aria-label="활동 이미지 상세 보기 1">
+                            <img src="<?= SITE_IMG_URL ?>images/temp/@story01.jpg" alt="활동 이미지 1" />
+                        </a>
+                    </div>
+                    <div class="swiper-slide">
+                        <a href="MFC003_01_L02.html?index=1" class="fc-story-trigger" aria-label="활동 이미지 상세 보기 2">
+                            <img src="<?= SITE_IMG_URL ?>images/temp/@story03-portrait.jpg" alt="활동 이미지 2" />
+                        </a>
+                    </div>
+                    <div class="swiper-slide">
+                        <a href="MFC003_01_L02.html?index=2" class="fc-story-trigger" aria-label="활동 이미지 상세 보기 3">
+                            <img src="<?= SITE_IMG_URL ?>images/temp/@story01.jpg" alt="활동 이미지 3" />
+                        </a>
+                    </div>
+                    <div class="swiper-slide">
+                        <a href="MFC003_01_L02.html?index=3" class="fc-story-trigger" aria-label="활동 이미지 상세 보기 4">
+                            <img src="<?= SITE_IMG_URL ?>images/temp/@story02.jpg" alt="활동 이미지 4" />
+                        </a>
+                    </div>
+                    <div class="swiper-slide">
+                        <a href="MFC003_01_L02.html?index=4" class="fc-story-trigger" aria-label="활동 이미지 상세 보기 5">
+                            <img src="<?= SITE_IMG_URL ?>images/temp/@story01.jpg" alt="활동 이미지 5" />
+                        </a>
+                    </div>
+                    <div class="swiper-slide">
+                        <a href="MFC003_01_L02.html?index=5" class="fc-story-trigger" aria-label="활동 이미지 상세 보기 6">
+                            <img src="<?= SITE_IMG_URL ?>images/temp/@story02.jpg" alt="활동 이미지 6" />
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <aside class="detail-notice-box">
+            <h3 class="detail-notice-title">주의사항</h3>
+            <p>
+                MyFC는 보험설계사와 개인회원을 중개하는 중개플랫폼 역할을 하며, 등록된 FC 정보가 사실과 다를 경우 등에 따른 모든 법적
+                책임(민원, 분쟁, 준법 위반 등)은 전적으로 FC 본인에게 있습니다.
+            </p>
+        </aside>
+    </div>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+<script>
+    (function() {
+        'use strict';
+        if (typeof MyFC === 'undefined' || typeof Swiper === 'undefined') return;
+
+        var scope = document.querySelector('section.detail-reviews');
+        var el = scope && scope.querySelector('.detail-reviews-swiper');
+        if (el && scope) {
+            MyFC.initSwiper(el, scope, {
+                speed: 450,
+                slidesPerView: 1,
+                spaceBetween: 0,
+                allowTouchMove: false,
+                watchOverflow: true,
+                loop: true,
+            });
+        }
+
+        // 활동 이미지 캐러셀
+        var storyScope = document.querySelector('section.fc-detail-story-images');
+        var storyEl = storyScope && storyScope.querySelector('.fc-detail-story-swiper');
+        if (storyEl && storyScope) {
+            MyFC.initSwiper(storyEl, storyScope, {
+                speed: 450,
+                slidesPerView: 3,
+                spaceBetween: 8,
+                grabCursor: true,
+                watchOverflow: true,
+                breakpoints: {
+                    0: {
+                        slidesPerView: 2,
+                        spaceBetween: 6
+                    },
+                    641: {
+                        slidesPerView: 3,
+                        spaceBetween: 8
+                    },
+                },
+            });
+        }
+    })();
+</script>

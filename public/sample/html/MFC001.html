@@ -1,0 +1,1418 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>MyFC</title>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+    <link rel="stylesheet" href="../assets/css/reset.css" />
+    <link rel="stylesheet" href="../assets/css/common.css" />
+    <link rel="stylesheet" href="../assets/css/layout.css" />
+    <link rel="stylesheet" href="../assets/css/main.css" />
+  </head>
+  <body>
+    <div class="layout-wrapper main-page">
+      <!-- 헤더 · 로그인 후: .site-header.member 로 클래스만 교체 -->
+      <header class="site-header guest">
+        <div class="header-inner">
+          <div class="logo">
+            <a href="MFC001.html">
+              <img src="../assets/images/logo.png" alt="보험사 연계 서비스" class="logo-img" />
+            </a>
+          </div>
+          <nav class="gnb">
+            <ul>
+              <li>
+                <a href="MFC002.html" class="gnb-search">
+                  <img src="../assets/images/ic-search.svg" alt="" class="gnb-ico" />
+                </a>
+              </li>
+              <li class="guest">
+                <a href="MFC007.html" class="gnb-btn-line">회원가입</a>
+              </li>
+              <li class="guest">
+                <a href="MFC006_01.html" class="gnb-btn-line">로그인</a>
+              </li>
+              <li class="member">
+                <button type="button" class="gnb-avatar" data-profile-toggle aria-expanded="false" aria-label="마이페이지 메뉴 열기">
+                  <img src="../assets/images/temp/@profile-m.png" alt="" class="gnb-avatar-img" />
+                </button>
+              </li>
+            </ul>
+          </nav>
+          <div class="profile-menu" data-profile-menu>
+            <div class="profile-menu-summary">
+              <strong>김노아</strong>
+              <p>username@gmail.com</p>
+            </div>
+            <ul>
+              <li><a href="MFC004_L01_01.html">내 정보</a></li>
+              <li><a href="MFC004_L01_02.html">내 증권 관리</a></li>
+              <li><a href="MFC004_L01_03.html">내 관심 FC</a></li>
+              <li><a href="MFC004_L01_04.html">상담현황</a></li>
+              <li><a href="MFC004_L01_05.html">나의 후기</a></li>
+            </ul>
+            <a href="MFC004_L01_06.html" class="profile-menu-logout">로그아웃</a>
+          </div>
+        </div>
+      </header>
+
+      <aside class="profile-menu-drawer" data-profile-drawer>
+        <button type="button" class="profile-menu-drawer-close" data-profile-close aria-label="닫기"></button>
+        <div class="profile-menu-summary">
+          <strong>김노아</strong>
+          <p>username@gmail.com</p>
+        </div>
+        <ul>
+          <li><a href="MFC004_L01_01.html">내 정보</a></li>
+          <li><a href="MFC004_L01_02.html">내 증권 관리</a></li>
+          <li><a href="MFC004_L01_03.html">내 관심 FC</a></li>
+          <li><a href="MFC004_L01_04.html">상담현황</a></li>
+          <li><a href="MFC004_L01_05.html">나의 후기</a></li>
+        </ul>
+        <a href="MFC004_L01_06.html" class="profile-menu-logout">로그아웃</a>
+      </aside>
+
+      <!-- 히어로 -->
+      <section class="hero">
+        <!-- 배경 비디오: main-visual.mp4로 대체 -->
+        <video class="hero-video" autoplay muted loop playsinline preload="metadata" poster="../assets/images/main-visual.jpg">
+          <source src="../assets/images/main-visual.mp4" type="video/mp4" />
+        </video>
+        <div class="hero-inner">
+          <div class="hero-head">
+            <h1 class="hero-title">검증된 보험설계사만 있는 곳 MyFC</h1>
+            <p class="hero-eyebrow">
+              경험과 이력이 검증된 신뢰할 수 있는 <br class="br-mo" />보험설계사와 만나보세요. <br />
+              MyFC에서 경험 많은 전문가 정보를<br class="br-mo" />
+              투명하게 제공해드립니다.
+            </p>
+          </div>
+          <div class="hero-align">
+            <div class="hero-content">
+              <p class="hero-desc">검증된 보험설계사를 빠르게 찾아보고, 안전하게 시작해보세요.</p>
+            </div>
+            <div class="hero-cta">
+              <a href="#" class="btn btn-myfc">나의 FC 보기</a>
+              <a href="#" class="btn btn-fc-list">FC 리스트 보기</a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 메인 -->
+      <main>
+        <div class="page-inner">
+          <!-- 추천 FC -->
+          <section class="section recommend-section">
+            <div class="section-head">
+              <h3 class="section-title">MyFC가 엄선한 보험설계사 추천 <span class="ad-mark" aria-hidden="true">AD</span></h3>
+              <div class="section-head-right">
+                <a href="#" class="section-more">전체보기</a>
+                <div class="control-box">
+                  <button type="button" class="control-btn swiper-nav-prev" aria-label="이전"></button>
+                  <button type="button" class="control-btn swiper-nav-next" aria-label="다음"></button>
+                </div>
+              </div>
+            </div>
+            <div class="chip-scroll">
+              <div class="chip-row" data-toggle-group="filter-location">
+                <button type="button" class="filter-btn is-active" data-toggle-item>전체</button>
+                <button type="button" class="filter-btn" data-toggle-item>서울</button>
+                <button type="button" class="filter-btn" data-toggle-item>경기</button>
+                <button type="button" class="filter-btn" data-toggle-item>인천/부천</button>
+                <button type="button" class="filter-btn" data-toggle-item>부산/울산/경남</button>
+                <button type="button" class="filter-btn" data-toggle-item>대구/경북</button>
+                <button type="button" class="filter-btn" data-toggle-item>대전/세종/충남</button>
+                <button type="button" class="filter-btn" data-toggle-item>청주/충북</button>
+                <button type="button" class="filter-btn" data-toggle-item>광주/전남</button>
+                <button type="button" class="filter-btn" data-toggle-item>전주/전북</button>
+                <button type="button" class="filter-btn" data-toggle-item>춘천/강원</button>
+                <button type="button" class="filter-btn" data-toggle-item>제주</button>
+              </div>
+            </div>
+
+            <div id="fcSwiper" class="swiper recommend-list">
+              <div class="swiper-wrapper">
+                <div class="swiper-slide">
+                  <article class="card">
+                    <div class="card-body">
+                      <a class="card-link" href="#">
+                        <div class="profile">
+                          <img src="../assets/images/temp/@profile-m.png" alt="" class="avatar" />
+                          <div>
+                            <p class="profile-name">이준호</p>
+                            <p class="c-rate">
+                              <span class="c-rate-star">★</span> 4.9
+                              <span class="c-rate-count">(1,402)</span>
+                            </p>
+                            <p class="c-dot-line">
+                              <span>메리츠화재</span><span class="location"><span>서울</span></span>
+                            </p>
+                            <div class="list-tags">
+                              <span>생명보험</span>
+                              <span>암보험</span>
+                              <span>태아보험</span>
+                              <span>종신보험</span>
+                              <span>치아보험</span>
+                              <span>사업자보험</span>
+                            </div>
+                          </div>
+                        </div>
+                      </a>
+                    </div>
+                  </article>
+                </div>
+                <div class="swiper-slide">
+                  <article class="card">
+                    <div class="card-body">
+                      <a class="card-link" href="#">
+                        <div class="profile">
+                          <img src="../assets/images/temp/@profile-w.png" alt="" class="avatar" />
+                          <div>
+                            <p class="profile-name">김민재</p>
+                            <p class="c-rate">
+                              <span class="c-rate-star">★</span> 4.8
+                              <span class="c-rate-count">(892)</span>
+                            </p>
+                            <p class="c-dot-line">
+                              <span>메리츠화재</span><span class="location"><span>서울</span></span>
+                            </p>
+                            <div class="list-tags">
+                              <span>생명보험</span>
+                              <span>태아보험</span>
+                              <span>어린이보험</span>
+                            </div>
+                          </div>
+                        </div>
+                      </a>
+                    </div>
+                  </article>
+                </div>
+                <div class="swiper-slide">
+                  <article class="card">
+                    <div class="card-body">
+                      <a class="card-link" href="#">
+                        <div class="profile">
+                          <img src="../assets/images/temp/@profile-m.png" alt="" class="avatar" />
+                          <div>
+                            <p class="profile-name">박서연</p>
+                            <p class="c-rate">
+                              <span class="c-rate-star">★</span> 4.9
+                              <span class="c-rate-count">(2,341)</span>
+                            </p>
+                            <p class="c-dot-line">
+                              <span>메리츠화재</span><span class="location"><span>서울</span></span>
+                            </p>
+                            <div class="list-tags">
+                              <span>생명보험</span>
+                              <span>태아보험</span>
+                            </div>
+                          </div>
+                        </div>
+                      </a>
+                    </div>
+                  </article>
+                </div>
+                <div class="swiper-slide">
+                  <article class="card">
+                    <div class="card-body">
+                      <a class="card-link" href="#">
+                        <div class="profile">
+                          <img src="../assets/images/temp/@profile-w.png" alt="" class="avatar" />
+                          <div>
+                            <p class="profile-name">최유진</p>
+                            <p class="c-rate">
+                              <span class="c-rate-star">★</span> 4.7
+                              <span class="c-rate-count">(567)</span>
+                            </p>
+                            <p class="c-dot-line">
+                              <span>메리츠화재</span><span class="location"><span>서울</span></span>
+                            </p>
+                            <div class="list-tags">
+                              <span>생명보험</span>
+                              <span>암보험</span>
+                              <span>태아보험</span>
+                              <span>종신보험</span>
+                              <span>치아보험</span>
+                              <span>사업자보험</span>
+                            </div>
+                          </div>
+                        </div>
+                      </a>
+                    </div>
+                  </article>
+                </div>
+                <div class="swiper-slide">
+                  <article class="card">
+                    <div class="card-body">
+                      <a class="card-link" href="#">
+                        <div class="profile">
+                          <img src="../assets/images/temp/@profile-w.png" alt="" class="avatar" />
+                          <div>
+                            <p class="profile-name">문하늘</p>
+                            <p class="c-rate">
+                              <span class="c-rate-star">★</span> 4.8
+                              <span class="c-rate-count">(3,120)</span>
+                            </p>
+                            <p class="c-dot-line">
+                              <span>메리츠화재</span><span class="location"><span>서울</span></span>
+                            </p>
+                            <div class="list-tags">
+                              <span>생명보험</span>
+                              <span>태아보험</span>
+                              <span>어린이보험</span>
+                            </div>
+                          </div>
+                        </div>
+                      </a>
+                    </div>
+                  </article>
+                </div>
+                <div class="swiper-slide">
+                  <article class="card">
+                    <div class="card-body">
+                      <a class="card-link" href="#">
+                        <div class="profile">
+                          <img src="../assets/images/temp/@profile-w.png" alt="" class="avatar" />
+                          <div>
+                            <p class="profile-name">임채원</p>
+                            <p class="c-rate">
+                              <span class="c-rate-star">★</span> 4.7
+                              <span class="c-rate-count">(412)</span>
+                            </p>
+                            <p class="c-dot-line">
+                              <span>메리츠화재</span><span class="location"><span>서울</span></span>
+                            </p>
+                            <div class="list-tags">
+                              <span>생명보험</span>
+                              <span>태아보험</span>
+                              <span>어린이보험</span>
+                            </div>
+                          </div>
+                        </div>
+                      </a>
+                    </div>
+                  </article>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- 상황별 프로모션 배너 -->
+          <section class="section">
+            <div class="situation-banner">
+              <div class="situation-banner-top">
+                <span class="ad-mark" aria-hidden="true">AD</span>
+                <div class="control-box situation-banner-controls">
+                  <button type="button" class="control-btn swiper-nav-prev" aria-label="이전"></button>
+                  <button type="button" class="control-btn swiper-nav-next" aria-label="다음"></button>
+                </div>
+              </div>
+              <div id="sitAdSwiper" class="swiper situation-banner-list">
+                <div class="swiper-wrapper">
+                  <div class="swiper-slide">
+                    <a href="#" class="situation-banner-slide">
+                      <!-- 이미지로 치환예정-->
+                      <div class="situation-banner-card">
+                        <p class="situation-banner-title">광고 배너</p>
+                        <p class="situation-banner-desc">배너 이미지 연결 예정</p>
+                      </div>
+                    </a>
+                  </div>
+                  <div class="swiper-slide">
+                    <a href="#" class="situation-banner-slide">
+                      <!-- 이미지로 치환예정-->
+                      <div class="situation-banner-card">
+                        <p class="situation-banner-title">광고 배너</p>
+                        <p class="situation-banner-desc">배너 이미지 연결 예정</p>
+                      </div>
+                    </a>
+                  </div>
+                  <div class="swiper-slide">
+                    <a href="#" class="situation-banner-slide">
+                      <!-- 이미지로 치환예정-->
+                      <div class="situation-banner-card">
+                        <p class="situation-banner-title">광고 배너</p>
+                        <p class="situation-banner-desc">배너 이미지 연결 예정</p>
+                      </div>
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- 상황별 추천 · 2열 -->
+          <section class="section">
+            <div class="situation-list">
+              <div class="section-head">
+                <h3 class="section-title">내 상황에 맞는 보험설계사 추천 <span class="ad-mark" aria-hidden="true">AD</span></h3>
+                <div class="section-head-right">
+                  <a href="#" class="section-more">전체보기</a>
+                  <div class="control-box">
+                    <button type="button" class="control-btn swiper-nav-prev" aria-label="이전"></button>
+                    <button type="button" class="control-btn swiper-nav-next" aria-label="다음"></button>
+                  </div>
+                </div>
+              </div>
+              <div class="chip-scroll">
+                <div class="chip-row" data-toggle-group="filter-insurance-situation">
+                  <button type="button" class="filter-btn is-active" data-toggle-item>전체</button>
+                  <button type="button" class="filter-btn" data-toggle-item>종신보험</button>
+                  <button type="button" class="filter-btn" data-toggle-item>암보험</button>
+                  <button type="button" class="filter-btn" data-toggle-item>뇌심장보험</button>
+                  <button type="button" class="filter-btn" data-toggle-item>실비보험</button>
+                  <button type="button" class="filter-btn" data-toggle-item>자녀/태아보험</button>
+                  <button type="button" class="filter-btn" data-toggle-item>치매/간병보험</button>
+                  <button type="button" class="filter-btn" data-toggle-item>치아보험</button>
+                  <button type="button" class="filter-btn" data-toggle-item>연금/변액보험</button>
+                  <button type="button" class="filter-btn" data-toggle-item>사업자보험</button>
+                  <button type="button" class="filter-btn" data-toggle-item>운전자보험</button>
+                  <button type="button" class="filter-btn" data-toggle-item>자동차보험</button>
+                  <button type="button" class="filter-btn" data-toggle-item>화재보험</button>
+                </div>
+              </div>
+
+              <div id="sitListSwiper" class="swiper situation-list-carousel">
+                <div class="swiper-wrapper">
+                  <div class="swiper-slide list-grid">
+                    <a href="#" class="list-item">
+                      <div class="list-left">
+                        <img src="../assets/images/temp/@profile-m.png" alt="" class="list-avatar" />
+                        <div class="list-text">
+                          <p class="list-title">장현석</p>
+                          <p class="c-rate"><span class="c-rate-star">★</span> 5.0 <span class="c-rate-count">(1,234)</span></p>
+                          <p class="c-dot-line">
+                            <span>메리츠화재</span><span class="location"><span>서울</span></span>
+                          </p>
+                          <p class="list-desc">어려운 보험도 친구처럼 쉽게 설명해드립니다 어려운 보험도 친구처럼 쉽게 설명해드립니다</p>
+                        </div>
+                      </div>
+                    </a>
+                    <a href="#" class="list-item">
+                      <div class="list-left">
+                        <img src="../assets/images/temp/@profile-w.png" alt="" class="list-avatar" />
+                        <div class="list-text">
+                          <p class="list-title">한지윤</p>
+                          <p class="c-rate"><span class="c-rate-star">★</span> 5.0 <span class="c-rate-count">(2,018)</span></p>
+                          <p class="c-dot-line">
+                            <span>현대해상</span><span class="location"><span>서울, 경기, 인천</span></span>
+                          </p>
+                          <p class="list-desc">신규 고객 맞춤 설계로 빠르게 도와드립니다</p>
+                        </div>
+                      </div>
+                    </a>
+
+                    <a href="#" class="list-item">
+                      <div class="list-left">
+                        <img src="../assets/images/temp/@profile-w.png" alt="" class="list-avatar" />
+                        <div class="list-text">
+                          <p class="list-title">박정은</p>
+                          <p class="c-rate"><span class="c-rate-star">★</span> 5.0 <span class="c-rate-count">(876)</span></p>
+                          <p class="c-dot-line">
+                            <span>메리츠화재</span><span class="location"><span>인천/경기</span></span>
+                          </p>
+                          <p class="list-desc">보장 점검 리마인드로 안심 상담을 제공합니다</p>
+                        </div>
+                      </div>
+                    </a>
+
+                    <a href="#" class="list-item">
+                      <div class="list-left">
+                        <img src="../assets/images/temp/@profile-w.png" alt="" class="list-avatar" />
+                        <div class="list-text">
+                          <p class="list-title">한지윤</p>
+                          <p class="c-rate"><span class="c-rate-star">★</span> 5.0 <span class="c-rate-count">(2,018)</span></p>
+                          <p class="c-dot-line">
+                            <span>현대해상</span><span class="location"><span>서울, 경기, 인천</span></span>
+                          </p>
+                          <p class="list-desc">연금과 보장 분석으로 맞춤 플랜 제안</p>
+                        </div>
+                      </div>
+                    </a>
+
+                    <a href="#" class="list-item">
+                      <div class="list-left">
+                        <img src="../assets/images/temp/@profile-m.png" alt="" class="list-avatar" />
+                        <div class="list-text">
+                          <p class="list-title">이호준</p>
+                          <p class="c-rate"><span class="c-rate-star">★</span> 5.0 <span class="c-rate-count">(1,456)</span></p>
+                          <p class="c-dot-line">
+                            <span>교보생명</span><span class="location"><span>인천</span></span>
+                          </p>
+                          <p class="list-desc">가족 단위 보장 리밸런싱 전문입니다</p>
+                        </div>
+                      </div>
+                    </a>
+
+                    <a href="#" class="list-item">
+                      <div class="list-left">
+                        <img src="../assets/images/temp/@profile-m.png" alt="" class="list-avatar" />
+                        <div class="list-text">
+                          <p class="list-title">최성윤</p>
+                          <p class="c-rate"><span class="c-rate-star">★</span> 5.0 <span class="c-rate-count">(3,421)</span></p>
+                          <p class="c-dot-line">
+                            <span>메리츠화재</span><span class="location"><span>서울, 경기, 인천</span></span>
+                          </p>
+                          <p class="list-desc">법인과 개인 모두를 위한 맞춤 상품 제안</p>
+                        </div>
+                      </div>
+                    </a>
+                  </div>
+                  <div class="swiper-slide list-grid">
+                    <a href="#" class="list-item">
+                      <div class="list-left">
+                        <img src="../assets/images/temp/@profile-w.png" alt="" class="list-avatar" />
+                        <div class="list-text">
+                          <p class="list-title">김나연</p>
+                          <p class="c-rate"><span class="c-rate-star">★</span> 4.9 <span class="c-rate-count">(1,089)</span></p>
+                          <p class="c-dot-line">
+                            <span>삼성화재</span><span class="location"><span>부산</span></span>
+                          </p>
+                          <p class="list-desc">보장 분석·맞춤 설계 전문</p>
+                        </div>
+                      </div>
+                    </a>
+                    <a href="#" class="list-item">
+                      <div class="list-left">
+                        <img src="../assets/images/temp/@profile-m.png" alt="" class="list-avatar" />
+                        <div class="list-text">
+                          <p class="list-title">오민수</p>
+                          <p class="c-rate"><span class="c-rate-star">★</span> 4.8 <span class="c-rate-count">(734)</span></p>
+                          <p class="c-dot-line">
+                            <span>DB손보</span><span class="location"><span>대전, 세종</span></span>
+                          </p>
+                          <p class="list-desc">가족 단위 보장 설계, 친절 상담을 약속합니다</p>
+                        </div>
+                      </div>
+                    </a>
+                    <a href="#" class="list-item">
+                      <div class="list-left">
+                        <img src="../assets/images/temp/@profile-w.png" alt="" class="list-avatar" />
+                        <div class="list-text">
+                          <p class="list-title">윤서진</p>
+                          <p class="c-rate"><span class="c-rate-star">★</span> 5.0 <span class="c-rate-count">(1,902)</span></p>
+                          <p class="c-dot-line">
+                            <span>한화손보</span><span class="location"><span>광주, 전남</span></span>
+                          </p>
+                          <p class="list-desc">운전자·상해 보장 전문 상담</p>
+                        </div>
+                      </div>
+                    </a>
+                    <a href="#" class="list-item">
+                      <div class="list-left">
+                        <img src="../assets/images/temp/@profile-m.png" alt="" class="list-avatar" />
+                        <div class="list-text">
+                          <p class="list-title">정우빈</p>
+                          <p class="c-rate"><span class="c-rate-star">★</span> 4.9 <span class="c-rate-count">(1,267)</span></p>
+                          <p class="c-dot-line">
+                            <span>현대해상</span><span class="location"><span>대구</span></span>
+                          </p>
+                          <p class="list-desc">사업자 보장과 법인 컨설팅 전문</p>
+                        </div>
+                      </div>
+                    </a>
+                    <a href="#" class="list-item">
+                      <div class="list-left">
+                        <img src="../assets/images/temp/@profile-w.png" alt="" class="list-avatar" />
+                        <div class="list-text">
+                          <p class="list-title">서하람</p>
+                          <p class="c-rate"><span class="c-rate-star">★</span> 4.8 <span class="c-rate-count">(612)</span></p>
+                          <p class="c-dot-line">
+                            <span>KB손보</span><span class="location"><span>제주</span></span>
+                          </p>
+                          <p class="list-desc">태아·자녀 보험 설계 전문</p>
+                        </div>
+                      </div>
+                    </a>
+                    <a href="#" class="list-item">
+                      <div class="list-left">
+                        <img src="../assets/images/temp/@profile-m.png" alt="" class="list-avatar" />
+                        <div class="list-text">
+                          <p class="list-title">배준혁</p>
+                          <p class="c-rate"><span class="c-rate-star">★</span> 5.0 <span class="c-rate-count">(2,834)</span></p>
+                          <p class="c-dot-line">
+                            <span>메리츠화재</span><span class="location"><span>춘천, 강원</span></span>
+                          </p>
+                          <p class="list-desc">치매·간병 플랜 전문 상담</p>
+                        </div>
+                      </div>
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- 고객 후기 -->
+          <section class="section review-bleed">
+            <div class="review-inner">
+              <header>
+                <div class="review-head-top">
+                  <span class="review-head-spacer"></span>
+                  <h3 class="section-title">믿고 선택한 고객들의 생생한 후기 <span class="ad-mark" aria-hidden="true">AD</span></h3>
+                  <div class="section-head-right">
+                    <a href="#" class="section-more">전체보기</a>
+                    <div class="control-box">
+                      <button type="button" class="control-btn swiper-nav-prev" aria-label="이전"></button>
+                      <button type="button" class="control-btn swiper-nav-next" aria-label="다음"></button>
+                    </div>
+                  </div>
+                </div>
+                <p class="review-sub-title">MyFC를 통해 상담한 고객님들이 직접 남긴 <br class="br-mo" />신뢰의 이야기 입니다.</p>
+              </header>
+
+              <div id="reviewSwiper" class="swiper review-swiper">
+                <div class="swiper-wrapper review-track">
+                  <div class="swiper-slide">
+                    <a href="#" class="review-card">
+                      <p class="review-author">김**</p>
+                      <div class="review-card-meta">
+                        <p class="c-rate"><span class="c-rate-star">★</span> 4.9</p>
+                        <time class="review-date">2025.03.10</time>
+                      </div>
+                      <h4>설명이 짧고 알아듣기 쉬웠어요, 복잡한 비교표도 한눈에 정리해 주셨습니다</h4>
+                      <p class="review-card-body">
+                        첫 상담이라 용어도 낯설고 걱정이 많았는데, 필요한 보장만 짚어 주시고 과한 가입은 피할 수 있게 도와주셨어요. 제
+                        예산에 맞춰 선택지를 나눠 주셔서 결정이 훨씬 수월했고, 이후에도 궁금한 점 채팅으로 물어보면 빠르게 답 주셔서 안심이
+                        됐습니다.
+                      </p>
+                    </a>
+                  </div>
+                  <div class="swiper-slide">
+                    <a href="#" class="review-card">
+                      <p class="review-author">이**</p>
+                      <div class="review-card-meta">
+                        <p class="c-rate"><span class="c-rate-star">★</span> 5.0</p>
+                        <time class="review-date">2025.03.08</time>
+                      </div>
+                      <h4>부모님 보장이랑 제 실손을 한 번에 점검해 주신 맞춤형 설계가 인상 깊었어요</h4>
+                      <p class="review-card-body">
+                        부모님 연세와 제 직장 실손을 동시에 봐 주시면서, 중복 보장은 줄이고 빈틈은 메우는 식으로 설계해 주셨습니다. 서류
+                        준비 체크리스트도 보내 주셔서 병원·제증명 챙기는 데 시간을 많이 줄였어요. 가족 상담이라 부담이 컸는데 차분히 질문도
+                        받아 주셔서 감사했습니다.
+                      </p>
+                    </a>
+                  </div>
+                  <div class="swiper-slide">
+                    <a href="#" class="review-card">
+                      <p class="review-author">박**</p>
+                      <div class="review-card-meta">
+                        <p class="c-rate"><span class="c-rate-star">★</span> 4.8</p>
+                        <time class="review-date">2025.03.05</time>
+                      </div>
+                      <h4>가입 후 변경·문의도 수월했어요</h4>
+                      <p class="review-card-body">
+                        가입 후에도 배우자 정보 변경이랑 자녀 특약 추가를 문의했는데, 필요 서류랑 처리 순서를 미리 안내해 주셔서 방문 한
+                        번에 끝냈어요. 콜센터만 돌리던 예전과 달리 담당 분께 바로 연결되는 느낌이라 답변도 빨랐고, 청구 절차도 단계별로
+                        정리해 주셔서 혼자 찾아보는 시간이 확 줄었습니다.
+                      </p>
+                    </a>
+                  </div>
+                  <div class="swiper-slide">
+                    <a href="#" class="review-card">
+                      <p class="review-author">최**</p>
+                      <div class="review-card-meta">
+                        <p class="c-rate"><span class="c-rate-star">★</span> 5.0</p>
+                        <time class="review-date">2025.02.28</time>
+                      </div>
+                      <h4>약관을 사례로 풀어줘서 이해가 됐어요</h4>
+                      <p class="review-card-body">
+                        면책·감액 같은 표현이 어려웠는데 실제 사례랑 비교표로 설명해 주셔서 왜 그 조항이 필요한지 납득이 됐어요. 제가 놓치기
+                        쉬운 특약 조건도 짚어 주셔서 나중에 분쟁 날 포인트를 미리 알게 됐습니다. 상담 시간이 길어질까 봐 걱정했는데 핵심만
+                        짚어 주셔서 부담 없었어요.
+                      </p>
+                    </a>
+                  </div>
+                  <div class="swiper-slide">
+                    <a href="#" class="review-card">
+                      <p class="review-author">정**</p>
+                      <div class="review-card-meta">
+                        <p class="c-rate"><span class="c-rate-star">★</span> 4.7</p>
+                        <time class="review-date">2025.02.20</time>
+                      </div>
+                      <h4>필요한 것만 골라서 추천받았어요</h4>
+                      <p class="review-card-body">
+                        여러 상품을 나열하지 않고 제 나이·소득·가족 구성에 맞춰 우선순위부터 잡아 주셨어요. 설명이 길지 않고 슬라이드 몇
+                        장으로 정리돼 있어서 회의 중에도 훑어보기 좋았습니다. 일정 조율도 캘린더 링크로 잡아 주셔서 야근 많은 저한테 딱
+                        맞았어요.
+                      </p>
+                    </a>
+                  </div>
+                  <div class="swiper-slide">
+                    <a href="#" class="review-card">
+                      <p class="review-author">한**</p>
+                      <div class="review-card-meta">
+                        <p class="c-rate"><span class="c-rate-star">★</span> 4.9</p>
+                        <time class="review-date">2025.02.15</time>
+                      </div>
+                      <h4>짧은 상담으로도 방향이 잡혔어요</h4>
+                      <p class="review-card-body">
+                        점심시간 한정으로 20분만 가능했는데도 핵심 질문만 던져 주시고 다음 액션 아이템까지 정리해 주셨어요. 이후 메일로
+                        요약본 보내 주셔서 팀원이랑 공유하기도 편했습니다. 바쁜 일정이라 긴 상담은 부담이었는데 부담 없이 방향만 잡고 나올
+                        수 있었어요.
+                      </p>
+                    </a>
+                  </div>
+                  <div class="swiper-slide">
+                    <a href="#" class="review-card">
+                      <p class="review-author">윤**</p>
+                      <div class="review-card-meta">
+                        <p class="c-rate"><span class="c-rate-star">★</span> 5.0</p>
+                        <time class="review-date">2025.02.10</time>
+                      </div>
+                      <h4>갱신·청구 안내가 미리 와서 도움 됐어요</h4>
+                      <p class="review-card-body">
+                        갱신 시기랑 보험료 변동 알림을 미리 보내 주셔서 갑자기 통장에서 빠져나가는 느낌이 줄었어요. 실손 청구할 때 필요한
+                        서류 목록도 체크리스트로 와서 병원 다닐 때마다 사진만 찍어 두면 됐습니다. 혼자 검색하며 헤매던 시간이 확 줄었고,
+                        덕분에 마음이 한결 가벼웠어요.
+                      </p>
+                    </a>
+                  </div>
+                  <div class="swiper-slide">
+                    <a href="#" class="review-card">
+                      <p class="review-author">강**</p>
+                      <div class="review-card-meta">
+                        <p class="c-rate"><span class="c-rate-star">★</span> 4.8</p>
+                        <time class="review-date">2025.02.07</time>
+                      </div>
+                      <h4>보장 구조를 도식으로 보여줘서 한눈에 들어왔어요</h4>
+                      <p class="review-card-body">
+                        제가 고민하던 특약 묶음을 한 장 도식으로 정리해 주셔서, 어디가 기본·어디가 선택인지 바로 구분됐어요. 기존 증권이랑
+                        겹치는 부분도 표시해 주셔서 중복만 줄이고 필요한 보강만 하면 된다는 게 확실해졌습니다.
+                      </p>
+                    </a>
+                  </div>
+                  <div class="swiper-slide">
+                    <a href="#" class="review-card">
+                      <p class="review-author">조**</p>
+                      <div class="review-card-meta">
+                        <p class="c-rate"><span class="c-rate-star">★</span> 4.9</p>
+                        <time class="review-date">2025.02.04</time>
+                      </div>
+                      <h4>비급여·실손 조합이 헷갈렸는데 표로 정리해 주셨어요</h4>
+                      <p class="review-card-body">
+                        병원마다 다른 비급여 항목을 실손이 어디까지 덮는지 한 표로 보여 주셔서, 영수증 붙일 때 헷갈리던 부분이 줄었어요.
+                        청구 전에 체크할 질문 리스트도 보내 주셔서 한 번에 접수됐습니다.
+                      </p>
+                    </a>
+                  </div>
+                  <div class="swiper-slide">
+                    <a href="#" class="review-card">
+                      <p class="review-author">오**</p>
+                      <div class="review-card-meta">
+                        <p class="c-rate"><span class="c-rate-star">★</span> 5.0</p>
+                        <time class="review-date">2025.02.03</time>
+                      </div>
+                      <h4>가족 보험을 한 번에 보고 우선순위만 남겼어요</h4>
+                      <p class="review-card-body">
+                        배우자·자녀 증권을 한 화면에 올려 주시고 중복 보장부터 줄였습니다. 남길 특약만 표시해 주셔서 갱신 때 부담도 예측하기
+                        쉬웠어요.
+                      </p>
+                    </a>
+                  </div>
+                  <div class="swiper-slide">
+                    <a href="#" class="review-card">
+                      <p class="review-author">신**</p>
+                      <div class="review-card-meta">
+                        <p class="c-rate"><span class="c-rate-star">★</span> 4.7</p>
+                        <time class="review-date">2025.02.02</time>
+                      </div>
+                      <h4>화상으로 봐도 자료 공유가 매끄러웠어요</h4>
+                      <p class="review-card-body">
+                        재택이라 방문이 어려웠는데 화면 공유로 약관 핵심만 짚어 주셨습니다. 녹화 없이 진행 원칙도 미리 말씀해 주셔서
+                        안심하고 들었어요.
+                      </p>
+                    </a>
+                  </div>
+                  <div class="swiper-slide">
+                    <a href="#" class="review-card">
+                      <p class="review-author">유**</p>
+                      <div class="review-card-meta">
+                        <p class="c-rate"><span class="c-rate-star">★</span> 4.8</p>
+                        <time class="review-date">2025.02.01</time>
+                      </div>
+                      <h4>설계사 바뀐 뒤에도 이어서 봐 주셔서 편했어요</h4>
+                      <p class="review-card-body">
+                        이전 상담 요약이 정리돼 있어 새로 설명부터 다시 할 필요가 없었습니다. 변경된 특약만 비교해 주셔서 시간이 절약됐어요.
+                      </p>
+                    </a>
+                  </div>
+                  <div class="swiper-slide">
+                    <a href="#" class="review-card">
+                      <p class="review-author">남**</p>
+                      <div class="review-card-meta">
+                        <p class="c-rate"><span class="c-rate-star">★</span> 4.9</p>
+                        <time class="review-date">2025.01.30</time>
+                      </div>
+                      <h4>보험료는 줄이고 필수 보장은 유지하는 쪽으로 잡아 주셨어요</h4>
+                      <p class="review-card-body">
+                        납입 부담이 커서 구조만 바꿔도 되는지 여쭤봤는데, 감액 없이 조정 가능한 옵션을 두 가지로 나눠 주셨어요. 숫자 근거도
+                        같이 보내 주셔서 설득이 됐습니다.
+                      </p>
+                    </a>
+                  </div>
+                  <div class="swiper-slide">
+                    <a href="#" class="review-card">
+                      <p class="review-author">배**</p>
+                      <div class="review-card-meta">
+                        <p class="c-rate"><span class="c-rate-star">★</span> 5.0</p>
+                        <time class="review-date">2025.01.28</time>
+                      </div>
+                      <h4>청구 서류 제출 순서를 단계별로 안내해 주셨어요</h4>
+                      <p class="review-card-body">
+                        병원·약국 영수증을 어떤 순서로 올리면 빠른지 알려 주셔서 반려 없이 끝났습니다. 진행 상태도 메시지로 알려 주셔서
+                        기다리는 동안 불안하지 않았어요.
+                      </p>
+                    </a>
+                  </div>
+                  <div class="swiper-slide">
+                    <a href="#" class="review-card">
+                      <p class="review-author">홍**</p>
+                      <div class="review-card-meta">
+                        <p class="c-rate"><span class="c-rate-star">★</span> 4.8</p>
+                        <time class="review-date">2025.01.26</time>
+                      </div>
+                      <h4>건강검진 결과 나온 뒤 상담 일정까지 잡아 주셨어요</h4>
+                      <p class="review-card-body">
+                        수치만 가지고 가도 어떤 문항이 중요한지 짚어 주셨고, 추가 검사 전에 가입 가능 여부도 미리 알려 주셨습니다. 불필요한
+                        대기 시간이 줄었어요.
+                      </p>
+                    </a>
+                  </div>
+                  <div class="swiper-slide">
+                    <a href="#" class="review-card">
+                      <p class="review-author">노**</p>
+                      <div class="review-card-meta">
+                        <p class="c-rate"><span class="c-rate-star">★</span> 4.9</p>
+                        <time class="review-date">2025.01.24</time>
+                      </div>
+                      <h4>은퇴 시기 기준으로 현금 흐름까지 같이 봐 주셨어요</h4>
+                      <p class="review-card-body">
+                        연금·저축과 보장을 한 타임라인에 올려 설명해 주셔서, 언제부터 납입을 줄일지 그림이 잡혔습니다. 숫자만 나열하지 않고
+                        선택지별 장단점을 짧게 정리해 주셨어요.
+                      </p>
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- 최근 등록된 보험IN -->
+          <section class="section insurance-in-section">
+            <div class="section-head">
+              <h3 class="section-title">최근 등록된 보험IN</h3>
+              <div class="section-head-right">
+                <a href="#" class="section-more insurance-in-more-desktop">전체보기</a>
+                <div class="control-box">
+                  <button type="button" class="control-btn swiper-nav-prev" aria-label="이전"></button>
+                  <button type="button" class="control-btn swiper-nav-next" aria-label="다음"></button>
+                </div>
+              </div>
+            </div>
+
+            <div id="insuranceInSwiper" class="swiper insurance-in-swiper">
+              <div class="swiper-wrapper">
+                <div class="swiper-slide">
+                  <div class="swiper-page-grid">
+                    <a href="#" class="insurance-in-card">
+                      <h4>실손 청구, 서류 이렇게만 챙기면 끝</h4>
+                      <p>영수증·세부내역서를 한 번에 묶어 제출하는 순서와 자주 빠지는 기재 항목을 짚어 드립니다.</p>
+                      <div class="insurance-in-foot">
+                        <div class="insurance-in-meta">
+                          <span>실손·건강</span>
+                          <span>2025.03.12</span>
+                        </div>
+                        <p class="insurance-in-author">답변 홍길동 FC 외 <span>12건 등록</span></p>
+                      </div>
+                    </a>
+                    <a href="#" class="insurance-in-card">
+                      <h4>운전자보험, 비교할 때 꼭 보는 3가지</h4>
+                      <p>대인·대물 한도와 자상법 개편 이후 달라진 보장 범위를 예시로 정리했습니다.</p>
+                      <div class="insurance-in-foot">
+                        <div class="insurance-in-meta">
+                          <span>자동차</span>
+                          <span>2025.03.11</span>
+                        </div>
+                        <p class="insurance-in-author">답변 홍길동 FC 외 <span>12건 등록</span></p>
+                      </div>
+                    </a>
+                    <a href="#" class="insurance-in-card">
+                      <h4>암 보험 갱신 전에 체크할 질문 리스트</h4>
+                      <p>갱신형·비갱신형 전환 시점과 특약 유지 여부를 스스로 점검할 수 있는 체크리스트입니다.</p>
+                      <div class="insurance-in-foot">
+                        <div class="insurance-in-meta">
+                          <span>건강·암</span>
+                          <span>2025.03.09</span>
+                        </div>
+                        <p class="insurance-in-author">답변 홍길동 FC 외 <span>12건 등록</span></p>
+                      </div>
+                    </a>
+                    <a href="#" class="insurance-in-card">
+                      <h4>태아·어린이 보험, 가입 시기 가이드</h4>
+                      <p>임신 주차별 준비 서류와 출생 후 특약 추가 우선순위를 한눈에 정리했습니다.</p>
+                      <div class="insurance-in-foot">
+                        <div class="insurance-in-meta">
+                          <span>태아·어린이</span>
+                          <span>2025.03.08</span>
+                        </div>
+                        <p class="insurance-in-author">답변 홍길동 FC 외 <span>12건 등록</span></p>
+                      </div>
+                    </a>
+                  </div>
+                </div>
+                <div class="swiper-slide">
+                  <div class="swiper-page-grid">
+                    <a href="#" class="insurance-in-card">
+                      <h4>치매·간병 플랜, 부모님 연령대별로 보는 법</h4>
+                      <p>간병인 파트·시설 비용을 나눠 설계할 때 자주 쓰는 구조를 사례와 함께 설명합니다.</p>
+                      <div class="insurance-in-foot">
+                        <div class="insurance-in-meta">
+                          <span>노후·간병</span>
+                          <span>2025.03.06</span>
+                        </div>
+                        <p class="insurance-in-author">답변 홍길동 FC 외 <span>12건 등록</span></p>
+                      </div>
+                    </a>
+                    <a href="#" class="insurance-in-card">
+                      <h4>자동차보험 할인 특약, 빠짐없이 챙기기</h4>
+                      <p>마일리지·블랙박스·안전운전 습관 등 할인 중복 적용이 가능한지 표로 정리했습니다.</p>
+                      <div class="insurance-in-foot">
+                        <div class="insurance-in-meta">
+                          <span>자동차</span>
+                          <span>2025.03.05</span>
+                        </div>
+                        <p class="insurance-in-author">답변 홍길동 FC 외 <span>12건 등록</span></p>
+                      </div>
+                    </a>
+                    <a href="#" class="insurance-in-card">
+                      <h4>종신보험 해지환급금, 확인 순서 정리</h4>
+                      <p>중도해지 시점별 환급률을 비교하는 방법과 대체 수단 검토 포인트를 담았습니다.</p>
+                      <div class="insurance-in-foot">
+                        <div class="insurance-in-meta">
+                          <span>저축·종신</span>
+                          <span>2025.03.03</span>
+                        </div>
+                        <p class="insurance-in-author">답변 홍길동 FC 외 <span>12건 등록</span></p>
+                      </div>
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <a href="#" class="section-more insurance-in-more-bottom">전체보기</a>
+          </section>
+
+          <!-- 언어별 FC 추천 -->
+          <section class="section">
+            <div class="language-section">
+              <div class="section-head">
+                <h3 class="section-title">상담가능한 언어별 보험설계사 추천 <span class="ad-mark" aria-hidden="true">AD</span></h3>
+                <div class="section-head-right">
+                  <div class="control-box">
+                    <button type="button" class="control-btn swiper-nav-prev" aria-label="이전"></button>
+                    <button type="button" class="control-btn swiper-nav-next" aria-label="다음"></button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="chip-scroll">
+                <div class="chip-row" data-toggle-group="filter-language">
+                  <button type="button" class="language-filter is-active" data-toggle-item>전체</button>
+                  <button type="button" class="language-filter sign" data-toggle-item>
+                    <span class="language-filter-sign">
+                      <img class="language-filter-flag language-filter-sign-off" src="../assets/images/ic-hand.png" alt="" />
+                      <img class="language-filter-flag language-filter-sign-on" src="../assets/images/ic-hand-on.png" alt="" />
+                    </span>
+                    수어
+                  </button>
+                  <button type="button" class="language-filter" data-toggle-item>
+                    <img class="language-filter-flag" src="../assets/images/ic-flag-vn.png" alt="" />
+                    베트남
+                  </button>
+                  <button type="button" class="language-filter" data-toggle-item>
+                    <img class="language-filter-flag" src="../assets/images/ic-flag-cn.png" alt="" />
+                    중국
+                  </button>
+                  <button type="button" class="language-filter" data-toggle-item>
+                    <img class="language-filter-flag" src="../assets/images/ic-flag-th.png" alt="" />
+                    태국
+                  </button>
+                  <button type="button" class="language-filter" data-toggle-item>
+                    <img class="language-filter-flag language-filter-flag--ring" src="../assets/images/ic-flag-jp.png" alt="" />
+                    일본
+                  </button>
+                  <button type="button" class="language-filter" data-toggle-item>
+                    <img class="language-filter-flag" src="../assets/images/ic-flag-ph.png" alt="" />
+                    필리핀
+                  </button>
+                  <button type="button" class="language-filter" data-toggle-item>
+                    <img class="language-filter-flag" src="../assets/images/ic-flag-us.png" alt="" />
+                    영어
+                  </button>
+                </div>
+              </div>
+
+              <div id="consultSwiper" class="swiper language-list">
+                <div class="swiper-wrapper">
+                  <div class="swiper-slide">
+                    <div class="language-list-grid">
+                      <a href="#" class="language-card">
+                        <img src="../assets/images/temp/@profile-m.png" alt="" class="avatar" />
+                        <div class="language-body">
+                          <p class="list-title">김소현</p>
+                          <p class="c-rate"><span class="c-rate-star">★</span> 4.9 <span class="c-rate-count">(1,402)</span></p>
+                          <p class="c-dot-line">
+                            <span>메리츠화재</span><span class="location"><span>서울, 경기, 인천, 대전, 제주</span></span>
+                          </p>
+                          <div class="language-tags">
+                            <span>종신보험</span>
+                            <span>암보험</span>
+                            <span>생명보험</span>
+                          </div>
+                        </div>
+                      </a>
+                      <a href="#" class="language-card">
+                        <img src="../assets/images/temp/@profile-w.png" alt="" class="avatar" />
+                        <div class="language-body">
+                          <p class="list-title">김소현</p>
+                          <p class="c-rate"><span class="c-rate-star">★</span> 4.9 <span class="c-rate-count">(1,402)</span></p>
+                          <p class="c-dot-line">
+                            <span>메리츠화재</span><span class="location"><span>서울, 경기, 인천</span></span>
+                          </p>
+                          <div class="language-tags">
+                            <span>종신보험</span>
+                            <span>암보험</span>
+                          </div>
+                        </div>
+                      </a>
+                      <a href="#" class="language-card">
+                        <img src="../assets/images/temp/@profile-m.png" alt="" class="avatar" />
+                        <div class="language-body">
+                          <p class="list-title">김소현</p>
+                          <p class="c-rate"><span class="c-rate-star">★</span> 4.9 <span class="c-rate-count">(1,402)</span></p>
+                          <p class="c-dot-line">
+                            <span>메리츠화재</span><span class="location"><span>서울, 경기, 인천, 대전</span></span>
+                          </p>
+                          <div class="language-tags">
+                            <span>종신보험</span>
+                            <span>암보험</span>
+                            <span>생명보험</span>
+                          </div>
+                        </div>
+                      </a>
+                      <a href="#" class="language-card">
+                        <img src="../assets/images/temp/@profile-m.png" alt="" class="avatar" />
+                        <div class="language-body">
+                          <p class="list-title">김소현</p>
+                          <p class="c-rate"><span class="c-rate-star">★</span> 4.9 <span class="c-rate-count">(1,402)</span></p>
+                          <p class="c-dot-line">
+                            <span>메리츠화재</span><span class="location"><span>서울, 경기, 인천, 대전</span></span>
+                          </p>
+                          <div class="language-tags">
+                            <span>종신보험</span>
+                            <span>암보험</span>
+                            <span>생명보험</span>
+                          </div>
+                        </div>
+                      </a>
+                      <a href="#" class="language-card">
+                        <img src="../assets/images/temp/@profile-m.png" alt="" class="avatar" />
+                        <div class="language-body">
+                          <p class="list-title">김소현</p>
+                          <p class="c-rate"><span class="c-rate-star">★</span> 4.9 <span class="c-rate-count">(1,402)</span></p>
+                          <p class="c-dot-line">
+                            <span>메리츠화재</span><span class="location"><span>서울, 경기, 인천, 대전</span></span>
+                          </p>
+                          <div class="language-tags">
+                            <span>종신보험</span>
+                            <span>암보험</span>
+                            <span>생명보험</span>
+                          </div>
+                        </div>
+                      </a>
+                      <a href="mailto:myfc.helpdesk@google.com" class="language-card language-promo" aria-label="광고·고객센터 문의">
+                        <img src="../assets/images/ic-megaphone.svg" alt="" class="language-promo-ico" aria-hidden="true" />
+                        <div class="language-body">
+                          <p>언어별 상담이 가능하신 FC님!</p>
+                          <p>광고문의 주세요</p>
+                          <p>E-mail : myfc.helpdesk@google.com</p>
+                        </div>
+                      </a>
+                    </div>
+                  </div>
+                  <div class="swiper-slide">
+                    <div class="language-list-grid">
+                      <a href="#" class="language-card">
+                        <img src="../assets/images/temp/@profile-w.png" alt="" class="avatar" />
+                        <div class="language-body">
+                          <p class="list-title">이도윤</p>
+                          <p class="c-rate"><span class="c-rate-star">★</span> 4.8 <span class="c-rate-count">(892)</span></p>
+                          <p class="c-dot-line">
+                            <span>삼성화재</span><span class="location"><span>부산, 울산, 경남</span></span>
+                          </p>
+                          <div class="language-tags">
+                            <span>실손보험</span>
+                            <span>암보험</span>
+                          </div>
+                        </div>
+                      </a>
+                      <a href="#" class="language-card">
+                        <img src="../assets/images/temp/@profile-m.png" alt="" class="avatar" />
+                        <div class="language-body">
+                          <p class="list-title">최유나</p>
+                          <p class="c-rate"><span class="c-rate-star">★</span> 4.9 <span class="c-rate-count">(2,104)</span></p>
+                          <p class="c-dot-line">
+                            <span>현대해상</span><span class="location"><span>서울, 인천</span></span>
+                          </p>
+                          <div class="language-tags">
+                            <span>자동차보험</span>
+                            <span>화재보험</span>
+                          </div>
+                        </div>
+                      </a>
+                      <a href="#" class="language-card">
+                        <img src="../assets/images/temp/@profile-w.png" alt="" class="avatar" />
+                        <div class="language-body">
+                          <p class="list-title">정민호</p>
+                          <p class="c-rate"><span class="c-rate-star">★</span> 4.7 <span class="c-rate-count">(456)</span></p>
+                          <p class="c-dot-line">
+                            <span>DB손보</span><span class="location"><span>대전, 세종, 충남</span></span>
+                          </p>
+                          <div class="language-tags">
+                            <span>종신보험</span>
+                            <span>연금</span>
+                          </div>
+                        </div>
+                      </a>
+                      <a href="#" class="language-card">
+                        <img src="../assets/images/temp/@profile-m.png" alt="" class="avatar" />
+                        <div class="language-body">
+                          <p class="list-title">한서아</p>
+                          <p class="c-rate"><span class="c-rate-star">★</span> 5.0 <span class="c-rate-count">(3,201)</span></p>
+                          <p class="c-dot-line">
+                            <span>한화손보</span><span class="location"><span>광주, 전남, 전북</span></span>
+                          </p>
+                          <div class="language-tags">
+                            <span>태아보험</span>
+                            <span>어린이보험</span>
+                          </div>
+                        </div>
+                      </a>
+                      <a href="#" class="language-card">
+                        <img src="../assets/images/temp/@profile-w.png" alt="" class="avatar" />
+                        <div class="language-body">
+                          <p class="list-title">강태영</p>
+                          <p class="c-rate"><span class="c-rate-star">★</span> 4.8 <span class="c-rate-count">(1,120)</span></p>
+                          <p class="c-dot-line">
+                            <span>KB손보</span><span class="location"><span>제주, 경기 남부</span></span>
+                          </p>
+                          <div class="language-tags">
+                            <span>치아보험</span>
+                            <span>실비</span>
+                          </div>
+                        </div>
+                      </a>
+                      <a href="#" class="language-card">
+                        <img src="../assets/images/temp/@profile-m.png" alt="" class="avatar" />
+                        <div class="language-body">
+                          <p class="list-title">윤지혜</p>
+                          <p class="c-rate"><span class="c-rate-star">★</span> 4.9 <span class="c-rate-count">(678)</span></p>
+                          <p class="c-dot-line">
+                            <span>메리츠화재</span><span class="location"><span>춘천, 강원</span></span>
+                          </p>
+                          <div class="language-tags">
+                            <span>사업자보험</span>
+                            <span>배상책임</span>
+                          </div>
+                        </div>
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- 상황별 프로모션 배너 -->
+          <section class="section">
+            <div class="situation-banner">
+              <div class="situation-banner-top">
+                <span class="ad-mark" aria-hidden="true">AD</span>
+                <div class="control-box situation-banner-controls">
+                  <button type="button" class="control-btn swiper-nav-prev" aria-label="이전"></button>
+                  <button type="button" class="control-btn swiper-nav-next" aria-label="다음"></button>
+                </div>
+              </div>
+              <div id="sitAdSwiperBelowLang" class="swiper situation-banner-list">
+                <div class="swiper-wrapper">
+                  <div class="swiper-slide">
+                    <a href="#" class="situation-banner-slide">
+                      <!-- 이미지로 치환예정-->
+                      <div class="situation-banner-card">
+                        <p class="situation-banner-title">광고 배너</p>
+                        <p class="situation-banner-desc">배너 이미지 연결 예정</p>
+                      </div>
+                    </a>
+                  </div>
+                  <div class="swiper-slide">
+                    <a href="#" class="situation-banner-slide">
+                      <!-- 이미지로 치환예정-->
+                      <div class="situation-banner-card">
+                        <p class="situation-banner-title">광고 배너</p>
+                        <p class="situation-banner-desc">배너 이미지 연결 예정</p>
+                      </div>
+                    </a>
+                  </div>
+                  <div class="swiper-slide">
+                    <a href="#" class="situation-banner-slide">
+                      <!-- 이미지로 치환예정-->
+                      <div class="situation-banner-card">
+                        <p class="situation-banner-title">광고 배너</p>
+                        <p class="situation-banner-desc">배너 이미지 연결 예정</p>
+                      </div>
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+        </div>
+      </main>
+
+      <!-- 푸터 -->
+      <footer class="site-footer">
+        <div class="footer-inner">
+          <div class="footer-columns">
+            <div class="footer-col">
+              <p class="footer-logo">
+                <a href="MFC001.html" class="footer-logo-link"><img src="../assets/images/footer-logo.svg" alt="MyFC" /></a>
+              </p>
+              <div class="footer-info">
+                <p class="footer-ceo">
+                  <span>(주)더리치랩</span>
+                  <span>대표이사 박영진</span>
+                </p>
+                <p class="footer-info-split">
+                  <span>서울특별시 강남구 테헤란로 507, 8층 131호</span>
+                  <span>E-mail : <a href="mailto:myfc.helpdesk@gmail.com">myfc.helpdesk@gmail.com</a></span>
+                </p>
+                <p class="footer-info-split">
+                  <span>사업자등록번호 : 762-88-02797</span>
+                  <span>통신판매번호 : 제 2025-서울강남-06308호</span>
+                </p>
+                <p class="footer-info-split">
+                  <span>이용문의 : 010-9941-2899</span>
+                </p>
+              </div>
+
+              <p class="copyright">© 2026 TheRichLab Corp.</p>
+            </div>
+            <div class="footer-trail">
+              <ul class="footer-links">
+                <li><a href="#">회사소개</a></li>
+                <li><a href="#">이용약관</a></li>
+                <li><a href="#">개인정보 처리방침</a></li>
+                <li><a href="#">법적책임</a></li>
+              </ul>
+              <div class="footer-patent">
+                <p class="footer-patent-mark">
+                  <img src="../assets/images/kipo-logo.svg" alt="특허청" />
+                  <span>특허청</span>
+                </p>
+                <div class="footer-patent-text">
+                  <p>MyFC의 서비스는 여러 건의 특허가 출원되어 있습니다</p>
+                  <p>(특허번호 : 10-2026-0062616 / <br class="br-mo" />10-2026-0064554 외 다수)</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </footer>
+    </div>
+
+    <!-- 스크립트 · Swiper -->
+    <script src="../assets/js/ui.js"></script>
+    <script src="../assets/js/popup.js"></script>
+    <script src="../assets/js/common.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+    <script>
+      (function () {
+        'use strict';
+
+        // 메인 · 캐러셀 초기화
+        if (typeof MyFC === 'undefined' || typeof Swiper === 'undefined') {
+          return;
+        }
+
+        // 추천 FC 캐러셀
+        var fcRoot = document.getElementById('fcSwiper');
+        var fcSection = fcRoot && fcRoot.closest ? fcRoot.closest('section') : null;
+
+        MyFC.initSwiper('#fcSwiper', fcSection, {
+          speed: 450,
+          slidesPerView: 1.3,
+          spaceBetween: 12,
+          grabCursor: true,
+          watchOverflow: true,
+          breakpointsBase: 'container',
+          autoplay: {
+            delay: 3500,
+            disableOnInteraction: false,
+            pauseOnMouseEnter: true,
+          },
+          loop: true,
+          breakpoints: {
+            481: { slidesPerView: 2, spaceBetween: 12 },
+            641: { slidesPerView: 3, spaceBetween: 12 },
+            801: { slidesPerView: 4, spaceBetween: 12 },
+            900: { slidesPerView: 4, spaceBetween: 12 },
+          },
+        });
+
+        // 상황별 AD 롤링 배너 (상단·하단)
+        document.querySelectorAll('.situation-banner').forEach(function (bannerRoot) {
+          var sitEl = bannerRoot.querySelector('.situation-banner-list.swiper');
+          if (!sitEl) {
+            return;
+          }
+          MyFC.initSwiper(sitEl, bannerRoot, {
+            speed: 450,
+            slidesPerView: 1,
+            spaceBetween: 0,
+            loop: true,
+            grabCursor: true,
+            autoplay: {
+              delay: 4500,
+              disableOnInteraction: false,
+              pauseOnMouseEnter: true,
+            },
+          });
+        });
+
+        // 상황별 추천 · 2열 리스트
+        (function initSitListSwiper() {
+          var listEl = document.getElementById('sitListSwiper');
+          var listScope = document.querySelector('.situation-list');
+          if (!listEl || !listScope) {
+            return;
+          }
+          MyFC.initSwiper('#sitListSwiper', listScope, {
+            speed: 450,
+            slidesPerView: 1,
+            spaceBetween: 0,
+            grabCursor: true,
+            watchOverflow: true,
+            loop: true,
+          });
+        })();
+
+        // 최근 등록된 보험IN
+        (function initInsuranceInSwiper() {
+          var insuranceEl = document.getElementById('insuranceInSwiper');
+          var insuranceScope = document.querySelector('.insurance-in-section');
+          if (!insuranceEl || !insuranceScope) {
+            return;
+          }
+          var swiper = MyFC.initSwiper('#insuranceInSwiper', insuranceScope, {
+            navigation: false,
+            speed: 450,
+            slidesPerView: 1,
+            spaceBetween: 12,
+            autoHeight: true,
+            grabCursor: true,
+            watchOverflow: true,
+            loop: false,
+            rewind: true,
+          });
+          var prevBtn = insuranceScope.querySelector('.swiper-nav-prev');
+          var nextBtn = insuranceScope.querySelector('.swiper-nav-next');
+          if (swiper && prevBtn && nextBtn) {
+            prevBtn.addEventListener('click', function (e) {
+              e.preventDefault();
+              swiper.slidePrev();
+            });
+            nextBtn.addEventListener('click', function (e) {
+              e.preventDefault();
+              swiper.slideNext();
+            });
+          }
+        })();
+
+        // 언어별 FC 추천
+        (function initConsultSwiper() {
+          var consultEl = document.getElementById('consultSwiper');
+          var consultScope = document.querySelector('.language-section');
+          if (!consultEl || !consultScope) {
+            return;
+          }
+          MyFC.initSwiper('#consultSwiper', consultScope, {
+            speed: 450,
+            slidesPerView: 1,
+            spaceBetween: 0,
+            grabCursor: true,
+            watchOverflow: true,
+            loop: true,
+          });
+        })();
+
+        // 고객 후기
+        (function initReviewSwiper() {
+          var reviewEl = document.getElementById('reviewSwiper');
+          var reviewScope = document.querySelector('.review-inner');
+          if (!reviewEl || !reviewScope) {
+            return;
+          }
+          var swiper = MyFC.initSwiper('#reviewSwiper', reviewScope, {
+            navigation: false,
+            speed: 450,
+            grid: {
+              rows: 1,
+              fill: 'row',
+            },
+            slidesPerView: 1,
+            slidesPerGroup: 1,
+            spaceBetween: 12,
+            grabCursor: true,
+            watchOverflow: true,
+            autoplay: {
+              delay: 4000,
+              disableOnInteraction: false,
+              pauseOnMouseEnter: true,
+            },
+            loop: false,
+            rewind: true,
+            breakpoints: {
+              641: {
+                grid: {
+                  rows: 2,
+                  fill: 'row',
+                },
+                slidesPerView: 4,
+                slidesPerGroup: 1,
+                spaceBetween: 12,
+              },
+            },
+          });
+          var prevBtn = reviewScope.querySelector('.swiper-nav-prev');
+          var nextBtn = reviewScope.querySelector('.swiper-nav-next');
+          if (swiper && prevBtn && nextBtn) {
+            prevBtn.addEventListener('click', function (e) {
+              e.preventDefault();
+              swiper.slidePrev();
+            });
+            nextBtn.addEventListener('click', function (e) {
+              e.preventDefault();
+              swiper.slideNext();
+            });
+          }
+        })();
+      })();
+    </script>
+  </body>
+</html>

@@ -1,0 +1,419 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MYFC 관리자 화면목록</title>
+
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        padding: 32px;
+        font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;
+        font-size: 14px;
+        line-height: 1.5;
+        background: #f8fafc;
+        color: #111827;
+        display: flex;
+        align-items: flex-start;
+        gap: 24px;
+        min-height: 100vh;
+      }
+
+      .list-panel {
+        flex: 1;
+        min-width: 0;
+      }
+
+      .page-head {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 12px 16px;
+        margin-bottom: 16px;
+      }
+
+      h1 {
+        margin: 0;
+        flex: 1;
+        min-width: 160px;
+        font-size: 28px;
+        font-weight: 700;
+        line-height: 1.3;
+        color: #111827;
+      }
+
+      .btn-mobile-preview {
+        flex-shrink: 0;
+        padding: 10px 16px;
+        font-size: 14px;
+        font-weight: 600;
+        color: #fff;
+        background: #1e293b;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        font-family: inherit;
+      }
+
+      .btn-mobile-preview:hover {
+        background: #334155;
+      }
+
+      .btn-mobile-preview:focus-visible {
+        outline: 2px solid #2563eb;
+        outline-offset: 2px;
+      }
+
+      .preview-panel {
+        display: none;
+        flex-direction: column;
+        flex-shrink: 0;
+        width: 430px;
+        max-width: 100%;
+        padding: 16px;
+        background: #fff;
+        border: 1px solid #e5e7eb;
+        border-radius: 16px;
+        box-shadow: 0 8px 28px rgba(15, 23, 42, 0.08);
+        position: sticky;
+        top: 24px;
+        align-self: flex-start;
+      }
+
+      body.preview-open .preview-panel {
+        display: flex;
+      }
+
+      .preview-panel-head {
+        margin: 0 0 12px;
+        font-size: 13px;
+        font-weight: 700;
+        color: #374151;
+      }
+
+      .preview-frame-wrap {
+        border-radius: 10px;
+        overflow: hidden;
+        border: 5px solid #f3f3f3;
+        box-sizing: border-box;
+        background: #1e293b;
+      }
+
+      #mobilePreview {
+        display: block;
+        width: 390px;
+        max-width: 100%;
+        height: min(844px, calc(100vh - 140px));
+        border: 0;
+        margin: 0;
+        background: #fff;
+      }
+
+      @media (max-width: 1100px) {
+        body.preview-open {
+          flex-direction: column;
+        }
+
+        .preview-panel {
+          width: 100%;
+          position: static;
+          align-items: center;
+        }
+
+        .preview-frame-wrap {
+          max-width: 100%;
+        }
+
+        #mobilePreview {
+          width: min(390px, 100%);
+          height: min(720px, 70vh);
+        }
+      }
+
+      .page-lead {
+        margin: 0 0 20px;
+        font-size: 13px;
+        color: #6b7280;
+      }
+
+      .table-wrap {
+        overflow-x: auto;
+        background: #fff;
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+      }
+
+      .list-table {
+        width: 100%;
+        border-collapse: collapse;
+        table-layout: fixed;
+        background: #fff;
+      }
+
+      .list-table col:nth-child(1) {
+        width: 40px;
+      }
+
+      .list-table col:nth-child(2) {
+        width: 130px;
+      }
+
+      .list-table col:nth-child(3) {
+        width: 80px;
+      }
+
+      .list-table col:nth-child(4),
+      .list-table col:nth-child(5),
+      .list-table col:nth-child(6),
+      .list-table col:nth-child(7),
+      .list-table col:nth-child(8) {
+        width: 130px;
+      }
+
+      .list-table col:nth-child(9) {
+        width: 240px;
+      }
+
+      .list-table col:nth-child(10) {
+        width: 100px;
+      }
+
+      .list-table col:nth-child(11) {
+        width: 140px;
+      }
+
+      .list-table th,
+      .list-table td {
+        padding: 12px 14px;
+        border-bottom: 1px solid #e5e7eb;
+        border-right: 1px solid #f1f5f9;
+        vertical-align: middle;
+        word-break: break-word;
+      }
+
+      .list-table th:last-child,
+      .list-table td:last-child {
+        border-right: 0;
+      }
+
+      .list-table thead th {
+        background: #f9fafb;
+        text-align: center;
+        font-size: 12px;
+        font-weight: 700;
+        color: #374151;
+        white-space: nowrap;
+      }
+
+      .list-table tbody tr {
+        transition: background-color 0.2s ease;
+      }
+
+      .list-table tbody tr:hover {
+        background: #f9fbff;
+      }
+
+      .list-table tbody tr.is-done {
+        background: #e8f4fc;
+      }
+
+      .list-table tbody tr.is-done:hover {
+        background: #d9ecf8;
+      }
+
+      .list-table tbody tr:last-child td {
+        border-bottom: 0;
+      }
+
+      .ta-center {
+        text-align: center;
+      }
+
+      .col-id {
+        font-family: Consolas, 'Courier New', monospace;
+        font-size: 12px;
+        color: #334155;
+      }
+
+      .col-type {
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--text-sub);
+        text-align: center;
+      }
+
+      .depth-col {
+        font-size: 13px;
+        color: #1f2937;
+      }
+
+      .depth-col:empty::before {
+        content: '-';
+        color: #cbd5e1;
+      }
+
+      .col-path {
+        font-size: 12px;
+        color: #2563eb;
+      }
+
+      .col-path a {
+        color: #2563eb;
+        text-decoration: underline;
+      }
+
+      .col-path a:hover {
+        opacity: 0.8;
+      }
+
+      .col-note {
+        font-size: 13px;
+        color: #6b7280;
+      }
+
+      .col-status {
+        text-align: center;
+      }
+
+      .status {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 60px;
+        padding: 6px 12px;
+        border-radius: 6px;
+        font-size: 12px;
+        font-weight: 700;
+        line-height: 1.2;
+        border: 1px solid transparent;
+        color: #fff;
+      }
+
+      .status.is-done {
+        background: #2563eb;
+      }
+
+      .status.is-working {
+        background: #16a34a;
+      }
+
+      .status.is-hold {
+        background: #ef4444;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="list-panel">
+      <header class="page-head">
+        <h1>MYFC 관리자 화면목록</h1>
+        <button type="button" class="btn-mobile-preview" id="btnMobilePreview" aria-expanded="false" aria-controls="previewPanel">
+          모바일 미리보기
+        </button>
+      </header>
+
+      <div class="table-wrap">
+        <table class="list-table">
+          <colgroup>
+            <col />
+            <col />
+            <col />
+            <col />
+            <col />
+            <col />
+            <col />
+            <col />
+            <col />
+            <col />
+            <col />
+          </colgroup>
+          <thead>
+            <tr>
+              <th>No</th>
+              <th>화면ID</th>
+              <th>형식</th>
+              <th>1depth</th>
+              <th>2depth</th>
+              <th>3depth</th>
+              <th>4depth</th>
+              <th>5depth</th>
+              <th>경로</th>
+              <th>진행상태</th>
+              <th>비고</th>
+            </tr>
+          </thead>
+          <tbody id="listBody">
+            <!-- 예시 row -->
+            <tr>
+              <td class="ta-center">1</td>
+              <td class="col-id">AMFC001</td>
+              <td class="col-type">PAGE</td>
+              <td class="depth-col">메인(로그인)</td>
+              <td class="depth-col"></td>
+              <td class="depth-col"></td>
+              <td class="depth-col"></td>
+              <td class="depth-col"></td>
+              <td class="col-path">./html/AMFC001.html</td>
+              <td class="col-note"></td>
+              <td class="col-status">
+                <span class="status is-done">완료</span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <aside class="preview-panel" id="previewPanel" aria-hidden="true">
+      <p class="preview-panel-head">
+        모바일 미리보기 (390×844 기준)
+        <a id="previewFileName" href="./html/MFC001.html" target="_blank" rel="noopener noreferrer">MFC001.html</a>
+      </p>
+      <div class="preview-frame-wrap">
+        <iframe id="mobilePreview" title="모바일 미리보기" src="./html/MFC001.html"></iframe>
+      </div>
+    </aside>
+
+    <script src="./guide/data.js"></script>
+    <script src="./guide/list.js"></script>
+    <script>
+      (function () {
+        var btn = document.getElementById('btnMobilePreview');
+        var panel = document.getElementById('previewPanel');
+        var iframe = document.getElementById('mobilePreview');
+        var previewFileName = document.getElementById('previewFileName');
+        var listBody = document.getElementById('listBody');
+
+        btn.addEventListener('click', function () {
+          var open = !document.body.classList.contains('preview-open');
+          document.body.classList.toggle('preview-open', open);
+          panel.setAttribute('aria-hidden', open ? 'false' : 'true');
+          btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+        });
+
+        listBody.addEventListener('click', function (e) {
+          var anchor = e.target.closest('.col-path a');
+          if (!anchor || !document.body.classList.contains('preview-open')) return;
+          if (e.ctrlKey || e.metaKey || e.shiftKey || e.altKey) return;
+          if (e.button !== 0) return;
+
+          var href = anchor.getAttribute('href');
+          if (!href || href.charAt(0) === '#') return;
+
+          e.preventDefault();
+          iframe.src = href;
+          if (previewFileName) {
+            var fileName = href.split('/').pop() || href;
+            previewFileName.textContent = fileName;
+            previewFileName.setAttribute('href', href);
+          }
+        });
+      })();
+    </script>
+  </body>
+</html>

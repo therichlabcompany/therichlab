@@ -1,0 +1,75 @@
+<div class="c-modal md"> <!--  is-open -->
+    <button type="button" class="c-modal-backdrop" data-popup-close aria-label="닫기"></button>
+    <div class="c-modal-panel">
+        <div class="c-modal-head">
+            <h2 class="c-modal-title">후기 상세</h2>
+            <button type="button" class="c-modal-close" data-popup-close aria-label="닫기"></button>
+        </div>
+
+        <div class="c-modal-body">
+            <div class="story-detail-wrap">
+                <button type="button" class="control-btn swiper-nav-prev" aria-label="이전 후기"></button>
+
+                <div class="swiper">
+                    <div class="swiper-wrapper">
+                        <div class="swiper-slide">
+                            <article class="story-detail-card">
+                                <h3>꼼꼼한 상담과 빠른 대응으로 믿음이 갔습니다</h3>
+                                <div class="story-detail-meta">
+                                    <p class="c-rate"><span class="c-rate-star">★</span> 5.0</p>
+                                    <p>박**</p>
+                                    <time>2026.03.19</time>
+                                </div>
+                                <div class="story-detail-body">
+                                    <p>
+                                        그동안은 한 보험사 설계사만 만나 상품을 추천받는게 당연하다고 생각했습니다. 하지만 MyFC에서는 여러 FC의 조건과
+                                        이력을 한눈에 비교할 수 있어 훨씬 도움이 됐습니다.
+                                    </p>
+                                    <p>
+                                        원하는 보장은 충분하면서도 불필요한 비용은 줄이는 것에 딱 맞는 결과를 얻을 수 있었고, FC님 덕분에 불필요한 지출을
+                                        줄일 수 있었습니다.
+                                    </p>
+                                    <p>
+                                        그동안은 한 보험사 설계사만 만나 상품을 추천받는게 당연하다고 생각했습니다. 하지만 MyFC에서는 여러 FC의 조건과
+                                        이력을 한눈에 비교할 수 있어 훨씬 도움이 됐습니다.
+                                    </p>
+                                    <p>
+                                        원하는 보장은 충분하면서도 불필요한 비용은 줄이는 것에 딱 맞는 결과를 얻을 수 있었고, FC님 덕분에 불필요한 지출을
+                                        줄일 수 있었습니다.
+                                    </p>
+                                </div>
+                            </article>
+                        </div>
+
+                        <div class="swiper-slide">
+                            <article class="story-detail-card">
+                                <h3>아이 보험을 제대로 준비할 수 있었어요</h3>
+                                <div class="story-detail-meta">
+                                    <p class="c-rate"><span class="c-rate-star">★</span> 4.9</p>
+                                    <p>이**</p>
+                                    <time>2026.03.12</time>
+                                </div>
+                                <div class="story-detail-body">
+                                    <p>
+                                        아이 보험은 항상 고민이었는데, FC님이 자녀 전용 상품들을 비교해 주셔서 불필요한 부분은 빼고 꼭 필요한 보장만 선택할
+                                        수 있었습니다.
+                                    </p>
+                                    <p>
+                                        덕분에 보험료도 줄이고 마음도 놓였습니다. 상담 후에도 변경해야 할 항목을 정리해 주셔서 이후 관리가 훨씬
+                                        수월했습니다.
+                                    </p>
+                                </div>
+                            </article>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="button" class="control-btn swiper-nav-next" aria-label="다음 후기"></button>
+            </div>
+        </div>
+
+        <div class="c-modal-foot">
+            <button type="button" class="btn btn-line" data-popup-close>닫기</button>
+        </div>
+    </div>
+</div>

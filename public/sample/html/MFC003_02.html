@@ -1,0 +1,317 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>상담 요청</title>
+
+    <link rel="stylesheet" href="../assets/css/reset.css" />
+    <link rel="stylesheet" href="../assets/css/common.css" />
+    <link rel="stylesheet" href="../assets/css/layout.css" />
+    <link rel="stylesheet" href="../assets/css/main.css" />
+    <link rel="stylesheet" href="../assets/css/content.css" />
+  </head>
+  <body>
+    <div class="layout-wrapper detail-page">
+      <header class="site-header member">
+        <div class="header-mo">
+          <a href="MFC003_01.html" aria-label="FC 상세로">
+            <img src="../assets/images/ic-chevron-left.svg" alt="" />
+          </a>
+          <div class="header-mo-spacer" aria-hidden="true"></div>
+        </div>
+        <div class="header-inner">
+          <div class="logo">
+            <a href="MFC001.html">
+              <img src="../assets/images/logo.png" alt="보험사 연계 서비스" class="logo-img" />
+            </a>
+          </div>
+          <nav class="gnb">
+            <ul>
+              <li>
+                <a href="MFC002.html" class="gnb-search">
+                  <img src="../assets/images/ic-search.svg" alt="" class="gnb-ico" />
+                </a>
+              </li>
+              <li>
+                <a href="#" class="gnb-bell">
+                  <img src="../assets/images/ic-bell.svg" alt="" class="gnb-ico" />
+                </a>
+              </li>
+              <li class="guest">
+                <a href="#" class="gnb-btn-line">회원가입</a>
+              </li>
+              <li class="guest">
+                <a href="#" class="gnb-btn-line">로그인</a>
+              </li>
+              <li class="member">
+                <button type="button" class="gnb-avatar" aria-label="마이페이지 메뉴 열기">
+                  <img src="../assets/images/temp/@profile-m.png" alt="" class="gnb-avatar-img" />
+                </button>
+              </li>
+            </ul>
+          </nav>
+        </div>
+      </header>
+
+      <main>
+        <div class="page-inner consult-request">
+          <h1 class="page-main-title">상담 요청하기</h1>
+          <p class="page-main-lead">
+            맞춤형 상담을 위해 아래정보를 입력해 주세요.<br />
+            입력하신 내용은 선택하신 FC에게 전달되며,<br />
+            상담 진행을 위해서만 사용됩니다.
+          </p>
+
+          <article class="consult-request-fc">
+            <img src="../assets/images/temp/@profile-w.png" alt="한지윤 FC 프로필 사진" />
+            <div>
+              <h2>한지윤</h2>
+              <p>
+                <span class="c-rate"><span class="c-rate-star">★</span> 5.0</span>
+                <span class="c-rate-count">(2,018)</span>
+              </p>
+              <p>현대해상 · 서울, 경기, 인천</p>
+              <p>신규 고객 맞춤 설계로 빠르게 도와드립니다.</p>
+            </div>
+          </article>
+
+          <form class="form-box" method="post">
+            <div class="consult-request-read">
+              <p><span>이름</span><strong>김소연</strong></p>
+              <p><span>이메일</span><strong>username@gmail.com</strong></p>
+              <p><span>휴대폰</span><strong>01012345678</strong></p>
+            </div>
+
+            <button type="button" class="consult-request-edit">이름/휴대폰번호 수정</button>
+
+            <div class="consult-date">
+              <label class="form-label" for="consult-date">상담 요청 일시 <b>*</b></label>
+              <input class="form-input" type="text" id="consult-date" name="consult-date" autocomplete="off" />
+              <div class="consult-date-picker" id="consult-date-picker" hidden>
+                <div class="consult-date-picker-head">
+                  <button type="button" class="consult-date-picker-nav prev" data-date-nav="prev" aria-label="이전 달"></button>
+                  <strong></strong>
+                  <button type="button" class="consult-date-picker-nav next" data-date-nav="next" aria-label="다음 달"></button>
+                </div>
+                <ol class="consult-date-picker-week">
+                  <li>일</li>
+                  <li>월</li>
+                  <li>화</li>
+                  <li>수</li>
+                  <li>목</li>
+                  <li>금</li>
+                  <li>토</li>
+                </ol>
+                <div class="consult-date-picker-days"></div>
+              </div>
+            </div>
+
+            <div class="form-field">
+              <label class="form-label" for="consult-content">상담 요청 내용</label>
+              <p class="form-text">상담요청 내용을 입력해 주세요</p>
+              <textarea
+                class="form-textarea"
+                id="consult-content"
+                name="consult-content"
+                placeholder="상세 요청 내용이 있으면 함께 입력해 주세요.&#10;보험추가, 기존 보험 점검 요청, 신규 상담, 보험 비교 요청 등"
+              ></textarea>
+            </div>
+
+            <div class="file-upload" id="consult-file-block">
+              <label class="form-label" for="consult-file-display-1">보험 자료 및 증권 파일 첨부</label>
+              <p class="form-text">가지고 계신 보험 자료(증권, 기타 참고 자료)가 있다면 첨부해 주세요.</p>
+              <div class="file-upload-rows" data-upload-rows>
+                <div data-upload-row>
+                  <input class="form-input" id="consult-file-display-1" type="text" readonly placeholder="첨부 파일을 선택해 주세요" />
+                  <input id="consult-file-1" class="visually-hidden" name="consult-file" type="file" tabindex="-1" />
+                  <button type="button" class="file-upload-file-trigger">파일 업로드</button>
+                  <button type="button" class="file-upload-row-remove" data-row-remove aria-label="첨부 항목 삭제">삭제</button>
+                </div>
+              </div>
+              <button type="button" class="file-upload-add" data-upload-add aria-label="첨부 항목 추가"></button>
+            </div>
+
+            <input type="hidden" id="consult-files-picker-value" name="consult-files-picker" value="" />
+            <button
+              type="button"
+              class="consult-file-load-btn"
+              data-popup-target="#popup-consult-files"
+              data-popup-sync="#consult-files-picker-value"
+            >
+              내 파일 불러오기
+            </button>
+
+            <div class="form-actions">
+              <button type="submit" disabled>상담 요청하기</button>
+            </div>
+          </form>
+
+          <template id="consult-upload-row-template">
+            <div data-upload-row>
+              <input type="text" readonly placeholder="첨부 파일을 선택해 주세요" />
+              <input class="visually-hidden" name="consult-file" type="file" tabindex="-1" />
+              <button type="button" class="file-upload-file-trigger">파일 업로드</button>
+              <button type="button" class="file-upload-row-remove" data-row-remove aria-label="첨부 항목 삭제">삭제</button>
+            </div>
+          </template>
+        </div>
+      </main>
+
+      <!-- 푸터 -->
+      <footer class="site-footer">
+        <div class="footer-inner">
+          <div class="footer-columns">
+            <div class="footer-col">
+              <p class="footer-logo">
+                <a href="MFC001.html" class="footer-logo-link"><img src="../assets/images/footer-logo.svg" alt="MyFC" /></a>
+              </p>
+              <div class="footer-info">
+                <p class="footer-ceo">
+                  <span>(주)더리치랩</span>
+                  <span>대표이사 박영진</span>
+                </p>
+                <p class="footer-info-split">
+                  <span>서울특별시 강남구 테헤란로 507, 8층 131호</span>
+                  <span>E-mail : <a href="mailto:myfc.helpdesk@gmail.com">myfc.helpdesk@gmail.com</a></span>
+                </p>
+                <p class="footer-info-split">
+                  <span>사업자등록번호 : 762-88-02797</span>
+                  <span>통신판매번호 : 제 2025-서울강남-06308호</span>
+                </p>
+                <p class="footer-info-split">
+                  <span>이용문의 : 010-9941-2899</span>
+                </p>
+              </div>
+              <p class="copyright">© 2026 TheRichLab Corp.</p>
+            </div>
+            <div class="footer-trail">
+              <ul class="footer-links">
+                <li><a href="#">회사소개</a></li>
+                <li><a href="#">이용약관</a></li>
+                <li><a href="#">개인정보 처리방침</a></li>
+                <li><a href="#">법적책임</a></li>
+              </ul>
+              <div class="footer-patent">
+                <p class="footer-patent-mark">
+                  <img src="../assets/images/kipo-logo.svg" alt="특허청" />
+                  <span>특허청</span>
+                </p>
+                <div class="footer-patent-text">
+                  <p>MyFC의 서비스는 여러 건의 특허가 출원되어 있습니다</p>
+                  <p>(특허번호 : 10-2026-0062616 / 10-2026-0064554 외 다수)</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </footer>
+    </div>
+
+    <div id="popup-consult-files" class="c-modal" data-popup-multiselect>
+      <button type="button" class="c-modal-backdrop" data-popup-close aria-label="닫기"></button>
+      <div class="c-modal-panel">
+        <div class="c-modal-head">
+          <h2 class="c-modal-title">내 파일 불러오기</h2>
+          <button type="button" class="c-modal-close" data-popup-close aria-label="닫기"></button>
+        </div>
+        <div class="c-modal-body">
+          <ul class="c-modal-list">
+            <li>
+              <button type="button" class="c-modal-option" data-value="파일명.pdf">
+                <span class="c-modal-option-label">파일명.pdf</span>
+                <span class="c-modal-option-ico"></span>
+              </button>
+            </li>
+            <li>
+              <button type="button" class="c-modal-option" data-value="삼성생명증권파일.pdf">
+                <span class="c-modal-option-label">삼성생명증권파일.pdf</span>
+                <span class="c-modal-option-ico"></span>
+              </button>
+            </li>
+            <li>
+              <button type="button" class="c-modal-option" data-value="신분증사본.jpg">
+                <span class="c-modal-option-label">신분증사본.jpg</span>
+                <span class="c-modal-option-ico"></span>
+              </button>
+            </li>
+            <li>
+              <button type="button" class="c-modal-option" data-value="계좌정보.jpg">
+                <span class="c-modal-option-label">계좌정보.jpg</span>
+                <span class="c-modal-option-ico"></span>
+              </button>
+            </li>
+          </ul>
+        </div>
+        <div class="c-modal-foot">
+          <button type="button" class="btn btn-line" data-popup-confirm>확인</button>
+        </div>
+      </div>
+    </div>
+
+    <script src="../assets/js/ui.js"></script>
+    <script src="../assets/js/popup.js"></script>
+    <script src="../assets/js/common.js"></script>
+    <script>
+      (function () {
+        var form = document.querySelector('.consult-request form');
+        var fileBlock = document.getElementById('consult-file-block');
+        var rows = fileBlock ? fileBlock.querySelector('[data-upload-rows]') : null;
+        var rowTpl = document.getElementById('consult-upload-row-template');
+        var rowSeq = 1;
+        if (!form || !fileBlock || !rows || !rowTpl) return;
+
+        function syncRowState() {}
+
+        function addRow() {
+          if (!rowTpl.content) return;
+          rowSeq += 1;
+          var sample = rowTpl.content.querySelector('[data-upload-row]');
+          if (!sample) return;
+          var row = sample.cloneNode(true);
+          var display = row.querySelector('input[readonly]');
+          var fileInput = row.querySelector('input[type="file"]');
+          if (display) display.id = 'consult-file-display-' + rowSeq;
+          if (fileInput) fileInput.id = 'consult-file-' + rowSeq;
+          rows.appendChild(row);
+          syncRowState();
+        }
+
+        form.addEventListener('click', function (e) {
+          var addTrigger = e.target.closest('[data-upload-add]');
+          if (addTrigger && fileBlock.contains(addTrigger)) {
+            addRow();
+            return;
+          }
+
+          var delBtn = e.target.closest('[data-row-remove]');
+          if (delBtn && form.contains(delBtn)) {
+            var delRow = delBtn.closest('[data-upload-row]');
+            if (!delRow) return;
+            delRow.remove();
+            syncRowState();
+            return;
+          }
+
+          var trigger = e.target.closest('.file-upload-file-trigger');
+          if (!trigger || !form.contains(trigger)) return;
+          var row = trigger.closest('[data-upload-row]');
+          var fileInput = row ? row.querySelector('input[type="file"]') : null;
+          if (fileInput) fileInput.click();
+        });
+
+        form.addEventListener('change', function (e) {
+          var t = e.target;
+          if (!t || t.tagName !== 'INPUT' || t.type !== 'file' || !form.contains(t)) return;
+          var row = t.closest('[data-upload-row]');
+          var display = row ? row.querySelector('input[readonly]') : null;
+          var file = t.files && t.files[0];
+          if (display) display.value = file ? file.name : '';
+        });
+
+        syncRowState();
+      })();
+    </script>
+  </body>
+</html>
