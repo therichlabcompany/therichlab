@@ -42,4 +42,67 @@ abstract class BaseController extends Controller
         // Preload any models, libraries, etc, here.
         // $this->session = service('session');
     }
+
+    /**
+     * 레이아웃을 포함한 뷰를 렌더링하는 메서드
+     * 
+     * @param string $view 뷰 파일명
+     * @param array $data 뷰에 전달할 데이터
+     * @param bool $useLayout 레이아웃 사용 여부
+     * @return string
+     */
+    protected function renderView(string $view, array $data = [], bool $useLayout = true): string
+    {
+        // 특정 뷰가 아닐 경우 세션 초기화
+        
+
+        $clientIp = $this->request->getIPAddress();
+    
+
+    
+    
+        $layoutData = [
+            "header_class" => $data["header_class"]
+            ,"popup_page" => $data["popup_page"]
+            ,"modal_page" => $data["modal_page"]
+        ];
+        
+        // CodeIgniter 4의 extend/section 방식 사용
+        return view('layout/header', $layoutData) . 
+        view($view, $data) . 
+        view('layout/footer', $layoutData);
+       
+    }
+
+    /**
+     * 레이아웃을 포함한 뷰를 렌더링하는 메서드
+     * 
+     * @param string $view 뷰 파일명
+     * @param array $data 뷰에 전달할 데이터
+     * @param bool $useLayout 레이아웃 사용 여부
+     * @return string
+     */
+    protected function renderAdminView(string $view, array $data = [], bool $useLayout = true): string
+    {
+        // 클라이언트 IP (필요 시 로그/권한 체크에 활용)
+        $clientIp = $this->request->getIPAddress();
+
+        // 전달받은 데이터를 그대로 사용
+        // (title 등 값을 유지하기 위해 $data를 덮어쓰지 않음)
+        $viewData = $data;
+
+        // header/footer 에 전달할 데이터
+        // 기본적으로 동일한 데이터를 전달
+        $layoutData = $data;
+
+        // 레이아웃을 사용하지 않는 경우
+        if (! $useLayout) {
+            return view($view, $viewData);
+        }
+
+        // 관리자 레이아웃 렌더링
+        return view('admin/layout/header', $layoutData)
+            . view($view, $viewData)
+            . view('admin/layout/footer', $layoutData);
+    }
 }
