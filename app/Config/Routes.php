@@ -60,3 +60,5 @@ $routes->group('admin', [
     // /admin/
     $routes->get('/', 'Dashboard::index');
 });
+
+$routes->get('push-test', 'PushTest::index');
