@@ -63,6 +63,66 @@ class FcController extends BaseController
         /* ✅ activity 추가 (핵심) */
         $builder->join('my_fc_profile_activity a', 'a.member_uid = m.member_uid', 'left');
 
+        $insurance = $this->request->getGet('insurance');
+        $region    = $this->request->getGet('region');
+        $sort      = $this->request->getGet('sort') ?? 'recommend';
+
+        // =========================
+        // 보험 필터
+        // =========================
+        if (!empty($insurance)) {
+
+            $insArr = array_filter(array_map('trim', explode(',', $insurance)));
+
+            $builder->groupStart();
+
+            foreach ($insArr as $i => $val) {
+                if ($i === 0) {
+                    $builder->where("FIND_IN_SET(" . $db->escape($val) . ", a.insurance_types) >", 0, false);
+                } else {
+                    $builder->orWhere("FIND_IN_SET(" . $db->escape($val) . ", a.insurance_types) >", 0, false);
+                }
+            }
+
+            $builder->groupEnd();
+        }
+
+        // =========================
+        // 지역 필터
+        // =========================
+        if (!empty($region)) {
+
+            $regionArr = array_filter(array_map('trim', explode(',', $region)));
+
+            $builder->groupStart();
+
+            foreach ($regionArr as $i => $val) {
+                if ($i === 0) {
+                    $builder->where("FIND_IN_SET(" . $db->escape($val) . ", a.region) >", 0, false);
+                } else {
+                    $builder->orWhere("FIND_IN_SET(" . $db->escape($val) . ", a.region) >", 0, false);
+                }
+            }
+
+            $builder->groupEnd();
+        }
+
+        // =========================
+        // 정렬
+        // =========================
+        switch ($sort) {
+            case 'popular':
+                $builder->orderBy('p.view_count', 'DESC');
+                break;
+
+            case 'rating':
+                $builder->orderBy('p.rating', 'DESC');
+                break;
+
+            default:
+                $builder->orderBy('p.profile_id', 'DESC');
+        }
+
         $builder->where('m.deleted_at IS NULL', null, false);
         $builder->where('m.member_type', 'FC');
         $builder->where('m.fc_review_status', 'APPROVE');
@@ -96,6 +156,9 @@ class FcController extends BaseController
             "header_class" => $header_class,
             "popup_page"   => $popup_page,
             "modal_page"   => $modal_page,
+            "insurance"   => $insurance,
+            "region"   => $region,
+            "sort"   => $sort,
 
             "list"         => $list,
 
@@ -130,6 +193,12 @@ class FcController extends BaseController
             ->where('deleted_at IS NULL', null, false)
             ->get()
             ->getRowArray();
+
+
+        $db->table('my_fc_profile')
+        ->where('member_uid', $uid)
+        ->set('view_count', 'view_count+1', false)
+        ->update();
 
         // =========================
         // 2. PROFILE
@@ -181,21 +250,6 @@ class FcController extends BaseController
         ->get()
         ->getRowArray();
     
-        // echo "<br>===========================profile<br>===================<br>";
-        // print_r($profile);
-        // echo "<br>===========================activity<br>===================<br>";
-        // print_r($activity);
-        
-        // echo "<br>===========================activityItems<br>===================<br>";
-        // print_r($activityItems);
-
-        // echo "<br>===========================story<br>===================<br>";
-        // print_r($story);
-        // echo "<br>===========================storyImages<br>===================<br>";
-        // print_r($storyImages);
-        // echo "<br>===========================review<br>===================<br>";
-        // print_r($review);
-        // exit;
         $data = [
             "header_class"   => $header_class,
 
