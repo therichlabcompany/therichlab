@@ -84,3 +84,5 @@ define("SITE_IMG_URL", "/assets/");
 
 define("POPUP_PATH", APPPATH."Views/popup");
 define("MODAL_PATH", APPPATH."Views/modal");
+define("COMPONENT_PATH", APPPATH."Views/components");
+

@@ -18,7 +18,7 @@ class Auth extends BaseController
         if (session()->get('admin_logged_in')) {
             return redirect()->to('/admin');
         }
-
+    
         // POST 요청일 경우 로그인 처리
         if ($this->request->is('post')) {
 

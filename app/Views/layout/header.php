@@ -22,7 +22,7 @@
 
 
 </head>
-
+ <!-- class="popup-open" -->
 <body>
 
 <?php
@@ -37,10 +37,90 @@ if (!empty($modal_page) && is_array($modal_page)) {
         }
     }
 }
+
+// 항상 출력할 모달
+$fixed_modal = MODAL_PATH . '/join_select.php';
+if (is_file($fixed_modal)) {
+    include_once $fixed_modal;
+}
+
+
+$isLogin = session()->get('logged_in');
+
+$memberName = session()->get('name');
+$memberEmail = session()->get('email');
+
 ?>    
+
+<script>
+
+document.addEventListener('DOMContentLoaded', function () {
+
+    const body = document.body;
+
+    // =========================
+    // 팝업 열기
+    // =========================
+    document.querySelectorAll('[data-popup]').forEach(btn => {
+
+        btn.addEventListener('click', function (e) {
+            e.preventDefault();
+
+            const targetId = this.getAttribute('data-popup');
+            const popup = document.getElementById(targetId);
+
+            if (popup) {
+                popup.classList.add('is-open');
+                body.classList.add('popup-open');
+            }
+
+        });
+
+    });
+
+    // =========================
+    // 팝업 닫기 (X + backdrop)
+    // =========================
+    document.querySelectorAll('[data-popup-close]').forEach(el => {
+
+        el.addEventListener('click', function () {
+
+            const modal = this.closest('.c-modal');
+
+            if (modal) {
+                modal.classList.remove('is-open');
+            }
+
+            // ⭐ 핵심: 닫을 때 무조건 제거
+            body.classList.remove('popup-open');
+
+        });
+
+    });
+
+    // =========================
+    // ESC 닫기
+    // =========================
+    document.addEventListener('keydown', function (e) {
+
+        if (e.key === 'Escape') {
+
+            document.querySelectorAll('.c-modal.is-open')
+                .forEach(modal => {
+                    modal.classList.remove('is-open');
+                });
+
+            body.classList.remove('popup-open');
+        }
+
+    });
+
+});
+
+</script>
     <div class="layout-wrapper <?= $header_class ?>">
         <!-- 헤더 · 로그인 후: .site-header.member 로 클래스만 교체 -->
-        <header class="site-header guest">
+        <header class="site-header <?= $isLogin ? 'member' : 'guest' ?>">
             <div class="header-inner">
                 <div class="logo">
                     <a href="/">
@@ -54,33 +134,81 @@ if (!empty($modal_page) && is_array($modal_page)) {
                                 <img src="<?= SITE_IMG_URL ?>images/ic-search.svg" alt="" class="gnb-ico" />
                             </a>
                         </li>
+                        <?php if(!$isLogin): ?>
                         <li class="guest">
-                            <a href="MFC007.html" class="gnb-btn-line">회원가입</a>
+                            <a href="javascript:void(0);" data-popup="join_select" class="gnb-btn-line">회원가입</a>
                         </li>
                         <li class="guest">
-                            <a href="MFC006_01.html" class="gnb-btn-line">로그인</a>
+                            <a href="/member/login" class="gnb-btn-line">로그인</a>
                         </li>
+                        <?php else: ?>
                         <li class="member">
                             <button type="button" class="gnb-avatar" data-profile-toggle aria-expanded="false" aria-label="마이페이지 메뉴 열기">
                                 <img src="<?= SITE_IMG_URL ?>images/temp/@profile-m.png" alt="" class="gnb-avatar-img" />
                             </button>
                         </li>
+                        <?php endif; ?>
                     </ul>
                 </nav>
+                <?php if($isLogin): ?>
                 <div class="profile-menu" data-profile-menu>
                     <div class="profile-menu-summary">
-                        <strong>김노아</strong>
-                        <p>username@gmail.com</p>
+                        <strong><?= esc($memberName) ?></strong>
+                        <p><?= esc($memberEmail) ?></p>
                     </div>
+                    <?php $memberType = session()->get('member_type'); ?>
+                    <?php if ($memberType === 'FC'): ?>
+                        
                     <ul>
+                        <li><a href="/mypage/fcinfo">내 정보</a></li>
+                        <li><a href="/mypage/fcprofile">프로필 관리</a></li>
+                        <li><a href="/mypage/fcreviewed">심의필 정보 관리</a></li>
+                        <li><a href="javascript:alert('작업중입니다');void(0);">상담 신청 관리</a></li>
+                        <li><a href="javascript:alert('작업중입니다');void(0);">광고 관리</a></li>
+                    </ul>
+                    <?php else: ?>
+                    <ul>
+                        
                         <li><a href="/mypage/info">내 정보</a></li>
                         <li><a href="/mypage/certificate">내 증권 관리</a></li>
                         <li><a href="/mypage/favoriteFc">내 관심 FC</a></li>
                         <li><a href="/mypage/counselList">상담현황</a></li>
                         <li><a href="/mypage/reviewList">나의 후기</a></li>
                     </ul>
-                    <a href="MFC004_L01_06.html" class="profile-menu-logout">로그아웃</a>
+                    <?php endif; ?>
+                    <!-- <a href="MFC004_L01_06.html" class="profile-menu-logout">로그아웃</a> -->
+                     <a href="/member/logout" class="profile-menu-logout">로그아웃</a>
                 </div>
+                <?php endif; ?>
+                
             </div>
         </header>
+        <?php if($isLogin): ?>
+        <aside class="profile-menu-drawer" data-profile-drawer>
+            <button type="button" class="profile-menu-drawer-close" data-profile-close aria-label="닫기"></button>
+            <div class="profile-menu-summary">
+                <strong><?= esc($memberName) ?></strong>
+                <p><?= esc($memberEmail) ?></p>
+            </div>
+            <?php if ($memberType === 'FC'): ?>
+            <ul>
+                <li><a href="/mypage/fcinfo">내 정보</a></li>
+                <li><a href="/mypage/fcprofile">프로필 관리</a></li>
+                <li><a href="/mypage/fcreviewed">심의필 정보 관리</a></li>
+                <li><a href="javascript:alert('작업중입니다');void(0);">상담 신청 관리</a></li>
+                <li><a href="javascript:alert('작업중입니다');void(0);">광고 관리</a></li>
+            </ul>
+            <?php else: ?>
+            <ul>
+                <li><a href="/mypage/info">내 정보</a></li>
+                <li><a href="/mypage/certificate">내 증권 관리</a></li>
+                <li><a href="MFC004_L01_03.html">내 관심 FC</a></li>
+                <li><a href="MFC004_L01_04.html">상담현황</a></li>
+                <li><a href="/mypage/reviewList">나의 후기</a></li>
+            </ul>
+            <?php endif; ?>
+            <a href="/member/logout" class="profile-menu-logout">로그아웃</a>
+        </aside>
+        <?php endif; ?>
+
         

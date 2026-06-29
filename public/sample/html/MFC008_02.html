@@ -1,6 +1,7 @@
 <!doctype html>
 <html lang="ko">
-  <head>
+
+<head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
@@ -10,516 +11,516 @@
     <link rel="stylesheet" href="../assets/css/common.css" />
     <link rel="stylesheet" href="../assets/css/layout.css" />
     <link rel="stylesheet" href="../assets/css/content.css" />
-  </head>
-  <body>
+</head>
+
+<body>
     <div class="layout-wrapper form-page signup-page">
-      <header class="site-header guest">
-        <div class="header-inner">
-          <div class="logo">
-            <a href="MFC001.html">
-              <img src="../assets/images/logo.png" alt="보험사 연계 서비스" class="logo-img" />
-            </a>
-          </div>
-          <nav class="gnb">
-            <ul>
-              <li>
-                <a href="MFC002.html" class="gnb-search">
-                  <img src="../assets/images/ic-search.svg" alt="" class="gnb-ico" />
-                </a>
-              </li>
-              <li class="guest">
-                <a href="#" class="gnb-btn-line">회원가입</a>
-              </li>
-              <li class="guest">
-                <a href="#" class="gnb-btn-line">로그인</a>
-              </li>
-              <li class="member">
-                <button type="button" class="gnb-avatar" aria-label="마이페이지 메뉴 열기">
-                  <img src="../assets/images/temp/@profile-m.png" alt="" class="gnb-avatar-img" />
-                </button>
-              </li>
-            </ul>
-          </nav>
-        </div>
-      </header>
-
-      <main>
-        <div class="page-inner-narrow">
-          <h1 class="page-main-title">FC 회원가입</h1>
-          <p class="page-main-lead">
-            입력하신 정보는 관리자가 확인 후<br class="br-mo" />
-            승인 절차를 거쳐 고객에게 노출됩니다.<br class="br-mo" />
-            정확하고 신뢰할 수 있는 정보를 등록해 주시기 바랍니다.
-          </p>
-
-          <nav class="c-tabs">
-            <a href="MFC008.html">약관 및 동의</a>
-            <a href="MFC008_01.html">기본정보 입력</a>
-            <a href="MFC008_02.html" aria-current="page">프로필 입력</a>
-            <a href="MFC008_03.html">활동정보 입력</a>
-            <a href="MFC008_04.html">활동 스토리</a>
-          </nav>
-          <p class="signup-step-lead">
-            고객이 확인할 프로필 정보를 입력해주세요.<br class="br-mo" />
-            정확한 정보는 신뢰도를 높입니다.
-          </p>
-
-          <form class="form-box" method="post">
-            <div class="fc-profile-thumb">
-              <button type="button" aria-label="프로필 이미지 등록">
-                <img src="../assets/images/temp/@profile-m.png" alt="" />
-              </button>
-            </div>
-
-            <div class="form-field">
-              <label class="form-label" for="fc-company">소속 원수사</label>
-              <input class="form-input" id="fc-company" name="company" type="text" placeholder="소속 보험사를 입력해주세요." />
-              <input class="form-input" name="company_sub" type="text" placeholder="소속 보험사가 추가로 있는 경우 입력해주세요." />
-            </div>
-
-            <div class="form-field">
-              <label class="form-label" for="fc-ga">소속 GA</label>
-              <input class="form-input" id="fc-ga" name="ga" type="text" placeholder="소속 GA를 입력해주세요." />
-            </div>
-
-            <div class="form-field">
-              <label class="form-label" for="fc-position">직책</label>
-              <input
-                class="form-input"
-                id="fc-position"
-                name="position"
-                type="text"
-                placeholder="직책을 입력해주세요. (예: 지점장,팀장,FC)"
-              />
-            </div>
-
-            <div class="form-field consult-date">
-              <label class="form-label" for="fc-license-date">보험 자격 취득일</label>
-              <input
-                class="form-input"
-                id="fc-license-date"
-                name="license_date"
-                type="text"
-                autocomplete="off"
-                placeholder="날짜를 선택해주세요"
-              />
-              <div class="consult-date-picker" hidden>
-                <div class="consult-date-picker-head">
-                  <button type="button" class="consult-date-picker-nav prev" data-date-nav="prev" aria-label="이전 달"></button>
-                  <strong></strong>
-                  <button type="button" class="consult-date-picker-nav next" data-date-nav="next" aria-label="다음 달"></button>
+        <header class="site-header guest">
+            <div class="header-inner">
+                <div class="logo">
+                    <a href="MFC001.html">
+                        <img src="../assets/images/logo.png" alt="보험사 연계 서비스" class="logo-img" />
+                    </a>
                 </div>
-                <ol class="consult-date-picker-week">
-                  <li>일</li>
-                  <li>월</li>
-                  <li>화</li>
-                  <li>수</li>
-                  <li>목</li>
-                  <li>금</li>
-                  <li>토</li>
-                </ol>
-                <div class="consult-date-picker-days"></div>
-              </div>
+                <nav class="gnb">
+                    <ul>
+                        <li>
+                            <a href="MFC002.html" class="gnb-search">
+                                <img src="../assets/images/ic-search.svg" alt="" class="gnb-ico" />
+                            </a>
+                        </li>
+                        <li class="guest">
+                            <a href="#" class="gnb-btn-line">회원가입</a>
+                        </li>
+                        <li class="guest">
+                            <a href="#" class="gnb-btn-line">로그인</a>
+                        </li>
+                        <li class="member">
+                            <button type="button" class="gnb-avatar" aria-label="마이페이지 메뉴 열기">
+                                <img src="../assets/images/temp/@profile-m.png" alt="" class="gnb-avatar-img" />
+                            </button>
+                        </li>
+                    </ul>
+                </nav>
             </div>
+        </header>
 
-            <div class="form-field">
-              <label class="form-label" for="fc-license-no">보험모집종사자 등록번호(고유번호)</label>
-              <input class="form-input" id="fc-license-no" name="license_no" type="text" placeholder="숫자만 입력해주세요." />
-            </div>
+        <main>
+            <div class="page-inner-narrow">
+                <h1 class="page-main-title">FC 회원가입</h1>
+                <p class="page-main-lead">
+                    입력하신 정보는 관리자가 확인 후<br class="br-mo" />
+                    승인 절차를 거쳐 고객에게 노출됩니다.<br class="br-mo" />
+                    정확하고 신뢰할 수 있는 정보를 등록해 주시기 바랍니다.
+                </p>
 
-            <div>
-              <label class="form-label">상담 가능 시간</label>
-              <div class="form-inline time-range">
-                <button type="button" class="directory-select" data-popup-target="#popup-time-from" data-popup-sync="#fc-time-from">
-                  <span>0시</span>
-                </button>
-                <input type="hidden" id="fc-time-from" name="time_from" value="0" />
-                <span>~</span>
-                <button type="button" class="directory-select" data-popup-target="#popup-time-to" data-popup-sync="#fc-time-to">
-                  <span>0시</span>
-                </button>
-                <input type="hidden" id="fc-time-to" name="time_to" value="0" />
-              </div>
-            </div>
+                <nav class="c-tabs">
+                    <a href="MFC008.html">약관 및 동의</a>
+                    <a href="MFC008_01.html">기본정보 입력</a>
+                    <a href="MFC008_02.html" aria-current="page">프로필 입력</a>
+                    <a href="MFC008_03.html">활동정보 입력</a>
+                    <a href="MFC008_04.html">활동 스토리</a>
+                </nav>
+                <p class="signup-step-lead">
+                    고객이 확인할 프로필 정보를 입력해주세요.<br class="br-mo" />
+                    정확한 정보는 신뢰도를 높입니다.
+                </p>
 
-            <div class="form-field">
-              <label class="form-label" for="fc-language-value">상담 가능한 언어</label>
-              <button type="button" class="directory-select" data-popup-target="#popup-language" data-popup-sync="#fc-language-value">
-                <span>상담가능한 언어를 선택 해주세요.</span>
-              </button>
-              <input id="fc-language-value" type="hidden" name="language" value="" />
-            </div>
+                <form class="form-box" method="post">
+                    <div class="fc-profile-thumb">
+                        <button type="button" aria-label="프로필 이미지 등록">
+                            <img src="../assets/images/temp/@profile-m.png" alt="" />
+                        </button>
+                    </div>
 
-            <div class="form-actions">
-              <button type="submit">저장</button>
-            </div>
-          </form>
-        </div>
-      </main>
+                    <div class="form-field">
+                        <label class="form-label" for="fc-company">소속 원수사</label>
+                        <input class="form-input" id="fc-company" name="company" type="text" placeholder="소속 보험사를 입력해주세요." />
+                        <input class="form-input" name="company_sub" type="text" placeholder="소속 보험사가 추가로 있는 경우 입력해주세요." />
+                    </div>
 
-      <!-- 푸터 -->
-      <footer class="site-footer">
-        <div class="footer-inner">
-          <div class="footer-columns">
-            <div class="footer-col">
-              <p class="footer-logo">
-                <a href="MFC001.html" class="footer-logo-link"><img src="../assets/images/footer-logo.svg" alt="MyFC" /></a>
-              </p>
-              <div class="footer-info">
-                <p class="footer-ceo">
-                  <span>(주)더리치랩</span>
-                  <span>대표이사 박영진</span>
-                </p>
-                <p class="footer-info-split">
-                  <span>서울특별시 강남구 테헤란로 507, 8층 131호</span>
-                  <span>E-mail : <a href="mailto:myfc.helpdesk@gmail.com">myfc.helpdesk@gmail.com</a></span>
-                </p>
-                <p class="footer-info-split">
-                  <span>사업자등록번호 : 762-88-02797</span>
-                  <span>통신판매번호 : 제 2025-서울강남-06308호</span>
-                </p>
-                <p class="footer-info-split">
-                  <span>이용문의 : 010-9941-2899</span>
-                </p>
-              </div>
-              <p class="copyright">© 2026 TheRichLab Corp.</p>
+                    <div class="form-field">
+                        <label class="form-label" for="fc-ga">소속 GA</label>
+                        <input class="form-input" id="fc-ga" name="ga" type="text" placeholder="소속 GA를 입력해주세요." />
+                    </div>
+
+                    <div class="form-field">
+                        <label class="form-label" for="fc-position">직책</label>
+                        <input
+                            class="form-input"
+                            id="fc-position"
+                            name="position"
+                            type="text"
+                            placeholder="직책을 입력해주세요. (예: 지점장,팀장,FC)" />
+                    </div>
+
+                    <div class="form-field consult-date">
+                        <label class="form-label" for="fc-license-date">보험 자격 취득일</label>
+                        <input
+                            class="form-input"
+                            id="fc-license-date"
+                            name="license_date"
+                            type="text"
+                            autocomplete="off"
+                            placeholder="날짜를 선택해주세요" />
+                        <div class="consult-date-picker" hidden>
+                            <div class="consult-date-picker-head">
+                                <button type="button" class="consult-date-picker-nav prev" data-date-nav="prev" aria-label="이전 달"></button>
+                                <strong></strong>
+                                <button type="button" class="consult-date-picker-nav next" data-date-nav="next" aria-label="다음 달"></button>
+                            </div>
+                            <ol class="consult-date-picker-week">
+                                <li>일</li>
+                                <li>월</li>
+                                <li>화</li>
+                                <li>수</li>
+                                <li>목</li>
+                                <li>금</li>
+                                <li>토</li>
+                            </ol>
+                            <div class="consult-date-picker-days"></div>
+                        </div>
+                    </div>
+
+                    <div class="form-field">
+                        <label class="form-label" for="fc-license-no">보험모집종사자 등록번호(고유번호)</label>
+                        <input class="form-input" id="fc-license-no" name="license_no" type="text" placeholder="숫자만 입력해주세요." />
+                    </div>
+
+                    <div>
+                        <label class="form-label">상담 가능 시간</label>
+                        <div class="form-inline time-range">
+                            <button type="button" class="directory-select" data-popup-target="#popup-time-from" data-popup-sync="#fc-time-from">
+                                <span>0시</span>
+                            </button>
+                            <input type="hidden" id="fc-time-from" name="time_from" value="0" />
+                            <span>~</span>
+                            <button type="button" class="directory-select" data-popup-target="#popup-time-to" data-popup-sync="#fc-time-to">
+                                <span>0시</span>
+                            </button>
+                            <input type="hidden" id="fc-time-to" name="time_to" value="0" />
+                        </div>
+                    </div>
+
+                    <div class="form-field">
+                        <label class="form-label" for="fc-language-value">상담 가능한 언어</label>
+                        <button type="button" class="directory-select" data-popup-target="#popup-language" data-popup-sync="#fc-language-value">
+                            <span>상담가능한 언어를 선택 해주세요.</span>
+                        </button>
+                        <input id="fc-language-value" type="hidden" name="language" value="" />
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit">저장</button>
+                    </div>
+                </form>
             </div>
-            <div class="footer-trail">
-              <ul class="footer-links">
-                <li><a href="#">회사소개</a></li>
-                <li><a href="#">이용약관</a></li>
-                <li><a href="#">개인정보 처리방침</a></li>
-                <li><a href="#">법적책임</a></li>
-              </ul>
-              <div class="footer-patent">
-                <p class="footer-patent-mark">
-                  <img src="../assets/images/kipo-logo.svg" alt="특허청" />
-                  <span>특허청</span>
-                </p>
-                <div class="footer-patent-text">
-                  <p>MyFC의 서비스는 여러 건의 특허가 출원되어 있습니다</p>
-                  <p>(특허번호 : 10-2026-0062616 / 10-2026-0064554 외 다수)</p>
+        </main>
+
+        <!-- 푸터 -->
+        <footer class="site-footer">
+            <div class="footer-inner">
+                <div class="footer-columns">
+                    <div class="footer-col">
+                        <p class="footer-logo">
+                            <a href="MFC001.html" class="footer-logo-link"><img src="../assets/images/footer-logo.svg" alt="MyFC" /></a>
+                        </p>
+                        <div class="footer-info">
+                            <p class="footer-ceo">
+                                <span>(주)더리치랩</span>
+                                <span>대표이사 박영진</span>
+                            </p>
+                            <p class="footer-info-split">
+                                <span>서울특별시 강남구 테헤란로 507, 8층 131호</span>
+                                <span>E-mail : <a href="mailto:myfc.helpdesk@gmail.com">myfc.helpdesk@gmail.com</a></span>
+                            </p>
+                            <p class="footer-info-split">
+                                <span>사업자등록번호 : 762-88-02797</span>
+                                <span>통신판매번호 : 제 2025-서울강남-06308호</span>
+                            </p>
+                            <p class="footer-info-split">
+                                <span>이용문의 : 010-9941-2899</span>
+                            </p>
+                        </div>
+                        <p class="copyright">© 2026 TheRichLab Corp.</p>
+                    </div>
+                    <div class="footer-trail">
+                        <ul class="footer-links">
+                            <li><a href="#">회사소개</a></li>
+                            <li><a href="#">이용약관</a></li>
+                            <li><a href="#">개인정보 처리방침</a></li>
+                            <li><a href="#">법적책임</a></li>
+                        </ul>
+                        <div class="footer-patent">
+                            <p class="footer-patent-mark">
+                                <img src="../assets/images/kipo-logo.svg" alt="특허청" />
+                                <span>특허청</span>
+                            </p>
+                            <div class="footer-patent-text">
+                                <p>MyFC의 서비스는 여러 건의 특허가 출원되어 있습니다</p>
+                                <p>(특허번호 : 10-2026-0062616 / 10-2026-0064554 외 다수)</p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-              </div>
             </div>
-          </div>
-        </div>
-      </footer>
+        </footer>
     </div>
 
     <div id="popup-time-from" class="c-modal">
-      <button type="button" class="c-modal-backdrop" data-popup-close aria-label="닫기"></button>
-      <div class="c-modal-panel">
-        <div class="c-modal-head">
-          <h2 class="c-modal-title">상담 시작 시간</h2>
-          <button type="button" class="c-modal-close" data-popup-close aria-label="닫기"></button>
+        <button type="button" class="c-modal-backdrop" data-popup-close aria-label="닫기"></button>
+        <div class="c-modal-panel">
+            <div class="c-modal-head">
+                <h2 class="c-modal-title">상담 시작 시간</h2>
+                <button type="button" class="c-modal-close" data-popup-close aria-label="닫기"></button>
+            </div>
+            <div class="c-modal-body">
+                <ul class="c-modal-list">
+                    <li>
+                        <button type="button" class="c-modal-option is-selected" data-value="0">
+                            <span class="c-modal-option-label">0시</span><span class="c-modal-option-ico"></span>
+                        </button>
+                    </li>
+                    <li>
+                        <button type="button" class="c-modal-option" data-value="1">
+                            <span class="c-modal-option-label">1시</span><span class="c-modal-option-ico"></span>
+                        </button>
+                    </li>
+                    <li>
+                        <button type="button" class="c-modal-option" data-value="2">
+                            <span class="c-modal-option-label">2시</span><span class="c-modal-option-ico"></span>
+                        </button>
+                    </li>
+                    <li>
+                        <button type="button" class="c-modal-option" data-value="3">
+                            <span class="c-modal-option-label">3시</span><span class="c-modal-option-ico"></span>
+                        </button>
+                    </li>
+                    <li>
+                        <button type="button" class="c-modal-option" data-value="4">
+                            <span class="c-modal-option-label">4시</span><span class="c-modal-option-ico"></span>
+                        </button>
+                    </li>
+                    <li>
+                        <button type="button" class="c-modal-option" data-value="5">
+                            <span class="c-modal-option-label">5시</span><span class="c-modal-option-ico"></span>
+                        </button>
+                    </li>
+                    <li>
+                        <button type="button" class="c-modal-option" data-value="6">
+                            <span class="c-modal-option-label">6시</span><span class="c-modal-option-ico"></span>
+                        </button>
+                    </li>
+                    <li>
+                        <button type="button" class="c-modal-option" data-value="7">
+                            <span class="c-modal-option-label">7시</span><span class="c-modal-option-ico"></span>
+                        </button>
+                    </li>
+                    <li>
+                        <button type="button" class="c-modal-option" data-value="8">
+                            <span class="c-modal-option-label">8시</span><span class="c-modal-option-ico"></span>
+                        </button>
+                    </li>
+                    <li>
+                        <button type="button" class="c-modal-option" data-value="9">
+                            <span class="c-modal-option-label">9시</span><span class="c-modal-option-ico"></span>
+                        </button>
+                    </li>
+                    <li>
+                        <button type="button" class="c-modal-option" data-value="10">
+                            <span class="c-modal-option-label">10시</span><span class="c-modal-option-ico"></span>
+                        </button>
+                    </li>
+                    <li>
+                        <button type="button" class="c-modal-option" data-value="11">
+                            <span class="c-modal-option-label">11시</span><span class="c-modal-option-ico"></span>
+                        </button>
+                    </li>
+                    <li>
+                        <button type="button" class="c-modal-option" data-value="12">
+                            <span class="c-modal-option-label">12시</span><span class="c-modal-option-ico"></span>
+                        </button>
+                    </li>
+                    <li>
+                        <button type="button" class="c-modal-option" data-value="13">
+                            <span class="c-modal-option-label">13시</span><span class="c-modal-option-ico"></span>
+                        </button>
+                    </li>
+                    <li>
+                        <button type="button" class="c-modal-option" data-value="14">
+                            <span class="c-modal-option-label">14시</span><span class="c-modal-option-ico"></span>
+                        </button>
+                    </li>
+                    <li>
+                        <button type="button" class="c-modal-option" data-value="15">
+                            <span class="c-modal-option-label">15시</span><span class="c-modal-option-ico"></span>
+                        </button>
+                    </li>
+                    <li>
+                        <button type="button" class="c-modal-option" data-value="16">
+                            <span class="c-modal-option-label">16시</span><span class="c-modal-option-ico"></span>
+                        </button>
+                    </li>
+                    <li>
+                        <button type="button" class="c-modal-option" data-value="17">
+                            <span class="c-modal-option-label">17시</span><span class="c-modal-option-ico"></span>
+                        </button>
+                    </li>
+                    <li>
+                        <button type="button" class="c-modal-option" data-value="18">
+                            <span class="c-modal-option-label">18시</span><span class="c-modal-option-ico"></span>
+                        </button>
+                    </li>
+                    <li>
+                        <button type="button" class="c-modal-option" data-value="19">
+                            <span class="c-modal-option-label">19시</span><span class="c-modal-option-ico"></span>
+                        </button>
+                    </li>
+                    <li>
+                        <button type="button" class="c-modal-option" data-value="20">
+                            <span class="c-modal-option-label">20시</span><span class="c-modal-option-ico"></span>
+                        </button>
+                    </li>
+                    <li>
+                        <button type="button" class="c-modal-option" data-value="21">
+                            <span class="c-modal-option-label">21시</span><span class="c-modal-option-ico"></span>
+                        </button>
+                    </li>
+                    <li>
+                        <button type="button" class="c-modal-option" data-value="22">
+                            <span class="c-modal-option-label">22시</span><span class="c-modal-option-ico"></span>
+                        </button>
+                    </li>
+                    <li>
+                        <button type="button" class="c-modal-option" data-value="23">
+                            <span class="c-modal-option-label">23시</span><span class="c-modal-option-ico"></span>
+                        </button>
+                    </li>
+                </ul>
+            </div>
+            <div class="c-modal-foot">
+                <button type="button" class="btn btn-line" data-popup-confirm>확인</button>
+            </div>
         </div>
-        <div class="c-modal-body">
-          <ul class="c-modal-list">
-            <li>
-              <button type="button" class="c-modal-option is-selected" data-value="0">
-                <span class="c-modal-option-label">0시</span><span class="c-modal-option-ico"></span>
-              </button>
-            </li>
-            <li>
-              <button type="button" class="c-modal-option" data-value="1">
-                <span class="c-modal-option-label">1시</span><span class="c-modal-option-ico"></span>
-              </button>
-            </li>
-            <li>
-              <button type="button" class="c-modal-option" data-value="2">
-                <span class="c-modal-option-label">2시</span><span class="c-modal-option-ico"></span>
-              </button>
-            </li>
-            <li>
-              <button type="button" class="c-modal-option" data-value="3">
-                <span class="c-modal-option-label">3시</span><span class="c-modal-option-ico"></span>
-              </button>
-            </li>
-            <li>
-              <button type="button" class="c-modal-option" data-value="4">
-                <span class="c-modal-option-label">4시</span><span class="c-modal-option-ico"></span>
-              </button>
-            </li>
-            <li>
-              <button type="button" class="c-modal-option" data-value="5">
-                <span class="c-modal-option-label">5시</span><span class="c-modal-option-ico"></span>
-              </button>
-            </li>
-            <li>
-              <button type="button" class="c-modal-option" data-value="6">
-                <span class="c-modal-option-label">6시</span><span class="c-modal-option-ico"></span>
-              </button>
-            </li>
-            <li>
-              <button type="button" class="c-modal-option" data-value="7">
-                <span class="c-modal-option-label">7시</span><span class="c-modal-option-ico"></span>
-              </button>
-            </li>
-            <li>
-              <button type="button" class="c-modal-option" data-value="8">
-                <span class="c-modal-option-label">8시</span><span class="c-modal-option-ico"></span>
-              </button>
-            </li>
-            <li>
-              <button type="button" class="c-modal-option" data-value="9">
-                <span class="c-modal-option-label">9시</span><span class="c-modal-option-ico"></span>
-              </button>
-            </li>
-            <li>
-              <button type="button" class="c-modal-option" data-value="10">
-                <span class="c-modal-option-label">10시</span><span class="c-modal-option-ico"></span>
-              </button>
-            </li>
-            <li>
-              <button type="button" class="c-modal-option" data-value="11">
-                <span class="c-modal-option-label">11시</span><span class="c-modal-option-ico"></span>
-              </button>
-            </li>
-            <li>
-              <button type="button" class="c-modal-option" data-value="12">
-                <span class="c-modal-option-label">12시</span><span class="c-modal-option-ico"></span>
-              </button>
-            </li>
-            <li>
-              <button type="button" class="c-modal-option" data-value="13">
-                <span class="c-modal-option-label">13시</span><span class="c-modal-option-ico"></span>
-              </button>
-            </li>
-            <li>
-              <button type="button" class="c-modal-option" data-value="14">
-                <span class="c-modal-option-label">14시</span><span class="c-modal-option-ico"></span>
-              </button>
-            </li>
-            <li>
-              <button type="button" class="c-modal-option" data-value="15">
-                <span class="c-modal-option-label">15시</span><span class="c-modal-option-ico"></span>
-              </button>
-            </li>
-            <li>
-              <button type="button" class="c-modal-option" data-value="16">
-                <span class="c-modal-option-label">16시</span><span class="c-modal-option-ico"></span>
-              </button>
-            </li>
-            <li>
-              <button type="button" class="c-modal-option" data-value="17">
-                <span class="c-modal-option-label">17시</span><span class="c-modal-option-ico"></span>
-              </button>
-            </li>
-            <li>
-              <button type="button" class="c-modal-option" data-value="18">
-                <span class="c-modal-option-label">18시</span><span class="c-modal-option-ico"></span>
-              </button>
-            </li>
-            <li>
-              <button type="button" class="c-modal-option" data-value="19">
-                <span class="c-modal-option-label">19시</span><span class="c-modal-option-ico"></span>
-              </button>
-            </li>
-            <li>
-              <button type="button" class="c-modal-option" data-value="20">
-                <span class="c-modal-option-label">20시</span><span class="c-modal-option-ico"></span>
-              </button>
-            </li>
-            <li>
-              <button type="button" class="c-modal-option" data-value="21">
-                <span class="c-modal-option-label">21시</span><span class="c-modal-option-ico"></span>
-              </button>
-            </li>
-            <li>
-              <button type="button" class="c-modal-option" data-value="22">
-                <span class="c-modal-option-label">22시</span><span class="c-modal-option-ico"></span>
-              </button>
-            </li>
-            <li>
-              <button type="button" class="c-modal-option" data-value="23">
-                <span class="c-modal-option-label">23시</span><span class="c-modal-option-ico"></span>
-              </button>
-            </li>
-          </ul>
-        </div>
-        <div class="c-modal-foot">
-          <button type="button" class="btn btn-line" data-popup-confirm>확인</button>
-        </div>
-      </div>
     </div>
 
     <div id="popup-time-to" class="c-modal">
-      <button type="button" class="c-modal-backdrop" data-popup-close aria-label="닫기"></button>
-      <div class="c-modal-panel">
-        <div class="c-modal-head">
-          <h2 class="c-modal-title">상담 종료 시간</h2>
-          <button type="button" class="c-modal-close" data-popup-close aria-label="닫기"></button>
+        <button type="button" class="c-modal-backdrop" data-popup-close aria-label="닫기"></button>
+        <div class="c-modal-panel">
+            <div class="c-modal-head">
+                <h2 class="c-modal-title">상담 종료 시간</h2>
+                <button type="button" class="c-modal-close" data-popup-close aria-label="닫기"></button>
+            </div>
+            <div class="c-modal-body">
+                <ul class="c-modal-list">
+                    <li>
+                        <button type="button" class="c-modal-option is-selected" data-value="0">
+                            <span class="c-modal-option-label">0시</span><span class="c-modal-option-ico"></span>
+                        </button>
+                    </li>
+                    <li>
+                        <button type="button" class="c-modal-option" data-value="1">
+                            <span class="c-modal-option-label">1시</span><span class="c-modal-option-ico"></span>
+                        </button>
+                    </li>
+                    <li>
+                        <button type="button" class="c-modal-option" data-value="2">
+                            <span class="c-modal-option-label">2시</span><span class="c-modal-option-ico"></span>
+                        </button>
+                    </li>
+                    <li>
+                        <button type="button" class="c-modal-option" data-value="3">
+                            <span class="c-modal-option-label">3시</span><span class="c-modal-option-ico"></span>
+                        </button>
+                    </li>
+                    <li>
+                        <button type="button" class="c-modal-option" data-value="4">
+                            <span class="c-modal-option-label">4시</span><span class="c-modal-option-ico"></span>
+                        </button>
+                    </li>
+                    <li>
+                        <button type="button" class="c-modal-option" data-value="5">
+                            <span class="c-modal-option-label">5시</span><span class="c-modal-option-ico"></span>
+                        </button>
+                    </li>
+                    <li>
+                        <button type="button" class="c-modal-option" data-value="6">
+                            <span class="c-modal-option-label">6시</span><span class="c-modal-option-ico"></span>
+                        </button>
+                    </li>
+                    <li>
+                        <button type="button" class="c-modal-option" data-value="7">
+                            <span class="c-modal-option-label">7시</span><span class="c-modal-option-ico"></span>
+                        </button>
+                    </li>
+                    <li>
+                        <button type="button" class="c-modal-option" data-value="8">
+                            <span class="c-modal-option-label">8시</span><span class="c-modal-option-ico"></span>
+                        </button>
+                    </li>
+                    <li>
+                        <button type="button" class="c-modal-option" data-value="9">
+                            <span class="c-modal-option-label">9시</span><span class="c-modal-option-ico"></span>
+                        </button>
+                    </li>
+                    <li>
+                        <button type="button" class="c-modal-option" data-value="10">
+                            <span class="c-modal-option-label">10시</span><span class="c-modal-option-ico"></span>
+                        </button>
+                    </li>
+                    <li>
+                        <button type="button" class="c-modal-option" data-value="11">
+                            <span class="c-modal-option-label">11시</span><span class="c-modal-option-ico"></span>
+                        </button>
+                    </li>
+                    <li>
+                        <button type="button" class="c-modal-option" data-value="12">
+                            <span class="c-modal-option-label">12시</span><span class="c-modal-option-ico"></span>
+                        </button>
+                    </li>
+                    <li>
+                        <button type="button" class="c-modal-option" data-value="13">
+                            <span class="c-modal-option-label">13시</span><span class="c-modal-option-ico"></span>
+                        </button>
+                    </li>
+                    <li>
+                        <button type="button" class="c-modal-option" data-value="14">
+                            <span class="c-modal-option-label">14시</span><span class="c-modal-option-ico"></span>
+                        </button>
+                    </li>
+                    <li>
+                        <button type="button" class="c-modal-option" data-value="15">
+                            <span class="c-modal-option-label">15시</span><span class="c-modal-option-ico"></span>
+                        </button>
+                    </li>
+                    <li>
+                        <button type="button" class="c-modal-option" data-value="16">
+                            <span class="c-modal-option-label">16시</span><span class="c-modal-option-ico"></span>
+                        </button>
+                    </li>
+                    <li>
+                        <button type="button" class="c-modal-option" data-value="17">
+                            <span class="c-modal-option-label">17시</span><span class="c-modal-option-ico"></span>
+                        </button>
+                    </li>
+                    <li>
+                        <button type="button" class="c-modal-option" data-value="18">
+                            <span class="c-modal-option-label">18시</span><span class="c-modal-option-ico"></span>
+                        </button>
+                    </li>
+                    <li>
+                        <button type="button" class="c-modal-option" data-value="19">
+                            <span class="c-modal-option-label">19시</span><span class="c-modal-option-ico"></span>
+                        </button>
+                    </li>
+                    <li>
+                        <button type="button" class="c-modal-option" data-value="20">
+                            <span class="c-modal-option-label">20시</span><span class="c-modal-option-ico"></span>
+                        </button>
+                    </li>
+                    <li>
+                        <button type="button" class="c-modal-option" data-value="21">
+                            <span class="c-modal-option-label">21시</span><span class="c-modal-option-ico"></span>
+                        </button>
+                    </li>
+                    <li>
+                        <button type="button" class="c-modal-option" data-value="22">
+                            <span class="c-modal-option-label">22시</span><span class="c-modal-option-ico"></span>
+                        </button>
+                    </li>
+                    <li>
+                        <button type="button" class="c-modal-option" data-value="23">
+                            <span class="c-modal-option-label">23시</span><span class="c-modal-option-ico"></span>
+                        </button>
+                    </li>
+                </ul>
+            </div>
+            <div class="c-modal-foot">
+                <button type="button" class="btn btn-line" data-popup-confirm>확인</button>
+            </div>
         </div>
-        <div class="c-modal-body">
-          <ul class="c-modal-list">
-            <li>
-              <button type="button" class="c-modal-option is-selected" data-value="0">
-                <span class="c-modal-option-label">0시</span><span class="c-modal-option-ico"></span>
-              </button>
-            </li>
-            <li>
-              <button type="button" class="c-modal-option" data-value="1">
-                <span class="c-modal-option-label">1시</span><span class="c-modal-option-ico"></span>
-              </button>
-            </li>
-            <li>
-              <button type="button" class="c-modal-option" data-value="2">
-                <span class="c-modal-option-label">2시</span><span class="c-modal-option-ico"></span>
-              </button>
-            </li>
-            <li>
-              <button type="button" class="c-modal-option" data-value="3">
-                <span class="c-modal-option-label">3시</span><span class="c-modal-option-ico"></span>
-              </button>
-            </li>
-            <li>
-              <button type="button" class="c-modal-option" data-value="4">
-                <span class="c-modal-option-label">4시</span><span class="c-modal-option-ico"></span>
-              </button>
-            </li>
-            <li>
-              <button type="button" class="c-modal-option" data-value="5">
-                <span class="c-modal-option-label">5시</span><span class="c-modal-option-ico"></span>
-              </button>
-            </li>
-            <li>
-              <button type="button" class="c-modal-option" data-value="6">
-                <span class="c-modal-option-label">6시</span><span class="c-modal-option-ico"></span>
-              </button>
-            </li>
-            <li>
-              <button type="button" class="c-modal-option" data-value="7">
-                <span class="c-modal-option-label">7시</span><span class="c-modal-option-ico"></span>
-              </button>
-            </li>
-            <li>
-              <button type="button" class="c-modal-option" data-value="8">
-                <span class="c-modal-option-label">8시</span><span class="c-modal-option-ico"></span>
-              </button>
-            </li>
-            <li>
-              <button type="button" class="c-modal-option" data-value="9">
-                <span class="c-modal-option-label">9시</span><span class="c-modal-option-ico"></span>
-              </button>
-            </li>
-            <li>
-              <button type="button" class="c-modal-option" data-value="10">
-                <span class="c-modal-option-label">10시</span><span class="c-modal-option-ico"></span>
-              </button>
-            </li>
-            <li>
-              <button type="button" class="c-modal-option" data-value="11">
-                <span class="c-modal-option-label">11시</span><span class="c-modal-option-ico"></span>
-              </button>
-            </li>
-            <li>
-              <button type="button" class="c-modal-option" data-value="12">
-                <span class="c-modal-option-label">12시</span><span class="c-modal-option-ico"></span>
-              </button>
-            </li>
-            <li>
-              <button type="button" class="c-modal-option" data-value="13">
-                <span class="c-modal-option-label">13시</span><span class="c-modal-option-ico"></span>
-              </button>
-            </li>
-            <li>
-              <button type="button" class="c-modal-option" data-value="14">
-                <span class="c-modal-option-label">14시</span><span class="c-modal-option-ico"></span>
-              </button>
-            </li>
-            <li>
-              <button type="button" class="c-modal-option" data-value="15">
-                <span class="c-modal-option-label">15시</span><span class="c-modal-option-ico"></span>
-              </button>
-            </li>
-            <li>
-              <button type="button" class="c-modal-option" data-value="16">
-                <span class="c-modal-option-label">16시</span><span class="c-modal-option-ico"></span>
-              </button>
-            </li>
-            <li>
-              <button type="button" class="c-modal-option" data-value="17">
-                <span class="c-modal-option-label">17시</span><span class="c-modal-option-ico"></span>
-              </button>
-            </li>
-            <li>
-              <button type="button" class="c-modal-option" data-value="18">
-                <span class="c-modal-option-label">18시</span><span class="c-modal-option-ico"></span>
-              </button>
-            </li>
-            <li>
-              <button type="button" class="c-modal-option" data-value="19">
-                <span class="c-modal-option-label">19시</span><span class="c-modal-option-ico"></span>
-              </button>
-            </li>
-            <li>
-              <button type="button" class="c-modal-option" data-value="20">
-                <span class="c-modal-option-label">20시</span><span class="c-modal-option-ico"></span>
-              </button>
-            </li>
-            <li>
-              <button type="button" class="c-modal-option" data-value="21">
-                <span class="c-modal-option-label">21시</span><span class="c-modal-option-ico"></span>
-              </button>
-            </li>
-            <li>
-              <button type="button" class="c-modal-option" data-value="22">
-                <span class="c-modal-option-label">22시</span><span class="c-modal-option-ico"></span>
-              </button>
-            </li>
-            <li>
-              <button type="button" class="c-modal-option" data-value="23">
-                <span class="c-modal-option-label">23시</span><span class="c-modal-option-ico"></span>
-              </button>
-            </li>
-          </ul>
-        </div>
-        <div class="c-modal-foot">
-          <button type="button" class="btn btn-line" data-popup-confirm>확인</button>
-        </div>
-      </div>
     </div>
 
     <div id="popup-language" class="c-modal">
-      <button type="button" class="c-modal-backdrop" data-popup-close aria-label="닫기"></button>
-      <div class="c-modal-panel">
-        <div class="c-modal-head">
-          <h2 class="c-modal-title">상담 가능한 언어</h2>
-          <button type="button" class="c-modal-close" data-popup-close aria-label="닫기"></button>
+        <button type="button" class="c-modal-backdrop" data-popup-close aria-label="닫기"></button>
+        <div class="c-modal-panel">
+            <div class="c-modal-head">
+                <h2 class="c-modal-title">상담 가능한 언어</h2>
+                <button type="button" class="c-modal-close" data-popup-close aria-label="닫기"></button>
+            </div>
+            <div class="c-modal-body">
+                <ul class="c-modal-list">
+                    <li>
+                        <button type="button" class="c-modal-option is-selected" data-value="한국어">
+                            <span class="c-modal-option-label">한국어</span><span class="c-modal-option-ico"></span>
+                        </button>
+                    </li>
+                    <li>
+                        <button type="button" class="c-modal-option" data-value="영어">
+                            <span class="c-modal-option-label">영어</span><span class="c-modal-option-ico"></span>
+                        </button>
+                    </li>
+                    <li>
+                        <button type="button" class="c-modal-option" data-value="중국어">
+                            <span class="c-modal-option-label">중국어</span><span class="c-modal-option-ico"></span>
+                        </button>
+                    </li>
+                    <li>
+                        <button type="button" class="c-modal-option" data-value="일본어">
+                            <span class="c-modal-option-label">일본어</span><span class="c-modal-option-ico"></span>
+                        </button>
+                    </li>
+                </ul>
+            </div>
+            <div class="c-modal-foot">
+                <button type="button" class="btn btn-line" data-popup-confirm>확인</button>
+            </div>
         </div>
-        <div class="c-modal-body">
-          <ul class="c-modal-list">
-            <li>
-              <button type="button" class="c-modal-option is-selected" data-value="한국어">
-                <span class="c-modal-option-label">한국어</span><span class="c-modal-option-ico"></span>
-              </button>
-            </li>
-            <li>
-              <button type="button" class="c-modal-option" data-value="영어">
-                <span class="c-modal-option-label">영어</span><span class="c-modal-option-ico"></span>
-              </button>
-            </li>
-            <li>
-              <button type="button" class="c-modal-option" data-value="중국어">
-                <span class="c-modal-option-label">중국어</span><span class="c-modal-option-ico"></span>
-              </button>
-            </li>
-            <li>
-              <button type="button" class="c-modal-option" data-value="일본어">
-                <span class="c-modal-option-label">일본어</span><span class="c-modal-option-ico"></span>
-              </button>
-            </li>
-          </ul>
-        </div>
-        <div class="c-modal-foot">
-          <button type="button" class="btn btn-line" data-popup-confirm>확인</button>
-        </div>
-      </div>
     </div>
 
     <script src="../assets/js/ui.js"></script>
     <script src="../assets/js/popup.js"></script>
     <script src="../assets/js/common.js"></script>
-  </body>
+</body>
+
 </html>

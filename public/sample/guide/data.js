@@ -14,7 +14,7 @@ var TABLE_DATE = {
       d5: '',
       path: './html/MFC001.html',
       status: '완료',
-      note: '헤더 로그인 전 - 인크루드완료',
+      note: '헤더 로그인 전 - 인크루드완료 - /',
     },
     {
       no: '2',
@@ -53,7 +53,7 @@ var TABLE_DATE = {
       d5: '',
       path: './html/MFC003.html',
       status: '완료',
-      note: ' - 인크루드완료',
+      note: ' - 인크루드완료 - /fc/list',
     },
     {
       no: '5',
@@ -92,7 +92,7 @@ var TABLE_DATE = {
       d5: '',
       path: './html/MFC003_01.html',
       status: '완료',
-      note: '- 인크루드완료',
+      note: '- 인크루드완료 - /fc/view',
     },
     {
       no: '8',
@@ -758,7 +758,7 @@ var TABLE_DATE = {
       d5: '',
       path: './html/MFC006_01.html',
       status: '완료',
-      note: '',
+      note: '인크루드완료 - /member/login',
     },
     {
       no: '59',
@@ -771,7 +771,7 @@ var TABLE_DATE = {
       d5: '',
       path: './html/MFC006_01_01.html',
       status: '완료',
-      note: '',
+      note: '인크루드완료 - /member/find',
     },
     {
       no: '60',
@@ -784,7 +784,7 @@ var TABLE_DATE = {
       d5: '',
       path: './html/MFC006_01_01_01.html',
       status: '완료',
-      note: '',
+      note: '인크루드완료 - /member/findResult',
     },
     {
       no: '61',
@@ -797,7 +797,7 @@ var TABLE_DATE = {
       d5: '',
       path: './html/MFC006_01_02.html',
       status: '완료',
-      note: '',
+      note: '인크르드완료 - /member/passreSet',
     },
     {
       no: '62',
@@ -823,7 +823,7 @@ var TABLE_DATE = {
       d5: '',
       path: './html/MFC006_01_02_01_01.html',
       status: '완료',
-      note: '',
+      note: '인크르드완료 - /member/passreSet',
     },
     {
       no: '64',
@@ -836,7 +836,7 @@ var TABLE_DATE = {
       d5: '비밀번호 변경완료',
       path: './html/MFC006_01_02_01_01_01.html',
       status: '완료',
-      note: '',
+      note: '인크루드완료 - /member/passResult',
     },
     {
       no: '65',
@@ -889,7 +889,7 @@ var TABLE_DATE = {
       d5: '',
       path: './html/MFC007_select.html',
       status: '완료',
-      note: '',
+      note: '인크루드 완료 - modal/join_select.php',
     },
     {
       no: '68',
@@ -902,7 +902,7 @@ var TABLE_DATE = {
       d5: '',
       path: './html/MFC007.html',
       status: '완료',
-      note: '',
+      note: '인크루드완료 - /member/join',
     },
     {
       no: '69',
@@ -915,7 +915,7 @@ var TABLE_DATE = {
       d5: '',
       path: './html/MFC007_L01.html',
       status: '완료',
-      note: '',
+      note: '인크루드완료 - /modal/agree_modal.php',
     },
     {
       no: '70',
@@ -928,7 +928,7 @@ var TABLE_DATE = {
       d5: '',
       path: './html/MFC007_L02.html',
       status: '완료',
-      note: '',
+      note: '인크루드완료 - /modal/privacy_modal.php',
     },
     {
       no: '71',
@@ -941,7 +941,7 @@ var TABLE_DATE = {
       d5: '',
       path: './html/MFC007_L03.html',
       status: '완료',
-      note: '',
+      note: '인크루드완료 - /modal/marketing_modal.php',
     },
     {
       no: '72',
@@ -954,7 +954,7 @@ var TABLE_DATE = {
       d5: '',
       path: './html/MFC007_01_01.html',
       status: '완료',
-      note: '',
+      note: '인크루드완료 - /join/joinComplete',
     },
     {
       no: '73',
@@ -967,7 +967,7 @@ var TABLE_DATE = {
       d5: '',
       path: './html/MFC008.html',
       status: '완료',
-      note: '',
+      note: '인크루드완료 - /member/fcAgree',
     },
     {
       no: '74',
@@ -980,7 +980,7 @@ var TABLE_DATE = {
       d5: '',
       path: './html/MFC008_01.html',
       status: '완료',
-      note: '',
+      note: '인크루드완료 - /member/fcJoin1',
     },
     {
       no: '75',
@@ -993,7 +993,7 @@ var TABLE_DATE = {
       d5: '',
       path: './html/MFC008_01_01.html',
       status: '완료',
-      note: '',
+      note: '인크루드완료 - /member/fcComplete',
     },
     {
       no: '76',
@@ -1006,7 +1006,7 @@ var TABLE_DATE = {
       d5: '',
       path: './html/MFC008_02.html',
       status: '완료',
-      note: '',
+      note: '인크루드완료 - /member/fcJoin2',
     },
     {
       no: '77',
@@ -1019,7 +1019,7 @@ var TABLE_DATE = {
       d5: '',
       path: './html/MFC008_02.html',
       status: '완료',
-      note: 'MFC008_02 내 팝업 포함',
+      note: '인크루드완료 - /member/fcJoin2',
     },
     {
       no: '78',
@@ -1032,7 +1032,7 @@ var TABLE_DATE = {
       d5: '',
       path: './html/MFC008_03.html',
       status: '완료',
-      note: '',
+      note: '인크루드완료 - /member/fcJoin3',
     },
     {
       no: '79',
@@ -1045,7 +1045,7 @@ var TABLE_DATE = {
       d5: '',
       path: './html/MFC008_03.html',
       status: '완료',
-      note: 'MFC008_03 내 팝업 포함',
+      note: '인크루드완료 - /member/fcJoin3',
     },
     {
       no: '80',
@@ -1058,7 +1058,7 @@ var TABLE_DATE = {
       d5: '',
       path: './html/MFC008_03.html',
       status: '완료',
-      note: 'MFC008_03 내 팝업 포함',
+      note: '인크루드완료 - /member/fcJoin3',
     },
     {
       no: '81',
@@ -1071,7 +1071,7 @@ var TABLE_DATE = {
       d5: '',
       path: './html/MFC008_04.html',
       status: '완료',
-      note: '',
+      note: '인크루드완료 - /member/fcJoin4',
     },
     {
       no: '82',

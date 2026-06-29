@@ -1004,7 +1004,8 @@ textarea:focus {
 }
 
 .form-box>button[type='submit'],
-.form-box>.form-actions>button[type='submit'] {
+.form-box>.form-actions>button[type='submit'],
+.form-box>.form-actions>button#btnSubmit {
   width: 100%;
   min-height: 52px;
   margin-top: 8px;
@@ -1020,25 +1021,83 @@ textarea:focus {
 }
 
 .form-box>button[type='submit']:not(:disabled),
-.form-box>.form-actions>button[type='submit']:not(:disabled) {
+.form-box>.form-actions>button[type='submit']:not(:disabled),
+.form-box>.form-actions>button#btnSubmit:not(:disabled) {
   color: var(--bg);
   background: var(--primary);
   cursor: pointer;
 }
 
 .form-box>button[type='submit']:not(:disabled):hover,
-.form-box>.form-actions>button[type='submit']:not(:disabled):hover {
+.form-box>.form-actions>button[type='submit']:not(:disabled):hover,
+.form-box>.form-actions>button#btnSubmit:not(:disabled):hover {
   background: var(--primary-hover);
 }
 
 .form-box>button[type='submit']:focus-visible:not(:disabled),
-.form-box>.form-actions>button[type='submit']:focus-visible:not(:disabled) {
+.form-box>.form-actions>button[type='submit']:focus-visible:not(:disabled),
+.form-box>.form-actions>button#btnSubmit:focus-visible:not(:disabled) {
   outline: 2px solid var(--primary);
   outline-offset: 2px;
 }
 
-.form-box>.form-actions>button[type='submit'] {
+.form-box>.form-actions>button[type='submit'],
+.form-box>.form-actions>button#btnSubmit {
   margin-top: 0;
+}
+
+
+/* 기본 상태 */
+.btn-primary {
+    width: 100%;
+    min-height: 52px;
+    padding: 14px 20px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border: none;
+    border-radius: 12px;
+
+    font-size: 16px;
+    font-weight: 700;
+    font-family: inherit;
+
+    background: #e5e7eb;
+    color: var(--text-sub);
+
+    cursor: not-allowed;
+    transition: all .2s ease;
+}
+
+/* 활성화 */
+.btn-primary:not(:disabled) {
+    background: var(--primary);
+    color: #fff;
+    cursor: pointer;
+}
+
+/* Hover */
+.btn-primary:not(:disabled):hover {
+    background: var(--primary-hover);
+}
+
+/* Focus */
+.btn-primary:not(:disabled):focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+}
+
+/* Active */
+.btn-primary:not(:disabled):active {
+    transform: translateY(1px);
+}
+
+/* Disabled */
+.btn-primary:disabled {
+    opacity: 1;
+    pointer-events: none;
 }
 
 /* 버튼 베이스 — 변형은 main.css 등에서 */

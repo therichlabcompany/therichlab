@@ -41,6 +41,7 @@ class Autoload extends AutoloadConfig
         APP_NAMESPACE => APPPATH,
     ];
 
+
     /**
      * -------------------------------------------------------------------
      * Class Map
@@ -88,5 +89,8 @@ class Autoload extends AutoloadConfig
      *
      * @var list<string>
      */
-    public $helpers = [];
+    
+    public $helpers = [
+        'member'
+    ];
 }

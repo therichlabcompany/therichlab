@@ -48,6 +48,42 @@
     </div>
 </footer>
 </div>
+<?php $isReject = ($review['status'] ?? '') === 'REJECT'; ?>
+
+<?php if ($isReject): ?>
+<div class="c-modal sm is-open" role="dialog" aria-modal="true">
+
+    <button type="button" class="c-modal-backdrop" data-popup-close aria-label="닫기"></button>
+
+    <div class="c-modal-panel">
+
+        <div class="c-modal-head">
+            <h2 class="c-modal-title">승인 거부 사유</h2>
+            <button type="button" class="c-modal-close" data-popup-close aria-label="닫기"></button>
+        </div>
+
+        <div class="c-modal-body">
+
+            <p class="c-modal-meta">
+                <time>
+                    <?= esc($review['updated_at'] ?? '') ?>
+                </time>
+            </p>
+
+            <textarea class="form-textarea" name="reject_reason" readonly rows="6">
+<?= esc($review['reject_reason'] ?? '거부 사유가 없습니다.') ?>
+            </textarea>
+
+        </div>
+
+        <div class="c-modal-foot">
+            <button type="button" class="btn btn-line" onclick="location.href='/mypage/fcreviewed';">심의필 등록 바로가기</button>
+        </div>
+
+    </div>
+</div>
+<?php endif; ?>
+
 
 <?php
 // 팝업 파일들을 동적으로 include

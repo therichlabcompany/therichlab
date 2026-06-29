@@ -53,25 +53,44 @@ abstract class BaseController extends Controller
      */
     protected function renderView(string $view, array $data = [], bool $useLayout = true): string
     {
-        // 특정 뷰가 아닐 경우 세션 초기화
-        
-
         $clientIp = $this->request->getIPAddress();
-    
+        $session = session();
 
-    
-    
+        $memberId  = $session->get('member_id');
+        $memberUid = $session->get('member_uid');
+
+        // =========================
+        // 🔥 FC 심의 데이터 조회
+        // =========================
+        $db = \Config\Database::connect();
+
+        $review = null;
+
+        if ($memberUid) {
+            $review = $db->table('my_fc_reviewed')
+                ->where('member_uid', $memberUid)
+                ->get()
+                ->getRowArray();
+        }
+
+        // =========================
+        // layout data (header)
+        // =========================
         $layoutData = [
-            "header_class" => $data["header_class"]
-            ,"popup_page" => $data["popup_page"]
-            ,"modal_page" => $data["modal_page"]
+            "header_class" => $data["header_class"] ?? '',
+            "popup_page"   => $data["popup_page"] ?? [],
+            "modal_page"   => $data["modal_page"] ?? []
         ];
-        
-        // CodeIgniter 4의 extend/section 방식 사용
-        return view('layout/header', $layoutData) . 
-        view($view, $data) . 
-        view('layout/footer', $layoutData);
-       
+
+        // =========================
+        // 🔥 footer data 추가
+        // =========================
+        $footerData = $layoutData;
+        $footerData['review'] = $review; // 핵심
+
+        return view('layout/header', $layoutData)
+            . view($view, $data)
+            . view('layout/footer', $footerData);
     }
 
     /**

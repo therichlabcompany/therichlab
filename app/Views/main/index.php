@@ -1,19 +1,4 @@
 <!-- 메인 -->
-<aside class="profile-menu-drawer" data-profile-drawer>
-    <button type="button" class="profile-menu-drawer-close" data-profile-close aria-label="닫기"></button>
-    <div class="profile-menu-summary">
-        <strong>김노아</strong>
-        <p>username@gmail.com</p>
-    </div>
-    <ul>
-        <li><a href="/mypage/info">내 정보</a></li>
-        <li><a href="/mypage/certificate">내 증권 관리</a></li>
-        <li><a href="MFC004_L01_03.html">내 관심 FC</a></li>
-        <li><a href="MFC004_L01_04.html">상담현황</a></li>
-        <li><a href="/mypage/reviewList">나의 후기</a></li>
-    </ul>
-    <a href="MFC004_L01_06.html" class="profile-menu-logout">로그아웃</a>
-</aside>
 
 <!-- 히어로 -->
 <section class="hero">
