@@ -19,7 +19,7 @@
         <form class="form-box" method="post" enctype="multipart/form-data">
             <?php include_once (COMPONENT_PATH . '/fc_stroy_input.php');  ?>
             <div class="form-actions form-actions-split">
-                <a href="MFC003_01.html" class="btn">내 프로필 페이지로 이동</a>
+                <a href="/mypage/fcprofile" class="btn">내 프로필 페이지로 이동</a>
                 <button type="submit" class="btn btn-primary">수정 완료</button>
             </div>
         </form>
