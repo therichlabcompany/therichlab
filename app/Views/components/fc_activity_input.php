@@ -2,38 +2,56 @@
 $regionValue = $activity['region'] ?? '';
 $insuranceValue = $activity['insurance_types'] ?? '';
 
-// 팝업 버튼에 표시될 텍스트
-$regionText = str_replace(
-    [
-        'seoul',
-        'gyeonggi',
-        'incheon_bucheon',
-        'gangwon',
-        'daejeon_chungcheong',
-        'gwangju_jeolla',
-        'daegu_gyeongbuk',
-        'busan_ulsan_gyeongnam',
-        'jeju'
-    ],
-    [
-        '서울',
-        '경기',
-        '인천/부천',
-        '강원',
-        '대전/충청',
-        '광주/전라',
-        '대구/경북',
-        '부산/울산/경남',
-        '제주'
-    ],
-    str_replace(',', ', ', $regionValue)
-);
+// // 팝업 버튼에 표시될 텍스트
+// $regionText = str_replace(
+//     [
+//         'seoul',
+//         'gyeonggi',
+//         'incheon_bucheon',
+//         'gangwon',
+//         'daejeon_chungcheong',
+//         'gwangju_jeolla',
+//         'daegu_gyeongbuk',
+//         'busan_ulsan_gyeongnam',
+//         'jeju'
+//     ],
+//     [
+//         '서울',
+//         '경기',
+//         '인천/부천',
+//         '강원',
+//         '대전/충청',
+//         '광주/전라',
+//         '대구/경북',
+//         '부산/울산/경남',
+//         '제주'
+//     ],
+//     str_replace(',', ', ', $regionValue)
+// );
 
-$insuranceText = str_replace(
-    ['all', 'life', 'nonlife', 'indemnity', 'dental', 'driver', 'fire', 'child'],
-    ['전체', '생명보험', '손해보험', '실손보험', '치아보험', '운전자보험', '화재보험', '어린이보험'],
-    str_replace(',', ', ', $insuranceValue)
-);
+// $insuranceText = str_replace(
+//     ['all', 'life', 'nonlife', 'indemnity', 'dental', 'driver', 'fire', 'child'],
+//     ['전체', '생명보험', '손해보험', '실손보험', '치아보험', '운전자보험', '화재보험', '어린이보험'],
+//     str_replace(',', ', ', $insuranceValue)
+// );
+
+$regionText = "";
+foreach (explode(',', $regionValue) as $r):
+    if($regionText) $regionText.=",";
+    $regionText .= fc_region_label(trim($r));
+endforeach;  
+
+
+$insuranceText = "";
+
+foreach (explode(',', $insuranceValue) as $item): 
+    if($insuranceText) $insuranceText.=",";
+    $insuranceText .= fc_insurance_label(trim($item));
+endforeach;  
+                                             
+                                             
+
+
 ?>
 <div class="form-field">
     <label class="form-label" for="fc-region-value">본인 활동 지역</label>

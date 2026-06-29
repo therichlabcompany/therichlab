@@ -382,6 +382,7 @@ class MypageController extends BaseController
     public function fcactivity(): string
     {
         $session = session();
+        helper(['region', 'insurance']);
         $memberId = $session->get('member_id');
         $memberUid = $session->get('member_uid');
         
