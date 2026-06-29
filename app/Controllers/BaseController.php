@@ -73,13 +73,30 @@ abstract class BaseController extends Controller
                 ->getRowArray();
         }
 
+
+        $memberProfile = null;
+
+        if ($memberUid) {
+            $memberProfile = $db->table('my_fc_profile')
+                ->select('profile_image')
+                ->where('member_uid', $memberUid)
+                
+                ->get()
+                ->getRowArray();
+        }
+
+        // print_r($memberProfile);
+        // exit;
+
         // =========================
         // layout data (header)
         // =========================
         $layoutData = [
             "header_class" => $data["header_class"] ?? '',
             "popup_page"   => $data["popup_page"] ?? [],
-            "modal_page"   => $data["modal_page"] ?? []
+            "modal_page"   => $data["modal_page"] ?? [],
+            // 🔥 추가
+            "memberProfile" => $memberProfile
         ];
 
         // =========================

@@ -144,7 +144,10 @@ document.addEventListener('DOMContentLoaded', function () {
                         <?php else: ?>
                         <li class="member">
                             <button type="button" class="gnb-avatar" data-profile-toggle aria-expanded="false" aria-label="마이페이지 메뉴 열기">
-                                <img src="<?= SITE_IMG_URL ?>images/temp/@profile-m.png" alt="" class="gnb-avatar-img" />
+                                <img src="<?= !empty($memberProfile['profile_image'])
+        ? '/uploads/profile/'.$memberProfile['profile_image']
+        : SITE_IMG_URL . 'images/temp/@profile-m.png' ?>" alt="" class="gnb-avatar-img" />
+                                
                             </button>
                         </li>
                         <?php endif; ?>

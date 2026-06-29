@@ -211,13 +211,38 @@ $approval = trim($request->getGet('approval') ?? '');
 
         $memberUid = $this->request->getPost('member_uid');
 
+        if (!$memberUid) {
+            return redirect()->back()->with('error', '잘못된 요청입니다.');
+        }
+
+        $db->transStart();
+
+        /* =========================
+        * 1. 리뷰 테이블 승인 처리
+        ========================= */
         $db->table('my_fc_reviewed')
             ->where('member_uid', $memberUid)
             ->update([
                 'status' => 'APPROVE',
                 'approve_at' => date('Y-m-d H:i:s'),
-                'approve_admin_uid' => 'admin' // 필요시 세션으로 변경
+                'approve_admin_uid' => 'admin' // TODO: session admin id로 변경
             ]);
+
+        /* =========================
+        * 2. 회원 테이블 승인 상태 업데이트
+        ========================= */
+        $db->table('my_fc_member')
+            ->where('member_uid', $memberUid)
+            ->update([
+                'fc_review_status' => 'APPROVE',
+                'updated_at' => date('Y-m-d H:i:s')
+            ]);
+
+        $db->transComplete();
+
+        if ($db->transStatus() === false) {
+            return redirect()->back()->with('error', '승인 처리 실패');
+        }
 
         return redirect()->back()->with('success', '승인 처리 완료');
     }
