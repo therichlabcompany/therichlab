@@ -32,33 +32,74 @@
             </div>
 
             <div class="fc-profile-grid">
-                <article class="card">
-                    <div class="card-body">
-                        <a class="card-link" href="/fc/view">
-                            <div class="profile">
-                                <img src="<?= SITE_IMG_URL ?>images/temp/@profile-m.png" alt="" class="avatar" />
-                                <div>
-                                    <p class="profile-name">정민식</p>
-                                    <p class="c-rate">
-                                        <span class="c-rate-star">★</span> 5.0
-                                        <span class="c-rate-count">(1,495)</span>
-                                    </p>
-                                    <p class="c-dot-line">
-                                        <span>KB손해보험</span><span class="location"><span>전국</span></span>
-                                    </p>
-                                    <div class="list-tags">
-                                        <span>생명보험</span>
-                                        <span>건강보험</span>
-                                        <span>실손보험</span>
-                                        <span>연금보험</span>
-                                        <span>자녀보험</span>
-                                        <span>사업자보험</span>
+
+                <?php foreach ($list as $row): ?>
+
+                    <article class="card">
+                        <div class="card-body">
+                            <a class="card-link" href="/fc/view/?uid=<?= esc($row['member_uid']) ?>">
+                                <div class="profile">
+
+                                    <!-- profile image -->
+                                    <img
+                                        src="<?= !empty($row['profile_image']) ? '/uploads/profile/'.$row['profile_image'] : SITE_IMG_URL . 'images/temp/@profile-m.png' ?>"
+                                        alt=""
+                                        class="avatar" />
+
+                                    <div>
+
+                                        <!-- name -->
+                                        <p class="profile-name">
+                                            <?= esc($row['name']) ?>
+                                        </p>
+
+                                        <!-- rating -->
+                                        <p class="c-rate">
+                                            <span class="c-rate-star">★</span>
+                                            <?= number_format($row['rating'], 1) ?>
+                                            <span class="c-rate-count">
+                                                (<?= number_format($row['rating_count']) ?>)
+                                            </span>
+                                        </p>
+
+                                        <!-- company + region -->
+                                        <p class="c-dot-line">
+                                            <span><?= esc($row['company']) ?></span>
+
+                                            <span class="location">
+                                                <?php
+                                                $regions = explode(',', $row['region'] ?? '');
+                                                $region = trim($regions[0] ?? '');
+                                                ?>
+                                                <span>
+                                                    <?= fc_region_label($region) ?>
+                                                </span>
+                                            </span>
+                                        </p>
+
+                                        <!-- tags (최대 4개) -->
+                                        <div class="list-tags">
+                                            <?php
+                                            $items = array_slice(
+                                                explode(',', $row['insurance_types'] ?? ''),
+                                                0,
+                                                4
+                                            );
+                                            ?>
+
+                                            <?php foreach ($items as $item): ?>
+                                                <span><?= fc_insurance_label(trim($item)) ?></span>
+                                            <?php endforeach; ?>
+                                        </div>
+
                                     </div>
                                 </div>
-                            </div>
-                        </a>
-                    </div>
-                </article>
+
+                            </a>
+                        </div>
+                    </article>
+
+                <?php endforeach; ?>
                 <article class="card">
                     <div class="card-body">
                         <a class="card-link" href="/fc/view">
@@ -84,326 +125,42 @@
                         </a>
                     </div>
                 </article>
-                <article class="card">
-                    <div class="card-body">
-                        <a class="card-link" href="/fc/view">
-                            <div class="profile">
-                                <img src="<?= SITE_IMG_URL ?>images/temp/@profile-m.png" alt="" class="avatar" />
-                                <div>
-                                    <p class="profile-name">박준호</p>
-                                    <p class="c-rate">
-                                        <span class="c-rate-star">★</span> 4.9
-                                        <span class="c-rate-count">(892)</span>
-                                    </p>
-                                    <p class="c-dot-line">
-                                        <span>현대해상</span><span class="location"><span>부산·울산</span></span>
-                                    </p>
-                                    <div class="list-tags">
-                                        <span>화재보험</span>
-                                        <span>자동차보험</span>
-                                        <span>사업자보험</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </a>
-                    </div>
-                </article>
-                <article class="card">
-                    <div class="card-body">
-                        <a class="card-link" href="/fc/view">
-                            <div class="profile">
-                                <img src="<?= SITE_IMG_URL ?>images/temp/@profile-w.png" alt="" class="avatar" />
-                                <div>
-                                    <p class="profile-name">최유진</p>
-                                    <p class="c-rate">
-                                        <span class="c-rate-star">★</span> 5.0
-                                        <span class="c-rate-count">(1,120)</span>
-                                    </p>
-                                    <p class="c-dot-line">
-                                        <span>교보생명</span><span class="location"><span>인천·경기</span></span>
-                                    </p>
-                                    <div class="list-tags">
-                                        <span>연금</span>
-                                        <span>변액</span>
-                                        <span>자녀보험</span>
-                                        <span>치아보험</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </a>
-                    </div>
-                </article>
-                <article class="card">
-                    <div class="card-body">
-                        <a class="card-link" href="/fc/view">
-                            <div class="profile">
-                                <img src="<?= SITE_IMG_URL ?>images/temp/@profile-m.png" alt="" class="avatar" />
-                                <div>
-                                    <p class="profile-name">강도윤</p>
-                                    <p class="c-rate">
-                                        <span class="c-rate-star">★</span> 4.8
-                                        <span class="c-rate-count">(634)</span>
-                                    </p>
-                                    <p class="c-dot-line">
-                                        <span>메리츠화재</span><span class="location"><span>대전·세종</span></span>
-                                    </p>
-                                    <div class="list-tags">
-                                        <span>실손</span>
-                                        <span>뇌심장</span>
-                                        <span>치매간병</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </a>
-                    </div>
-                </article>
-                <article class="card">
-                    <div class="card-body">
-                        <a class="card-link" href="/fc/view">
-                            <div class="profile">
-                                <img src="<?= SITE_IMG_URL ?>images/temp/@profile-w.png" alt="" class="avatar" />
-                                <div>
-                                    <p class="profile-name">한지민</p>
-                                    <p class="c-rate">
-                                        <span class="c-rate-star">★</span> 5.0
-                                        <span class="c-rate-count">(2,341)</span>
-                                    </p>
-                                    <p class="c-dot-line">
-                                        <span>한화손보</span><span class="location"><span>광주·전남</span></span>
-                                    </p>
-                                    <div class="list-tags">
-                                        <span>생명보험</span>
-                                        <span>건강보험</span>
-                                        <span>태아보험</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </a>
-                    </div>
-                </article>
 
-                <article class="card">
-                    <div class="card-body">
-                        <a class="card-link" href="/fc/view">
-                            <div class="profile">
-                                <img src="<?= SITE_IMG_URL ?>images/temp/@profile-w.png" alt="" class="avatar" />
-                                <div>
-                                    <p class="profile-name">임하은</p>
-                                    <p class="c-rate">
-                                        <span class="c-rate-star">★</span> 5.0
-                                        <span class="c-rate-count">(756)</span>
-                                    </p>
-                                    <p class="c-dot-line">
-                                        <span>NH농협생명</span><span class="location"><span>제주</span></span>
-                                    </p>
-                                    <div class="list-tags">
-                                        <span>연금보험</span>
-                                        <span>저축보험</span>
-                                        <span>자녀</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </a>
-                    </div>
-                </article>
-                <article class="card">
-                    <div class="card-body">
-                        <a class="card-link" href="/fc/view">
-                            <div class="profile">
-                                <img src="<?= SITE_IMG_URL ?>images/temp/@profile-m.png" alt="" class="avatar" />
-                                <div>
-                                    <p class="profile-name">정민식</p>
-                                    <p class="c-rate">
-                                        <span class="c-rate-star">★</span> 5.0
-                                        <span class="c-rate-count">(1,495)</span>
-                                    </p>
-                                    <p class="c-dot-line">
-                                        <span>KB손해보험</span><span class="location"><span>전국</span></span>
-                                    </p>
-                                    <div class="list-tags">
-                                        <span>생명보험</span>
-                                        <span>건강보험</span>
-                                        <span>실손보험</span>
-                                        <span>연금보험</span>
-                                        <span>자녀보험</span>
-                                        <span>사업자보험</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </a>
-                    </div>
-                </article>
-                <article class="card">
-                    <div class="card-body">
-                        <a class="card-link" href="/fc/view">
-                            <div class="profile">
-                                <img src="<?= SITE_IMG_URL ?>images/temp/@profile-w.png" alt="" class="avatar" />
-                                <div>
-                                    <p class="profile-name">이서연</p>
-                                    <p class="c-rate">
-                                        <span class="c-rate-star">★</span> 5.0
-                                        <span class="c-rate-count">(2,018)</span>
-                                    </p>
-                                    <p class="c-dot-line">
-                                        <span>삼성화재</span><span class="location"><span>서울·경기</span></span>
-                                    </p>
-                                    <div class="list-tags">
-                                        <span>종신보험</span>
-                                        <span>암보험</span>
-                                        <span>실비보험</span>
-                                        <span>운전자보험</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </a>
-                    </div>
-                </article>
-                <article class="card">
-                    <div class="card-body">
-                        <a class="card-link" href="/fc/view">
-                            <div class="profile">
-                                <img src="<?= SITE_IMG_URL ?>images/temp/@profile-m.png" alt="" class="avatar" />
-                                <div>
-                                    <p class="profile-name">박준호</p>
-                                    <p class="c-rate">
-                                        <span class="c-rate-star">★</span> 4.9
-                                        <span class="c-rate-count">(892)</span>
-                                    </p>
-                                    <p class="c-dot-line">
-                                        <span>현대해상</span><span class="location"><span>부산·울산</span></span>
-                                    </p>
-                                    <div class="list-tags">
-                                        <span>화재보험</span>
-                                        <span>자동차보험</span>
-                                        <span>사업자보험</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </a>
-                    </div>
-                </article>
-                <article class="card">
-                    <div class="card-body">
-                        <a class="card-link" href="/fc/view">
-                            <div class="profile">
-                                <img src="<?= SITE_IMG_URL ?>images/temp/@profile-w.png" alt="" class="avatar" />
-                                <div>
-                                    <p class="profile-name">최유진</p>
-                                    <p class="c-rate">
-                                        <span class="c-rate-star">★</span> 5.0
-                                        <span class="c-rate-count">(1,120)</span>
-                                    </p>
-                                    <p class="c-dot-line">
-                                        <span>교보생명</span><span class="location"><span>인천·경기</span></span>
-                                    </p>
-                                    <div class="list-tags">
-                                        <span>연금</span>
-                                        <span>변액</span>
-                                        <span>자녀보험</span>
-                                        <span>치아보험</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </a>
-                    </div>
-                </article>
-                <article class="card">
-                    <div class="card-body">
-                        <a class="card-link" href="/fc/view">
-                            <div class="profile">
-                                <img src="<?= SITE_IMG_URL ?>images/temp/@profile-m.png" alt="" class="avatar" />
-                                <div>
-                                    <p class="profile-name">강도윤</p>
-                                    <p class="c-rate">
-                                        <span class="c-rate-star">★</span> 4.8
-                                        <span class="c-rate-count">(634)</span>
-                                    </p>
-                                    <p class="c-dot-line">
-                                        <span>메리츠화재</span><span class="location"><span>대전·세종</span></span>
-                                    </p>
-                                    <div class="list-tags">
-                                        <span>실손</span>
-                                        <span>뇌심장</span>
-                                        <span>치매간병</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </a>
-                    </div>
-                </article>
-                <article class="card">
-                    <div class="card-body">
-                        <a class="card-link" href="/fc/view">
-                            <div class="profile">
-                                <img src="<?= SITE_IMG_URL ?>images/temp/@profile-w.png" alt="" class="avatar" />
-                                <div>
-                                    <p class="profile-name">한지민</p>
-                                    <p class="c-rate">
-                                        <span class="c-rate-star">★</span> 5.0
-                                        <span class="c-rate-count">(2,341)</span>
-                                    </p>
-                                    <p class="c-dot-line">
-                                        <span>한화손보</span><span class="location"><span>광주·전남</span></span>
-                                    </p>
-                                    <div class="list-tags">
-                                        <span>생명보험</span>
-                                        <span>건강보험</span>
-                                        <span>태아보험</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </a>
-                    </div>
-                </article>
-
-                <article class="card">
-                    <div class="card-body">
-                        <a class="card-link" href="/fc/view">
-                            <div class="profile">
-                                <img src="<?= SITE_IMG_URL ?>images/temp/@profile-w.png" alt="" class="avatar" />
-                                <div>
-                                    <p class="profile-name">임하은</p>
-                                    <p class="c-rate">
-                                        <span class="c-rate-star">★</span> 5.0
-                                        <span class="c-rate-count">(756)</span>
-                                    </p>
-                                    <p class="c-dot-line">
-                                        <span>NH농협생명</span><span class="location"><span>제주</span></span>
-                                    </p>
-                                    <div class="list-tags">
-                                        <span>연금보험</span>
-                                        <span>저축보험</span>
-                                        <span>자녀</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </a>
-                    </div>
-                </article>
             </div>
         </section>
         <nav class="c-paging">
             <ul>
+                <!-- 이전 -->
                 <li>
-                    <a href="#" rel="prev"><span class="visually-hidden">이전 페이지</span></a>
+                    <a href="?page=<?= max(1, $page - 1) ?>"
+                        rel="prev"
+                        class="<?= ($page <= 1) ? 'disabled' : '' ?>">
+                        <span class="visually-hidden">이전 페이지</span>
+                    </a>
                 </li>
+
+                <!-- 페이지 번호 -->
+                <?php
+                $start = max(1, $page - 2);
+                $end = min($totalPages, $page + 2);
+                ?>
+
+                <?php for ($i = $start; $i <= $end; $i++): ?>
+                    <li>
+                        <a href="?page=<?= $i ?>"
+                            <?= ($i == $page) ? 'aria-current="page"' : '' ?>>
+                            <?= $i ?>
+                        </a>
+                    </li>
+                <?php endfor; ?>
+
+                <!-- 다음 -->
                 <li>
-                    <a href="#" aria-current="page">1</a>
-                </li>
-                <li>
-                    <a href="#">2</a>
-                </li>
-                <li>
-                    <a href="#">3</a>
-                </li>
-                <li>
-                    <a href="#">4</a>
-                </li>
-                <li>
-                    <a href="#">5</a>
-                </li>
-                <li>
-                    <a href="#" rel="next"><span class="visually-hidden">다음 페이지</span></a>
+                    <a href="?page=<?= min($totalPages, $page + 1) ?>"
+                        rel="next"
+                        class="<?= ($page >= $totalPages) ? 'disabled' : '' ?>">
+                        <span class="visually-hidden">다음 페이지</span>
+                    </a>
                 </li>
             </ul>
             <div>

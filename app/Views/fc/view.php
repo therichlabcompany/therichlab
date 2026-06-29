@@ -1,13 +1,38 @@
-
 <main>
     <div class="page-inner">
         <article class="fc-detail-card">
             <div class="fc-detail-head">
-                <img src="<?= SITE_IMG_URL ?>images/temp/@profile-w.png" alt="" />
+                <img src="<?= !empty($profile['profile_image']) ? '/uploads/profile/' . $profile['profile_image'] : SITE_IMG_URL . 'images/temp/@profile-m.png' ?>" alt="" />
                 <div class="fc-detail-head-main">
                     <!-- 소속: 보험사 최대 2곳 또는 GA 최대 1곳(데이터에 맞게 노출) -->
-                    <p>신한라이프 · KB생명보험</p>
-                    <h1>한지은 FC <span>10년차 이사</span></h1>
+                    <?php
+                    $companyLine = [];
+
+                    if (!empty($profile['ga'])) {
+                        $companyLine[] = $profile['ga'];
+                    } else {
+                        if (!empty($profile['company'])) $companyLine[] = $profile['company'];
+                        if (!empty($profile['company_sub'])) $companyLine[] = $profile['company_sub'];
+                    }
+                    ?>
+
+                    <?php if (!empty($companyLine)): ?>
+                        <p><?= esc(implode(' · ', array_slice($companyLine, 0, 2))) ?></p>
+                    <?php endif; ?>
+                    <?php
+                    $companyLine = [];
+
+                    if (!empty($profile['ga'])) {
+                        $companyLine[] = $profile['ga'];
+                    } else {
+                        if (!empty($profile['company'])) $companyLine[] = $profile['company'];
+                        if (!empty($profile['company_sub'])) $companyLine[] = $profile['company_sub'];
+                    }
+                    ?>
+
+                    <?php if (!empty($companyLine)): ?>
+                        <p><?= esc(implode(' · ', array_slice($companyLine, 0, 2))) ?></p>
+                    <?php endif; ?>
                 </div>
                 <div class="fc-detail-head-actions">
                     <button type="button" class="detail-capture-btn">화면캡쳐</button>
@@ -21,30 +46,84 @@
             </div>
 
             <div class="fc-detail">
+
+                <!-- 활동 지역 (전체) -->
                 <div class="fc-detail-item">
                     <h3>활동 지역</h3>
-                    <p>서울 경기 인천/부천 청주/충북 광주/전남</p>
+                    <p>
+                        <?php if (!empty($activity['region'])): ?>
+                            <?= implode(' ', array_map(function ($r) {
+                                return fc_region_label(trim($r));
+                            }, explode(',', $activity['region']))) ?>
+                        <?php endif; ?>
+                    </p>
                 </div>
+
+                <!-- 보험 항목 (전체) -->
                 <div class="fc-detail-item">
                     <h3>운영 가능 보험 항목</h3>
-                    <p>종신보험 암보험 뇌심장보험 실비보험</p>
+                    <p>
+                        <?php if (!empty($activity['insurance_types'])): ?>
+                            <?= implode(' ', array_map(function ($i) {
+                                return fc_insurance_label(trim($i));
+                            }, explode(',', $activity['insurance_types']))) ?>
+                        <?php endif; ?>
+                    </p>
                 </div>
-                <div class="fc-detail-item">
-                    <h3>전문 분야</h3>
-                    <p>가족 맞춤 보험, 상해 질병 대비 컨설팅<br />재테크 상담 가능</p>
-                </div>
-                <div class="fc-detail-item">
-                    <h3>심의필 번호</h3>
-                    <p>KMI에셋준법 심의필 제20260120001호(2026.01.20.~2027.01.19.)</p>
-                </div>
-                <div class="fc-detail-item">
-                    <h3>상담 가능 시간</h3>
-                    <p>09:00 ~ 21:00</p>
-                </div>
-                <div class="fc-detail-item">
-                    <h3>상담 가능한 언어</h3>
-                    <p>한국어, 영어, 일어</p>
-                </div>
+
+                <!-- 전문 분야 (intro + hero_line 혼합) -->
+                <?php if (!empty($activity['hero_line']) || !empty($activity['intro'])): ?>
+                    <div class="fc-detail-item">
+                        <h3>전문 분야</h3>
+                        <p>
+                            <?php if (!empty($activity['hero_line'])): ?>
+                                <?= esc($activity['hero_line']) ?><br />
+                            <?php endif; ?>
+
+                            <?php if (!empty($activity['intro'])): ?>
+                                <?= nl2br(esc($activity['intro'])) ?>
+                            <?php endif; ?>
+                        </p>
+                    </div>
+                <?php endif; ?>
+
+                <!-- 심의필 -->
+                <?php if (!empty($review)): ?>
+                    <div class="fc-detail-item">
+                        <h3>심의필 번호</h3>
+                        <p>
+                            <?= esc($review['deliberation_no']) ?>
+                            <?php if (!empty($review['approval_start']) || !empty($review['approval_end'])): ?>
+                                (<?= esc($review['approval_start']) ?> ~ <?= esc($review['approval_end']) ?>)
+                            <?php endif; ?>
+                        </p>
+                    </div>
+                <?php endif; ?>
+
+                <!-- 상담 가능 시간 -->
+                <?php if (!empty($profile['time_from']) || !empty($profile['time_to'])): ?>
+                    <div class="fc-detail-item">
+                        <h3>상담 가능 시간</h3>
+                        <p>
+                            <?= sprintf(
+                                "%02d:00 ~ %02d:00",
+                                (int)$profile['time_from'],
+                                (int)$profile['time_to']
+                            ) ?>
+                        </p>
+                    </div>
+                <?php endif; ?>
+
+                <!-- 상담 가능 언어 -->
+                <?php if (!empty($profile['language'])): ?>
+                    <div class="fc-detail-item">
+                        <h3>상담 가능한 언어</h3>
+                        <p>
+                            <?= esc($profile['language']) ?>
+                        </p>
+                    </div>
+                <?php endif; ?>
+
             </div>
 
             <div class="fc-detail-cta-wrap">
@@ -55,43 +134,74 @@
         <section class="section fc-detail-bio">
             <h2 class="section-title">경력사항</h2>
             <ul>
-                <li>- 한화생명 FC (2005 ~ 현재 / 9년차 활동)</li>
-                <li>- 신한라이프 FC (2003 ~ 2005 / 2년차 활동)</li>
-                <li>- MDRT 회원 (2023, 2024)</li>
+                <?php if (!empty($activity['career'])): ?>
+                    <?php foreach (preg_split('/\r\n|\r|\n/', trim($activity['career'])) as $line): ?>
+                        <?php if (trim($line) !== ''): ?>
+                            <li><?= esc(trim($line)) ?></li>
+                        <?php endif; ?>
+                    <?php endforeach; ?>
+                <?php endif; ?>
             </ul>
         </section>
 
         <section class="section fc-detail-certs-section">
             <div class="fc-detail-certs-block">
                 <h2 class="section-title">이력 및 인증</h2>
+
                 <ul class="fc-detail-certs">
-                    <li>
-                        <span>- MDRT</span>
-                        <a
-                            href="<?= SITE_IMG_URL ?>images/ic-success-circle.svg"
-                            download
-                            class="fc-detail-cert-dl"
-                            aria-label="MDRT 증빙 파일 다운로드"></a>
-                    </li>
-                    <li>
-                        <span>- CFP 자격</span>
-                        <a
-                            href="<?= SITE_IMG_URL ?>images/ic-success-circle.svg"
-                            class="fc-detail-cert-dl fc-detail-cert-link"
-                            aria-label="CFP 자격 증빙 링크 이동"></a>
-                    </li>
+
+                    <?php foreach ($activityItems as $row): ?>
+
+                        <?php if (empty($row['title'])) continue; ?>
+
+                        <li>
+
+                            <!-- 공통 제목 -->
+                            <span>- <?= esc($row['title']) ?></span>
+
+                            <!-- FILE -->
+                            <?php if ($row['type'] === 'file' && !empty($row['file_path'])): ?>
+                                <a
+                                    href="/uploads/profile/<?= esc($row['file_path']) ?>"
+                                    download
+                                    class="fc-detail-cert-dl"
+                                    aria-label="<?= esc($row['title']) ?> 파일 다운로드">
+                                </a>
+                            <?php endif; ?>
+
+                            <!-- LINK -->
+                            <?php if ($row['type'] === 'link' && !empty($row['url'])): ?>
+                                <a
+                                    href="<?= esc($row['url']) ?>"
+                                    target="_blank"
+                                    class="fc-detail-cert-dl fc-detail-cert-link"
+                                    aria-label="<?= esc($row['title']) ?> 링크 이동">
+                                </a>
+                            <?php endif; ?>
+
+                            <!-- TEXT -->
+                            <?php if ($row['type'] === 'text' && !empty($row['content'])): ?>
+                                <span class="fc-cert-text">
+                                    <?= esc($row['content']) ?>
+                                </span>
+                            <?php endif; ?>
+
+                        </li>
+
+                    <?php endforeach; ?>
+
                 </ul>
             </div>
         </section>
 
-        <section class="section fc-detail-about">
-            <h2 class="section-title">자기소개</h2>
-            <p>
-                9년간 보험 설계 경험을 바탕으로 고객님의 상황에 꼭 맞는 맞춤형 솔루션을 제안합니다. 단순한 상품 판매가 아니라, 가족의 미래와
-                삶의 질을 지킬 수 있는 실질적인 보장을 함께 고민합니다. 상담 과정에서는 불필요한 권유 없이 필요한 정보를 투명하게 설명드리며,
-                언제든 안심하고 편하게 상담받으실 수 있도록 최선을 다하겠습니다.
-            </p>
-        </section>
+        <?php if (!empty($activity['intro'])): ?>
+            <section class="section fc-detail-about">
+                <h2 class="section-title">자기소개</h2>
+                <p>
+                    <?= nl2br(esc($activity['intro'])) ?>
+                </p>
+            </section>
+        <?php endif; ?>
 
         <section class="section detail-reviews">
             <header>
@@ -247,62 +357,60 @@
             </div>
         </section>
 
-        <section class="section fc-detail-story">
-            <header class="section-head">
-                <h2 class="section-title">영상 스토리</h2>
-            </header>
+        <?php if (!empty($story['story_video']) || !empty($story['story_image'])): ?>
 
-            <div>
-                <img src="https://i.ytimg.com/vi/oYwT7UuUOEA/sddefault.jpg" alt="" />
-            </div>
-        </section>
+            <section class="section fc-detail-story">
+                <header class="section-head">
+                    <h2 class="section-title">영상 스토리</h2>
+                </header>
 
-        <section class="section fc-detail-story fc-detail-story-images">
-            <header class="section-head">
-                <h2 class="section-title">활동 이미지</h2>
-                <div class="section-head-right">
-                    <div class="control-box">
-                        <button type="button" class="control-btn swiper-nav-prev" aria-label="이전 활동 이미지"></button>
-                        <button type="button" class="control-btn swiper-nav-next" aria-label="다음 활동 이미지"></button>
+                <div>
+                    <?php if (!empty($story['story_image'])): ?>
+                        <img src="/uploads/story/main/<?= esc($story['story_image']) ?>" alt="스토리 이미지">
+                    <?php elseif (!empty($story['story_video'])): ?>
+                        <video controls style="width:100%;">
+                            <source src="/uploads/story/video/<?= esc($story['story_video']) ?>" type="video/mp4">
+                        </video>
+                    <?php endif; ?>
+                </div>
+            </section>
+
+        <?php endif; ?>
+
+        <?php if (!empty($storyImages)): ?>
+
+            <section class="section fc-detail-story fc-detail-story-images">
+                <header class="section-head">
+                    <h2 class="section-title">활동 이미지</h2>
+
+                    <div class="section-head-right">
+                        <div class="control-box">
+                            <button type="button" class="control-btn swiper-nav-prev"></button>
+                            <button type="button" class="control-btn swiper-nav-next"></button>
+                        </div>
+                    </div>
+                </header>
+
+                <div class="swiper fc-detail-story-swiper js-story-list-swiper">
+                    <div class="swiper-wrapper">
+
+                        <?php foreach ($storyImages as $idx => $img): ?>
+                            <div class="swiper-slide">
+                                <a href="#"
+                                class="fc-story-trigger"
+                                data-index="<?= $idx ?>"
+                                aria-label="활동 이미지 상세 보기 <?= $idx + 1 ?>">
+                                    <img src="/uploads/story/images/<?= esc($img['image_path']) ?>"
+                                        alt="활동 이미지 <?= $idx + 1 ?>">
+                                </a>
+                            </div>
+                        <?php endforeach; ?>
+
                     </div>
                 </div>
-            </header>
+            </section>
 
-            <div class="swiper fc-detail-story-swiper">
-                <div class="swiper-wrapper">
-                    <div class="swiper-slide">
-                        <a href="MFC003_01_L02.html?index=0" class="fc-story-trigger" aria-label="활동 이미지 상세 보기 1">
-                            <img src="<?= SITE_IMG_URL ?>images/temp/@story01.jpg" alt="활동 이미지 1" />
-                        </a>
-                    </div>
-                    <div class="swiper-slide">
-                        <a href="MFC003_01_L02.html?index=1" class="fc-story-trigger" aria-label="활동 이미지 상세 보기 2">
-                            <img src="<?= SITE_IMG_URL ?>images/temp/@story03-portrait.jpg" alt="활동 이미지 2" />
-                        </a>
-                    </div>
-                    <div class="swiper-slide">
-                        <a href="MFC003_01_L02.html?index=2" class="fc-story-trigger" aria-label="활동 이미지 상세 보기 3">
-                            <img src="<?= SITE_IMG_URL ?>images/temp/@story01.jpg" alt="활동 이미지 3" />
-                        </a>
-                    </div>
-                    <div class="swiper-slide">
-                        <a href="MFC003_01_L02.html?index=3" class="fc-story-trigger" aria-label="활동 이미지 상세 보기 4">
-                            <img src="<?= SITE_IMG_URL ?>images/temp/@story02.jpg" alt="활동 이미지 4" />
-                        </a>
-                    </div>
-                    <div class="swiper-slide">
-                        <a href="MFC003_01_L02.html?index=4" class="fc-story-trigger" aria-label="활동 이미지 상세 보기 5">
-                            <img src="<?= SITE_IMG_URL ?>images/temp/@story01.jpg" alt="활동 이미지 5" />
-                        </a>
-                    </div>
-                    <div class="swiper-slide">
-                        <a href="MFC003_01_L02.html?index=5" class="fc-story-trigger" aria-label="활동 이미지 상세 보기 6">
-                            <img src="<?= SITE_IMG_URL ?>images/temp/@story02.jpg" alt="활동 이미지 6" />
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </section>
+        <?php endif; ?>
         <aside class="detail-notice-box">
             <h3 class="detail-notice-title">주의사항</h3>
             <p>
@@ -312,46 +420,154 @@
         </aside>
     </div>
 </main>
+<?php if (!empty($storyImages)): ?>
+
+<div class="c-modal md" id="storyModal">
+    <button type="button" class="c-modal-backdrop" data-popup-close aria-label="닫기"></button>
+
+    <div class="c-modal-panel">
+        <div class="c-modal-head">
+            <h2 class="c-modal-title">활동 스토리</h2>
+            <button type="button" class="c-modal-close" data-popup-close aria-label="닫기"></button>
+        </div>
+
+        <div class="c-modal-body">
+            <div class="story-detail-wrap">
+
+                <button type="button"
+                        class="control-btn swiper-nav-prev"
+                        aria-label="이전 이미지"></button>
+
+                <div class="swiper story-detail-swiper">
+                    <div class="swiper-wrapper">
+
+                        <?php foreach ($storyImages as $idx => $img): ?>
+                            <div class="swiper-slide">
+                                <article class="story-detail-card">
+                                    <div class="body">
+                                        <img
+                                            src="/uploads/story/images/<?= esc($img['image_path']) ?>"
+                                            alt="활동 이미지 <?= $idx + 1 ?> 상세" />
+                                    </div>
+                                </article>
+                            </div>
+                        <?php endforeach; ?>
+
+                    </div>
+                </div>
+
+                <button type="button"
+                        class="control-btn swiper-nav-next"
+                        aria-label="다음 이미지"></button>
+
+            </div>
+        </div>
+
+        <div class="c-modal-foot">
+            <button type="button" class="btn btn-line" data-popup-close>닫기</button>
+        </div>
+    </div>
+</div>
+
+<?php endif; ?>
 <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
 <script>
-    (function() {
-        'use strict';
-        if (typeof MyFC === 'undefined' || typeof Swiper === 'undefined') return;
+(function () {
+    'use strict';
 
-        var scope = document.querySelector('section.detail-reviews');
-        var el = scope && scope.querySelector('.detail-reviews-swiper');
-        if (el && scope) {
-            MyFC.initSwiper(el, scope, {
-                speed: 450,
-                slidesPerView: 1,
-                spaceBetween: 0,
-                allowTouchMove: false,
-                watchOverflow: true,
-                loop: true,
+    if (typeof MyFC === 'undefined' || typeof Swiper === 'undefined') return;
+
+    let storySwiper = null;
+
+    const modal = document.getElementById('storyModal');
+    const triggerList = document.querySelectorAll('.fc-story-trigger');
+
+    const openModal = () => {
+        modal.classList.add('is-open');
+        document.body.classList.add('modal-open');
+    };
+
+    const closeModal = () => {
+        modal.classList.remove('is-open');
+        document.body.classList.remove('modal-open');
+    };
+
+    // =========================
+    // 1. 리스트 클릭 이벤트
+    // =========================
+    triggerList.forEach(el => {
+        el.addEventListener('click', function (e) {
+            e.preventDefault();
+
+            const index = parseInt(this.dataset.index || 0, 10);
+
+            openModal();
+
+            // Swiper lazy init (1회만)
+            const wrap = modal.querySelector('.story-detail-swiper');
+            const scope = modal.querySelector('.story-detail-wrap');
+
+            if (!storySwiper) {
+                storySwiper = MyFC.initSwiper(wrap, scope, {
+                    speed: 380,
+                    slidesPerView: 1,
+                    spaceBetween: 0,
+                    loop: false,
+                    autoHeight: true,
+                    observer: true,
+                    observeParents: true,
+                    navigation: {
+                        nextEl: scope.querySelector('.swiper-nav-next'),
+                        prevEl: scope.querySelector('.swiper-nav-prev'),
+                    }
+                });
+            }
+
+            // index 이동
+            requestAnimationFrame(() => {
+                storySwiper.slideTo(index, 0);
+                storySwiper.update();
             });
-        }
+        });
+    });
 
-        // 활동 이미지 캐러셀
-        var storyScope = document.querySelector('section.fc-detail-story-images');
-        var storyEl = storyScope && storyScope.querySelector('.fc-detail-story-swiper');
-        if (storyEl && storyScope) {
-            MyFC.initSwiper(storyEl, storyScope, {
-                speed: 450,
-                slidesPerView: 3,
-                spaceBetween: 8,
-                grabCursor: true,
-                watchOverflow: true,
-                breakpoints: {
-                    0: {
-                        slidesPerView: 2,
-                        spaceBetween: 6
-                    },
-                    641: {
-                        slidesPerView: 3,
-                        spaceBetween: 8
-                    },
+    // =========================
+    // 2. 모달 닫기
+    // =========================
+    document.addEventListener('click', function (e) {
+        if (e.target.matches('[data-popup-close]')) {
+            closeModal();
+        }
+    });
+
+})();
+
+(function () {
+    'use strict';
+
+    if (typeof MyFC === 'undefined' || typeof Swiper === 'undefined') return;
+
+    var storyScope = document.querySelector('section.fc-detail-story-images');
+    var storyEl = storyScope && storyScope.querySelector('.js-story-list-swiper');
+
+    if (storyEl && storyScope) {
+        MyFC.initSwiper(storyEl, storyScope, {
+            speed: 450,
+            slidesPerView: 3,
+            spaceBetween: 8,
+            grabCursor: true,
+            watchOverflow: true,
+            breakpoints: {
+                0: {
+                    slidesPerView: 2,
+                    spaceBetween: 6
                 },
-            });
-        }
-    })();
+                641: {
+                    slidesPerView: 3,
+                    spaceBetween: 8
+                }
+            }
+        });
+    }
+})();
 </script>
