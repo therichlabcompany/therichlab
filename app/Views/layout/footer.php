@@ -4,7 +4,7 @@
         <div class="footer-columns">
             <div class="footer-col">
                 <p class="footer-logo">
-                    <a href="/" class="footer-logo-link"><img src="../assets/images/footer-logo.svg" alt="MyFC" /></a>
+                    <a href="/" class="footer-logo-link"><img src="<?= SITE_IMG_URL ?>images/footer-logo.svg" alt="MyFC" /></a>
                 </p>
                 <div class="footer-info">
                     <p class="footer-ceo">
@@ -35,7 +35,7 @@
                 </ul>
                 <div class="footer-patent">
                     <p class="footer-patent-mark">
-                        <img src="../assets/images/kipo-logo.svg" alt="특허청" />
+                        <img src="<?= SITE_IMG_URL ?>images/kipo-logo.svg" alt="특허청" />
                         <span>특허청</span>
                     </p>
                     <div class="footer-patent-text">
