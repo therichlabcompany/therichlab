@@ -227,6 +227,7 @@ class MemberController extends BaseController
     public function fcJoin_step3(): string
     {
         //return pageView('welcome_message');
+        helper(['region', 'insurance']);
         $header_class = "form-page signup-page";
         $popup_page = [];
 
