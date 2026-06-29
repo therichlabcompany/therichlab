@@ -15,7 +15,7 @@ $profileImage = !empty($profile['profile_image'])
 <div class="form-field">
     <label class="form-label" for="fc-company">소속 원수사</label>
     <input class="form-input" id="fc-company" name="company" type="text" placeholder="소속 보험사를 입력해주세요." value="<?= esc($profile['company'] ?? '') ?>" />
-    <input class="form-input" name="company_sub" type="text" placeholder="소속 보험사가 추가로 있는 경우 입력해주세요." value="<?= esc($profile['company_sub'] ?? '') ?>" />
+    <input class="form-input" name="company_sub" type="text" placeholder="교차 보험사가 추가로 있는 경우 입력해주세요." value="<?= esc($profile['company_sub'] ?? '') ?>" />
 </div>
 
 <div class="form-field">
