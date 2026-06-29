@@ -228,7 +228,13 @@
         if (isSameDate(cell.date, state.today)) btn.classList.add('is-today');
         if (state.selectedDate && isSameDate(cell.date, state.selectedDate)) btn.classList.add('is-selected');
         btn.textContent = String(cell.day);
-        btn.setAttribute('data-date-value', cell.date.toISOString().slice(0, 10));
+        //btn.setAttribute('data-date-value', cell.date.toISOString().slice(0, 10));
+        btn.setAttribute(
+          'data-date-value',
+          cell.date.getFullYear() + '-' +
+          String(cell.date.getMonth() + 1).padStart(2, '0') + '-' +
+          String(cell.date.getDate()).padStart(2, '0')
+        );
         els.daysEl.appendChild(btn);
       });
     }

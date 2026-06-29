@@ -15,7 +15,7 @@
     <link rel="stylesheet" href="<?= base_url('assets/css/content.css?v=3') ?>" />
 
     <!-- 스크립트 · Swiper -->
-    <script src="<?= base_url('assets/js/ui.js?v=8') ?>"></script>
+    <script src="<?= base_url('assets/js/ui.js?v=9') ?>"></script>
     <script src="<?= base_url('assets/js/popup.js?v=8') ?>"></script>
     <script src="<?= base_url('assets/js/common.js?v=8') ?>"></script>
     <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
