@@ -19,7 +19,7 @@ $profileImage = !empty($profile['profile_image'])
 </div>
 
 <div class="form-field">
-    <label class="form-label" for="fc-ga">소속 GA</label>
+    <label class="form-label" for="fc-ga">또는 소속 GA</label>
     <input class="form-input" id="fc-ga" name="ga" type="text" placeholder="소속 GA를 입력해주세요." value="<?= esc($profile['ga'] ?? '') ?>" />
 </div>
 
