@@ -21,10 +21,11 @@
     <!-- 사이드바 -->
     <aside class="app-sidebar bg-body-secondary shadow" data-bs-theme="dark">
         <div class="sidebar-brand">
-           
+        
             <a href="<?= base_url('admin') ?>" class="brand-link text-decoration-none">
                 <span class="brand-text fw-light">Admin</span>
             </a>
+
             <a href="<?= base_url('admin/logout') ?>" class="btn btn-outline-secondary btn-sm">
                 로그아웃
             </a>
@@ -33,11 +34,35 @@
         <div class="sidebar-wrapper">
             <nav class="mt-2">
                 <ul class="nav sidebar-menu flex-column">
+
+                    <!-- =========================
+                        대시보드
+                    ========================= -->
                     <li class="nav-item">
                         <a href="<?= base_url('admin') ?>" class="nav-link">
                             <span>대시보드</span>
                         </a>
                     </li>
+
+                    <!-- =========================
+                        회원 관리
+                    ========================= -->
+                    <li class="nav-item nav-header mt-3">
+                        <span class="text-muted small">회원 관리</span>
+                    </li>
+
+                    <li class="nav-item">
+                        <a href="<?= base_url('admin/members') ?>" class="nav-link">
+                            <span>일반회원 관리</span>
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a href="<?= base_url('admin/fc-members') ?>" class="nav-link">
+                            <span>FC 회원 관리</span>
+                        </a>
+                    </li>
+
                 </ul>
             </nav>
         </div>
