@@ -224,25 +224,60 @@
 
                 <div style="padding:10px;">
                     <?php foreach ($activityItems as $item): ?>
+
+                        <?php
+                        $file = $item['file_path'] ?? null;
+                        $ext = $file ? strtolower(pathinfo($file, PATHINFO_EXTENSION)) : '';
+
+                        $imageExt = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp'];
+                        $isImage = in_array($ext, $imageExt);
+                        ?>
+
                         <div style="margin-bottom:10px; border-bottom:1px solid #eee; padding-bottom:10px;">
+
                             <b><?= esc($item['title']) ?></b>
-                            <span style="color:#999;font-size:12px;">(<?= esc($item['type']) ?>)</span>
+                            <span style="color:#999;font-size:12px;">
+                                (<?= esc($item['type']) ?>)
+                            </span>
 
-                            <?php if ($item['file_path']): ?>
-                                <div>
+                            <!-- =========================
+                이미지 파일
+            ========================= -->
+                            <?php if ($file && $isImage): ?>
+                                <div style="margin-top:8px;">
                                     <img
-                                        src="/uploads/activity/<?= esc($item['file_path']) ?>"
+                                        src="/uploads/activity/<?= esc($file) ?>"
                                         class="fc-img-thumb js-img-view"
-                                        data-src="/uploads/activity/<?= esc($item['file_path']) ?>">
+                                        data-src="/uploads/activity/<?= esc($file) ?>">
                                 </div>
                             <?php endif; ?>
 
-                            <?php if ($item['url']): ?>
-                                <div>
-                                    <a href="<?= esc($item['url']) ?>" target="_blank">링크</a>
+                            <!-- =========================
+                일반 파일 (다운로드)
+            ========================= -->
+                            <?php if ($file && !$isImage): ?>
+                                <div style="margin-top:8px;">
+                                    <a href="/uploads/activity/<?= esc($file) ?>"
+                                        download
+                                        class="btn btn-sm btn-outline-primary">
+                                        파일 다운로드
+                                    </a>
                                 </div>
                             <?php endif; ?>
+
+                            <!-- =========================
+                외부 링크
+            ========================= -->
+                            <?php if ($item['url']): ?>
+                                <div style="margin-top:6px;">
+                                    <a href="<?= esc($item['url']) ?>" target="_blank">
+                                        링크 열기
+                                    </a>
+                                </div>
+                            <?php endif; ?>
+
                         </div>
+
                     <?php endforeach; ?>
                 </div>
             </div>
