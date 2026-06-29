@@ -54,32 +54,59 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let  selectedFile = null;
 
-    // =========================
-    // submit validation
-    // =========================
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
 
-        // if (!selectedFile) {
-        //     alert('프로필 이미지를 선택해주세요.');
-        //     return;
-        // }
+        const companyVal = company.value.trim();
+        const companySubVal = companySub.value.trim();
+        const gaVal = ga.value.trim();
+
+        const positionVal = position.value.trim();
+        const licenseDateVal = licenseDate.value.trim();
+        const licenseNoVal = licenseNo.value.trim();
+        const timeFromVal = timeFrom.value;
+        const timeToVal = timeTo.value;
+        const languageVal = language.value;
+
+        // =========================
+        // 1. 필수 체크 (회사/GA 관계)
+        // =========================
+        if (!companyVal && !gaVal) {
+            alert('소속 원수사 또는 소속 GA 중 하나는 반드시 입력해야 합니다.');
+            return;
+        }
+
+        // =========================
+        // 2. GA 입력 시 company_sub 금지
+        // =========================
+        if (gaVal && companySubVal) {
+            alert('소속 GA를 입력한 경우, 추가 소속 보험사는 입력할 수 없습니다.');
+            return;
+        }
+
+        // =========================
+        // 3. 나머지 필수값 체크
+        // =========================
+        if (!positionVal) return alert('직책을 입력해주세요.');
+        if (!licenseDateVal) return alert('보험 자격 취득일을 선택해주세요.');
+        if (!licenseNoVal) return alert('보험모집종사자 등록번호를 입력해주세요.');
+        if (!timeFromVal || !timeToVal) return alert('상담 가능 시간을 선택해주세요.');
+        if (!languageVal) return alert('상담 가능한 언어를 선택해주세요.');
 
         const formData = new FormData();
 
-        formData.append('profile_image', selectedFile);
-        formData.append('company', company.value.trim());
-        formData.append('company_sub', companySub.value.trim());
-        formData.append('ga', ga.value.trim());
-        formData.append('position', position.value.trim());
-        formData.append('license_date', licenseDate.value.trim());
-        formData.append('license_no', licenseNo.value.trim());
-        formData.append('time_from', timeFrom.value);
-        formData.append('time_to', timeTo.value);
-        formData.append('language', language.value);
+        formData.append('profile_image', selectedFile || '');
+        formData.append('company', companyVal);
+        formData.append('company_sub', companySubVal);
+        formData.append('ga', gaVal);
+        formData.append('position', positionVal);
+        formData.append('license_date', licenseDateVal);
+        formData.append('license_no', licenseNoVal);
+        formData.append('time_from', timeFromVal);
+        formData.append('time_to', timeToVal);
+        formData.append('language', languageVal);
 
         try {
-
             const res = await fetch('/member/fc/profile/update', {
                 method: 'POST',
                 body: formData
@@ -88,8 +115,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const result = await res.json();
 
             if (result.status === 'success') {
-                alert('프로필 정보가 변경되었습니다.')
-                //location.href = '/member/fcJoin3';
+                location.href = '/member/fcJoin3';
             } else {
                 alert(result.message || '저장 실패');
             }
