@@ -90,6 +90,13 @@ $routes->group('fcpage', function ($routes) {
 
 });
 
+$routes->group('company', function ($routes) {
+    $routes->get('terms', 'CompanyController::terms');         // 프로필 -  fc 마이페이지 
+    $routes->get('privacy', 'CompanyController::privacy');         // 프로필 -  fc 마이페이지 
+    $routes->get('legal', 'CompanyController::legal');         // 프로필 -  fc 마이페이지 
+ 
+});
+
 
 $routes->group('member', function ($routes) {
     $routes->get('login', 'MemberController::login');         // 회원 - 로그인

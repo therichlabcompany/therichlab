@@ -28,10 +28,10 @@
             </div>
             <div class="footer-trail">
                 <ul class="footer-links">
-                    <li><a href="#">회사소개</a></li>
-                    <li><a href="#">이용약관</a></li>
-                    <li><a href="#">개인정보 처리방침</a></li>
-                    <li><a href="#">법적책임</a></li>
+                    <li><a href="https://www.therichlab.co.kr" target="_blank">회사소개</a></li>
+                    <li><a href="/company/terms">이용약관</a></li>
+                    <li><a href="/company/privacy">개인정보 처리방침</a></li>
+                    <li><a href="/company/legal">법적책임</a></li>
                 </ul>
                 <div class="footer-patent">
                     <p class="footer-patent-mark">
