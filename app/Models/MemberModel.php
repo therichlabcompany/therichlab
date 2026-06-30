@@ -13,11 +13,14 @@ class MemberModel extends Model
         'password',
         'phone',
         'name',
+        'gender',           // ⭐ 추가
         'member_type',
         'member_uid',
         'fc_step',
         'last_login_at',
         'deleted_at',
+        'status',
+        'agree_marketing', // ⭐ 추가
     ];
 }
 

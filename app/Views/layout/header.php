@@ -166,7 +166,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         <li><a href="/mypage/fcinfo">내 정보</a></li>
                         <li><a href="/mypage/fcprofile">프로필 관리</a></li>
                         <li><a href="/mypage/fcreviewed">심의필 정보 관리</a></li>
-                        <li><a href="javascript:alert('작업중입니다');void(0);">상담 신청 관리</a></li>
+                        <li><a href="/mypage/fccounsel">상담 신청 관리</a></li>
                         <li><a href="javascript:alert('작업중입니다');void(0);">광고 관리</a></li>
                     </ul>
                     <?php else: ?>

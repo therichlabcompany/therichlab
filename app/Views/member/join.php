@@ -14,10 +14,18 @@
             </div>
 
             <div class="form-field">
-                <label class="form-label" for="gender">성별</label>
-                <input class="form-input" id="gender" name="gender" type="text" value="여성" 
-                required
-                />
+                <label class="form-label">성별</label>
+
+                <label class="c-radio">
+                    <input type="radio" name="gender" value="M"
+                       checked />
+                    <span>남성</span>
+                </label>
+
+                <label class="c-radio">
+                    <input type="radio" name="gender" value="F" />
+                    <span>여성</span>
+                </label>
             </div>
 
             <div class="signup-agree">
@@ -318,17 +326,24 @@ document.getElementById('btnSubmit').addEventListener('click', async function (e
         return;
     }
 
+    const gender = document.querySelector('input[name="gender"]:checked')?.value;
+
+    if (!gender) {
+        alert('성별을 선택해주세요.');
+        return;
+    }
+
     const form = document.getElementById('signupForm');
 
     const data = {
         member_type: document.querySelector('[name="member_type"]').value,
         email: document.getElementById('email').value.trim(),
         password: document.getElementById('password').value,
-        password_confirm: document.getElementById('password_confirm').value,
+        password_confirm: document.getElementById('password-confirm').value,
         phone: document.getElementById('phone').value.replace(/[^0-9]/g, ''),
         name: document.getElementById('name').value,
         birth: document.getElementById('birth').value,
-        gender: document.getElementById('gender').value,
+        gender: document.querySelector('input[name="gender"]:checked')?.value,
         phone_verified: document.getElementById('phone_verified').value,
 
         agree_age: document.querySelector('[name="agree_age"]').checked,

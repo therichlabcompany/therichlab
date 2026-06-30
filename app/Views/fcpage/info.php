@@ -72,7 +72,7 @@
         </form>
 
         <p class="login-reset">
-            <a href="MFC005_L01_01_05.html">회원탈퇴</a>
+            <a href="/mypage/withdrawal">회원탈퇴</a>
         </p>
     </div>
 </main>

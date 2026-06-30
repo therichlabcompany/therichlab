@@ -4,7 +4,7 @@
         <section>
             <div class="bookmark-box">
                 <span><img src="<?= SITE_IMG_URL ?>images/ic-detail-bookmark-on.svg" alt="" />북마크</span>
-                <strong>3</strong>
+                <strong><strong><?= number_format($favoriteCount) ?></strong></strong>
             </div>
             <p class="favorite-empty">
                 관심 있는 보험 전문가를 등록해두면<br />
@@ -18,138 +18,79 @@
                 </div>
             </div>
             <div class="swiper recommend-list recommend-list-swiper">
-                <div class="swiper-wrapper">
-                    <!-- 슬라이드 = 페이지 · 안쪽은 DOM 순서 2×2 (.swiper-page-grid) -->
-                    <div class="swiper-slide">
-                        <div class="swiper-page-grid">
-                            <article class="card">
-                                <div class="card-body">
-                                    <a class="card-link" href="MFC003_01.html">
-                                        <div class="profile">
-                                            <img src="<?= SITE_IMG_URL ?>images/temp/@profile-m.png" alt="" class="avatar" />
-                                            <div>
-                                                <p class="profile-name">정민식1</p>
-                                                <p class="c-rate">
-                                                    <span class="c-rate-star">★</span> 5.0
-                                                    <span class="c-rate-count">(1,495)</span>
-                                                </p>
-                                                <p class="c-dot-line">
-                                                    <span>KB손해보험</span><span class="location"><span>전국</span></span>
-                                                </p>
-                                                <div class="list-tags">
-                                                    <span>생명보험</span>
-                                                    <span>건강보험</span>
-                                                    <span>실손보험</span>
-                                                </div>
+    <div class="swiper-wrapper">
+
+        <?php foreach ($favoriteChunks as $chunk): ?>
+            <div class="swiper-slide">
+                <div class="swiper-page-grid">
+
+                    <?php foreach ($chunk as $row): ?>
+
+                        <article class="card">
+
+                            <div class="card-body">
+
+                                <a class="card-link" href="/fc/view?uid=<?= esc($row['fc_member_uid']) ?>">
+
+                                    <div class="profile">
+
+                                        <img src="<?= esc($row['profile_image']) ?>"
+                                             class="avatar" alt="">
+
+                                        <div>
+
+                                            <p class="profile-name">
+                                                <?= esc($row['name']) ?>
+                                            </p>
+
+                                            <p class="c-rate">
+                                                <span class="c-rate-star">★</span>
+                                                <?= number_format($row['rating'], 1) ?>
+                                                <span class="c-rate-count">
+                                                    (<?= number_format($row['review_count']) ?>)
+                                                </span>
+                                            </p>
+
+                                            <p class="c-dot-line">
+
+                                                <?php if (!empty($row['company_line'])): ?>
+                                                    <span>
+                                                        <?= esc(implode(' · ', $row['company_line'])) ?>
+                                                    </span>
+                                                <?php endif; ?>
+
+                                                <?php if (!empty($row['region_label'])): ?>
+                                                    <span class="location">
+                                                        <?= esc($row['region_label']) ?>
+                                                    </span>
+                                                <?php endif; ?>
+
+                                            </p>
+
+                                            <div class="list-tags">
+
+                                                <?php foreach ($row['insurance_labels'] as $tag): ?>
+                                                    <span><?= esc($tag) ?></span>
+                                                <?php endforeach; ?>
+
                                             </div>
+
                                         </div>
-                                    </a>
-                                </div>
-                            </article>
-                            <article class="card">
-                                <div class="card-body">
-                                    <a class="card-link" href="MFC003_01.html">
-                                        <div class="profile">
-                                            <img src="<?= SITE_IMG_URL ?>images/temp/@profile-m.png" alt="" class="avatar" />
-                                            <div>
-                                                <p class="profile-name">정민식2</p>
-                                                <p class="c-rate">
-                                                    <span class="c-rate-star">★</span> 5.0
-                                                    <span class="c-rate-count">(1,495)</span>
-                                                </p>
-                                                <p class="c-dot-line">
-                                                    <span>KB손해보험</span><span class="location"><span>전국</span></span>
-                                                </p>
-                                                <div class="list-tags">
-                                                    <span>생명보험</span>
-                                                    <span>건강보험</span>
-                                                    <span>실손보험</span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </a>
-                                </div>
-                            </article>
-                            <article class="card">
-                                <div class="card-body">
-                                    <a class="card-link" href="MFC003_01.html">
-                                        <div class="profile">
-                                            <img src="<?= SITE_IMG_URL ?>images/temp/@profile-m.png" alt="" class="avatar" />
-                                            <div>
-                                                <p class="profile-name">정민식3</p>
-                                                <p class="c-rate">
-                                                    <span class="c-rate-star">★</span> 5.0
-                                                    <span class="c-rate-count">(1,495)</span>
-                                                </p>
-                                                <p class="c-dot-line">
-                                                    <span>KB손해보험</span><span class="location"><span>전국</span></span>
-                                                </p>
-                                                <div class="list-tags">
-                                                    <span>생명보험</span>
-                                                    <span>건강보험</span>
-                                                    <span>실손보험</span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </a>
-                                </div>
-                            </article>
-                            <article class="card">
-                                <div class="card-body">
-                                    <a class="card-link" href="MFC003_01.html">
-                                        <div class="profile">
-                                            <img src="<?= SITE_IMG_URL ?>images/temp/@profile-m.png" alt="" class="avatar" />
-                                            <div>
-                                                <p class="profile-name">정민식4</p>
-                                                <p class="c-rate">
-                                                    <span class="c-rate-star">★</span> 5.0
-                                                    <span class="c-rate-count">(1,495)</span>
-                                                </p>
-                                                <p class="c-dot-line">
-                                                    <span>KB손해보험</span><span class="location"><span>전국</span></span>
-                                                </p>
-                                                <div class="list-tags">
-                                                    <span>생명보험</span>
-                                                    <span>건강보험</span>
-                                                    <span>실손보험</span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </a>
-                                </div>
-                            </article>
-                        </div>
-                    </div>
-                    <div class="swiper-slide">
-                        <div class="swiper-page-grid">
-                            <article class="card">
-                                <div class="card-body">
-                                    <a class="card-link" href="MFC003_01.html">
-                                        <div class="profile">
-                                            <img src="<?= SITE_IMG_URL ?>images/temp/@profile-m.png" alt="" class="avatar" />
-                                            <div>
-                                                <p class="profile-name">정민식5</p>
-                                                <p class="c-rate">
-                                                    <span class="c-rate-star">★</span> 5.0
-                                                    <span class="c-rate-count">(1,495)</span>
-                                                </p>
-                                                <p class="c-dot-line">
-                                                    <span>KB손해보험</span><span class="location"><span>전국</span></span>
-                                                </p>
-                                                <div class="list-tags">
-                                                    <span>생명보험</span>
-                                                    <span>건강보험</span>
-                                                    <span>실손보험</span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </a>
-                                </div>
-                            </article>
-                        </div>
-                    </div>
+                                    </div>
+
+                                </a>
+
+                            </div>
+                        </article>
+
+                    <?php endforeach; ?>
+
                 </div>
             </div>
+        <?php endforeach; ?>
+
+    </div>
+</div>
         </section>
     </div>
 </main>

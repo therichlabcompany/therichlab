@@ -36,12 +36,24 @@
                 </div>
                 <div class="fc-detail-head-actions">
                     <button type="button" class="detail-capture-btn">화면캡쳐</button>
-                    <button type="button" class="fc-detail-icon-btn c-bookmark-btn" aria-label="북마크" aria-pressed="false"></button>
+                    <!-- <button type="button" class="fc-detail-icon-btn c-bookmark-btn" aria-label="북마크" aria-pressed="false"></button> -->
                     <button
+                        type="button"
+                        class="fc-detail-icon-btn c-bookmark-btn <?= $bookmark_status ? 'is-active' : '' ?>"
+                        aria-label="북마크"
+                        aria-pressed="<?= $bookmark_status ? 'true' : 'false' ?>"
+                        data-fc-member-uid="<?= esc($member['member_uid']) ?>">
+                    </button>
+                    <!-- <button
                         type="button"
                         class="fc-detail-icon-btn detail-share-btn"
                         aria-label="공유"
-                        data-toast="공유 링크를 준비 중입니다."></button>
+                        data-toast="공유 링크를 준비 중입니다."></button> -->
+
+                    <button
+                        type="button"
+                        class="fc-detail-icon-btn detail-share-btn"
+                        aria-label="공유"></button>
                 </div>
             </div>
 
@@ -127,7 +139,7 @@
             </div>
 
             <div class="fc-detail-cta-wrap">
-                <a href="/fc/counsel" class="fc-detail-cta">상담 요청하기</a>
+                <a href="javascript:void(0);" class="fc-detail-cta" onclick="goCounsel('<?= esc($member['member_uid']) ?>')">상담 요청하기</a>
             </div>
         </article>
 
@@ -208,8 +220,8 @@
                 <div class="section-head">
                     <div>
                         <h2 class="section-title">최근 등록 후기</h2>
-                        <p class="c-rate"><span class="c-rate-star">★</span> 0.0</p>
-                        <p class="review-count"><span>1,106</span> 건</p>
+                        <p class="c-rate"><span class="c-rate-star">★</span> <?= number_format($rating, 1) ?></p>
+                        <p class="review-count"><span><?= number_format($rating_count) ?></span> 건</p>
                     </div>
                     <div class="section-head-right">
                         <div class="control-box">
@@ -221,139 +233,89 @@
             </header>
 
             <div class="detail-reviews-panel">
-                <div class="swiper detail-reviews-swiper">
-                    <div class="swiper-wrapper">
-                        <div class="swiper-slide">
-                            <div>
-                                <a href="#" class="review-card">
-                                    <div class="review-card-meta">
-                                        <p class="c-rate"><span class="c-rate-star">★</span> 4.9</p>
-                                        <p class="review-author">정**</p>
-                                        <time class="review-date">2025.10.01</time>
+
+                <?php if (!empty($reviewList)): ?>
+
+                    <?php
+                    $chunkSize = 5;
+                    $chunks = array_chunk($reviewList, $chunkSize);
+                    ?>
+
+                    <div class="swiper detail-reviews-swiper">
+                        <div class="swiper-wrapper">
+
+                            <?php foreach ($chunks as $chunk): ?>
+                                <div class="swiper-slide">
+                                    <div>
+
+                                        <?php foreach ($chunk as $row): ?>
+
+                                            <?php
+                                            $name = $row['reviewer_name'] ?? '익명';
+                                            $maskedName = mb_substr($name, 0, 1) . '**';
+
+                                            $rating = $row['rating'] ?? 0;
+                                            $title  = $row['title'] ?? '';
+                                            $body   = $row['body'] ?? '';
+
+                                            $date = !empty($row['created_at'])
+                                                ? date('Y.m.d', strtotime($row['created_at']))
+                                                : '';
+                                            ?>
+
+                                            <a href="#" class="review-card">
+
+                                                <div class="review-card-meta">
+                                                    <p class="c-rate">
+                                                        <span class="c-rate-star">★</span>
+                                                        <?= number_format($rating, 1) ?>
+                                                    </p>
+
+                                                    <p class="review-author">
+                                                        <?= esc($maskedName) ?>
+                                                    </p>
+
+                                                    <time class="review-date">
+                                                        <?= esc($date) ?>
+                                                    </time>
+                                                </div>
+
+                                                <h4>
+                                                    <?= esc($title) ?>
+                                                </h4>
+
+                                                <p class="review-card-body">
+                                                    <?= esc(mb_substr($body, 0, 120)) ?>...
+                                                </p>
+
+                                            </a>
+
+                                        <?php endforeach; ?>
+
                                     </div>
-                                    <h4>여러 보험 정보를 한눈에 비교할 수 있어 확실히 전문성이 느껴졌습니다</h4>
-                                    <p class="review-card-body">
-                                        그동안은 한 보험사 설계사만 만나 상품을 추천받는 게 당연하다고 생각했습니다. 하지만 MyFC에서는 여러 FC의 조건과
-                                        이력을 한눈에 비교할 수 있어 훨씬 도움이 됐습니다. 원하던 보장은 충분하면서도 불필요한 비용은 줄이는 것에 딱 맞는
-                                        결과를 얻을 수 있었고, 플랜 조율 덕분에 불필요한 지출을 줄일 수 있었습니다.
-                                    </p>
-                                </a>
-                                <a href="#" class="review-card">
-                                    <div class="review-card-meta">
-                                        <p class="c-rate"><span class="c-rate-star">★</span> 5.0</p>
-                                        <p class="review-author">박**</p>
-                                        <time class="review-date">2025.10.01</time>
-                                    </div>
-                                    <h4>꼼꼼한 상담과 빠른 대응으로 믿음이 갔습니다</h4>
-                                    <p class="review-card-body">
-                                        보험은 늘 어렵다고만 생각했는데, FC님이 제 상황을 자세히 들어주고 맞는 상품만 비교해 주셔서 안심할 수 있었습니다.
-                                        특히 상담 후에도 카톡으로 궁금한 점을 빠르게 답변해 주셔서 신뢰가 갔습니다.
-                                    </p>
-                                </a>
-                                <a href="#" class="review-card">
-                                    <div class="review-card-meta">
-                                        <p class="c-rate"><span class="c-rate-star">★</span> 4.9</p>
-                                        <p class="review-author">이**</p>
-                                        <time class="review-date">2025.10.01</time>
-                                    </div>
-                                    <h4>아이 보험을 제대로 준비할 수 있었어요</h4>
-                                    <p class="review-card-body">
-                                        아이 보험은 항상 고민이었는데, FC님이 자녀 전용 상품들을 비교해 주셔서 불필요한 부분은 빼고 꼭 필요한 보장만
-                                        선택할 수 있었습니다. 덕분에 보험료도 줄이고 마음도 놓였습니다.
-                                    </p>
-                                </a>
-                                <a href="#" class="review-card">
-                                    <div class="review-card-meta">
-                                        <p class="c-rate"><span class="c-rate-star">★</span> 4.9</p>
-                                        <p class="review-author">정**</p>
-                                        <time class="review-date">2025.10.01</time>
-                                    </div>
-                                    <h4>전문성이 돋보이는 상담, 부담 없는 설명</h4>
-                                    <p class="review-card-body">
-                                        과거에는 권유 위주의 상담만 받아왔는데, 이번엔 제 소득·생활 패턴을 고려해 객관적으로 설명해 주셔서 정말 신뢰가
-                                        갔습니다. 단순히 판매가 아닌 전문가의 컨설팅 같았어요.
-                                    </p>
-                                </a>
-                                <a href="#" class="review-card">
-                                    <div class="review-card-meta">
-                                        <p class="c-rate"><span class="c-rate-star">★</span> 5.0</p>
-                                        <p class="review-author">김**</p>
-                                        <time class="review-date">2025.10.01</time>
-                                    </div>
-                                    <h4>복잡한 보험 정리가 한 번에 끝났습니다</h4>
-                                    <p class="review-card-body">
-                                        그동안 여러 군데에서 가입한 보험이 생애에서 정리가 안 됐는데, FC님이 전부 검토하고 중복된 부분을 꼼꼼히 정리해
-                                        주셨습니다. 덕분에 비용도 줄고, 필요한 보장만 남길 수 있었습니다.
-                                    </p>
-                                </a>
-                            </div>
-                        </div>
-                        <div class="swiper-slide">
-                            <div>
-                                <a href="#" class="review-card">
-                                    <div class="review-card-meta">
-                                        <p class="c-rate"><span class="c-rate-star">★</span> 4.8</p>
-                                        <p class="review-author">최**</p>
-                                        <time class="review-date">2025.09.28</time>
-                                    </div>
-                                    <h4>부모님 실비 보장을 같이 잡아 주셔서 든든했습니다</h4>
-                                    <p class="review-card-body">
-                                        연세 있으신 부모님 상품은 조건이 까다로워 막막했는데, FC님이 병력과 예산에 맞는 범위에서 현실적으로 정리해
-                                        주셨습니다. 설명도 차분해서 부모님께도 이해시키기 쉬웠습니다.
-                                    </p>
-                                </a>
-                                <a href="#" class="review-card">
-                                    <div class="review-card-meta">
-                                        <p class="c-rate"><span class="c-rate-star">★</span> 5.0</p>
-                                        <p class="review-author">한**</p>
-                                        <time class="review-date">2025.09.25</time>
-                                    </div>
-                                    <h4>이직 준비하며 실업급여·실손 정리를 한 번에</h4>
-                                    <p class="review-card-body">
-                                        소득 공백이 걱정됐는데 공단 연계와 보험 중복까지 같이 봐 주셔서 불안이 많이 줄었습니다. 다음 직장 정해지면 다시 한
-                                        번 봐도 된다고 해서 부담 없이 상담받았습니다.
-                                    </p>
-                                </a>
-                                <a href="#" class="review-card">
-                                    <div class="review-card-meta">
-                                        <p class="c-rate"><span class="c-rate-star">★</span> 4.9</p>
-                                        <p class="review-author">윤**</p>
-                                        <time class="review-date">2025.09.20</time>
-                                    </div>
-                                    <h4>비교표로 보니 제가 놓치던 특약이 보였어요</h4>
-                                    <p class="review-card-body">
-                                        약관만 혼자 읽기엔 한계가 있는데, 표로 정리해 주신 덕분에 보장 범위 차이가 한눈에 들어왔습니다. 필요 없는 특약은
-                                        과감히 빼고 핵심만 남겼습니다.
-                                    </p>
-                                </a>
-                                <a href="#" class="review-card">
-                                    <div class="review-card-meta">
-                                        <p class="c-rate"><span class="c-rate-star">★</span> 4.7</p>
-                                        <p class="review-author">조**</p>
-                                        <time class="review-date">2025.09.15</time>
-                                    </div>
-                                    <h4>야근이 잦아도 상담 일정 맞춰 주셔서 감사했습니다</h4>
-                                    <p class="review-card-body">
-                                        평일 저녁이나 짧은 통화로도 진행이 가능해서 직장인에게 부담이 적었습니다. 다음 단계 진행 시에도 같은 방식으로
-                                        이어가고 싶습니다.
-                                    </p>
-                                </a>
-                                <a href="#" class="review-card">
-                                    <div class="review-card-meta">
-                                        <p class="c-rate"><span class="c-rate-star">★</span> 5.0</p>
-                                        <p class="review-author">송**</p>
-                                        <time class="review-date">2025.09.10</time>
-                                    </div>
-                                    <h4>주택담보대출과 보험료 밸런스를 같이 봐 주셨어요</h4>
-                                    <p class="review-card-body">
-                                        월 상환과 보험료가 겹쳐 총 현금 흐름이 빠듯했는데, 우선순위를 정해 단계적으로 조정할 수 있었습니다. 숫자 근거가
-                                        있어 설득력이 있었습니다.
-                                    </p>
-                                </a>
-                            </div>
+                                </div>
+                            <?php endforeach; ?>
+
                         </div>
                     </div>
-                </div>
+
+                <?php else: ?>
+
+                    <div class="empty-review">
+                        <div class="empty-review-inner">
+                            <div class="empty-icon">💬</div>
+
+                            <p class="empty-title">작성된 후기가 없습니다</p>
+                            <p class="empty-sub">상담을 완료하면 후기를 작성할 수 있어요</p>
+
+                            <a href="/mypage/counselList" class="empty-btn">
+                                상담 내역 보기
+                            </a>
+                        </div>
+                    </div>
+
+                <?php endif; ?>
+
             </div>
         </section>
 
@@ -397,9 +359,9 @@
                         <?php foreach ($storyImages as $idx => $img): ?>
                             <div class="swiper-slide">
                                 <a href="#"
-                                class="fc-story-trigger"
-                                data-index="<?= $idx ?>"
-                                aria-label="활동 이미지 상세 보기 <?= $idx + 1 ?>">
+                                    class="fc-story-trigger"
+                                    data-index="<?= $idx ?>"
+                                    aria-label="활동 이미지 상세 보기 <?= $idx + 1 ?>">
                                     <img src="/uploads/story/images/<?= esc($img['image_path']) ?>"
                                         alt="활동 이미지 <?= $idx + 1 ?>">
                                 </a>
@@ -422,152 +384,457 @@
 </main>
 <?php if (!empty($storyImages)): ?>
 
-<div class="c-modal md" id="storyModal">
-    <button type="button" class="c-modal-backdrop" data-popup-close aria-label="닫기"></button>
+    <div class="c-modal md" id="storyModal">
+        <button type="button" class="c-modal-backdrop" data-popup-close aria-label="닫기"></button>
 
-    <div class="c-modal-panel">
-        <div class="c-modal-head">
-            <h2 class="c-modal-title">활동 스토리</h2>
-            <button type="button" class="c-modal-close" data-popup-close aria-label="닫기"></button>
-        </div>
+        <div class="c-modal-panel">
+            <div class="c-modal-head">
+                <h2 class="c-modal-title">활동 스토리</h2>
+                <button type="button" class="c-modal-close" data-popup-close aria-label="닫기"></button>
+            </div>
 
-        <div class="c-modal-body">
-            <div class="story-detail-wrap">
+            <div class="c-modal-body">
+                <div class="story-detail-wrap">
 
-                <button type="button"
+                    <button type="button"
                         class="control-btn swiper-nav-prev"
                         aria-label="이전 이미지"></button>
 
-                <div class="swiper story-detail-swiper">
-                    <div class="swiper-wrapper">
+                    <div class="swiper story-detail-swiper">
+                        <div class="swiper-wrapper">
 
-                        <?php foreach ($storyImages as $idx => $img): ?>
-                            <div class="swiper-slide">
-                                <article class="story-detail-card">
-                                    <div class="body">
-                                        <img
-                                            src="/uploads/story/images/<?= esc($img['image_path']) ?>"
-                                            alt="활동 이미지 <?= $idx + 1 ?> 상세" />
-                                    </div>
-                                </article>
-                            </div>
-                        <?php endforeach; ?>
+                            <?php foreach ($storyImages as $idx => $img): ?>
+                                <div class="swiper-slide">
+                                    <article class="story-detail-card">
+                                        <div class="body">
+                                            <img
+                                                src="/uploads/story/images/<?= esc($img['image_path']) ?>"
+                                                alt="활동 이미지 <?= $idx + 1 ?> 상세" />
+                                        </div>
+                                    </article>
+                                </div>
+                            <?php endforeach; ?>
 
+                        </div>
                     </div>
-                </div>
 
-                <button type="button"
+                    <button type="button"
                         class="control-btn swiper-nav-next"
                         aria-label="다음 이미지"></button>
 
+                </div>
+            </div>
+
+            <div class="c-modal-foot">
+                <button type="button" class="btn btn-line" data-popup-close>닫기</button>
             </div>
         </div>
-
-        <div class="c-modal-foot">
-            <button type="button" class="btn btn-line" data-popup-close>닫기</button>
-        </div>
     </div>
-</div>
 
 <?php endif; ?>
+<style>
+    .empty-review {
+        width: 100%;
+        min-height: 400px;
+
+        display: flex;
+        justify-content: center;
+        align-items: center;
+
+        background: #fff;
+        /* ✅ 전체 흰 배경 */
+    }
+
+    .empty-review-inner {
+        text-align: center;
+
+        padding: 50px 24px;
+        border-radius: 18px;
+
+        background: #fff;
+        /* 카드도 흰색 */
+    }
+
+    .empty-icon {
+        font-size: 48px;
+        margin-bottom: 14px;
+    }
+
+    .empty-title {
+        font-size: 18px;
+        font-weight: 600;
+        color: #111;
+        margin-bottom: 6px;
+    }
+
+    .empty-sub {
+        font-size: 14px;
+        color: #999;
+        margin-bottom: 20px;
+    }
+
+    .empty-btn {
+        display: inline-block;
+        padding: 11px 18px;
+        border-radius: 10px;
+
+        background: #111;
+        color: #fff;
+        font-size: 14px;
+        text-decoration: none;
+
+        transition: 0.2s;
+    }
+
+    .empty-btn:hover {
+        opacity: 0.85;
+    }
+
+    .fc-toast {
+        position: fixed;
+        bottom: 30px;
+        left: 50%;
+        transform: translateX(-50%);
+
+        background: rgba(0, 0, 0, 0.85);
+        color: #fff;
+        padding: 10px 16px;
+        border-radius: 10px;
+        font-size: 14px;
+
+        z-index: 999999;
+
+        opacity: 0;
+        visibility: hidden;
+        transition: 0.25s;
+    }
+
+    .fc-toast.show {
+        opacity: 1;
+        visibility: visible;
+    }
+</style>
 <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
 <script>
-(function () {
-    'use strict';
+    (function() {
+        'use strict';
 
-    if (typeof MyFC === 'undefined' || typeof Swiper === 'undefined') return;
+        if (typeof MyFC === 'undefined' || typeof Swiper === 'undefined') return;
 
-    let storySwiper = null;
+        let storySwiper = null;
 
-    const modal = document.getElementById('storyModal');
-    const triggerList = document.querySelectorAll('.fc-story-trigger');
+        const modal = document.getElementById('storyModal');
+        const triggerList = document.querySelectorAll('.fc-story-trigger');
 
-    const openModal = () => {
-        modal.classList.add('is-open');
-        document.body.classList.add('modal-open');
-    };
+        const openModal = () => {
+            modal.classList.add('is-open');
+            document.body.classList.add('modal-open');
+        };
 
-    const closeModal = () => {
-        modal.classList.remove('is-open');
-        document.body.classList.remove('modal-open');
-    };
+        const closeModal = () => {
+            modal.classList.remove('is-open');
+            document.body.classList.remove('modal-open');
+        };
 
-    // =========================
-    // 1. 리스트 클릭 이벤트
-    // =========================
-    triggerList.forEach(el => {
-        el.addEventListener('click', function (e) {
-            e.preventDefault();
+        // =========================
+        // 1. 리스트 클릭 이벤트
+        // =========================
+        triggerList.forEach(el => {
+            el.addEventListener('click', function(e) {
+                e.preventDefault();
 
-            const index = parseInt(this.dataset.index || 0, 10);
+                const index = parseInt(this.dataset.index || 0, 10);
 
-            openModal();
+                openModal();
 
-            // Swiper lazy init (1회만)
-            const wrap = modal.querySelector('.story-detail-swiper');
-            const scope = modal.querySelector('.story-detail-wrap');
+                // Swiper lazy init (1회만)
+                const wrap = modal.querySelector('.story-detail-swiper');
+                const scope = modal.querySelector('.story-detail-wrap');
 
-            if (!storySwiper) {
-                storySwiper = MyFC.initSwiper(wrap, scope, {
-                    speed: 380,
-                    slidesPerView: 1,
-                    spaceBetween: 0,
-                    loop: false,
-                    autoHeight: true,
-                    observer: true,
-                    observeParents: true,
-                    navigation: {
-                        nextEl: scope.querySelector('.swiper-nav-next'),
-                        prevEl: scope.querySelector('.swiper-nav-prev'),
+                if (!storySwiper) {
+                    storySwiper = MyFC.initSwiper(wrap, scope, {
+                        speed: 380,
+                        slidesPerView: 1,
+                        spaceBetween: 0,
+                        loop: false,
+                        autoHeight: true,
+                        observer: true,
+                        observeParents: true,
+                        navigation: {
+                            nextEl: scope.querySelector('.swiper-nav-next'),
+                            prevEl: scope.querySelector('.swiper-nav-prev'),
+                        }
+                    });
+                }
+
+                // index 이동
+                requestAnimationFrame(() => {
+                    storySwiper.slideTo(index, 0);
+                    storySwiper.update();
+                });
+            });
+        });
+
+        // =========================
+        // 2. 모달 닫기
+        // =========================
+        document.addEventListener('click', function(e) {
+            if (e.target.matches('[data-popup-close]')) {
+                closeModal();
+            }
+        });
+
+    })();
+
+    (function() {
+        'use strict';
+
+        if (typeof MyFC === 'undefined' || typeof Swiper === 'undefined') return;
+
+        var storyScope = document.querySelector('section.fc-detail-story-images');
+        var storyEl = storyScope && storyScope.querySelector('.js-story-list-swiper');
+
+        if (storyEl && storyScope) {
+            MyFC.initSwiper(storyEl, storyScope, {
+                speed: 450,
+                slidesPerView: 3,
+                spaceBetween: 8,
+                grabCursor: true,
+                watchOverflow: true,
+                breakpoints: {
+                    0: {
+                        slidesPerView: 2,
+                        spaceBetween: 6
+                    },
+                    641: {
+                        slidesPerView: 3,
+                        spaceBetween: 8
                     }
+                }
+            });
+        }
+    })();
+</script>
+
+
+<script>
+    function goCounsel(memberUid) {
+
+        <?php if (!session()->get('logged_in')): ?>
+            alert('로그인 후 이용 가능합니다.');
+            location.href = '/login';
+            return;
+        <?php endif; ?>
+
+        <?php if (session()->get('member_type') !== 'USER'): ?>
+            alert('일반 회원만 상담 신청이 가능합니다.');
+            return;
+        <?php endif; ?>
+
+        location.href = '/fc/counsel?uid=' + encodeURIComponent(memberUid);
+    }
+</script>
+<!-- =========================
+     1. HTML2CANVAS CDN
+========================= -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+
+<script>
+    (function() {
+        'use strict';
+
+
+        /* =========================
+         * TOAST SYSTEM
+         * ========================= */
+        function showToast(message) {
+
+            let toast = document.querySelector('.fc-toast');
+
+            if (!toast) {
+                toast = document.createElement('div');
+                toast.className = 'fc-toast';
+                document.body.appendChild(toast);
+            }
+
+            toast.textContent = message;
+
+            toast.classList.remove('show');
+            void toast.offsetWidth; // reflow
+
+            toast.classList.add('show');
+
+            clearTimeout(toast._timer);
+            toast._timer = setTimeout(() => {
+                toast.classList.remove('show');
+            }, 2000);
+        }
+
+
+        /* =========================
+         * READY
+         * ========================= */
+        document.addEventListener('DOMContentLoaded', function() {
+
+
+            /* =========================
+             * 1. 화면 캡쳐 (고품질)
+             * ========================= */
+            const captureBtn = document.querySelector('.detail-capture-btn');
+
+            if (captureBtn) {
+                captureBtn.addEventListener('click', async function() {
+
+                    try {
+
+                        if (typeof html2canvas === 'undefined') {
+                            alert('html2canvas 라이브러리를 불러오지 못했습니다.');
+                            return;
+                        }
+
+                        const target = document.body; // 👉 전체 페이지 캡쳐
+
+                        showToast('전체 화면 캡쳐 준비 중...');
+
+                        // 스크롤 안정화 (중요)
+                        const originalScroll = {
+                            x: window.scrollX,
+                            y: window.scrollY
+                        };
+
+                        window.scrollTo(0, 0);
+                        await new Promise(r => setTimeout(r, 300));
+
+                        const canvas = await html2canvas(target, {
+                            backgroundColor: '#ffffff',
+                            scale: window.devicePixelRatio || 2,
+                            useCORS: true,
+                            allowTaint: false,
+                            logging: false,
+
+                            // 🔥 핵심: 전체 문서 캡쳐
+                            scrollX: 0,
+                            scrollY: 0,
+
+                            windowWidth: document.documentElement.scrollWidth,
+                            windowHeight: document.documentElement.scrollHeight
+                        });
+
+                        // 원래 위치 복원
+                        window.scrollTo(originalScroll.x, originalScroll.y);
+
+                        const image = canvas.toDataURL('image/png', 1.0);
+
+                        const link = document.createElement('a');
+                        link.href = image;
+                        link.download = 'full-page-capture-' + Date.now() + '.png';
+
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+
+                        showToast('전체 페이지 캡쳐 완료');
+
+                    } catch (err) {
+                        console.error(err);
+                        showToast('캡쳐 실패');
+                    }
+
                 });
             }
 
-            // index 이동
-            requestAnimationFrame(() => {
-                storySwiper.slideTo(index, 0);
-                storySwiper.update();
-            });
-        });
-    });
 
-    // =========================
-    // 2. 모달 닫기
-    // =========================
-    document.addEventListener('click', function (e) {
-        if (e.target.matches('[data-popup-close]')) {
-            closeModal();
-        }
-    });
+            /* =========================
+             * 2. 북마크
+             * ========================= */
+            const bookmarkBtn = document.querySelector('.c-bookmark-btn');
 
-})();
+            if (bookmarkBtn) {
 
-(function () {
-    'use strict';
+                const fcMemberUid = bookmarkBtn.dataset.fcMemberUid;
 
-    if (typeof MyFC === 'undefined' || typeof Swiper === 'undefined') return;
+                // 초기 상태 체크
+                fetch(`/fc/bookmark/check?fc_member_uid=${encodeURIComponent(fcMemberUid)}`)
+                    .then(res => res.json())
+                    .then(res => {
+                        if (res.bookmarked) {
+                            bookmarkBtn.classList.add('is-active');
+                            bookmarkBtn.setAttribute('aria-pressed', 'true');
+                        }
+                    });
 
-    var storyScope = document.querySelector('section.fc-detail-story-images');
-    var storyEl = storyScope && storyScope.querySelector('.js-story-list-swiper');
+                bookmarkBtn.addEventListener('click', function() {
 
-    if (storyEl && storyScope) {
-        MyFC.initSwiper(storyEl, storyScope, {
-            speed: 450,
-            slidesPerView: 3,
-            spaceBetween: 8,
-            grabCursor: true,
-            watchOverflow: true,
-            breakpoints: {
-                0: {
-                    slidesPerView: 2,
-                    spaceBetween: 6
-                },
-                641: {
-                    slidesPerView: 3,
-                    spaceBetween: 8
-                }
+                    fetch('/fc/bookmark/toggle', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/x-www-form-urlencoded'
+                            },
+                            body: 'fc_member_uid=' + encodeURIComponent(fcMemberUid)
+                        })
+                        .then(res => res.json())
+                        .then(res => {
+
+                            if (res.result === 'added') {
+                                this.classList.add('is-active');
+                                this.setAttribute('aria-pressed', 'true');
+                            }
+
+                            if (res.result === 'removed') {
+                                this.classList.remove('is-active');
+                                this.setAttribute('aria-pressed', 'false');
+                            }
+
+                            showToast(res.msg);
+
+                        })
+                        .catch(() => {
+                            showToast('처리 중 오류 발생');
+                        });
+
+                });
             }
+
+
+            /* =========================
+             * 3. 공유 (클립보드 복사)
+             * ========================= */
+            document.addEventListener('click', function(e) {
+
+                const btn = e.target.closest('.detail-share-btn');
+
+                if (!btn) return;
+
+                const url = window.location.href;
+
+                if (navigator.clipboard && window.isSecureContext) {
+
+                    navigator.clipboard.writeText(url)
+                        .then(() => showToast('링크가 복사되었습니다.'))
+                        .catch(() => fallbackCopy(url));
+
+                } else {
+                    fallbackCopy(url);
+                }
+
+            });
+
+
+            function fallbackCopy(text) {
+
+                const input = document.createElement('input');
+                input.value = text;
+
+                document.body.appendChild(input);
+                input.select();
+                document.execCommand('copy');
+                document.body.removeChild(input);
+
+                showToast('링크가 복사되었습니다.');
+            }
+
         });
-    }
-})();
+
+    })();
 </script>

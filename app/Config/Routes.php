@@ -14,6 +14,7 @@ $routes->group('fc', function ($routes) {
     $routes->get('view', 'FcController::view');                 // fc 상세
     $routes->get('counsel', 'FcController::counsel');           // 상담신청하기
     $routes->get('counselLast', 'FcController::counselLast');   // 상담신청하기 완료
+    $routes->post('counsel/save','CounselController::save');
 
 });
 
@@ -25,9 +26,14 @@ $routes->group('mypage', function ($routes) {
     $routes->get('certificate', 'MypageController::certificate');  // 내증권과리- 개인
     $routes->get('favoriteFc', 'MypageController::favoriteFc');  // 내 관심 fc- 개인
     $routes->get('counselList', 'MypageController::counselList');  // 내 상담 리스트 - 개인
+    $routes->get('counselReview/(:segment)', 'MypageController::counselReview/$1');  // 내 상담 리스트 - 개인
+    $routes->get('counselReviewLast', 'MypageController::counselReviewLast');  // 내 상담 리스트 - 개인
+    $routes->post('counselReviewSubmitAjax/(:segment)', 'MypageController::counselReviewSubmitAjax/$1');
+    
     $routes->get('reviewWrite', 'MypageController::reviewWrite');  // 후기 작성 - 개인
     $routes->get('reviewWriteLast', 'MypageController::reviewWriteLast');  // 후기 작성 완료 - 개인
     $routes->get('reviewList', 'MypageController::reviewList');  // 후기 리스트 - 개인
+    $routes->get('reviewDetailAjax/(:num)', 'MypageController::reviewDetailAjax/$1');
 
 
     $routes->get('fcinfo', 'MypageController::fcinfo');  // 후기 리스트 - 개인
@@ -36,13 +42,23 @@ $routes->group('mypage', function ($routes) {
     $routes->get('fcactivity', 'MypageController::fcactivity');  // 후기 리스트 - 개인
     $routes->get('fcstory', 'MypageController::fcstory');  // 후기 리스트 - 개인
     $routes->get('fcreviewed', 'MypageController::fcreviewed');  // 후기 리스트 - 개인
+    $routes->get('fccounsel', 'MypageController::fcCounselList');  // 후기 리스트 - 개인
+    $routes->get('fccounselview/(:segment)', 'MypageController::fcCounselView/$1');
+    
     $routes->post('ajax_save_reviewed', 'MypageController::ajax_save_reviewed');  // 후기 리스트 - 개인
-    
-    
+    $routes->post('fccounsel/status', 'MypageController::fcCounselStatus');
+    $routes->post('withdrawAjax', 'MypageController::withdrawAjax');
 
 
+    // 파일 업로드
+    $routes->post('security/upload', 'MemberSecurityController::upload');
 
+    // 파일 삭제
+    $routes->post('security/delete', 'MemberSecurityController::delete');
 
+    $routes->get('security/download/(:num)', 'MemberSecurityController::download/$1');
+
+    $routes->post('updateInfo', 'MypageController::updateInfo');
 });
 
 
@@ -137,3 +153,5 @@ $routes->group('admin', [
 });
 
 $routes->get('push-test', 'PushTest::index');
+$routes->post('fc/bookmark/toggle', 'FcBookmarkController::toggle');
+$routes->get('fc/bookmark/check', 'FcBookmarkController::check');

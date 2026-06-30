@@ -46,9 +46,9 @@ if (empty($insuranceText)) $insuranceText = "전체";
                         </div>
                     </div>
                     <div class="fc-directory-sort">
-                        <button type="button" class="fc-sort-btn is-active">추천순</button>
-                        <button type="button" class="fc-sort-btn">인기순</button>
-                        <button type="button" class="fc-sort-btn">평점순</button>
+                        <button type="button" class="fc-sort-btn<?php if($sort == "recommend") echo" is-active";?>">추천순</button>
+                        <button type="button" class="fc-sort-btn<?php if($sort == "popular") echo" is-active";?>">인기순</button>
+                        <button type="button" class="fc-sort-btn<?php if($sort == "rating") echo" is-active";?>">평점순</button>
                     </div>
                 </div>
             </form>

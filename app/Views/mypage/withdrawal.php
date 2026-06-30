@@ -30,12 +30,12 @@
 
             <div class="form-field">
                 <label class="form-label" for="withdraw-email">탈퇴하려는 계정</label>
-                <input class="form-input" id="withdraw-email" name="email" type="email" value="username@gmail.com" readonly />
+                <input class="form-input" id="withdraw-email" name="email" type="email" value="<?= esc($email) ?>" readonly />
             </div>
 
             <div class="form-field">
                 <label class="form-label" for="withdraw-consult">상담 현황</label>
-                <input class="form-input" id="withdraw-consult" name="consult_count" type="text" value="0 건" readonly />
+                <input class="form-input" id="withdraw-consult" name="consult_count" type="text"  value="<?= esc($consult_count) ?> 건" readonly />
             </div>
 
             <div>
@@ -46,9 +46,60 @@
             </div>
 
             <div class="form-actions">
-                <button type="button">회원 탈퇴 취소</button>
-                <button type="submit" disabled>회원 탈퇴</button>
+                <button type="button" class="btn btn-primary" onclick="history.back();" >회원 탈퇴 취소</button>
+                <button type="submit"  disabled style="margin-top:8px;">회원 탈퇴</button>
             </div>
         </form>
     </div>
 </main>
+
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+
+    const checkbox = document.querySelector('input[name="agree_withdraw"]');
+    const submitBtn = document.querySelector('button[type="submit"]');
+    const form = document.querySelector('.form-box');
+
+    // 버튼 활성화
+    checkbox.addEventListener('change', function () {
+        submitBtn.disabled = !this.checked;
+    });
+
+    // submit ajax 처리
+    form.addEventListener('submit', function (e) {
+        e.preventDefault();
+
+        if (!checkbox.checked) {
+            alert('탈퇴 동의가 필요합니다.');
+            return;
+        }
+
+        fetch('/mypage/withdrawAjax', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: new URLSearchParams({
+                agree: 'Y'
+            })
+        })
+        .then(res => res.json())
+        .then(data => {
+
+            if (data.status === 'success') {
+                alert(data.message);
+                location.href = '/mypage/withdrawalLast'; // 메인 이동
+            } else {
+                alert(data.message);
+            }
+
+        })
+        .catch(() => {
+            alert('처리 중 오류가 발생했습니다.');
+        });
+
+    });
+
+});
+</script>
