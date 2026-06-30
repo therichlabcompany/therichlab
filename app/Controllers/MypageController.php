@@ -1446,63 +1446,569 @@ class MypageController extends BaseController
     }
 
     public function updateInfo()
-{
-    $session = session();
+    {
+        $session = session();
 
-    if (!$session->get('logged_in')) {
+        if (!$session->get('logged_in')) {
+            return $this->response->setJSON([
+                'status' => 'error',
+                'message' => '로그인이 필요합니다.'
+            ]);
+        }
+
+        $memberUid = $session->get('member_uid');
+
+        $memberModel = new \App\Models\MemberModel();
+
+        // =========================
+        // 1. 데이터 수집
+        // =========================
+        $email   = $this->request->getPost('email');
+        $phone   = $this->request->getPost('phone');
+        $name    = $this->request->getPost('name');
+        $agreeMk = $this->request->getPost('agree_marketing');
+        $gender = $this->request->getPost('gender');
+
+        // =========================
+        // 2. 업데이트 데이터
+        // =========================
+        $data = [
+            'phone'            => $phone,
+            'name'             => $name,
+            'gender'           => $gender,   // ⭐ 추가
+            'agree_marketing'  => $agreeMk,
+            'updated_at'       => date('Y-m-d H:i:s'),
+        ];
+
+        // 이메일은 수정 불가 조건 아니면 허용
+        if ($email) {
+            $data['email'] = $email;
+        }
+
+        // =========================
+        // 3. 업데이트 실행
+        // =========================
+        $update = $memberModel
+            ->where('member_uid', $memberUid)
+            ->set($data)
+            ->update();
+
+        if (!$update) {
+            return $this->response->setJSON([
+                'status' => 'error',
+                'message' => '수정 실패'
+            ]);
+        }
+
         return $this->response->setJSON([
-            'status' => 'error',
-            'message' => '로그인이 필요합니다.'
+            'status' => 'success',
+            'message' => '회원 정보가 수정되었습니다.'
         ]);
     }
 
-    $memberUid = $session->get('member_uid');
+    public function adlist(): string
+    {
+        helper(['region', 'insurance']);
 
-    $memberModel = new \App\Models\MemberModel();
+        $header_class = "form-page ad-mgmt-page";
 
-    // =========================
-    // 1. 데이터 수집
-    // =========================
-    $email   = $this->request->getPost('email');
-    $phone   = $this->request->getPost('phone');
-    $name    = $this->request->getPost('name');
-    $agreeMk = $this->request->getPost('agree_marketing');
-    $gender = $this->request->getPost('gender');
+        $fc_member_id = session()->get('member_id');
 
-    // =========================
-    // 2. 업데이트 데이터
-    // =========================
-    $data = [
-        'phone'            => $phone,
-        'name'             => $name,
-        'gender'           => $gender,   // ⭐ 추가
-        'agree_marketing'  => $agreeMk,
-        'updated_at'       => date('Y-m-d H:i:s'),
-    ];
+        $page = (int) ($this->request->getGet('page') ?? 1);
+        $perPage = 10;
 
-    // 이메일은 수정 불가 조건 아니면 허용
-    if ($email) {
-        $data['email'] = $email;
-    }
+        $adModel = new \App\Models\AdMasterModel();
 
-    // =========================
-    // 3. 업데이트 실행
-    // =========================
-    $update = $memberModel
-        ->where('member_uid', $memberUid)
-        ->set($data)
-        ->update();
+        $result = $adModel->getAdListByMemberPaging($fc_member_id, $page, $perPage);
 
-    if (!$update) {
-        return $this->response->setJSON([
-            'status' => 'error',
-            'message' => '수정 실패'
+        $adList = $result['list'];
+        $total  = $result['total'];
+
+        $totalPages = ceil($total / $perPage);
+
+        // =========================
+        // 상태 가공 (핵심 로직 통합)
+        // =========================
+        $today = date('Y-m-d');
+
+        foreach ($adList as &$ad) {
+
+            $status = $ad['status'];
+
+            // 기본값
+            $ad['status_text'] = '';
+            $ad['status_class'] = '';
+
+            if ($status === 'approved') {
+
+                // 기간 체크
+                if (!empty($ad['start_date']) && !empty($ad['end_date'])) {
+
+                    if ($today < $ad['start_date']) {
+                        $ad['status_text'] = '대기';
+                        $ad['status_class'] = 'wait';
+                    } elseif ($today > $ad['end_date']) {
+                        $ad['status_text'] = '종료';
+                        $ad['status_class'] = 'end';
+                    } else {
+                        $ad['status_text'] = '광고 중';
+                        $ad['status_class'] = 'on';
+                    }
+                } else {
+                    $ad['status_text'] = '광고 중';
+                    $ad['status_class'] = 'on';
+                }
+            } else {
+
+                $map = [
+                    'apply'    => ['신청', 'wait'],
+                    'pending'  => ['대기', 'wait'],
+                    'rejected' => ['거절', 'end'],
+                    'end'      => ['종료', 'end'],
+                ];
+
+                $ad['status_text']  = $map[$status][0] ?? $status;
+                $ad['status_class'] = $map[$status][1] ?? '';
+            }
+
+            // 광고 타입 한글 매핑
+            $adTypeMap = [
+                'region_fc'   => '지역별 FC',
+                'banner'      => '배너광고',
+                'product_fc'  => '상품별 FC',
+                'review'      => '리뷰광고',
+                'language_fc' => '언어별 FC',
+            ];
+
+            $ad['ad_name'] = $adTypeMap[$ad['ad_type']] ?? $ad['ad_type'];
+
+            // 기간 포맷
+            if (!empty($ad['start_date']) && !empty($ad['end_date'])) {
+                $ad['period'] =
+                    date('y.m.d', strtotime($ad['start_date'])) .
+                    ' – ' .
+                    date('y.m.d', strtotime($ad['end_date']));
+            } else {
+                $ad['period'] = '-';
+            }
+        }
+
+        return $this->renderView('mypage/adList', [
+            "header_class" => $header_class,
+            "adList" => $adList,
+            "page" => $page,
+            "totalPages" => $totalPages,
+            "perPage" => $perPage
         ]);
     }
 
-    return $this->response->setJSON([
-        'status' => 'success',
-        'message' => '회원 정보가 수정되었습니다.'
-    ]);
-}
+    public function adlistRegionFc(): string
+    {
+        helper(['region', 'insurance']);
+
+        $header_class = "form-page fc-ad-apply-page";
+
+        $popup_page = [];
+        $modal_page = [];
+
+        return $this->renderView('mypage/adlistRegionFc', [
+            "header_class" => $header_class,
+            "popup_page" => $popup_page,
+            "modal_page" => $modal_page,
+
+        ]);
+    }
+
+    public function adlistBanner(): string
+    {
+        helper(['region', 'insurance']);
+
+        $header_class = "form-page fc-ad-apply-page";
+
+        $popup_page = [];
+        $modal_page = [];
+
+        return $this->renderView('mypage/adlistBanner', [
+            "header_class" => $header_class,
+            "popup_page" => $popup_page,
+            "modal_page" => $modal_page,
+
+        ]);
+    }
+
+    public function adlistProductFc(): string
+    {
+        helper(['region', 'insurance']);
+
+        $header_class = "form-page fc-ad-apply-page";
+
+        $popup_page = [];
+        $modal_page = [];
+
+        return $this->renderView('mypage/adlistProductFc', [
+            "header_class" => $header_class,
+            "popup_page" => $popup_page,
+            "modal_page" => $modal_page,
+
+        ]);
+    }
+
+
+    public function adlistReview(): string
+    {
+        helper(['region', 'insurance']);
+
+        $header_class = "form-page fc-ad-apply-page";
+
+        $popup_page = [];
+        $modal_page = [];
+
+        $db = \Config\Database::connect();
+
+        // ===========================
+        // 내 리뷰 리스트 + FC 정보 JOIN
+        // ===========================
+        $memberId = session()->get('member_uid');
+        $reviewList = $db->table('my_fc_counsel_review r')
+            ->select("
+            r.*,
+
+            c.counsel_uid,
+            c.status AS counsel_status,
+            c.created_at AS counsel_created_at,
+
+            m.name AS name,
+
+            p.profile_image,
+            p.ga,
+            p.company,
+            p.company_sub,
+
+            a.region,
+            a.insurance_types
+        ")
+            ->join('my_fc_counsel c', 'c.counsel_uid = r.counsel_uid', 'left')
+            ->join('my_fc_member m', 'm.member_uid = r.member_uid', 'left')
+            ->join('my_fc_profile p', 'p.member_uid = r.member_uid', 'left')
+            ->join('my_fc_profile_activity a', 'a.member_uid = r.member_uid', 'left')
+            ->where('r.fc_member_uid', $memberId)
+            ->where('r.deleted_at IS NULL', null, false)
+            ->orderBy('r.created_at', 'DESC')
+            ->get()
+            ->getResultArray();
+
+        return $this->renderView('mypage/adlistReview', [
+            "header_class" => $header_class,
+            "popup_page" => $popup_page,
+            "modal_page" => $modal_page,
+            "reviewList" => $reviewList,
+
+        ]);
+    }
+
+
+    public function adlistLanguageFc(): string
+    {
+        helper(['region', 'insurance']);
+
+        $header_class = "form-page fc-ad-apply-page";
+
+        $popup_page = [];
+        $modal_page = [];
+
+        return $this->renderView('mypage/adlistLanguageFc', [
+            "header_class" => $header_class,
+            "popup_page" => $popup_page,
+            "modal_page" => $modal_page,
+
+        ]);
+    }
+
+    public function ajaxRegionFcApply()
+    {
+        $memberId = session()->get('member_uid');
+
+        if (!$memberId) {
+            return $this->response->setJSON([
+                'result' => 'fail',
+                'msg' => '로그인이 필요합니다.'
+            ]);
+        }
+
+        $region = $this->request->getPost('ad_region');
+        $plan   = $this->request->getPost('ad_plan');
+
+        if (!$region || !$plan) {
+            return $this->response->setJSON([
+                'result' => 'fail',
+                'msg' => '필수값 누락'
+            ]);
+        }
+
+        $priceMap = [
+            '1m' => 500000
+        ];
+
+        $model = new \App\Models\AdMasterModel();
+
+        $model->insert([
+            'fc_member_id' => $memberId,
+            'ad_type' => 'region_fc',
+            'status' => 'apply',
+
+            'region_code' => $region,
+
+            'amount' => $priceMap[$plan] ?? 0,
+        ]);
+
+        return $this->response->setJSON([
+            'result' => 'success',
+            'msg' => '신청 완료'
+        ]);
+    }
+
+    public function ajaxBannerApply()
+    {
+        helper('fileupload_helper');
+
+        $session = session();
+        $memberId = $session->get('member_uid');
+
+        if (!$memberId) {
+            return $this->response->setJSON([
+                'result' => 'error',
+                'msg' => '로그인이 필요합니다.'
+            ]);
+        }
+
+        $plan = $this->request->getPost('ad_plan');
+        $needDesign = $this->request->getPost('banner_need_design');
+
+        if (!$plan) {
+            return $this->response->setJSON([
+                'result' => 'error',
+                'msg' => '광고 기간이 없습니다.'
+            ]);
+        }
+
+        $file = $this->request->getFile('banner_file');
+
+        // =========================
+        // 파일 조건 처리
+        // =========================
+        if (!$needDesign) {
+
+            if (!$file || !$file->isValid()) {
+                return $this->response->setJSON([
+                    'result' => 'error',
+                    'msg' => '파일이 없습니다.'
+                ]);
+            }
+        }
+
+        // =========================
+        // 1. 업로드 (헬퍼 방식)
+        // =========================
+        $filePath = "";
+        if (!$needDesign) {
+            $fileName = upload_file($file, 'uploads/banner');
+
+            if (!$fileName) {
+                return $this->response->setJSON([
+                    'result' => 'error',
+                    'msg' => '업로드 실패'
+                ]);
+            }
+
+            $filePath = '/uploads/banner/' . $fileName;
+        }
+
+        // =========================
+        // 2. 가격 정책
+        // =========================
+        $priceMap = [
+            '1m' => 500000
+        ];
+
+        $amount = $priceMap[$plan] ?? 0;
+
+        if (!$amount) {
+            return $this->response->setJSON([
+                'result' => 'error',
+                'msg' => '잘못된 상품입니다.'
+            ]);
+        }
+
+        // =========================
+        // 3. DB 저장
+        // =========================
+        $model = new \App\Models\AdMasterModel();
+
+        $model->insert([
+            'fc_member_id' => $memberId,
+            'ad_type' => 'banner',
+            'status' => 'apply',
+
+            'amount' => $amount,
+
+            'banner_image_url' => $filePath,
+            'banner_need_design' => $needDesign ? 1 : 0,
+        ]);
+
+        return $this->response->setJSON([
+            'result' => 'success',
+            'msg' => '신청 완료'
+        ]);
+    }
+
+
+    public function ajaxProductFcApply()
+    {
+        $memberId = session()->get('member_uid');
+
+        if (!$memberId) {
+            return $this->response->setJSON([
+                'result' => 'error',
+                'msg' => '로그인이 필요합니다.'
+            ]);
+        }
+
+        $plan = $this->request->getPost('ad_plan');
+        $insurance = $this->request->getPost('ad_insurance_type');
+
+        if (!$plan || !$insurance) {
+            return $this->response->setJSON([
+                'result' => 'error',
+                'msg' => '필수값 누락'
+            ]);
+        }
+
+        $priceMap = [
+            '1m' => 500000
+        ];
+
+        $model = new \App\Models\AdMasterModel();
+
+        $model->insert([
+            'fc_member_id' => $memberId,
+            'ad_type' => 'product_fc',
+            'status' => 'apply',
+
+            'insurance_type' => $insurance,
+
+            'amount' => $priceMap[$plan] ?? 0,
+        ]);
+
+        return $this->response->setJSON([
+            'result' => 'success',
+            'msg' => '신청 완료'
+        ]);
+    }
+
+
+    public function ajaxReviewApply()
+    {
+        $memberId = session()->get('member_id');
+
+        if (!$memberId) {
+            return $this->response->setJSON([
+                'result' => 'error',
+                'msg' => '로그인이 필요합니다.'
+            ]);
+        }
+
+        $reviewId = $this->request->getPost('ad_review_id');
+        $plan     = $this->request->getPost('ad_plan');
+
+        if (!$reviewId || !$plan) {
+            return $this->response->setJSON([
+                'result' => 'error',
+                'msg' => '필수값 누락'
+            ]);
+        }
+
+        $priceMap = [
+            '1m' => 500000
+        ];
+
+        $model = new \App\Models\AdMasterModel();
+
+        $model->insert([
+            'fc_member_id' => $memberId,
+            'ad_type' => 'review',
+            'status' => 'apply',
+
+            'review_id' => $reviewId,
+            'amount' => $priceMap[$plan] ?? 0,
+        ]);
+
+        return $this->response->setJSON([
+            'result' => 'success',
+            'msg' => '신청 완료'
+        ]);
+    }
+
+    public function ajaxLanguageApply()
+    {
+        $memberId = session()->get('member_id');
+
+        if (!$memberId) {
+            return $this->response->setJSON([
+                'result' => 'error',
+                'msg' => '로그인이 필요합니다.'
+            ]);
+        }
+
+        $plan = $this->request->getPost('ad_plan');
+        $language = $this->request->getPost('ad_language');
+
+        if (!$plan || !$language) {
+            return $this->response->setJSON([
+                'result' => 'error',
+                'msg' => '필수값 누락'
+            ]);
+        }
+
+        $priceMap = [
+            '1m' => 500000
+        ];
+
+        $model = new \App\Models\AdMasterModel();
+
+        $model->insert([
+            'fc_member_id' => $memberId,
+            'ad_type' => 'language_fc',
+            'status' => 'apply',
+
+            'language_code' => $language,
+
+            'amount' => $priceMap[$plan] ?? 0,
+        ]);
+
+        return $this->response->setJSON([
+            'result' => 'success',
+            'msg' => '신청 완료'
+        ]);
+    }
+
+    public function adLast(): string
+    {
+        helper(['region', 'insurance']);
+
+        $header_class = "flow-result";
+
+        $popup_page = [];
+        $modal_page = [];
+
+        return $this->renderView('mypage/adLast', [
+            "header_class" => $header_class,
+            "popup_page" => $popup_page,
+            "modal_page" => $modal_page,
+
+        ]);
+    }
+
+
+
+    //http://therichlab.local/sample/html/MFC005_L01_04_01_01.html
 }

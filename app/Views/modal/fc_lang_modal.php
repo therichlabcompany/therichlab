@@ -23,8 +23,20 @@
                     </button>
                 </li>
                 <li>
-                    <button type="button" class="c-modal-option" data-value="일본어">
-                        <span class="c-modal-option-label">일본어</span><span class="c-modal-option-ico"></span>
+                    <button type="button" class="c-modal-option" data-value="베트남어">
+                        <span class="c-modal-option-label">베트남어</span><span class="c-modal-option-ico"></span>
+                    </button>
+                </li>
+                
+                <li>
+                    <button type="button" class="c-modal-option" data-value="태국어">
+                        <span class="c-modal-option-label">태국어</span><span class="c-modal-option-ico"></span>
+                    </button>
+                </li>
+
+                <li>
+                    <button type="button" class="c-modal-option" data-value="필리핀어">
+                        <span class="c-modal-option-label">필리핀어</span><span class="c-modal-option-ico"></span>
                     </button>
                 </li>
             </ul>

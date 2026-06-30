@@ -7,6 +7,7 @@ use CodeIgniter\Router\RouteCollection;
  */
 $routes->get('/', 'Home::index');
 
+$routes->get('/fc/recommend', 'Home::recommend');
 
 
 $routes->group('fc', function ($routes) {
@@ -48,6 +49,7 @@ $routes->group('mypage', function ($routes) {
     $routes->post('ajax_save_reviewed', 'MypageController::ajax_save_reviewed');  // 후기 리스트 - 개인
     $routes->post('fccounsel/status', 'MypageController::fcCounselStatus');
     $routes->post('withdrawAjax', 'MypageController::withdrawAjax');
+    
 
 
     // 파일 업로드
@@ -59,6 +61,27 @@ $routes->group('mypage', function ($routes) {
     $routes->get('security/download/(:num)', 'MemberSecurityController::download/$1');
 
     $routes->post('updateInfo', 'MypageController::updateInfo');
+
+    $routes->get('adlist', 'MypageController::adlist');
+    $routes->get('adlistRegionFc', 'MypageController::adlistRegionFc');
+    $routes->get('adlistBanner', 'MypageController::adlistBanner');
+    $routes->get('adlistProductFc', 'MypageController::adlistProductFc');
+    $routes->get('adlistLanguageFc', 'MypageController::adlistLanguageFc');
+    $routes->get('adlistReview', 'MypageController::adlistReview');
+    
+    
+    
+
+
+    $routes->get('adLast', 'MypageController::adLast');
+    $routes->post('ad/region-fc', 'MypageController::ajaxRegionFcApply');
+    $routes->post('ad/banner', 'MypageController::ajaxBannerApply');
+    $routes->post('ad/product-fc', 'MypageController::ajaxProductFcApply');
+    $routes->post('ad/review', 'MypageController::ajaxReviewApply');
+    $routes->post('ad/language-fc', 'MypageController::ajaxLanguageApply');
+
+
+    
 });
 
 

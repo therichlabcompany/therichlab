@@ -167,7 +167,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         <li><a href="/mypage/fcprofile">프로필 관리</a></li>
                         <li><a href="/mypage/fcreviewed">심의필 정보 관리</a></li>
                         <li><a href="/mypage/fccounsel">상담 신청 관리</a></li>
-                        <li><a href="javascript:alert('작업중입니다');void(0);">광고 관리</a></li>
+                        <li><a href="/mypage/adlist">광고 관리</a></li>
                     </ul>
                     <?php else: ?>
                     <ul>
@@ -198,15 +198,15 @@ document.addEventListener('DOMContentLoaded', function () {
                 <li><a href="/mypage/fcinfo">내 정보</a></li>
                 <li><a href="/mypage/fcprofile">프로필 관리</a></li>
                 <li><a href="/mypage/fcreviewed">심의필 정보 관리</a></li>
-                <li><a href="javascript:alert('작업중입니다');void(0);">상담 신청 관리</a></li>
-                <li><a href="javascript:alert('작업중입니다');void(0);">광고 관리</a></li>
+                <li><a href="/mypage/fccounsel">상담 신청 관리</a></li>
+                <li><a href="/mypage/adlist">광고 관리</a></li>
             </ul>
             <?php else: ?>
             <ul>
                 <li><a href="/mypage/info">내 정보</a></li>
                 <li><a href="/mypage/certificate">내 증권 관리</a></li>
-                <li><a href="MFC004_L01_03.html">내 관심 FC</a></li>
-                <li><a href="MFC004_L01_04.html">상담현황</a></li>
+                <li><a href="/mypage/favoriteFc">내 관심 FC</a></li>
+                <li><a href="/mypage/counselList">상담현황</a></li>
                 <li><a href="/mypage/reviewList">나의 후기</a></li>
             </ul>
             <?php endif; ?>
