@@ -45,7 +45,11 @@ $profileImage = !empty($profile['profile_image'])
     <div class="consult-date-picker" hidden>
         <div class="consult-date-picker-head">
             <button type="button" class="consult-date-picker-nav prev" data-date-nav="prev" aria-label="이전 달"></button>
-            <strong></strong>
+
+             <div class="consult-date-picker-select">
+                <select class="consult-year"></select>
+                <select class="consult-month"></select>
+            </div>
             <button type="button" class="consult-date-picker-nav next" data-date-nav="next" aria-label="다음 달"></button>
         </div>
         <ol class="consult-date-picker-week">

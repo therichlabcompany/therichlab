@@ -2434,6 +2434,36 @@ a.fc-detail-cta {
 }
 
 .consult-date-picker-head {
+    position: relative;
+    display: grid;
+    grid-template-columns: 30px 1fr 30px;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.consult-date-picker-select {
+    justify-self: center;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.consult-date-picker-select select {
+    border: 0;
+    background: transparent;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text);
+    text-align: center;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    cursor: pointer;
+    outline: none;
+}
+
+/* 
+.consult-date-picker-head {
   display: grid;
   grid-template-columns: 30px 1fr 30px;
   align-items: center;
@@ -2445,7 +2475,7 @@ a.fc-detail-cta {
   font-weight: 700;
   text-align: center;
   color: var(--text);
-}
+} */
 
 .consult-date-picker-nav {
   width: 30px;
@@ -2502,6 +2532,20 @@ a.fc-detail-cta {
 .consult-date-picker-day.is-selected {
   background: var(--primary);
   color: var(--bg);
+}
+
+.consult-date-picker-select{
+    display:flex;
+    gap:6px;
+    align-items:center;
+}
+
+.consult-date-picker-select select{
+    border:0;
+    background:transparent;
+    font-size:15px;
+    font-weight:600;
+    cursor:pointer;
 }
 
 .consult-request .consult-request-read {

@@ -14,6 +14,6 @@
             </p>
         </div>
 
-        <a href="MFC008_02.html">프로필 등록 하기</a>
+        <a href="/mypage/fcprofile">프로필 등록 하기</a>
     </div>
 </main>

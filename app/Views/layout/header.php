@@ -12,7 +12,7 @@
     <link rel="stylesheet" href="<?= base_url('assets/css/common.css?v=3') ?>" />
     <link rel="stylesheet" href="<?= base_url('assets/css/layout.css?v=3') ?>" />
     <link rel="stylesheet" href="<?= base_url('assets/css/main.css?v=3') ?>" />
-    <link rel="stylesheet" href="<?= base_url('assets/css/content.css?v=3') ?>" />
+    <link rel="stylesheet" href="<?= base_url('assets/css/content.css?v=4') ?>" />
 
     <!-- 스크립트 · Swiper -->
     <script src="<?= base_url('assets/js/ui.js?v=9') ?>"></script>

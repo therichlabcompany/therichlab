@@ -165,10 +165,25 @@
       var input = wrap.querySelector('input[type="text"]');
       var panel = wrap.querySelector('.consult-date-picker');
       if (!input || !panel) return null;
-      var title = panel.querySelector('.consult-date-picker-head strong');
+      // var title = panel.querySelector('.consult-date-picker-head strong');
+      // var daysEl = panel.querySelector('.consult-date-picker-days');
+      // if (!title || !daysEl) return null;
+      // return { wrap: wrap, input: input, panel: panel, title: title, daysEl: daysEl };
+
+      var yearSelect = panel.querySelector('.consult-year');
+      var monthSelect = panel.querySelector('.consult-month');
       var daysEl = panel.querySelector('.consult-date-picker-days');
-      if (!title || !daysEl) return null;
-      return { wrap: wrap, input: input, panel: panel, title: title, daysEl: daysEl };
+
+      if (!yearSelect || !monthSelect || !daysEl) return null;
+
+      return {
+        wrap: wrap,
+        input: input,
+        panel: panel,
+        yearSelect: yearSelect,
+        monthSelect: monthSelect,
+        daysEl: daysEl
+      };
     }
 
     function formatDate(d) {
@@ -239,10 +254,55 @@
       });
     }
 
+    function fillYearOptions(select, currentYear) {
+
+      if (select.options.length) return;
+
+      for (var y = currentYear - 50; y <= currentYear + 20; y++) {
+
+        var option = document.createElement('option');
+
+        option.value = y;
+        option.textContent = y + '년';
+
+        select.appendChild(option);
+
+      }
+
+    }
+
+    function fillMonthOptions(select) {
+
+      if (select.options.length) return;
+
+      for (var m = 1; m <= 12; m++) {
+
+        var option = document.createElement('option');
+
+        option.value = m - 1;
+        option.textContent = m + '월';
+
+        select.appendChild(option);
+
+      }
+
+    }
+
     function render(state, els) {
       var year = state.currentMonth.getFullYear();
       var month = state.currentMonth.getMonth();
-      els.title.textContent = year + '년 ' + (month + 1) + '월';
+      fillYearOptions(
+          els.yearSelect,
+          state.today.getFullYear()
+      );
+
+      fillMonthOptions(
+          els.monthSelect
+      );
+
+      els.yearSelect.value = year;
+      els.monthSelect.value = month;
+
       drawDays(buildCalendarCells(year, month), state, els);
     }
 
@@ -258,11 +318,13 @@
     function selectDate(state, els, raw) {
       var picked = new Date(raw);
       state.selectedDate = new Date(picked.getFullYear(), picked.getMonth(), picked.getDate());
+      
       state.currentMonth = new Date(
         state.selectedDate.getFullYear(),
         state.selectedDate.getMonth(),
         1
       );
+      render(state, els);
       els.input.value = formatDate(state.selectedDate);
       els.panel.hidden = true;
     }
@@ -293,6 +355,30 @@
         var dayBtn = e.target.closest('[data-date-value]');
         if (!dayBtn) return;
         selectDate(state, els, dayBtn.getAttribute('data-date-value'));
+      });
+
+      els.yearSelect.addEventListener('change', function () {
+
+          state.currentMonth = new Date(
+              Number(this.value),
+              state.currentMonth.getMonth(),
+              1
+          );
+
+          render(state, els);
+
+      });
+
+      els.monthSelect.addEventListener('change', function () {
+
+          state.currentMonth = new Date(
+              state.currentMonth.getFullYear(),
+              Number(this.value),
+              1
+          );
+
+          render(state, els);
+
       });
     }
 
