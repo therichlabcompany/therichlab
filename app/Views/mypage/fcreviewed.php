@@ -131,7 +131,16 @@ $isReject     = !empty($review) && $review['status'] === 'REJECT';
                             name="deliberation_file"
                             type="file"
                             tabindex="-1"
-                            accept=".doc,.docx,.hwp,.xls,.xlsx,application/msword,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" />
+                            accept="
+                            .image/*,
+                            application/pdf,
+                            application/msword,
+                            application/vnd.openxmlformats-officedocument.wordprocessingml.document,
+                            application/vnd.ms-excel,
+                            application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,
+                            .hwp,
+                            .jpg,.jpeg,.png,.webp,.gif
+                            "/>
                         <button type="button" class="file-upload-file-trigger">파일찾기</button>
                     </div>
                 </div>
@@ -197,28 +206,7 @@ $isReject     = !empty($review) && $review['status'] === 'REJECT';
     </div>
 </div>
 <?php endif; ?>
-<script>
-    (function() {
-        var block = document.querySelector('[data-deliberation-upload]');
-        if (!block) return;
-        var row = block.querySelector('[data-upload-row]');
-        if (!row) return;
-        var display = row.querySelector('input[readonly]');
-        var fileInput = row.querySelector('input[type="file"]');
-        var trigger = row.querySelector('.file-upload-file-trigger');
-        if (trigger && fileInput) {
-            trigger.addEventListener('click', function() {
-                fileInput.click();
-            });
-        }
-        if (fileInput && display) {
-            fileInput.addEventListener('change', function() {
-                var f = fileInput.files && fileInput.files[0];
-                display.value = f ? f.name : '';
-            });
-        }
-    })();
-</script>
+
 
 <script>
     (function() {
