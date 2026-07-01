@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Profile Image Editor (HD)</title>
+
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.0/fabric.min.js"></script>
+
+<style>
+body {
+    font-family: Arial;
+    background: #f5f6f8;
+    margin: 0;
+    padding: 30px;
+}
+
+.wrapper {
+    display: flex;
+    gap: 30px;
+}
+
+.panel {
+    width: 280px;
+    background: #fff;
+    padding: 20px;
+    border-radius: 12px;
+}
+
+.preview {
+    display: flex;
+    gap: 20px;
+}
+
+.card {
+    background: #fff;
+    padding: 15px;
+    border-radius: 12px;
+    text-align: center;
+}
+
+canvas {
+    border-radius: 50%;
+    border: 1px solid #ddd;
+
+    /* ✔ 화면 표시만 줄임 */
+    width: 50px;
+    height: 50px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="wrapper">
+
+    <div class="panel">
+        <h3>이미지 업로드</h3>
+        <input type="file" id="imgInput">
+    </div>
+
+    <div class="preview">
+        <div class="card">
+            <h4>50px 미리보기</h4>
+            <canvas id="canvas1"></canvas>
+        </div>
+
+        <div class="card">
+            <h4>100px 최종</h4>
+            <canvas id="canvas2"></canvas>
+        </div>
+    </div>
+
+</div>
+
+<script>
+/* =========================
+   🔥 HD Canvas 생성 (핵심)
+========================= */
+function createHDCanvas(id, size) {
+
+    var canvas = new fabric.Canvas(id);
+
+    var dpr = window.devicePixelRatio || 1;
+
+    canvas.setWidth(size * dpr);
+    canvas.setHeight(size * dpr);
+    canvas.setZoom(dpr);
+
+    return canvas;
+}
+
+var canvas1 = createHDCanvas('canvas1', 50);
+var canvas2 = createHDCanvas('canvas2', 100);
+
+
+/* =========================
+   이미지 추가 (고화질 + 중앙정렬)
+========================= */
+function addImage(imgUrl) {
+
+    fabric.Image.fromURL(imgUrl, function (img) {
+
+        [canvas1, canvas2].forEach(function(canvas){
+
+            var cw = canvas.getWidth() / canvas.getZoom();
+            var ch = canvas.getHeight() / canvas.getZoom();
+
+            var scale = Math.min(cw / img.width, ch / img.height);
+
+            var clone = fabric.util.object.clone(img);
+
+            clone.set({
+                left: cw / 2,
+                top: ch / 2,
+                originX: 'center',
+                originY: 'center',
+
+                scaleX: scale,
+                scaleY: scale,
+
+                selectable: false,
+                hasControls: false,
+                evented: true,
+
+                imageSmoothing: true,
+                objectCaching: false
+            });
+
+            canvas.add(clone);
+            canvas.renderAll();
+        });
+    });
+}
+
+
+/* =========================
+   업로드
+========================= */
+$('#imgInput').on('change', function (e) {
+
+    var file = e.target.files[0];
+    var reader = new FileReader();
+
+    reader.onload = function (f) {
+        addImage(f.target.result);
+    };
+
+    reader.readAsDataURL(file);
+});
+</script>
+
+</body>
+</html>
