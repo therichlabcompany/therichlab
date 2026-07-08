@@ -89,6 +89,32 @@ abstract class BaseController extends Controller
         // exit;
 
         // =========================
+        // 앱 / 웹 구분
+        // =========================
+         $userAgent = $this->request
+        ->getHeaderLine('User-Agent');
+
+
+        $isApp = false;
+
+
+        // Flutter WebView에서 지정한 User-Agent 체크
+        if (
+            strpos($userAgent, 'myfcApp') !== false ||
+            strpos($userAgent, 'Flutter') !== false
+        ) {
+            $isApp = true;
+        }
+
+
+        $data['isApp'] = $isApp;
+        $data['userAgent'] = $userAgent;
+
+        echo $isApp."<br>";
+        echo $userAgent;
+        
+
+        // =========================
         // layout data (header)
         // =========================
         $layoutData = [
@@ -96,7 +122,8 @@ abstract class BaseController extends Controller
             "popup_page"   => $data["popup_page"] ?? [],
             "modal_page"   => $data["modal_page"] ?? [],
             // 🔥 추가
-            "memberProfile" => $memberProfile
+            "memberProfile" => $isApp,
+            "userAgent" => $userAgent
         ];
 
         // =========================
