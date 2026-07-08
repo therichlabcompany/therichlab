@@ -110,9 +110,6 @@ abstract class BaseController extends Controller
         $data['isApp'] = $isApp;
         $data['userAgent'] = $userAgent;
 
-        echo $isApp."<br>";
-        echo $userAgent;
-        
 
         // =========================
         // layout data (header)
@@ -122,7 +119,8 @@ abstract class BaseController extends Controller
             "popup_page"   => $data["popup_page"] ?? [],
             "modal_page"   => $data["modal_page"] ?? [],
             // 🔥 추가
-            "memberProfile" => $isApp,
+            "memberProfile" => $memberProfile,
+            "isApp" => $isApp,
             "userAgent" => $userAgent
         ];
 
