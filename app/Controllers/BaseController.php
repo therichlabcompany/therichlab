@@ -100,28 +100,175 @@ abstract class BaseController extends Controller
 
         // Flutter WebView에서 지정한 User-Agent 체크
         if (
-            strpos($userAgent, 'myfcApp') !== false ||
-            strpos($userAgent, 'Flutter') !== false
+            strpos($userAgent, 'myfcApp') !== false
         ) {
             $isApp = true;
         }
 
+        $appToken = null;
 
-        $data['isApp'] = $isApp;
-        $data['userAgent'] = $userAgent;
+        //$isApp = true;          // 주석처리해야함 테스트용
+        $appToken = null;
+        $appPlatform = null;
 
+
+        if ($isApp && $memberUid) {
+
+
+            // =========================
+            // 앱 플랫폼 체크
+            // =========================
+            if (
+                stripos($userAgent, 'Android') !== false
+            ) {
+
+                $appPlatform = 'ANDROID';
+
+
+            } elseif (
+                stripos($userAgent, 'iPhone') !== false ||
+                stripos($userAgent, 'iPad') !== false
+            ) {
+
+                $appPlatform = 'IOS';
+
+            }
+
+
+
+            // 회원 앱 토큰 조회
+            $memberApp = $db->table('my_fc_member')
+                ->select([
+                    'app_token',
+                    'app_platform',
+                    'app_token_expire_at'
+                ])
+                ->where(
+                    'member_uid',
+                    $memberUid
+                )
+                ->get()
+                ->getRowArray();
+
+
+
+            $now = date('Y-m-d H:i:s');
+
+
+
+            // 기존 토큰 + 만료 전
+            if (
+                !empty($memberApp['app_token']) &&
+                $memberApp['app_token_expire_at'] > $now
+            ) {
+
+
+                $appToken =
+                    $memberApp['app_token'];
+
+
+
+                // 플랫폼 변경 체크
+                $updateData = [
+
+                    'app_platform' =>
+                        $appPlatform,
+
+                ];
+
+
+                $db->table('my_fc_member')
+                    ->where(
+                        'member_uid',
+                        $memberUid
+                    )
+                    ->update($updateData);
+
+
+
+            } else {
+
+
+                // 신규 토큰 생성
+                $appToken =
+                    $this->createAppToken();
+
+
+
+                // 30일 만료
+                $expireAt =
+                    date(
+                        'Y-m-d H:i:s',
+                        strtotime('+30 days')
+                    );
+
+
+
+                $db->table('my_fc_member')
+                    ->where(
+                        'member_uid',
+                        $memberUid
+                    )
+                    ->update([
+
+                        'app_token' =>
+                            $appToken,
+
+
+                        'app_platform' =>
+                            $appPlatform,
+
+
+                        'app_token_expire_at' =>
+                            $expireAt,
+
+
+                        'app_token_updated_at' =>
+                            date('Y-m-d H:i:s')
+
+                    ]);
+
+            }
+
+        }
 
         // =========================
         // layout data (header)
         // =========================
+        
+        
         $layoutData = [
-            "header_class" => $data["header_class"] ?? '',
-            "popup_page"   => $data["popup_page"] ?? [],
-            "modal_page"   => $data["modal_page"] ?? [],
-            // 🔥 추가
-            "memberProfile" => $memberProfile,
-            "isApp" => $isApp,
-            "userAgent" => $userAgent
+
+            "header_class" =>
+                $data["header_class"] ?? '',
+
+
+            "popup_page" =>
+                $data["popup_page"] ?? [],
+
+
+            "modal_page" =>
+                $data["modal_page"] ?? [],
+
+
+            // 회원 프로필
+            "memberProfile" =>
+                $memberProfile,
+
+
+            // 앱 여부
+            "isApp" =>
+                $isApp,
+
+
+            // 앱 토큰
+            "appToken" =>
+                $appToken,
+
+
+            "userAgent" =>
+                $userAgent
+
         ];
 
         // =========================
@@ -165,5 +312,12 @@ abstract class BaseController extends Controller
         return view('admin/layout/header', $layoutData)
             . view($view, $viewData)
             . view('admin/layout/footer', $layoutData);
+    }
+
+    private function createAppToken(): string
+    {
+        return bin2hex(
+            random_bytes(32)
+        );
     }
 }

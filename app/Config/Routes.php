@@ -132,6 +132,11 @@ $routes->group('member', function ($routes) {
         'updateBasicInfo',
         'MemberController::updateBasicInfo'
     );
+
+    $routes->post(
+        'appLogin',
+        'MemberController::appLogin'
+    );
 });
 
 

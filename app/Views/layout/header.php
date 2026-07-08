@@ -22,6 +22,158 @@
 
 
 </head>
+
+<?php if($isApp && !empty($appToken)): ?>
+
+<script>
+
+(function(){
+
+    const appToken = <?= json_encode($appToken) ?>;
+
+
+    function sendAppToken(){
+        console.log(
+            'sendAppToken step 2'
+        );
+        if(
+            typeof requestAppTokenFromWeb === 'function'
+        ){
+
+            requestAppTokenFromWeb(appToken);
+
+        } else {
+
+            console.log(
+                'requestAppTokenFromWeb not ready'
+            );
+
+        }
+
+    }
+
+
+    // Flutter Bridge 준비 후 실행
+    if(
+        document.readyState === 'loading'
+    ){
+        console.log(
+            'Flutter Bridge loading'
+        );
+        document.addEventListener(
+            'DOMContentLoaded',
+            sendAppToken
+        );
+
+    } else {
+        console.log(
+            'sendAppToken step 1'
+        );
+        sendAppToken();
+
+    }
+
+
+})();
+
+</script>
+
+<script>
+
+(function(){
+
+
+    /**
+     * Flutter → Web
+     * 앱 로그인 토큰 전달
+     */
+    window.onAppTokenRequested = function(
+        loginToken,
+        pushToken
+    ){
+
+
+        console.log(
+            "APP TOKEN:",
+            loginToken
+        );
+
+
+        console.log(
+            "PUSH TOKEN:",
+            pushToken
+        );
+
+
+        $.ajax({
+
+            url: "/member/appLogin",
+
+            type: "POST",
+
+            dataType: "json",
+
+            data: {
+
+                app_token: loginToken,
+
+                fcm_token: pushToken
+
+            },
+
+
+            success:function(res){
+
+
+                console.log(
+                    "APP LOGIN RESULT",
+                    res
+                );
+
+
+                if(res.result){
+
+
+                    // 자동 로그인 성공
+
+                    location.reload();
+
+
+                }else{
+
+
+                    console.log(
+                        res.message
+                    );
+
+                }
+
+
+            },
+
+
+            error:function(xhr){
+
+
+                console.error(
+                    xhr.responseText
+                );
+
+
+            }
+
+
+        });
+
+
+    };
+
+
+})();
+
+</script>
+
+<?php endif; ?>
  <!-- class="popup-open" -->
 <body>
 

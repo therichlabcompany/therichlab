@@ -1278,4 +1278,137 @@ class MemberController extends BaseController
             'message' => '회원정보가 수정되었습니다.'
         ]);
     }
+    public function appLogin()
+    {
+
+        $request = service('request');
+
+
+        $appToken =
+            $request->getPost('app_token');
+
+
+        $fcmToken =
+            $request->getPost('fcm_token');
+
+
+
+        if(empty($appToken)){
+
+            return $this->response->setJSON([
+                'result'=>false,
+                'message'=>'TOKEN_EMPTY'
+            ]);
+
+        }
+
+
+
+        $db = \Config\Database::connect();
+
+
+
+        // 회원 조회
+        $member =
+            $db->table('my_fc_member')
+            ->where(
+                'app_token',
+                $appToken
+            )
+            ->where('deleted_at', null)
+            ->get()
+            ->getRowArray();
+
+
+
+        if(!$member){
+
+
+            return $this->response->setJSON([
+
+                'result'=>false,
+
+                'message'=>'MEMBER_NOT_FOUND'
+
+            ]);
+
+        }
+
+
+
+        // =========================
+        // FCM 토큰 업데이트
+        // =========================
+
+        $db->table('my_fc_member')
+            ->where(
+                'member_id',
+                $member['member_id']
+            )
+            ->update([
+
+                'fcm_token'=>$fcmToken,
+
+                'fcm_token_updated_at'=>date(
+                    'Y-m-d H:i:s'
+                )
+
+            ]);
+
+
+
+
+        // =========================
+        // 세션 생성
+        // =========================
+
+        $session = session();
+
+
+        $session->set([
+
+            'member_id'=>
+                $member['member_id'],
+
+
+            'member_uid'=>
+                $member['member_uid'],
+
+
+            'email'=>
+                $member['email'],
+
+
+            'name'=>
+                $member['name'],
+
+
+            'member_type'=>
+                $member['member_type'],
+
+
+            'logged_in'=>true
+
+        ]);
+
+
+
+
+        return $this->response->setJSON([
+
+            'result'=>true,
+
+            'member'=>[
+
+                'member_uid'=>
+                    $member['member_uid'],
+
+                'name'=>
+                    $member['name']
+
+            ]
+
+        ]);
+
+    }
 }
