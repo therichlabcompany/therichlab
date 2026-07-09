@@ -26,32 +26,69 @@
 <?php if($isApp && !empty($appToken)): ?>
 
 <script>
-(function(){
-    const appToken = <?= json_encode($appToken) ?>;
-    function sendAppToken(){
-        console.log(typeof window.requestAppTokenFromWeb);
-        if(typeof window.requestAppTokenFromWeb === 'function'){
-            console.log('requestAppTokenFromWeb web request start');
-            window.requestAppTokenFromWeb(appToken);
-        } else {
-            console.log('requestAppTokenFromWeb not ready, 이벤트 대기');
-            // 앱이 아직 함수 주입 전 → 준비되면 그때 호출
-            window.addEventListener('appBridgeReady', function(){
-                console.log('appBridgeReady 수신, 재호출');
-                window.requestAppTokenFromWeb(appToken);
-            }, { once: true });
-        }
-    }
-    // Flutter Bridge 준비 후 실행
-    if(document.readyState === 'loading'){
-        console.log('Flutter Bridge loading');
-        document.addEventListener('DOMContentLoaded', sendAppToken);
-    } else {
-        console.log('sendAppToken step 1');
-        sendAppToken();
-    }
-})();
+// ─────────────────────────────────────────────────────────────
+// 진단 + 안전한 최종본
+//
+// 증상: appBridgeReady 이벤트를 dispatch 했는데 웹 리스너가 안 깨어남.
+// 원인 후보:
+//   (A) 이벤트 리스너/디스패치의 window 컨텍스트 불일치
+//   (B) 이벤트 등록과 발생 사이 미세한 경합
+//   (C) 앱이 이벤트를 실제로는 못 쏨(주입 스크립트 예외 등)
+//
+// 아래는 "이벤트"에만 의존하지 않고, 짧은 폴링으로도 함수를 잡아
+// 어떤 경우든 확실히 호출되게 만든 버전.
+// ─────────────────────────────────────────────────────────────
+(function () {
+  const appToken = <?= json_encode($appToken) ?>;
 
+  let sent = false;
+  function fire() {
+    if (sent) return;
+    if (typeof window.requestAppTokenFromWeb !== 'function') return;
+    sent = true;
+    console.log('requestAppTokenFromWeb web request start');
+    window.requestAppTokenFromWeb(appToken);
+  }
+
+  function sendAppToken() {
+    console.log('sendAppToken step 2');
+
+    if (typeof window.requestAppTokenFromWeb === 'function') {
+      fire();
+      return;
+    }
+
+    console.log('requestAppTokenFromWeb not ready → 대기 시작');
+
+    // 1) 이벤트 방식 (앱이 준비되면 즉시)
+    window.addEventListener('appBridgeReady', function () {
+      console.log('appBridgeReady 수신');
+      fire();
+    }, { once: true });
+
+    // 2) 폴링 방식 (이벤트를 못 받는 경우 대비, 최대 5초)
+    let tries = 0;
+    const timer = setInterval(function () {
+      tries++;
+      if (typeof window.requestAppTokenFromWeb === 'function') {
+        console.log('폴링으로 함수 발견 (' + tries + '회차)');
+        clearInterval(timer);
+        fire();
+      } else if (tries >= 50) { // 100ms * 50 = 5초
+        console.log('5초 내 함수 미발견, 폴링 중단');
+        clearInterval(timer);
+      }
+    }, 100);
+  }
+
+  if (document.readyState === 'loading') {
+    console.log('Flutter Bridge loading');
+    document.addEventListener('DOMContentLoaded', sendAppToken);
+  } else {
+    console.log('sendAppToken step 1');
+    sendAppToken();
+  }
+})();
 </script>
 
 <script>
