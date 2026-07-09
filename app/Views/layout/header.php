@@ -39,6 +39,9 @@
 // 어떤 경우든 확실히 호출되게 만든 버전.
 // ─────────────────────────────────────────────────────────────
 (function () {
+  const bridgeVersion = 'app-bridge-20260709-2';
+  console.log('[BRIDGE]', bridgeVersion);
+
   const appToken = <?= json_encode($appToken) ?>;
 
   let sent = false;
@@ -106,6 +109,7 @@
     ){
 
 
+        console.log('[BRIDGE] onAppTokenRequested enter', bridgeVersion);
         console.log(
             "APP TOKEN:",
             loginToken
@@ -118,31 +122,34 @@
         );
 
 
-        $.ajax({
+        const xhr = new XMLHttpRequest();
+        xhr.open("POST", "/member/appLogin", true);
+        xhr.setRequestHeader(
+            "Content-Type",
+            "application/x-www-form-urlencoded; charset=UTF-8"
+        );
+        xhr.setRequestHeader("Accept", "application/json");
 
-            url: "/member/appLogin",
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState !== 4) {
+                return;
+            }
 
-            type: "POST",
+            console.log('[AJAX] complete');
+            console.log('[AJAX] response status :', xhr.status);
 
-            dataType: "json",
+            if (xhr.status < 200 || xhr.status >= 300) {
+                console.error(xhr.responseText);
+                return;
+            }
 
-            data: {
-
-                app_token: loginToken,
-
-                fcm_token: pushToken
-
-            },
-
-
-            success:function(res){
-
+            try {
+                const res = JSON.parse(xhr.responseText);
 
                 console.log(
                     "APP LOGIN RESULT",
                     res
                 );
-
 
                 if(res.result){
 
@@ -160,23 +167,23 @@
                     );
 
                 }
-
-
-            },
-
-
-            error:function(xhr){
-
-
-                console.error(
-                    xhr.responseText
-                );
-
-
+            } catch (error) {
+                console.error(error);
+                console.error(xhr.responseText);
             }
 
+        };
 
-        });
+        xhr.onerror = function () {
+            console.error('[AJAX] network error');
+        };
+
+        xhr.send(
+            "app_token=" +
+            encodeURIComponent(loginToken ?? "") +
+            "&fcm_token=" +
+            encodeURIComponent(pushToken ?? "")
+        );
 
 
     };
