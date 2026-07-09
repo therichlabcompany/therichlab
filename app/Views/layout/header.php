@@ -93,96 +93,123 @@
 
 <script>
 
-(function(){
+(function () {
 
-
-    /**
-     * Flutter → Web
-     * 앱 로그인 토큰 전달
-     */
-    window.onAppTokenRequested = function(
+    window.onAppTokenRequested = function (
         loginToken,
         pushToken
-    ){
+    ) {
 
+        try {
 
-        console.log(
-            "APP TOKEN:",
-            loginToken
-        );
+            console.log("================================");
+            console.log("[APP] onAppTokenRequested 호출");
+            console.log("[APP] APP TOKEN :", loginToken);
+            console.log("[APP] PUSH TOKEN:", pushToken);
+            console.log("================================");
 
+            console.log("[CHECK] typeof $ =", typeof $);
 
-        console.log(
-            "PUSH TOKEN:",
-            pushToken
-        );
+            if (typeof $ === "undefined") {
 
+                console.error("[ERROR] jQuery가 없습니다.");
 
-        $.ajax({
-
-            url: "/member/appLogin",
-
-            type: "POST",
-
-            dataType: "json",
-
-            data: {
-
-                app_token: loginToken,
-
-                fcm_token: pushToken
-
-            },
-
-
-            success:function(res){
-
-
-                console.log(
-                    "APP LOGIN RESULT",
-                    res
-                );
-
-
-                if(res.result){
-
-
-                    // 자동 로그인 성공
-
-                    location.reload();
-
-
-                }else{
-
-
-                    console.log(
-                        res.message
-                    );
-
-                }
-
-
-            },
-
-
-            error:function(xhr){
-
-
-                console.error(
-                    xhr.responseText
-                );
-
+                return;
 
             }
 
+            console.log("[CHECK] typeof $.ajax =", typeof $.ajax);
 
-        });
+            if (typeof $.ajax !== "function") {
 
+                console.error("[ERROR] $.ajax가 없습니다.");
+
+                return;
+
+            }
+
+            console.log("[AJAX] 요청 시작");
+
+            $.ajax({
+
+                url: "/member/appLogin",
+
+                type: "POST",
+
+                dataType: "json",
+
+                timeout: 15000,
+
+                data: {
+
+                    app_token: loginToken,
+
+                    fcm_token: pushToken
+
+                },
+
+                beforeSend: function () {
+
+                    console.log("[AJAX] beforeSend");
+
+                },
+
+                success: function (res) {
+
+                    console.log("[AJAX] success");
+
+                    console.log(res);
+
+                    if (res.result) {
+
+                        console.log("[LOGIN] 자동 로그인 성공");
+
+                        // location.reload();
+
+                    } else {
+
+                        console.log("[LOGIN] 실패");
+
+                        console.log(res.message);
+
+                    }
+
+                },
+
+                error: function (xhr, status, error) {
+
+                    console.log("[AJAX] error");
+
+                    console.log("status :", status);
+
+                    console.log("error  :", error);
+
+                    console.log("http   :", xhr.status);
+
+                    console.log("response:");
+
+                    console.log(xhr.responseText);
+
+                },
+
+                complete: function () {
+
+                    console.log("[AJAX] complete");
+
+                }
+
+            });
+
+        } catch (e) {
+
+            console.error("[EXCEPTION]", e);
+
+        }
 
     };
 
-
 })();
+
 
 </script>
 
