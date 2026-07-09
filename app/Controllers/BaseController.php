@@ -102,7 +102,8 @@ abstract class BaseController extends Controller
 
         // Flutter WebView에서 지정한 User-Agent 체크
         if (
-            strpos($userAgent, 'myfcApp') !== false
+            strpos($userAgent, 'myfc_ios') !== false
+            || strpos($userAgent, 'myfc_android') !== false
         ) {
             $isApp = true;
         }
