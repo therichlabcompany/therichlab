@@ -39,8 +39,8 @@
 // 어떤 경우든 확실히 호출되게 만든 버전.
 // ─────────────────────────────────────────────────────────────
 (function () {
-  const bridgeVersion = 'app-bridge-20260709-2';
-  console.log('[BRIDGE]', bridgeVersion);
+  window.__myfcBridgeVersion = 'app-bridge-20260709-3';
+  console.log('[BRIDGE]', window.__myfcBridgeVersion);
 
   const appToken = <?= json_encode($appToken) ?>;
 
@@ -109,7 +109,7 @@
     ){
 
 
-        console.log('[BRIDGE] onAppTokenRequested enter', bridgeVersion);
+        console.log('[BRIDGE] onAppTokenRequested enter', window.__myfcBridgeVersion);
         console.log(
             "APP TOKEN:",
             loginToken
