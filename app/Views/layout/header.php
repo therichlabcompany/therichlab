@@ -29,7 +29,7 @@
 (function(){
     const appToken = <?= json_encode($appToken) ?>;
     function sendAppToken(){
-        console.log('sendAppToken step 2');
+        console.log(typeof window.requestAppTokenFromWeb);
         if(typeof window.requestAppTokenFromWeb === 'function'){
             console.log('requestAppTokenFromWeb web request start');
             window.requestAppTokenFromWeb(appToken);
