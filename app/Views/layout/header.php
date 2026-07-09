@@ -26,9 +26,7 @@
 <?php if($isApp && !empty($appToken)): ?>
 
 <script>
- console.log(
-    'sendAppToken step 2'
-);
+
 (function(){
 
     const appToken = <?= json_encode($appToken) ?>;
@@ -39,12 +37,12 @@
             'sendAppToken step 2'
         );
         if(
-            typeof requestAppTokenFromWeb === 'function'
+            typeof window.requestAppTokenFromWeb === 'function'
         ){
             console.log(
                 'requestAppTokenFromWeb web request start'
             );
-            requestAppTokenFromWeb(appToken);
+            window.requestAppTokenFromWeb(appToken);
 
         } else {
 
