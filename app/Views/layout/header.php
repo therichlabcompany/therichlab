@@ -26,56 +26,30 @@
 <?php if($isApp && !empty($appToken)): ?>
 
 <script>
-
 (function(){
-
     const appToken = <?= json_encode($appToken) ?>;
-
-
     function sendAppToken(){
-        console.log(
-            'sendAppToken step 2'
-        );
-        if(
-            typeof window.requestAppTokenFromWeb === 'function'
-        ){
-            console.log(
-                'requestAppTokenFromWeb web request start'
-            );
+        console.log('sendAppToken step 2');
+        if(typeof window.requestAppTokenFromWeb === 'function'){
+            console.log('requestAppTokenFromWeb web request start');
             window.requestAppTokenFromWeb(appToken);
-
         } else {
-
-            console.log(
-                'requestAppTokenFromWeb not ready'
-            );
-
+            console.log('requestAppTokenFromWeb not ready, 이벤트 대기');
+            // 앱이 아직 함수 주입 전 → 준비되면 그때 호출
+            window.addEventListener('appBridgeReady', function(){
+                console.log('appBridgeReady 수신, 재호출');
+                window.requestAppTokenFromWeb(appToken);
+            }, { once: true });
         }
-
     }
-
-
     // Flutter Bridge 준비 후 실행
-    if(
-        document.readyState === 'loading'
-    ){
-        console.log(
-            'Flutter Bridge loading'
-        );
-        document.addEventListener(
-            'DOMContentLoaded',
-            sendAppToken
-        );
-
+    if(document.readyState === 'loading'){
+        console.log('Flutter Bridge loading');
+        document.addEventListener('DOMContentLoaded', sendAppToken);
     } else {
-        console.log(
-            'sendAppToken step 1'
-        );
+        console.log('sendAppToken step 1');
         sendAppToken();
-
     }
-
-
 })();
 
 </script>
