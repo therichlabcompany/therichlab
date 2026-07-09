@@ -94,7 +94,7 @@ abstract class BaseController extends Controller
          $userAgent = $this->request
         ->getHeaderLine('User-Agent');
 
-        echo $userAgent;
+        //echo $userAgent;
 
 
         $isApp = false;
