@@ -85,6 +85,28 @@ abstract class BaseController extends Controller
                 ->getRowArray();
         }
 
+        $popupList = [];
+
+        if ($db->tableExists('my_fc_popup')) {
+            $now = date('Y-m-d H:i:s');
+            $popupList = $db->table('my_fc_popup')
+                ->select('popup_id, title, image_path, link_url, link_target, display_status, start_at, end_at, sort_order')
+                ->where('display_status', 'Y')
+                ->groupStart()
+                ->where('start_at IS NULL', null, false)
+                ->orWhere('start_at <=', $now)
+                ->groupEnd()
+                ->groupStart()
+                ->where('end_at IS NULL', null, false)
+                ->orWhere('end_at >=', $now)
+                ->groupEnd()
+                ->where('deleted_at', null)
+                ->orderBy('sort_order', 'ASC')
+                ->orderBy('popup_id', 'DESC')
+                ->get()
+                ->getResultArray();
+        }
+
         // print_r($memberProfile);
         // exit;
 
@@ -258,6 +280,9 @@ abstract class BaseController extends Controller
             "memberProfile" =>
                 $memberProfile,
 
+            "popupList" =>
+                $popupList,
+
 
             // 앱 여부
             "isApp" =>
@@ -315,6 +340,75 @@ abstract class BaseController extends Controller
         return view('admin/layout/header', $layoutData)
             . view($view, $viewData)
             . view('admin/layout/footer', $layoutData);
+    }
+
+    protected function forbiddenWordViolation(string $text, array $scopes = ['ALL']): ?string
+    {
+        $text = trim($text);
+        if ($text === '') {
+            return null;
+        }
+
+        $scopes = array_values(array_unique(array_filter(array_map('strtoupper', $scopes), static fn ($scope) => $scope !== '')));
+        if (empty($scopes)) {
+            $scopes = ['ALL'];
+        }
+
+        if (!in_array('ALL', $scopes, true)) {
+            $scopes[] = 'ALL';
+        }
+
+        $db = \Config\Database::connect();
+        if (!$db->tableExists('my_fc_forbidden_word')) {
+            return null;
+        }
+
+        $words = $db->table('my_fc_forbidden_word')
+            ->select('keyword, match_type')
+            ->where('deleted_at', null)
+            ->where('display_status', 'Y')
+            ->whereIn('apply_scope', $scopes)
+            ->orderBy('word_id', 'ASC')
+            ->get()
+            ->getResultArray();
+
+        foreach ($words as $word) {
+            $keyword = trim((string) ($word['keyword'] ?? ''));
+            if ($keyword === '') {
+                continue;
+            }
+
+            $matchType = strtoupper(trim((string) ($word['match_type'] ?? 'PARTIAL')));
+            if ($this->matchesForbiddenWord($text, $keyword, $matchType)) {
+                return $keyword;
+            }
+        }
+
+        return null;
+    }
+
+    protected function forbiddenWordErrorMessage(string $context, string $keyword = ''): string
+    {
+        $message = $context . '에 금칙어가 포함되어 있습니다.';
+        if ($keyword !== '') {
+            $message .= ' (' . $keyword . ')';
+        }
+
+        return $message;
+    }
+
+    private function matchesForbiddenWord(string $text, string $keyword, string $matchType): bool
+    {
+        if ($matchType === 'EXACT') {
+            return mb_strtolower($text) === mb_strtolower($keyword);
+        }
+
+        if ($matchType === 'REGEX') {
+            $pattern = '~' . str_replace('~', '\\~', $keyword) . '~iu';
+            return @preg_match($pattern, $text) === 1;
+        }
+
+        return mb_stripos($text, $keyword) !== false;
     }
 
     private function createAppToken(): string

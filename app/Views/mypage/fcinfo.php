@@ -101,6 +101,7 @@ document.getElementById('fc-member-basic-form').addEventListener('submit', async
 
     const formData = {
         phone: document.getElementById('phone').value.trim(),
+        name: document.getElementById('name').value.trim(),
         agree_marketing: document.querySelector('input[name="agree_marketing"]:checked').value
     };
 
@@ -131,4 +132,3 @@ document.getElementById('fc-member-basic-form').addEventListener('submit', async
 
 
 </script>
-

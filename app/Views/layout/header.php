@@ -12,7 +12,7 @@
     <link rel="stylesheet" href="<?= base_url('assets/css/common.css?v=3') ?>" />
     <link rel="stylesheet" href="<?= base_url('assets/css/layout.css?v=3') ?>" />
     <link rel="stylesheet" href="<?= base_url('assets/css/main.css?v=3') ?>" />
-    <link rel="stylesheet" href="<?= base_url('assets/css/content.css?v=4') ?>" />
+    <link rel="stylesheet" href="<?= base_url('assets/css/content.css?v=7') ?>" />
 
     <!-- 스크립트 · Swiper -->
     <script src="<?= base_url('assets/js/ui.js?v=9') ?>"></script>
@@ -302,7 +302,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 <nav class="gnb">
                     <ul>
                         <li>
-                            <a href="MFC002.html" class="gnb-search">
+                            <a href="<?= base_url('fc/search') ?>" class="gnb-search">
                                 <img src="<?= SITE_IMG_URL ?>images/ic-search.svg" alt="" class="gnb-ico" />
                             </a>
                         </li>

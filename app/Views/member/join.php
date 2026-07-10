@@ -177,9 +177,11 @@ btnPhoneCheck.addEventListener('click', function () {
             if (res.duplicate) {
                 alert('이미 사용 중인 휴대폰 번호입니다.');
                 phoneChecked = false;
+                document.getElementById('phone_verified').value = 'N';
             } else {
                 alert('사용 가능한 휴대폰 번호입니다.');
                 phoneChecked = true;
+                document.getElementById('phone_verified').value = 'Y';
             }
 
         } else {
@@ -196,11 +198,11 @@ btnPhoneCheck.addEventListener('click', function () {
 // 변경 시 초기화
 phoneInput.addEventListener('input', function () {
     phoneChecked = false;
+    document.getElementById('phone_verified').value = 'N';
 });
 
 document.addEventListener('DOMContentLoaded', function () {
 
-    const form = document.getElementById('signupForm');
     const agreeAll = document.getElementById('agree_all');
     const submitBtn = document.getElementById('btnSubmit');
     const phoneInput = document.getElementById('phone');
@@ -289,13 +291,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
             let value = this.value.replace(/[^0-9]/g,'');
 
-            
-            if(!emailChecked){
-                alert('이메일 중복확인을 해주세요.');
-                e.preventDefault();
-                return;
-            }
-
             if(value.length > 11){
                 value = value.substr(0,11);
             }
@@ -333,17 +328,35 @@ document.getElementById('btnSubmit').addEventListener('click', async function (e
         return;
     }
 
-    const form = document.getElementById('signupForm');
+    const password = document.getElementById('password').value;
+    const passwordConfirm = document.getElementById('password-confirm').value;
+    const name = document.getElementById('name').value.trim();
+    const birth = document.getElementById('birth').value.replace(/[^0-9]/g, '');
+
+    if (!password || !passwordConfirm || !name || !birth) {
+        alert('필수 정보를 입력해주세요.');
+        return;
+    }
+
+    if (password !== passwordConfirm) {
+        alert('비밀번호가 일치하지 않습니다.');
+        return;
+    }
+
+    if (!/^\d{8}$/.test(birth)) {
+        alert('생년월일은 8자리 숫자로 입력해주세요.');
+        return;
+    }
 
     const data = {
         member_type: document.querySelector('[name="member_type"]').value,
         email: document.getElementById('email').value.trim(),
-        password: document.getElementById('password').value,
-        password_confirm: document.getElementById('password-confirm').value,
+        password: password,
+        password_confirm: passwordConfirm,
         phone: document.getElementById('phone').value.replace(/[^0-9]/g, ''),
-        name: document.getElementById('name').value,
-        birth: document.getElementById('birth').value,
-        gender: document.querySelector('input[name="gender"]:checked')?.value,
+        name: name,
+        birth: birth,
+        gender: gender,
         phone_verified: document.getElementById('phone_verified').value,
 
         agree_age: document.querySelector('[name="agree_age"]').checked,

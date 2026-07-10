@@ -488,6 +488,15 @@ class MypageController extends BaseController
         }
 
         $db = \Config\Database::connect();
+        $hasViewCount = $db->fieldExists('view_count', 'my_fc_counsel_review');
+
+        if ($hasViewCount) {
+            $db->table('my_fc_counsel_review')
+                ->where('review_id', $reviewId)
+                ->where('member_uid', $member_uid)
+                ->set('view_count', 'view_count + 1', false)
+                ->update();
+        }
 
         $row = $db->table('my_fc_counsel_review r')
             ->select('
@@ -1512,7 +1521,7 @@ class MypageController extends BaseController
 
         $header_class = "form-page ad-mgmt-page";
 
-        $fc_member_id = session()->get('member_id');
+        $fc_member_id = session()->get('member_uid');
 
         $page = (int) ($this->request->getGet('page') ?? 1);
         $perPage = 10;
@@ -1811,7 +1820,14 @@ class MypageController extends BaseController
         // =========================
         $filePath = "";
         if (!$needDesign) {
-            $fileName = upload_file($file, 'uploads/banner');
+            try {
+                $fileName = upload_file($file, 'uploads/banner', ['jpg', 'jpeg', 'png', 'gif']);
+            } catch (\Throwable $e) {
+                return $this->response->setJSON([
+                    'result' => 'error',
+                    'msg' => '배너 이미지는 jpg, png, gif 파일만 등록할 수 있습니다.'
+                ]);
+            }
 
             if (!$fileName) {
                 return $this->response->setJSON([
@@ -1853,6 +1869,7 @@ class MypageController extends BaseController
 
             'banner_image_url' => $filePath,
             'banner_need_design' => $needDesign ? 1 : 0,
+            'banner_position' => 'top',
         ]);
 
         return $this->response->setJSON([
@@ -1908,7 +1925,7 @@ class MypageController extends BaseController
 
     public function ajaxReviewApply()
     {
-        $memberId = session()->get('member_id');
+        $memberId = session()->get('member_uid');
 
         if (!$memberId) {
             return $this->response->setJSON([
@@ -1924,6 +1941,20 @@ class MypageController extends BaseController
             return $this->response->setJSON([
                 'result' => 'error',
                 'msg' => '필수값 누락'
+            ]);
+        }
+
+        $ownedReview = \Config\Database::connect()->table('my_fc_counsel_review')
+            ->where('review_id', (int) $reviewId)
+            ->where('fc_member_uid', $memberId)
+            ->where('deleted_at', null)
+            ->get()
+            ->getRowArray();
+
+        if (!$ownedReview) {
+            return $this->response->setJSON([
+                'result' => 'error',
+                'msg' => '본인에게 등록된 후기만 광고로 신청할 수 있습니다.'
             ]);
         }
 
@@ -1950,7 +1981,7 @@ class MypageController extends BaseController
 
     public function ajaxLanguageApply()
     {
-        $memberId = session()->get('member_id');
+        $memberId = session()->get('member_uid');
 
         if (!$memberId) {
             return $this->response->setJSON([

@@ -15,6 +15,7 @@ class AdminUserModel extends Model
         'password_hash',
         'name',
         'email',
+        'phone',
         'role',
         'status',
         'last_login_at',

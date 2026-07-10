@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>회원 탈퇴</title>
+
+    <link rel="stylesheet" href="../assets/css/reset.css" />
+    <link rel="stylesheet" href="../assets/css/common.css" />
+    <link rel="stylesheet" href="../assets/css/layout.css" />
+    <link rel="stylesheet" href="../assets/css/content.css" />
+  </head>
+  <body>
+    <div class="layout-wrapper form-page withdraw-page">
+      <header class="site-header member">
+        <div class="header-mo">
+          <a href="MFC004_L01_01.html" aria-label="뒤로">
+            <img src="../assets/images/ic-chevron-left.svg" alt="" />
+          </a>
+          <div class="header-mo-spacer" aria-hidden="true"></div>
+        </div>
+        <div class="header-inner">
+          <div class="logo">
+            <a href="MFC001.html">
+              <img src="../assets/images/logo.png" alt="보험사 연계 서비스" class="logo-img" />
+            </a>
+          </div>
+          <nav class="gnb">
+            <ul>
+              <li>
+                <a href="MFC002.html" class="gnb-search">
+                  <img src="../assets/images/ic-search.svg" alt="" class="gnb-ico" />
+                </a>
+              </li>
+              <li>
+                <a href="#" class="gnb-bell">
+                  <img src="../assets/images/ic-bell.svg" alt="" class="gnb-ico" />
+                </a>
+              </li>
+              <li class="guest">
+                <a href="#" class="gnb-btn-line">회원가입</a>
+              </li>
+              <li class="guest">
+                <a href="#" class="gnb-btn-line">로그인</a>
+              </li>
+              <li class="member">
+                <button type="button" class="gnb-avatar" aria-label="마이페이지 메뉴 열기">
+                  <img src="../assets/images/temp/@profile-m.png" alt="" class="gnb-avatar-img" />
+                </button>
+              </li>
+            </ul>
+          </nav>
+        </div>
+      </header>
+
+      <main>
+        <div class="page-inner-narrow">
+          <h1 class="page-main-title">회원 탈퇴 시 유의사항</h1>
+
+          <form class="form-box" method="post">
+            <section class="dash-notice">
+              <h2>탈퇴 전 꼭 확인하세요</h2>
+              <ul class="dash-list">
+                <li>탈퇴 시 MyFC 계정을 통해 등록한 모든 프로필 정보, 리뷰, 활동 이력이 영구적으로 삭제되며 복구가 불가능합니다.</li>
+                <li>탈퇴 즉시, 진행 중인 승인 검토나 노출 대기 상태의 FC 등록 신청은 자동으로 취소됩니다.</li>
+                <li>삭제된 정보는 고객에게 노출되지 않으며, 향후 재가입 시 새로 등록 절차를 진행해야 합니다.</li>
+              </ul>
+            </section>
+
+            <section class="dash-notice">
+              <h2>데이터 백업 안내</h2>
+              <ul class="dash-list">
+                <li>필요 시, 탈퇴 이전에 프로필 이미지, 소개글, 후기 등 개인 보관이 필요한 데이터를 미리 저장해 주세요.</li>
+                <li>MyFC는 회원 탈퇴 이후 개인 데이터의 복구를 지원하지 않습니다.</li>
+              </ul>
+            </section>
+
+            <section class="dash-notice">
+              <h2>등록 정보 관리</h2>
+              <ul class="dash-list">
+                <li>카카오 계정과 연동되지 않은 외부 링크, SNS, 영상 등은 자동 삭제되지 않을 수 있습니다.</li>
+                <li>탈퇴 전 직접 삭제를 권장드리며, 삭제되지 않은 콘텐츠는 추후 노출 제한 처리될 수 있습니다.</li>
+              </ul>
+            </section>
+
+            <div class="form-field">
+              <label class="form-label" for="withdraw-email">탈퇴하려는 계정</label>
+              <input class="form-input" id="withdraw-email" name="email" type="email" value="username@gmail.com" readonly />
+            </div>
+
+            <div class="form-field">
+              <label class="form-label" for="withdraw-consult">상담 요청 현황</label>
+              <input class="form-input" id="withdraw-consult" name="consult_count" type="text" value="0 건" readonly />
+            </div>
+
+            <div>
+              <label class="c-check">
+                <input type="checkbox" name="agree_withdraw" />
+                <span>회원 탈퇴를 진행하면 MyFC에 저장된 모든 정보를 삭제하는 데 동의합니다.</span>
+              </label>
+            </div>
+
+            <div class="form-actions">
+              <button type="button">회원 탈퇴 취소</button>
+              <button type="submit" disabled>회원 탈퇴</button>
+            </div>
+          </form>
+        </div>
+      </main>
+
+      <!-- 푸터 -->
+      <footer class="site-footer">
+        <div class="footer-inner">
+          <div class="footer-columns">
+            <div class="footer-col">
+              <p class="footer-logo">
+                <a href="MFC001.html" class="footer-logo-link"><img src="../assets/images/footer-logo.svg" alt="MyFC" /></a>
+              </p>
+              <div class="footer-info">
+                <p class="footer-ceo">
+                  <span>(주)더리치랩</span>
+                  <span>대표이사 박영진</span>
+                </p>
+                <p class="footer-info-split">
+                  <span>서울특별시 강남구 테헤란로 507, 8층 131호</span>
+                  <span>E-mail : <a href="mailto:myfc.helpdesk@gmail.com">myfc.helpdesk@gmail.com</a></span>
+                </p>
+                <p class="footer-info-split">
+                  <span>사업자등록번호 : 762-88-02797</span>
+                  <span>통신판매번호 : 제 2025-서울강남-06308호</span>
+                </p>
+                <p class="footer-info-split">
+                  <span>이용문의 : 010-9941-2899</span>
+                </p>
+              </div>
+              <p class="copyright">© 2026 TheRichLab Corp.</p>
+            </div>
+            <div class="footer-trail">
+              <ul class="footer-links">
+                <li><a href="#">회사소개</a></li>
+                <li><a href="#">이용약관</a></li>
+                <li><a href="#">개인정보 처리방침</a></li>
+                <li><a href="#">법적책임</a></li>
+              </ul>
+              <div class="footer-patent">
+                <p class="footer-patent-mark">
+                  <img src="../assets/images/kipo-logo.svg" alt="특허청" />
+                  <span>특허청</span>
+                </p>
+                <div class="footer-patent-text">
+                  <p>MyFC의 서비스는 여러 건의 특허가 출원되어 있습니다</p>
+                  <p>(특허번호 : 10-2026-0062616 / 10-2026-0064554 외 다수)</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </footer>
+    </div>
+
+    <script src="../assets/js/ui.js"></script>
+    <script src="../assets/js/popup.js"></script>
+    <script src="../assets/js/common.js"></script>
+  </body>
+</html>

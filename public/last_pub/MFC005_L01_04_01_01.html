@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>심의필 정보 제출</title>
+
+    <link rel="stylesheet" href="../assets/css/reset.css" />
+    <link rel="stylesheet" href="../assets/css/common.css" />
+    <link rel="stylesheet" href="../assets/css/layout.css" />
+    <link rel="stylesheet" href="../assets/css/main.css" />
+    <link rel="stylesheet" href="../assets/css/content.css" />
+  </head>
+  <body>
+    <div class="layout-wrapper form-page">
+      <header class="site-header member">
+        <div class="header-mo">
+          <a href="MFC005_L01.html" aria-label="뒤로">
+            <img src="../assets/images/ic-chevron-left.svg" alt="" />
+          </a>
+          <div class="header-mo-spacer" aria-hidden="true"></div>
+        </div>
+        <div class="header-inner">
+          <div class="logo">
+            <a href="MFC001.html">
+              <img src="../assets/images/logo.png" alt="보험사 연계 서비스" class="logo-img" />
+            </a>
+          </div>
+          <nav class="gnb">
+            <ul>
+              <li>
+                <a href="MFC002.html" class="gnb-search">
+                  <img src="../assets/images/ic-search.svg" alt="" class="gnb-ico" />
+                </a>
+              </li>
+              <li>
+                <a href="#" class="gnb-bell">
+                  <img src="../assets/images/ic-bell.svg" alt="" class="gnb-ico" />
+                </a>
+              </li>
+              <li class="guest">
+                <a href="#" class="gnb-btn-line">회원가입</a>
+              </li>
+              <li class="guest">
+                <a href="#" class="gnb-btn-line">로그인</a>
+              </li>
+              <li class="member">
+                <button type="button" class="gnb-avatar" aria-label="마이페이지 메뉴 열기">
+                  <img src="../assets/images/temp/@profile-m.png" alt="" class="gnb-avatar-img" />
+                </button>
+              </li>
+            </ul>
+          </nav>
+        </div>
+      </header>
+
+      <main>
+        <div class="page-inner-narrow consult-request">
+          <h1 class="page-main-title">심의필 관련 정보를 제출해주세요.</h1>
+          <p class="page-main-lead">
+            심의필 번호와 보험계약 체결 전 주의사항을<br class="br-mo" />
+            입력한 후 ‘승인요청하기’를 누르면 관리자가 검토하여<br class="br-mo" />
+            회원가입이 최종 완료됩니다.
+          </p>
+          <div class="link-end">
+            <a href="MFC005_L01_02_L02.html" class="btn btn-line btn-sm">승인 거부 사유 보기</a>
+          </div>
+          <form class="form-box" method="post" enctype="multipart/form-data">
+            <div class="form-field">
+              <span class="form-label">심의필 번호 입력 <b>*</b></span>
+              <p class="form-text">심의필 증빙 회신문 번호를 입력해주세요.</p>
+              <input
+                class="form-input"
+                name="deliberation_no"
+                type="text"
+                inputmode="numeric"
+                maxlength="20"
+                autocomplete="off"
+                placeholder="202503002"
+                title="숫자만 입력 가능합니다."
+              />
+            </div>
+
+            <div class="form-field">
+              <span class="form-label">심의필 승인 기간 <b>*</b></span>
+              <p class="form-text">시작일·종료일을 선택하면 입력란에 반영됩니다.</p>
+              <div class="form-inline">
+                <div class="consult-date">
+                  <input class="form-input" type="text" name="approval_start" placeholder="시작일 선택" readonly autocomplete="off" />
+                  <div class="consult-date-picker" hidden>
+                    <div class="consult-date-picker-head">
+                      <button type="button" class="consult-date-picker-nav prev" data-date-nav="prev" aria-label="이전 달"></button>
+                      <strong></strong>
+                      <button type="button" class="consult-date-picker-nav next" data-date-nav="next" aria-label="다음 달"></button>
+                    </div>
+                    <ol class="consult-date-picker-week">
+                      <li>일</li>
+                      <li>월</li>
+                      <li>화</li>
+                      <li>수</li>
+                      <li>목</li>
+                      <li>금</li>
+                      <li>토</li>
+                    </ol>
+                    <div class="consult-date-picker-days"></div>
+                  </div>
+                </div>
+                <div class="consult-date">
+                  <input class="form-input" type="text" name="approval_end" placeholder="종료일 선택" readonly autocomplete="off" />
+                  <div class="consult-date-picker" hidden>
+                    <div class="consult-date-picker-head">
+                      <button type="button" class="consult-date-picker-nav prev" data-date-nav="prev" aria-label="이전 달"></button>
+                      <strong></strong>
+                      <button type="button" class="consult-date-picker-nav next" data-date-nav="next" aria-label="다음 달"></button>
+                    </div>
+                    <ol class="consult-date-picker-week">
+                      <li>일</li>
+                      <li>월</li>
+                      <li>화</li>
+                      <li>수</li>
+                      <li>목</li>
+                      <li>금</li>
+                      <li>토</li>
+                    </ol>
+                    <div class="consult-date-picker-days"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-field">
+              <span class="form-label">적격(조건부 승인) 심의의견</span>
+              <p class="form-text">심의 관련 안내문을 입력해 주세요.</p>
+              <textarea class="form-textarea" name="deliberation_opinion" maxlength="1000" placeholder=""></textarea>
+            </div>
+
+            <div class="file-upload" data-deliberation-upload>
+              <span class="form-label">심의결과 회신문 파일 업로드 <b>*</b></span>
+              <div class="file-upload-rows" data-upload-rows>
+                <div data-upload-row>
+                  <input class="form-input" type="text" readonly placeholder="파일을 선택해 주세요" />
+                  <input
+                    class="visually-hidden"
+                    name="deliberation_file"
+                    type="file"
+                    tabindex="-1"
+                    accept=".doc,.docx,.hwp,.xls,.xlsx,application/msword,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                  />
+                  <button type="button" class="file-upload-file-trigger">파일찾기</button>
+                </div>
+              </div>
+            </div>
+            <div class="form-field">
+              <span class="form-label">심의필 제출 안내</span>
+              <ul class="dash-list">
+                <li>심의필 번호 제출 후 운영관리자가 검토하여 승인 여부를 안내드립니다.</li>
+                <li>승인 처리까지 업무일기준 평균 2~3일 소요될 수 있습니다.</li>
+                <li>승인 전까지는 프로필 정보 수정이 제한되며, 승인 후 프로필 관리에서 수정 가능합니다.</li>
+                <li>제출하신 심의필 번호에 오류가 있을 경우 승인 요청이 거절될 수 있습니다.</li>
+                <li>승인 완료 시, 프로필이 고객에게 노출됩니다.</li>
+              </ul>
+            </div>
+            <div class="form-actions">
+              <button type="button" class="btn btn-primary" data-popup-ref="MFC005_L01_02_L01">승인요청하기</button>
+            </div>
+          </form>
+        </div>
+      </main>
+
+      <!-- 푸터 -->
+      <footer class="site-footer">
+        <div class="footer-inner">
+          <div class="footer-columns">
+            <div class="footer-col">
+              <p class="footer-logo">
+                <a href="MFC001.html" class="footer-logo-link"><img src="../assets/images/footer-logo.svg" alt="MyFC" /></a>
+              </p>
+              <div class="footer-info">
+                <p class="footer-ceo">
+                  <span>(주)더리치랩</span>
+                  <span>대표이사 박영진</span>
+                </p>
+                <p class="footer-info-split">
+                  <span>서울특별시 강남구 테헤란로 507, 8층 131호</span>
+                  <span>E-mail : <a href="mailto:myfc.helpdesk@gmail.com">myfc.helpdesk@gmail.com</a></span>
+                </p>
+                <p class="footer-info-split">
+                  <span>사업자등록번호 : 762-88-02797</span>
+                  <span>통신판매번호 : 제 2025-서울강남-06308호</span>
+                </p>
+                <p class="footer-info-split">
+                  <span>이용문의 : 010-9941-2899</span>
+                </p>
+              </div>
+              <p class="copyright">© 2026 TheRichLab Corp.</p>
+            </div>
+            <div class="footer-trail">
+              <ul class="footer-links">
+                <li><a href="#">회사소개</a></li>
+                <li><a href="#">이용약관</a></li>
+                <li><a href="#">개인정보 처리방침</a></li>
+                <li><a href="#">법적책임</a></li>
+              </ul>
+              <div class="footer-patent">
+                <p class="footer-patent-mark">
+                  <img src="../assets/images/kipo-logo.svg" alt="특허청" />
+                  <span>특허청</span>
+                </p>
+                <div class="footer-patent-text">
+                  <p>MyFC의 서비스는 여러 건의 특허가 출원되어 있습니다</p>
+                  <p>(특허번호 : 10-2026-0062616 / 10-2026-0064554 외 다수)</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </footer>
+    </div>
+
+    <script src="../assets/js/ui.js"></script>
+    <script src="../assets/js/popup.js"></script>
+    <script src="../assets/js/common.js"></script>
+    <script>
+      (function () {
+        var block = document.querySelector('[data-deliberation-upload]');
+        if (!block) return;
+        var row = block.querySelector('[data-upload-row]');
+        if (!row) return;
+        var display = row.querySelector('input[readonly]');
+        var fileInput = row.querySelector('input[type="file"]');
+        var trigger = row.querySelector('.file-upload-file-trigger');
+        if (trigger && fileInput) {
+          trigger.addEventListener('click', function () {
+            fileInput.click();
+          });
+        }
+        if (fileInput && display) {
+          fileInput.addEventListener('change', function () {
+            var f = fileInput.files && fileInput.files[0];
+            display.value = f ? f.name : '';
+          });
+        }
+      })();
+    </script>
+  </body>
+</html>

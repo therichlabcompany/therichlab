@@ -1,4 +1,5 @@
 <?php
+$keyword = trim((string) ($q ?? ''));
 $regionText = "";
 foreach (explode(',', $region) as $r):
     if ($regionText) $regionText .= ",";
@@ -24,6 +25,7 @@ if (empty($insuranceText)) $insuranceText = "전체";
         <section class="fc-directory">
             <form id="fc-search-form" method="get" action="/fc/list">
                 <input type="hidden" name="sort" id="fc-sort-value" value="<?= $sort ?>">
+                <input type="hidden" name="q" id="fc-keyword-value" value="<?= esc($keyword) ?>">
                 <div class="directory-toolbar">
                     <div class="directory-filters">
                         <div class="select-field">
@@ -52,6 +54,13 @@ if (empty($insuranceText)) $insuranceText = "전체";
                     </div>
                 </div>
             </form>
+
+            <?php if ($keyword !== ''): ?>
+                <div class="search-results-head">
+                    <p class="search-results-title">“<span><?= esc($keyword) ?></span>”에 대한 결과</p>
+                    <p class="search-results-count">검색결과 <?= number_format((int) $total) ?>개</p>
+                </div>
+            <?php endif; ?>
 
             <div class="fc-profile-grid">
 
@@ -190,6 +199,29 @@ if (empty($insuranceText)) $insuranceText = "전체";
     </div>
 </main>
 <style>
+    .search-results-head {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        align-items: flex-end;
+        margin: 18px 0 16px;
+    }
+
+    .search-results-title {
+        margin: 0;
+        color: #172033;
+        font-size: 18px;
+        font-weight: 800;
+    }
+
+    .search-results-count {
+        margin: 0;
+        color: #6b7480;
+        font-size: 13px;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+
     .fc-empty-state {
         grid-column: 1 / -1;
         text-align: center;
@@ -221,6 +253,7 @@ if (empty($insuranceText)) $insuranceText = "전체";
         const insuranceInput = document.getElementById('fc-filter-insurance-value');
         const regionInput = document.getElementById('fc-filter-region-value');
         const sortInput = document.getElementById('fc-sort-value');
+        const keywordInput = document.getElementById('fc-keyword-value');
 
         // =========================
         // 정렬
@@ -239,6 +272,18 @@ if (empty($insuranceText)) $insuranceText = "전체";
                 form.submit();
             });
         });
+
+        if (keywordInput) {
+            keywordInput.addEventListener('change', function() {
+                const value = String(keywordInput.value || '').trim();
+                if (value !== '' && value.length < 2) {
+                    alert('검색어는 2자 이상 입력해 주세요.');
+                    keywordInput.value = '';
+                    return;
+                }
+                form.submit();
+            });
+        }
 
         // =========================
         // insurance / region 변경 감지 (popup에서 값 sync 후 submit)

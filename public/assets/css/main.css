@@ -660,6 +660,14 @@ body.profile-open {
   -webkit-tap-highlight-color: transparent;
 }
 
+.situation-banner-img {
+  display: block;
+  width: 100%;
+  min-height: 180px;
+  object-fit: cover;
+  border-radius: 12px;
+}
+
 .situation-banner-card {
   display: flex;
   flex-direction: column;

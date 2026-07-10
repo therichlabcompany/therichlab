@@ -28,7 +28,7 @@
             </div>
             <div class="footer-trail">
                 <ul class="footer-links">
-                    <li><a href="https://www.therichlab.co.kr" target="_blank">회사소개</a></li>
+                    <li><a href="https://therichlab.co.kr/" target="_blank">회사소개</a></li>
                     <li><a href="/company/terms">이용약관</a></li>
                     <li><a href="/company/privacy">개인정보 처리방침</a></li>
                     <li><a href="/company/legal">법적책임</a></li>
@@ -95,6 +95,13 @@ if (!empty($popup_page) && is_array($popup_page)) {
         if (is_file($file)) {
             include_once $file;
         }
+    }
+}
+
+if (!empty($popupList)) {
+    $popupFile = POPUP_PATH . '/popup_dynamic.php';
+    if (is_file($popupFile)) {
+        include_once $popupFile;
     }
 }
 

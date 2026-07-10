@@ -237,6 +237,7 @@ document.addEventListener('click', async function (e) {
                     <div class="story-detail-meta">
                         <p class="c-rate">★ ${(Number(data.rating || 0)).toFixed(1)}</p>
                         <p>${data.fc_name ?? ''}</p>
+                        <p>조회수 ${(Number(data.view_count || 0)).toLocaleString()}</p>
                         <time>${(data.created_at ?? '').substring(0,10)}</time>
                     </div>
 

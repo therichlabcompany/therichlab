@@ -53,6 +53,14 @@ class CounselController extends BaseController
             ]);
         }
 
+        $forbiddenWord = $this->forbiddenWordViolation($content, ['COUNSEL']);
+        if ($forbiddenWord !== null) {
+            return $this->response->setJSON([
+                'result' => 'fail',
+                'message' => $this->forbiddenWordErrorMessage('상담 내용', $forbiddenWord),
+            ]);
+        }
+
         // =====================================
         // 회원정보 조회
         // =====================================

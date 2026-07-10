@@ -9,8 +9,27 @@ $routes->get('/', 'Home::index');
 
 $routes->get('/fc/recommend', 'Home::recommend');
 
+$routes->get('ad/click/(:num)', 'AdController::click/$1');
+
+$routes->group('insurance-in', function ($routes) {
+    $routes->get('', 'InsuranceInController::index');
+    $routes->get('write', 'InsuranceInController::write');
+    $routes->post('write', 'InsuranceInController::saveQuestion');
+    $routes->get('(:num)', 'InsuranceInController::view/$1');
+    $routes->get('(:num)/edit', 'InsuranceInController::write/$1');
+    $routes->post('(:num)/edit', 'InsuranceInController::saveQuestion/$1');
+    $routes->post('(:num)/delete', 'InsuranceInController::deleteQuestion/$1');
+    $routes->get('(:num)/answer', 'InsuranceInController::answer/$1');
+    $routes->post('(:num)/answer', 'InsuranceInController::saveAnswer/$1');
+    $routes->get('(:num)/answer/(:num)', 'InsuranceInController::answer/$1/$2');
+    $routes->post('(:num)/answer/(:num)', 'InsuranceInController::saveAnswer/$1/$2');
+    $routes->post('(:num)/answer/(:num)/delete', 'InsuranceInController::deleteAnswer/$1/$2');
+    $routes->get('file/(:num)', 'InsuranceInController::download/$1');
+});
+
 
 $routes->group('fc', function ($routes) {
+    $routes->get('search', 'FcController::search');            // fc 검색
     $routes->get('list', 'FcController::index');                // fc 리스트
     $routes->get('view', 'FcController::view');                 // fc 상세
     $routes->get('counsel', 'FcController::counsel');           // 상담신청하기
@@ -160,6 +179,7 @@ $routes->group('admin', [
 ], function ($routes) {
     // /admin
     $routes->get('', 'Dashboard::index');
+    $routes->get('dashboard/export', 'Dashboard::export');
 
     // /admin/
     $routes->get('/', 'Dashboard::index');
@@ -169,22 +189,132 @@ $routes->group('admin', [
     // Member Management (추가)
     // =========================
     $routes->get('members', 'Member::index');
+    $routes->get('members/export', 'Member::export');
     $routes->get('members/(:num)', 'Member::detail/$1');
+    $routes->get('members/(:num)/counsels', 'Member::counsels/$1');
+    $routes->get('members/(:num)/reviews', 'Member::reviews/$1');
+    $routes->get('members/(:num)/reviews/(:num)', 'Member::reviewDetail/$1/$2');
+    $routes->get('members/(:num)/edit', 'Member::edit/$1');
+    $routes->post('members/(:num)/update', 'Member::update/$1');
+    $routes->post('members/(:num)/files/upload', 'Member::uploadFile/$1');
+    $routes->get('members/(:num)/files/download-all', 'Member::downloadFiles/$1');
+    $routes->get('members/files/(:num)/download', 'Member::downloadFile/$1');
+    $routes->get('members/counsel-files/(:num)/download', 'Member::downloadCounselFile/$1');
 
     $routes->post('members/status', 'Member::changeStatus');
     $routes->post('members/delete', 'Member::delete');
+    $routes->post('members/memo-save', 'Member::saveMemo');
+    $routes->post('members/password-reset', 'Member::resetPassword');
+    $routes->post('members/files/delete', 'Member::deleteFile');
+    $routes->post('members/counsel-files/delete', 'Member::deleteCounselFile');
+    $routes->post('members/reviews/delete', 'Member::deleteReview');
+    $routes->get('members/create', 'Member::create');
+    $routes->post('members/create', 'Member::store');
 
 
         // =========================
     // FC Member (신규 추가)
     // =========================
     $routes->get('fc-members', 'FcMember::index');
+    $routes->get('fc-members/export', 'FcMember::export');
     $routes->get('fc-members/(:num)', 'FcMember::detail/$1');
+    $routes->post('fc-members/memo-save', 'FcMember::saveMemo');
+    $routes->post('fc-members/password-reset', 'FcMember::resetPassword');
     $routes->post('fc-members/status', 'FcMember::changeStatus');
     $routes->post('fc-members/delete', 'FcMember::delete');
+    $routes->post('fc-members/story/delete', 'FcMember::deleteStoryFile');
 
     $routes->post('fc-members/review/approve', 'FcMember::reviewApprove');
     $routes->post('fc-members/review/reject', 'FcMember::reviewReject');
+
+    $routes->get('fc-members/create', 'FcMember::create');
+    $routes->post('fc-members/create', 'FcMember::store');
+    $routes->get('fc-members/(:num)/preview', 'FcMember::preview/$1');
+    $routes->get('fc-members/(:num)/edit', 'FcMember::edit/$1');
+    $routes->post('fc-members/(:num)/update', 'FcMember::update/$1');
+
+    $routes->get('inactive-members', 'Management::inactiveMembers');
+    $routes->get('contents/counsels', 'Management::counsels');
+    $routes->get('contents/counsels/export', 'Management::counselsExport');
+    $routes->get('contents/counsels/(:num)', 'Management::counselDetail/$1');
+    $routes->get('contents/deliberations', 'Management::deliberations');
+    $routes->get('contents/deliberations/(:num)', 'Management::deliberationDetail/$1');
+    $routes->post('contents/deliberations/(:num)/decision', 'Management::deliberationDecision/$1');
+    $routes->get('contents/reviews', 'Management::reviews');
+    $routes->get('contents/reviews/(:num)', 'Management::reviewDetail/$1');
+    $routes->post('contents/reviews/(:num)/display', 'Management::reviewDisplayUpdate/$1');
+    $routes->get('contents/insurance-in', 'Management::insuranceIn');
+    $routes->get('contents/insurance-in/(:num)', 'Management::insuranceInDetail/$1');
+    $routes->post('contents/insurance-in/(:num)/delete', 'Management::insuranceInDelete/$1');
+    $routes->post('contents/insurance-in/(:num)/answers/(:num)/delete', 'Management::insuranceInAnswerDelete/$1/$2');
+    $routes->get('contents/securities', 'Management::securities');
+    $routes->get('contents/securities/(:segment)', 'Management::securityDetail/$1');
+
+    $routes->get('popups', 'Management::popups');
+    $routes->get('popups/create', 'Management::popupCreate');
+    $routes->post('popups/create', 'Management::popupStore');
+    $routes->get('popups/(:num)', 'Management::popupEdit/$1');
+    $routes->get('popups/(:num)/edit', 'Management::popupEdit/$1');
+    $routes->post('popups/(:num)/update', 'Management::popupUpdate/$1');
+    $routes->get('pushes', 'Management::pushes');
+    $routes->get('pushes/create', 'Management::pushCreate');
+    $routes->post('pushes/create', 'Management::pushStore');
+    $routes->get('pushes/(:num)', 'Management::pushDetail/$1');
+    $routes->post('pushes/(:num)/cancel', 'Management::pushCancel/$1');
+
+    $routes->get('ads', 'Management::ads/normal');
+    $routes->get('ads/normal', 'Management::ads/normal');
+    $routes->get('ads/normal/create', 'Management::adCreate/normal');
+    $routes->post('ads/normal/create', 'Management::adStore/normal');
+    $routes->get('ads/normal/clicks', 'Management::adClicks/normal');
+    $routes->get('ads/normal/status', 'Management::adStatus/normal');
+    $routes->get('ads/normal/export', 'Management::adsExport/normal');
+    $routes->post('ads/normal/bulk-end', 'Management::adsBulkEnd/normal');
+    $routes->post('ads/normal/(:num)/decision', 'Management::adDecision/normal/$1');
+    $routes->get('ads/top', 'Management::ads/top');
+    $routes->get('ads/top/create', 'Management::adCreate/top');
+    $routes->post('ads/top/create', 'Management::adStore/top');
+    $routes->get('ads/top/clicks', 'Management::adClicks/top');
+    $routes->get('ads/top/status', 'Management::adStatus/top');
+    $routes->get('ads/top/export', 'Management::adsExport/top');
+    $routes->post('ads/top/bulk-end', 'Management::adsBulkEnd/top');
+    $routes->post('ads/top/(:num)/decision', 'Management::adDecision/top/$1');
+    $routes->get('ads/bottom', 'Management::ads/bottom');
+    $routes->get('ads/bottom/create', 'Management::adCreate/bottom');
+    $routes->post('ads/bottom/create', 'Management::adStore/bottom');
+    $routes->get('ads/bottom/clicks', 'Management::adClicks/bottom');
+    $routes->get('ads/bottom/status', 'Management::adStatus/bottom');
+    $routes->get('ads/bottom/export', 'Management::adsExport/bottom');
+    $routes->post('ads/bottom/bulk-end', 'Management::adsBulkEnd/bottom');
+    $routes->post('ads/bottom/(:num)/decision', 'Management::adDecision/bottom/$1');
+
+    $routes->get('terms', 'Management::terms');
+    $routes->get('terms/create', 'Management::termCreate');
+    $routes->post('terms/create', 'Management::termStore');
+    $routes->get('terms/(:num)', 'Management::termEdit/$1');
+    $routes->get('terms/(:num)/edit', 'Management::termEdit/$1');
+    $routes->post('terms/(:num)/update', 'Management::termUpdate/$1');
+    $routes->post('terms/(:num)/delete', 'Management::termDelete/$1');
+    $routes->get('accounts', 'Management::accounts');
+    $routes->get('accounts/create', 'Management::accountCreate');
+    $routes->post('accounts/create', 'Management::accountStore');
+    $routes->get('accounts/(:num)/edit', 'Management::accountEdit/$1');
+    $routes->post('accounts/(:num)/update', 'Management::accountUpdate/$1');
+    $routes->post('accounts/(:num)/status', 'Management::accountStatus/$1');
+    $routes->get('codes', 'Management::codes');
+    $routes->get('codes/create', 'Management::codeCreate');
+    $routes->post('codes/create', 'Management::codeStore');
+    $routes->get('codes/(:num)/edit', 'Management::codeEdit/$1');
+    $routes->post('codes/(:num)/update', 'Management::codeUpdate/$1');
+    $routes->post('codes/(:num)/delete', 'Management::codeDelete/$1');
+    $routes->get('codes/(:segment)', 'Management::codes/$1');
+    $routes->get('forbidden-words', 'Management::forbiddenWords');
+    $routes->get('forbidden-words/create', 'Management::forbiddenWordCreate');
+    $routes->post('forbidden-words/create', 'Management::forbiddenWordStore');
+    $routes->get('forbidden-words/(:num)/edit', 'Management::forbiddenWordEdit/$1');
+    $routes->post('forbidden-words/(:num)/update', 'Management::forbiddenWordUpdate/$1');
+    $routes->post('forbidden-words/(:num)/delete', 'Management::forbiddenWordDelete/$1');
+    $routes->get('stats', 'Management::placeholderPage/stats');
 });
 
 $routes->get('push-test', 'PushTest::index');

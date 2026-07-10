@@ -25,6 +25,12 @@ class FcController extends BaseController
         $offset  = ($page - 1) * $perPage;
 
         $db = \Config\Database::connect();
+        $reviewJoin = 'r.fc_member_uid = m.member_uid';
+        if ($db->fieldExists('display_status', 'my_fc_counsel_review')) {
+            $reviewJoin .= " AND r.deleted_at IS NULL AND r.display_status = 'Y'";
+        } else {
+            $reviewJoin .= ' AND r.deleted_at IS NULL';
+        }
 
         /* =========================
     * BASE BUILDER (LIST)
@@ -62,7 +68,7 @@ class FcController extends BaseController
 
         $builder->join('my_fc_profile p', 'p.member_uid = m.member_uid', 'inner');
         $builder->join('my_fc_profile_activity a', 'a.member_uid = m.member_uid', 'left');
-        $builder->join('my_fc_counsel_review r', 'r.fc_member_uid = m.member_uid', 'left');
+        $builder->join('my_fc_counsel_review r', $reviewJoin, 'left', false);
 
         /* =========================
     * GROUP BY (필수)
@@ -74,6 +80,7 @@ class FcController extends BaseController
     ========================= */
         $insurance = $this->request->getGet('insurance');
         $region    = $this->request->getGet('region');
+        $keyword   = trim((string) $this->request->getGet('q'));
         $sort      = $this->request->getGet('sort') ?? 'recommend';
 
         if (!empty($insurance)) {
@@ -95,6 +102,30 @@ class FcController extends BaseController
                 $method = $i === 0 ? 'where' : 'orWhere';
                 $builder->$method("FIND_IN_SET(" . $db->escape($val) . ", a.region) >", 0, false);
             }
+            $builder->groupEnd();
+        }
+
+        if ($keyword !== '' && mb_strlen($keyword) >= 2) {
+            $this->rememberSearchKeyword($keyword);
+            $builder->groupStart()
+                ->like('m.name', $keyword)
+                ->orLike('p.company', $keyword)
+                ->orLike('p.company_sub', $keyword)
+                ->orLike('p.ga', $keyword)
+                ->orLike('p.position', $keyword)
+                ->orLike('a.hero_line', $keyword)
+                ->orLike('a.intro', $keyword)
+                ->orLike('a.career', $keyword)
+                ->orLike('p.language', $keyword);
+
+            foreach ($this->searchRegionCodes($keyword) as $code) {
+                $builder->orWhere("FIND_IN_SET(" . $db->escape($code) . ", a.region) >", 0, false);
+            }
+
+            foreach ($this->searchInsuranceCodes($keyword) as $code) {
+                $builder->orWhere("FIND_IN_SET(" . $db->escape($code) . ", a.insurance_types) >", 0, false);
+            }
+
             $builder->groupEnd();
         }
 
@@ -140,6 +171,7 @@ class FcController extends BaseController
 
             "insurance" => $insurance,
             "region"    => $region,
+            "q"         => $keyword,
             "sort"      => $sort,
 
             "list"      => $list,
@@ -151,7 +183,32 @@ class FcController extends BaseController
         ]);
     }
 
-    public function view(): string
+    public function search(): string
+    {
+        helper(['region', 'insurance']);
+
+        $header_class = "form-page search-page";
+        $popup_page = [
+            "popup_insurance.php",
+            "popup_region.php",
+        ];
+
+        $modal_page = [];
+        $recentSearches = session()->get('fc_recent_searches');
+
+        if (!is_array($recentSearches)) {
+            $recentSearches = [];
+        }
+
+        return $this->renderView('fc/search', [
+            "header_class" => $header_class,
+            "popup_page" => $popup_page,
+            "modal_page" => $modal_page,
+            "recent_searches" => $recentSearches,
+        ]);
+    }
+
+    public function view()
     {
         helper(['region', 'insurance']);
         $header_class = "detail-page";
@@ -234,7 +291,7 @@ class FcController extends BaseController
         // =========================
         // 7. REVIEW LIST (추가)
         // =========================
-        $reviewList = $db->table('my_fc_counsel_review r')
+        $reviewListBuilder = $db->table('my_fc_counsel_review r')
             ->select('
                 r.*,
                 m.name AS reviewer_name
@@ -242,7 +299,13 @@ class FcController extends BaseController
             ->join('my_fc_counsel c', 'c.counsel_uid = r.counsel_uid', 'left')
             ->join('my_fc_member m', 'm.member_uid = r.member_uid', 'left')
             ->where('c.fc_member_uid', $uid)
-            ->orderBy('r.created_at', 'DESC')
+            ->orderBy('r.created_at', 'DESC');
+
+        if ($db->fieldExists('display_status', 'my_fc_counsel_review')) {
+            $reviewListBuilder->where('r.display_status', 'Y');
+        }
+
+        $reviewList = $reviewListBuilder
             ->limit(10)
             ->get()
             ->getResultArray();
@@ -250,15 +313,19 @@ class FcController extends BaseController
         // =========================
         // 8. REVIEW STATS (추가)
         // =========================
-        $reviewStats = $db->table('my_fc_counsel_review r')
+        $reviewStatsBuilder = $db->table('my_fc_counsel_review r')
             ->select('
                 IFNULL(AVG(r.rating),0) AS rating,
                 COUNT(r.review_id) AS rating_count
             ')
             ->join('my_fc_counsel c', 'c.counsel_uid = r.counsel_uid', 'left')
-            ->where('c.fc_member_uid', $uid)
-            ->get()
-            ->getRowArray();
+            ->where('c.fc_member_uid', $uid);
+
+        if ($db->fieldExists('display_status', 'my_fc_counsel_review')) {
+            $reviewStatsBuilder->where('r.display_status', 'Y');
+        }
+
+        $reviewStats = $reviewStatsBuilder->get()->getRowArray();
 
         $memberUid = session()->get('member_uid');
 
@@ -294,7 +361,7 @@ class FcController extends BaseController
         return $this->renderView('fc/view', $data);
     }
 
-    public function counsel(): string
+    public function counsel()
     {
         //return pageView('welcome_message');
         helper(['region', 'insurance']);
@@ -308,7 +375,7 @@ class FcController extends BaseController
         $session = session();
         // 로그인 여부
         if (!$session->get('logged_in')) {
-            return redirect()->to('/login');
+            return redirect()->to('/member/login');
         }
 
         // USER 회원만 상담 가능
@@ -342,6 +409,10 @@ class FcController extends BaseController
             ->where('deleted_at IS NULL', null, false)
             ->get()
             ->getRowArray();
+
+        if (!$member || ($member['member_type'] ?? '') !== 'FC') {
+            return redirect()->to('/fc/list')->with('error', '상담 가능한 FC 정보를 찾을 수 없습니다.');
+        }
 
 
         $db->table('my_fc_profile')
@@ -453,5 +524,111 @@ class FcController extends BaseController
 
 
         return $this->renderView('fc/counselLast', $data);
+    }
+
+    private function rememberSearchKeyword(string $keyword): void
+    {
+        $keyword = trim($keyword);
+        if ($keyword === '') {
+            return;
+        }
+
+        $session = session();
+        $recent = $session->get('fc_recent_searches');
+        if (!is_array($recent)) {
+            $recent = [];
+        }
+
+        $recent = array_values(array_filter($recent, static fn ($item) => (string) $item !== $keyword));
+        array_unshift($recent, $keyword);
+        $recent = array_slice($recent, 0, 8);
+
+        $session->set('fc_recent_searches', $recent);
+    }
+
+    private function searchRegionCodes(string $keyword): array
+    {
+        $keyword = trim($keyword);
+        if ($keyword === '') {
+            return [];
+        }
+
+        $map = [
+            '서울' => ['seoul'],
+            '경기' => ['gyeonggi'],
+            '인천' => ['incheon_bucheon'],
+            '부천' => ['incheon_bucheon'],
+            '부산' => ['busan_ulsan_gyeongnam'],
+            '울산' => ['busan_ulsan_gyeongnam'],
+            '경남' => ['busan_ulsan_gyeongnam'],
+            '대구' => ['daegu_gyeongbuk'],
+            '경북' => ['daegu_gyeongbuk'],
+            '대전' => ['daejeon_sejong_chungnam'],
+            '세종' => ['daejeon_sejong_chungnam'],
+            '충남' => ['daejeon_sejong_chungnam'],
+            '충북' => ['cheongju_chungbuk'],
+            '청주' => ['cheongju_chungbuk'],
+            '광주' => ['gwangju_jeonnam'],
+            '전남' => ['gwangju_jeonnam'],
+            '전주' => ['jeonju_jeonbuk'],
+            '전북' => ['jeonju_jeonbuk'],
+            '강원' => ['chuncheon_gangwon'],
+            '춘천' => ['chuncheon_gangwon'],
+            '제주' => ['jeju'],
+            '수도권' => ['seoul_incheon_gyeonggi'],
+            '전국' => ['all'],
+        ];
+
+        $codes = [];
+        foreach ($map as $label => $items) {
+            if (mb_strpos($keyword, $label) !== false || mb_strpos($label, $keyword) !== false) {
+                $codes = array_merge($codes, $items);
+            }
+        }
+
+        if (preg_match('/^(seoul|gyeonggi|incheon_bucheon|busan_ulsan_gyeongnam|daegu_gyeongbuk|daejeon_sejong_chungnam|cheongju_chungbuk|gwangju_jeonnam|jeonju_jeonbuk|chuncheon_gangwon|jeju|seoul_incheon_gyeonggi)$/i', $keyword)) {
+            $codes[] = strtolower($keyword);
+        }
+
+        return array_values(array_unique($codes));
+    }
+
+    private function searchInsuranceCodes(string $keyword): array
+    {
+        $keyword = trim($keyword);
+        if ($keyword === '') {
+            return [];
+        }
+
+        $map = [
+            '종신' => ['whole_life'],
+            '암' => ['cancer'],
+            '뇌심장' => ['brain_cardio'],
+            '실비' => ['indemnity'],
+            '자녀' => ['child'],
+            '태아' => ['child'],
+            '치매' => ['dementia'],
+            '간병' => ['dementia'],
+            '치아' => ['dental'],
+            '연금' => ['pension'],
+            '변액' => ['pension'],
+            '사업자' => ['business'],
+            '운전자' => ['driver'],
+            '자동차' => ['car'],
+            '화재' => ['fire'],
+        ];
+
+        $codes = [];
+        foreach ($map as $label => $items) {
+            if (mb_strpos($keyword, $label) !== false || mb_strpos($label, $keyword) !== false) {
+                $codes = array_merge($codes, $items);
+            }
+        }
+
+        if (preg_match('/^(whole_life|cancer|brain_cardio|indemnity|child|dementia|dental|pension|business|driver|car|fire)$/i', $keyword)) {
+            $codes[] = strtolower($keyword);
+        }
+
+        return array_values(array_unique($codes));
     }
 }

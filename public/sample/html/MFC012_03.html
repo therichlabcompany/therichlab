@@ -1,0 +1,209 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>FC 회원가입 - 활동 스토리</title>
+
+    <link rel="stylesheet" href="../assets/css/reset.css" />
+    <link rel="stylesheet" href="../assets/css/common.css" />
+    <link rel="stylesheet" href="../assets/css/layout.css" />
+    <link rel="stylesheet" href="../assets/css/content.css" />
+  </head>
+  <body>
+    <div class="layout-wrapper form-page signup-page">
+      <header class="site-header guest">
+        <div class="header-inner">
+          <div class="logo">
+            <a href="MFC001.html">
+              <img src="../assets/images/logo.png" alt="보험사 연계 서비스" class="logo-img" />
+            </a>
+          </div>
+          <nav class="gnb">
+            <ul>
+              <li>
+                <a href="MFC002.html" class="gnb-search">
+                  <img src="../assets/images/ic-search.svg" alt="" class="gnb-ico" />
+                </a>
+              </li>
+              <li class="guest">
+                <a href="#" class="gnb-btn-line">회원가입</a>
+              </li>
+              <li class="guest">
+                <a href="#" class="gnb-btn-line">로그인</a>
+              </li>
+              <li class="member">
+                <button type="button" class="gnb-avatar" aria-label="마이페이지 메뉴 열기">
+                  <img src="../assets/images/temp/@profile-m.png" alt="" class="gnb-avatar-img" />
+                </button>
+              </li>
+            </ul>
+          </nav>
+        </div>
+      </header>
+
+      <main>
+        <div class="page-inner-narrow">
+          <h1 class="page-main-title">FC 회원가입</h1>
+          <p class="page-main-lead">
+            입력하신 정보는 관리자가 확인 후<br class="br-mo" />
+            승인 절차를 거쳐 고객에게 노출됩니다.<br class="br-mo" />
+            정확하고 신뢰할 수 있는 정보를 등록해 주시기 바랍니다.
+          </p>
+
+          <nav class="c-tabs">
+            <a href="MFC008.html">약관 및 동의</a>
+            <a href="MFC008_01.html">기본정보 입력</a>
+            <a href="MFC008_02.html">프로필 입력</a>
+            <a href="MFC008_03.html">활동정보 입력</a>
+            <a href="MFC008_04.html" aria-current="page">활동 스토리</a>
+          </nav>
+          <p class="signup-step-lead">
+            고객은 실제로 활동하는 FC를 선별합니다.<br />
+            전문성을 보여줄 수 있는 영상/사진을 업로드 하세요.
+          </p>
+
+          <form class="form-box" method="post" enctype="multipart/form-data">
+            <div class="file-upload form-field">
+              <label class="form-label" for="fc-story-video-display">활동 스토리 영상</label>
+              <div>
+                <input class="form-input" id="fc-story-video-display" type="text" readonly placeholder="첨부 파일을 선택해 주세요" />
+                <input id="fc-story-video-file" class="visually-hidden" name="story_video" type="file" accept="video/*" tabindex="-1" />
+                <button type="button" class="file-upload-file-trigger">업로드</button>
+              </div>
+            </div>
+
+            <div class="file-upload form-field">
+              <label class="form-label" for="fc-story-image-display">활동 스토리영상 대표 이미지</label>
+              <div>
+                <input class="form-input" id="fc-story-image-display" type="text" readonly placeholder="첨부 파일을 선택해 주세요" />
+                <input id="fc-story-image-file" class="visually-hidden" name="story_image" type="file" accept="image/*" tabindex="-1" />
+                <button type="button" class="file-upload-file-trigger">파일첨부</button>
+              </div>
+            </div>
+
+            <hr />
+            <div class="story-guide">
+              <p>
+                <strong>활동 스토리 이미지</strong>
+                이미지를 등록해주세요. (최대 20개 등록)
+              </p>
+              <ul class="dash-list">
+                <li>첨부 가능한 이미지 파일형식은 .jpg .png .gif 입니다.</li>
+                <li>무단/부정한 이윤으로 제3자의 권리를 침해하는 이미지는 등록할 수 없습니다.</li>
+                <li>활동 스토리 이미지는 FC 상세 페이지 메인에 등록하신 순서대로 노출됩니다.</li>
+                <li>첨부하신 이미지에 대한 <em class="story-guide-emphasis">법적 책임은 첨부하신 FC회원님</em>에게 있습니다.</li>
+              </ul>
+            </div>
+
+            <div class="fc-story-thumbs">
+              <input
+                id="fc-story-thumb-file"
+                class="visually-hidden"
+                name="story_images"
+                type="file"
+                accept=".jpg,.jpeg,.png,.gif,image/jpeg,image/png,image/gif"
+                multiple
+                tabindex="-1"
+              />
+              <div class="fc-story-thumb-main">
+                <img src="../assets/images/ic-story-photo.svg" alt="" />
+              </div>
+              <button type="button" class="fc-story-thumb-add" aria-label="이미지 추가">
+                <span aria-hidden="true">+</span>
+              </button>
+            </div>
+            <div class="form-actions">
+              <button type="submit">저장</button>
+            </div>
+          </form>
+        </div>
+      </main>
+
+      <!-- 푸터 -->
+      <footer class="site-footer">
+        <div class="footer-inner">
+          <div class="footer-columns">
+            <div class="footer-col">
+              <p class="footer-logo">
+                <a href="MFC001.html" class="footer-logo-link"><img src="../assets/images/footer-logo.svg" alt="MyFC" /></a>
+              </p>
+              <div class="footer-info">
+                <p class="footer-ceo">
+                  <span>(주)더리치랩</span>
+                  <span>대표이사 박영진</span>
+                </p>
+                <p class="footer-info-split">
+                  <span>서울특별시 강남구 테헤란로 507, 8층 131호</span>
+                  <span>E-mail : <a href="mailto:myfc.helpdesk@gmail.com">myfc.helpdesk@gmail.com</a></span>
+                </p>
+                <p class="footer-info-split">
+                  <span>사업자등록번호 : 762-88-02797</span>
+                  <span>통신판매번호 : 제 2025-서울강남-06308호</span>
+                </p>
+                <p class="footer-info-split">
+                  <span>이용문의 : 010-9941-2899</span>
+                </p>
+              </div>
+              <p class="copyright">© 2026 TheRichLab Corp.</p>
+            </div>
+            <div class="footer-trail">
+              <ul class="footer-links">
+                <li><a href="#">회사소개</a></li>
+                <li><a href="#">이용약관</a></li>
+                <li><a href="#">개인정보 처리방침</a></li>
+                <li><a href="#">법적책임</a></li>
+              </ul>
+              <div class="footer-patent">
+                <p class="footer-patent-mark">
+                  <img src="../assets/images/kipo-logo.svg" alt="특허청" />
+                  <span>특허청</span>
+                </p>
+                <div class="footer-patent-text">
+                  <p>MyFC의 서비스는 여러 건의 특허가 출원되어 있습니다</p>
+                  <p>(특허번호 : 10-2026-0062616 / 10-2026-0064554 외 다수)</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </footer>
+    </div>
+
+    <script src="../assets/js/ui.js"></script>
+    <script src="../assets/js/popup.js"></script>
+    <script src="../assets/js/common.js"></script>
+    <script>
+      /* 활동 스토리 업로드 스크립트: 커스텀 버튼 클릭 시 파일 선택창 열기 + 선택 파일명 표시 */
+      (function () {
+        var form = document.querySelector('.signup-page .page-inner-narrow form');
+        if (!form) return;
+
+        form.addEventListener('click', function (e) {
+          var addThumb = e.target.closest('.fc-story-thumb-add');
+          if (addThumb && form.contains(addThumb)) {
+            var thumbInput = document.getElementById('fc-story-thumb-file');
+            if (thumbInput && thumbInput.type === 'file') thumbInput.click();
+            return;
+          }
+
+          var trigger = e.target.closest('.file-upload-file-trigger');
+          if (!trigger || !form.contains(trigger)) return;
+          var row = trigger.closest('.file-upload > div');
+          var fileInput = row ? row.querySelector('input[type="file"]') : null;
+          if (fileInput) fileInput.click();
+        });
+
+        form.addEventListener('change', function (e) {
+          var t = e.target;
+          if (!t || t.tagName !== 'INPUT' || t.type !== 'file' || !form.contains(t)) return;
+          var row = t.closest('.file-upload > div');
+          var display = row ? row.querySelector('input[readonly]') : null;
+          var file = t.files && t.files[0];
+          if (display) display.value = file ? file.name : '';
+        });
+      })();
+    </script>
+  </body>
+</html>

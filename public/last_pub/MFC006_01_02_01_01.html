@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>광고 신청</title>
+
+    <link rel="stylesheet" href="../assets/css/reset.css" />
+    <link rel="stylesheet" href="../assets/css/common.css" />
+    <link rel="stylesheet" href="../assets/css/layout.css" />
+    <link rel="stylesheet" href="../assets/css/main.css" />
+    <link rel="stylesheet" href="../assets/css/content.css" />
+  </head>
+  <body>
+    <div class="layout-wrapper form-page fc-ad-apply-page">
+      <header class="site-header member">
+        <div class="header-mo">
+          <a href="MFC005_L01_04.html" aria-label="뒤로">
+            <img src="../assets/images/ic-chevron-left.svg" alt="" />
+          </a>
+          <div class="header-mo-spacer" aria-hidden="true"></div>
+        </div>
+        <div class="header-inner">
+          <div class="logo">
+            <a href="MFC001.html">
+              <img src="../assets/images/logo.png" alt="보험사 연계 서비스" class="logo-img" />
+            </a>
+          </div>
+          <nav class="gnb">
+            <ul>
+              <li>
+                <a href="MFC002.html" class="gnb-search">
+                  <img src="../assets/images/ic-search.svg" alt="" class="gnb-ico" />
+                </a>
+              </li>
+              <li>
+                <a href="#" class="gnb-bell">
+                  <img src="../assets/images/ic-bell.svg" alt="" class="gnb-ico" />
+                </a>
+              </li>
+              <li class="guest">
+                <a href="#" class="gnb-btn-line">회원가입</a>
+              </li>
+              <li class="guest">
+                <a href="#" class="gnb-btn-line">로그인</a>
+              </li>
+              <li class="member">
+                <button type="button" class="gnb-avatar" aria-label="마이페이지 메뉴 열기">
+                  <img src="../assets/images/temp/@profile-m.png" alt="" class="gnb-avatar-img" />
+                </button>
+              </li>
+            </ul>
+          </nav>
+        </div>
+      </header>
+
+      <main>
+        <div class="page-inner-narrow">
+          <h1 class="page-main-title">광고 신청</h1>
+          <p class="page-main-lead">
+            우선 노출을 희망하는 영역을 선택해 주세요.<br />
+            선택한 섹션은 광고 기간 동안 노출 우선권이 적용됩니다.
+          </p>
+
+          <div class="ad-apply-tabs-scroll">
+            <div class="c-tabs ad-apply-tabs" role="tablist">
+              <a href="MFC005_L01_04_01.html" role="tab" aria-selected="false">지역별 FC</a>
+              <a href="MFC005_L01_04_02.html" role="tab" aria-selected="true">배너광고</a>
+              <a href="MFC005_L01_04_03.html" role="tab" aria-selected="false">상품별 FC</a>
+              <a href="MFC005_L01_04_04.html" role="tab" aria-selected="false">리뷰광고</a>
+              <a href="MFC005_L01_04_05.html" role="tab" aria-selected="false">언어별 FC</a>
+            </div>
+          </div>
+
+          <form class="form-box" method="post" action="#" enctype="multipart/form-data">
+            <div class="form-field">
+              <div class="file-upload" data-banner-upload>
+                <div class="file-upload-head">
+                  <label class="form-label" for="banner-filename">광고 배너 업로드 <b>*</b></label>
+                  <button type="button" class="btn btn-line btn-sm">노출 영역 확인</button>
+                </div>
+                <div class="file-upload-rows" data-upload-rows>
+                  <div data-upload-row>
+                    <input
+                      id="banner-filename"
+                      class="form-input"
+                      type="text"
+                      readonly
+                      placeholder="파일을 선택해 주세요"
+                      value=""
+                      autocomplete="off"
+                    />
+                    <input
+                      class="visually-hidden"
+                      name="banner_file"
+                      type="file"
+                      tabindex="-1"
+                      accept=".png,.jpg,.jpeg,.gif,image/png,image/jpeg,image/gif"
+                    />
+                    <button type="button" class="file-upload-file-trigger">파일찾기</button>
+                  </div>
+                </div>
+              </div>
+              <ul class="dash-list">
+                <li>배너 이미지 사이즈는 <strong>964x180</strong> 으로 제작하셔야 됩니다.</li>
+                <li>첨부 가능한 파일 형식은 <strong class="warn">.png .jpg .gif</strong> 로 등록해주세요.</li>
+              </ul>
+              <label class="c-check">
+                <input type="checkbox" name="banner_need_design" value="1" />
+                <span>배너 제작이 필요한 경우 체크박스 선택해주세요. <strong class="warn">별도 안내</strong> 드립니다.</span>
+              </label>
+            </div>
+
+            <div class="form-field">
+              <span class="form-label">광고 기간 및 금액 선택 <b>*</b></span>
+              <div class="ad-apply-plan-row">
+                <label class="c-radio">
+                  <input type="radio" name="ad_plan" value="1m" checked />
+                  <span>1개월</span>
+                </label>
+                <span class="ad-apply-price">500,000 원</span>
+              </div>
+            </div>
+
+            <section class="gray-box">
+              <ul class="dash-list">
+                <li>
+                  광고를 신청하시면 담당자 확인 후
+                  <strong class="warn">이메일/카카오톡 메시지로 안내장을 발송</strong>
+                  해드립니다.
+                </li>
+                <li>섹션별 <span class="uline">노출 순서</span>는 <strong class="warn">랜덤</strong>으로 노출됩니다.</li>
+                <li>광고 노출 기간 종료 시 자동으로 비활성화 됩니다.</li>
+                <li>결제 완료 후에는 광고 <strong class="warn">취소 및 환불이 불가</strong>합니다.</li>
+              </ul>
+            </section>
+
+            <div class="form-actions">
+              <button type="submit" class="btn btn-primary" disabled>신청하기</button>
+            </div>
+          </form>
+        </div>
+      </main>
+
+      <!-- 푸터 -->
+      <footer class="site-footer">
+        <div class="footer-inner">
+          <div class="footer-columns">
+            <div class="footer-col">
+              <p class="footer-logo">
+                <a href="MFC001.html" class="footer-logo-link"><img src="../assets/images/footer-logo.svg" alt="MyFC" /></a>
+              </p>
+              <div class="footer-info">
+                <p class="footer-ceo">
+                  <span>(주)더리치랩</span>
+                  <span>대표이사 박영진</span>
+                </p>
+                <p class="footer-info-split">
+                  <span>서울특별시 강남구 테헤란로 507, 8층 131호</span>
+                  <span>E-mail : <a href="mailto:myfc.helpdesk@gmail.com">myfc.helpdesk@gmail.com</a></span>
+                </p>
+                <p class="footer-info-split">
+                  <span>사업자등록번호 : 762-88-02797</span>
+                  <span>통신판매번호 : 제 2025-서울강남-06308호</span>
+                </p>
+                <p class="footer-info-split">
+                  <span>이용문의 : 010-9941-2899</span>
+                </p>
+              </div>
+              <p class="copyright">© 2026 TheRichLab Corp.</p>
+            </div>
+            <div class="footer-trail">
+              <ul class="footer-links">
+                <li><a href="#">회사소개</a></li>
+                <li><a href="#">이용약관</a></li>
+                <li><a href="#">개인정보 처리방침</a></li>
+                <li><a href="#">법적책임</a></li>
+              </ul>
+              <div class="footer-patent">
+                <p class="footer-patent-mark">
+                  <img src="../assets/images/kipo-logo.svg" alt="특허청" />
+                  <span>특허청</span>
+                </p>
+                <div class="footer-patent-text">
+                  <p>MyFC의 서비스는 여러 건의 특허가 출원되어 있습니다</p>
+                  <p>(특허번호 : 10-2026-0062616 / 10-2026-0064554 외 다수)</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </footer>
+    </div>
+
+    <script src="../assets/js/ui.js"></script>
+    <script src="../assets/js/popup.js"></script>
+    <script src="../assets/js/common.js"></script>
+    <script>
+      (function () {
+        var block = document.querySelector('[data-banner-upload]');
+        if (!block) return;
+        var row = block.querySelector('[data-upload-row]');
+        if (!row) return;
+        var display = row.querySelector('input[readonly]');
+        var fileInput = row.querySelector('input[type="file"]');
+        var trigger = row.querySelector('.file-upload-file-trigger');
+        if (trigger && fileInput) {
+          trigger.addEventListener('click', function () {
+            fileInput.click();
+          });
+        }
+        if (fileInput && display) {
+          fileInput.addEventListener('change', function () {
+            var f = fileInput.files && fileInput.files[0];
+            display.value = f ? f.name : '';
+          });
+        }
+      })();
+    </script>
+  </body>
+</html>

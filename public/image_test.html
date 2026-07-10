@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="utf-8">
-<title>Profile Image Editor (HD)</title>
+<title>Profile Editor Step2 (Crop)</title>
 
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.0/fabric.min.js"></script>
@@ -20,15 +20,34 @@ body {
     gap: 30px;
 }
 
-.panel {
-    width: 280px;
+/* 편집 영역 */
+.editor {
+    position: relative;
     background: #fff;
     padding: 20px;
     border-radius: 12px;
 }
 
+/* 원형 마스크 */
+.mask {
+    position: relative;
+    width: 400px;
+    height: 400px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 2px solid #ddd;
+}
+
+/* 캔버스 */
+canvas {
+    width: 400px;
+    height: 400px;
+}
+
+/* 미리보기 */
 .preview {
     display: flex;
+    flex-direction: column;
     gap: 20px;
 }
 
@@ -38,15 +57,6 @@ body {
     border-radius: 12px;
     text-align: center;
 }
-
-canvas {
-    border-radius: 50%;
-    border: 1px solid #ddd;
-
-    /* ✔ 화면 표시만 줄임 */
-    width: 50px;
-    height: 50px;
-}
 </style>
 </head>
 
@@ -54,81 +64,120 @@ canvas {
 
 <div class="wrapper">
 
-    <div class="panel">
-        <h3>이미지 업로드</h3>
+    <!-- LEFT -->
+    <div class="editor">
+        <h3>프로필 편집</h3>
         <input type="file" id="imgInput">
+
+        <button id="save">PNG 저장</button>
+
+        <div class="mask">
+            <canvas id="main" width="400" height="400"></canvas>
+        </div>
     </div>
 
+    <!-- RIGHT -->
     <div class="preview">
         <div class="card">
-            <h4>50px 미리보기</h4>
-            <canvas id="canvas1"></canvas>
+            <h4>50px</h4>
+            <canvas id="p50" width="50" height="50"></canvas>
         </div>
 
         <div class="card">
-            <h4>100px 최종</h4>
-            <canvas id="canvas2"></canvas>
+            <h4>100px</h4>
+            <canvas id="p100" width="100" height="100"></canvas>
         </div>
     </div>
 
 </div>
 
 <script>
+
+var main = new fabric.Canvas('main');
+var p50 = new fabric.Canvas('p50');
+var p100 = new fabric.Canvas('p100');
+
+
 /* =========================
-   🔥 HD Canvas 생성 (핵심)
+   이미지 로드
 ========================= */
-function createHDCanvas(id, size) {
+function loadImage(url){
 
-    var canvas = new fabric.Canvas(id);
+    fabric.Image.fromURL(url, function(img){
 
-    var dpr = window.devicePixelRatio || 1;
+        main.clear();
 
-    canvas.setWidth(size * dpr);
-    canvas.setHeight(size * dpr);
-    canvas.setZoom(dpr);
+        var cw = main.getWidth();
+        var ch = main.getHeight();
 
-    return canvas;
+        var scale = Math.min(cw / img.width, ch / img.height);
+
+        img.set({
+            left: cw/2,
+            top: ch/2,
+            originX: 'center',
+            originY: 'center',
+            scaleX: scale,
+            scaleY: scale,
+            selectable: true
+        });
+
+        main.add(img);
+        renderPreview();
+    });
 }
 
-var canvas1 = createHDCanvas('canvas1', 50);
-var canvas2 = createHDCanvas('canvas2', 100);
+
+/* =========================
+   🔥 원 안에서만 드래그 제한
+========================= */
+main.on('object:moving', function(e){
+
+    var obj = e.target;
+
+    var radius = main.getWidth() / 2;
+
+    var dx = obj.left - radius;
+    var dy = obj.top - radius;
+
+    var dist = Math.sqrt(dx*dx + dy*dy);
+
+    if(dist > radius){
+
+        var angle = Math.atan2(dy, dx);
+
+        obj.left = radius + radius * Math.cos(angle);
+        obj.top = radius + radius * Math.sin(angle);
+    }
+});
 
 
 /* =========================
-   이미지 추가 (고화질 + 중앙정렬)
+   미리보기 렌더
 ========================= */
-function addImage(imgUrl) {
+function renderPreview(){
 
-    fabric.Image.fromURL(imgUrl, function (img) {
+    [p50, p100].forEach(function(canvas){
 
-        [canvas1, canvas2].forEach(function(canvas){
+        canvas.clear();
 
-            var cw = canvas.getWidth() / canvas.getZoom();
-            var ch = canvas.getHeight() / canvas.getZoom();
+        var scale = canvas.getWidth() / main.getWidth();
 
-            var scale = Math.min(cw / img.width, ch / img.height);
+        main.getObjects().forEach(function(obj){
 
-            var clone = fabric.util.object.clone(img);
+            obj.clone(function(clone){
 
-            clone.set({
-                left: cw / 2,
-                top: ch / 2,
-                originX: 'center',
-                originY: 'center',
+                clone.set({
+                    left: obj.left * scale,
+                    top: obj.top * scale,
+                    scaleX: obj.scaleX * scale,
+                    scaleY: obj.scaleY * scale,
+                    selectable: false
+                });
 
-                scaleX: scale,
-                scaleY: scale,
-
-                selectable: false,
-                hasControls: false,
-                evented: true,
-
-                imageSmoothing: true,
-                objectCaching: false
+                canvas.add(clone);
+                canvas.renderAll();
             });
-
-            canvas.add(clone);
-            canvas.renderAll();
         });
     });
 }
@@ -137,17 +186,50 @@ function addImage(imgUrl) {
 /* =========================
    업로드
 ========================= */
-$('#imgInput').on('change', function (e) {
+$('#imgInput').on('change', function(e){
 
-    var file = e.target.files[0];
     var reader = new FileReader();
 
-    reader.onload = function (f) {
-        addImage(f.target.result);
+    reader.onload = function(f){
+        loadImage(f.target.result);
     };
 
-    reader.readAsDataURL(file);
+    reader.readAsDataURL(e.target.files[0]);
 });
+
+
+main.on('object:modified', renderPreview);
+main.on('object:added', renderPreview);
+
+
+/* =========================
+   🔥 원형 PNG 저장 (핵심)
+========================= */
+$('#save').on('click', function(){
+
+    var exportCanvas = document.createElement('canvas');
+    var ctx = exportCanvas.getContext('2d');
+
+    var size = 400;
+
+    exportCanvas.width = size;
+    exportCanvas.height = size;
+
+    // 원형 클리핑
+    ctx.beginPath();
+    ctx.arc(size/2, size/2, size/2, 0, Math.PI*2);
+    ctx.closePath();
+    ctx.clip();
+
+    // Fabric export
+    ctx.drawImage(main.lowerCanvasEl, 0, 0, size, size);
+
+    var link = document.createElement('a');
+    link.href = exportCanvas.toDataURL('image/png');
+    link.download = "profile.png";
+    link.click();
+});
+
 </script>
 
 </body>

@@ -1,562 +1,842 @@
 <?= $this->include('admin/layout/header') ?>
 <?= $this->include('admin/layout/sidebar') ?>
 
+<?php
+$profile = $profile ?? [];
+$activity = $activity ?? [];
+$review = $review ?? [];
+$counselCount = (int) ($counselCount ?? 0);
+$reviewCount = (int) ($reviewCount ?? 0);
+$viewCount = (int) ($profile['view_count'] ?? 0);
+
+$value = static fn ($array, $key) => isset($array[$key]) && $array[$key] !== '' && $array[$key] !== null
+    ? esc((string) $array[$key])
+    : '-';
+
+$profileImage = trim((string) ($profile['profile_image'] ?? ''));
+$profileImageUrl = $profileImage !== '' ? base_url(ltrim($profileImage, '/')) : '';
+
+$licenseYears = '-';
+if (!empty($profile['license_date'])) {
+    $year = (int) substr((string) $profile['license_date'], 0, 4);
+    if ($year > 1900) {
+        $licenseYears = $profile['license_date'] . ' (' . max(0, (int) date('Y') - $year) . '년)';
+    } else {
+        $licenseYears = $profile['license_date'];
+    }
+}
+
+$companies = array_filter([
+    $profile['company'] ?? '',
+    $profile['company_sub'] ?? '',
+]);
+
+$activityItemGroups = [];
+foreach ($activityItems ?? [] as $item) {
+    $category = $item['category'] ?: '이력 및 인증';
+    $activityItemGroups[$category][] = $item;
+}
+?>
+
 <style>
-    .fc-wrap {
-        padding: 15px;
-    }
-
-    .fc-title {
-        font-size: 18px;
-        font-weight: 700;
-        margin-bottom: 15px;
-    }
-
-    .fc-card {
-        background: #fff;
-        border: 1px solid #e5e5e5;
-        border-radius: 6px;
-        margin-bottom: 15px;
-    }
-
-    .fc-card h5 {
-        margin: 0;
-        padding: 10px 15px;
+    .fc-detail-page {
+        color: #172033;
         font-size: 14px;
-        font-weight: 700;
-        background: #f5f5f5;
-        border-bottom: 1px solid #eee;
     }
 
-    .fc-table {
+    .fc-detail-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 16px;
+        padding: 18px 8px 14px;
+    }
+
+    .fc-detail-header .screen-id {
+        margin-bottom: 6px;
+        color: #64748b;
+        font-size: 13px;
+        font-weight: 700;
+    }
+
+    .fc-detail-header h1 {
+        margin: 0;
+        font-size: 22px;
+        font-weight: 800;
+    }
+
+    .top-actions,
+    .sub-actions {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+        gap: 8px;
+        margin-bottom: 12px;
+    }
+
+    .summary-grid {
+        display: grid;
+        grid-template-columns: minmax(340px, 1fr) minmax(340px, 1fr);
+        gap: 16px;
+        margin-bottom: 16px;
+    }
+
+    .wire-card {
+        border: 1px solid #cbd5e1;
+        border-radius: 8px;
+        background: #fff;
+        box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
+    }
+
+    .wire-head {
+        padding: 12px 16px;
+        border-bottom: 1px solid #cbd5e1;
+        background: #eef3f8;
+        font-weight: 800;
+    }
+
+    .wire-body {
+        padding: 16px;
+    }
+
+    .basic-layout {
+        display: grid;
+        grid-template-columns: 96px minmax(0, 1fr);
+        gap: 14px;
+    }
+
+    .profile-thumb {
+        width: 88px;
+        height: 88px;
+        overflow: hidden;
+        border-radius: 50%;
+        background: #e5e7eb;
+    }
+
+    .profile-thumb img {
         width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .profile-thumb .fallback {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        height: 100%;
+        color: #64748b;
+        font-weight: 800;
+    }
+
+    .field-list {
+        display: grid;
+        gap: 9px;
+    }
+
+    .field-row {
+        display: grid;
+        grid-template-columns: 140px minmax(0, 1fr);
+        gap: 10px;
+        align-items: start;
+    }
+
+    .field-label {
+        color: #64748b;
+        font-size: 13px;
+        font-weight: 800;
+    }
+
+    .field-value {
+        min-width: 0;
+        word-break: break-all;
+    }
+
+    .memo-box {
+        width: 100%;
+        min-height: 116px;
+        padding: 12px;
+        border: 1px solid #d8e0ea;
+        border-radius: 6px;
+        resize: vertical;
+    }
+
+    .activity-list {
+        display: grid;
+        gap: 12px;
+    }
+
+    .activity-row {
+        display: flex;
+        justify-content: space-between;
+        gap: 16px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #e2e8f0;
+    }
+
+    .activity-row:last-child {
+        padding-bottom: 0;
+        border-bottom: 0;
+    }
+
+    .activity-row .label {
+        color: #64748b;
+        font-weight: 800;
+    }
+
+    .activity-row .value {
+        color: #0266ff;
+        font-weight: 800;
+    }
+
+    .tab-bar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        padding: 12px 16px 0;
+    }
+
+    .tab-panel {
+        display: none;
+    }
+
+    .tab-panel.active {
+        display: block;
+    }
+
+    .profile-main-action {
+        display: flex;
+        justify-content: flex-end;
+        margin-bottom: 12px;
+    }
+
+    .activity-cert-list {
+        display: grid;
+        gap: 10px;
+    }
+
+    .activity-cert-item {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 12px;
+        align-items: center;
+        padding: 12px;
+        border: 1px solid #d8e0ea;
+        border-radius: 8px;
+        background: #f8fafc;
+    }
+
+    .activity-cert-title {
+        font-weight: 800;
+    }
+
+    .activity-cert-meta {
+        margin-top: 4px;
+        color: #64748b;
         font-size: 13px;
     }
 
-    .fc-table th {
-        width: 140px;
-        background: #fafafa;
-        padding: 8px;
-        text-align: left;
-        color: #666;
+    .activity-cert-actions {
+        display: flex;
+        gap: 6px;
     }
 
-    .fc-table td {
-        padding: 8px;
+    .story-section {
+        display: grid;
+        gap: 18px;
     }
 
-    .badge-box {
-        display: inline-block;
-        padding: 3px 8px;
-        border-radius: 4px;
-        font-size: 12px;
+    .story-grid {
+        display: grid;
+        grid-template-columns: repeat(5, minmax(120px, 1fr));
+        gap: 12px;
     }
 
-    .fc-img-thumb {
-        width: 120px;
-        height: 120px;
+    .story-thumb {
+        position: relative;
+        min-height: 118px;
+        overflow: hidden;
+        border: 1px solid #d8e0ea;
+        border-radius: 8px;
+        background: #f8fafc;
+    }
+
+    .story-thumb button.preview {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        height: 118px;
+        padding: 0;
+        border: 0;
+        background: transparent;
+    }
+
+    .story-thumb img {
+        width: 100%;
+        height: 118px;
         object-fit: cover;
-        border-radius: 6px;
-        border: 1px solid #ddd;
-        cursor: pointer;
-        transition: 0.2s;
     }
 
-    .fc-img-thumb:hover {
-        transform: scale(1.03);
+    .story-play {
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        color: #fff;
+        background: #1f7aff;
+        line-height: 44px;
+        text-align: center;
+    }
+
+    .story-badge {
+        position: absolute;
+        left: 6px;
+        top: 6px;
+        padding: 3px 8px;
+        border-radius: 999px;
+        color: #fff;
+        background: rgba(15, 23, 42, 0.78);
+        font-size: 12px;
+        font-weight: 800;
+    }
+
+    .story-delete {
+        position: absolute;
+        right: 6px;
+        bottom: 6px;
+    }
+
+    .review-status {
+        display: inline-flex;
+        align-items: center;
+        padding: 4px 10px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 800;
+    }
+
+    .review-status.wait {
+        color: #92400e;
+        background: #fef3c7;
+    }
+
+    .review-status.approve {
+        color: #166534;
+        background: #dcfce7;
+    }
+
+    .review-status.reject {
+        color: #991b1b;
+        background: #fee2e2;
+    }
+
+    .media-modal {
+        position: fixed;
+        inset: 0;
+        z-index: 9999;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 24px;
+        background: rgba(15, 23, 42, 0.72);
+    }
+
+    .media-modal.is-open {
+        display: flex;
+    }
+
+    .media-modal-body {
+        max-width: min(900px, 100%);
+        max-height: 90vh;
+        overflow: auto;
+        padding: 16px;
+        border-radius: 8px;
+        background: #fff;
+    }
+
+    .media-modal-body img,
+    .media-modal-body video {
+        max-width: 100%;
+        max-height: 76vh;
+        display: block;
+    }
+
+    @media (max-width: 992px) {
+        .story-grid {
+            grid-template-columns: repeat(3, minmax(120px, 1fr));
+        }
+    }
+
+    @media (max-width: 576px) {
+        .story-grid {
+            grid-template-columns: repeat(2, minmax(120px, 1fr));
+        }
+    }
+
+    @media (max-width: 992px) {
+        .summary-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .fc-detail-header {
+            flex-direction: column;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .basic-layout,
+        .field-row {
+            grid-template-columns: 1fr;
+        }
     }
 </style>
 
 <div class="content-wrapper">
-
-    <section class="content-header d-flex justify-content-between align-items-center">
+    <section class="content-header fc-detail-header fc-detail-page">
         <div>
-            <h1>FC 회원 상세</h1>
-            <small><?= esc($m['member_uid']) ?></small>
+            <div class="screen-id">AMFC003_02_01</div>
+            <h1>FC회원 상세</h1>
         </div>
-
-        <a href="/admin/fc-members" class="btn btn-secondary btn-sm">← 목록</a>
+        <div class="text-muted">Main &gt; 대시보드 &gt; FC회원 &gt; 상세</div>
     </section>
 
-    <section class="content">
-        <div class="fc-wrap">
-
-            <!-- =========================
-                1. 핵심 요약 (가장 중요)
-            ========================= -->
-            <div class="fc-card">
-                <h5>회원 요약</h5>
-                <table class="fc-table">
-                    <tr>
-                        <th>이름</th>
-                        <td><b><?= esc($m['name']) ?></b></td>
-
-                        <th>상태</th>
-                        <td>
-                            <?php [$label, $class] = member_status_label($m['status']); ?>
-                            <span class="badge bg-<?= $class ?>"><?= $label ?></span>
-                        </td>
-
-                        <th>단계</th>
-                        <td><?= $m['fc_step'] ?></td>
-                    </tr>
-
-                    <tr>
-                        <th>이메일</th>
-                        <td><?= esc($m['email']) ?></td>
-
-                        <th>연락처</th>
-                        <td><?= esc($m['phone']) ?></td>
-
-                        <th>심의</th>
-                        <td><?= esc($m['fc_review_status']) ?></td>
-                    </tr>
-
-                    <tr>
-                        <th>가입일</th>
-                        <td><?= $m['created_at'] ?></td>
-
-                        <th>최근 로그인</th>
-                        <td><?= $m['last_login_at'] ?? '-' ?></td>
-
-                        <th></th>
-                        <td></td>
-                    </tr>
-                </table>
+    <section class="content fc-detail-page">
+        <div class="container-fluid">
+            <div class="top-actions">
+                <a href="<?= base_url('admin/fc-members') ?>" class="btn btn-outline-secondary btn-sm">리스트 돌아가기</a>
+                <a href="<?= base_url('admin/fc-members/' . (int) $m['member_id'] . '/preview') ?>" class="btn btn-outline-secondary btn-sm" target="_blank" rel="noopener">FC 미리보기</a>
+                <a href="<?= base_url('admin/ads/normal?member_id=' . (int) $m['member_id']) ?>" class="btn btn-outline-secondary btn-sm">광고 현황</a>
+                <a href="<?= base_url('admin/fc-members/' . (int) $m['member_id'] . '/edit') ?>" class="btn btn-outline-secondary btn-sm">회원 수정</a>
+                <button type="button" class="btn btn-outline-danger btn-sm" onclick="deleteFcMember(<?= (int) $m['member_id'] ?>)">회원 탈퇴</button>
             </div>
 
-            <!-- =========================
-    2. 프로필
-========================= -->
-            <div class="fc-card">
-                <h5>프로필</h5>
-
-                <?php if ($profile): ?>
-                    <table class="fc-table">
-
-                        <tr>
-                            <th>회사</th>
-                            <td><?= esc($profile['company']) ?></td>
-
-                            <th>GA</th>
-                            <td><?= esc($profile['ga']) ?></td>
-                        </tr>
-
-                        <tr>
-                            <th>직책</th>
-                            <td><?= esc($profile['position']) ?></td>
-
-                            <th>자격증</th>
-                            <td><?= esc($profile['license_no']) ?></td>
-                        </tr>
-
-                        <tr>
-                            <th>업무시간</th>
-                            <td><?= $profile['time_from'] ?> ~ <?= $profile['time_to'] ?></td>
-
-                            <th>언어</th>
-                            <td><?= esc($profile['language']) ?></td>
-                        </tr>
-
-                    </table>
-                <?php else: ?>
-                    <div style="padding:10px;">프로필 없음</div>
-                <?php endif; ?>
-            </div>
-
-            <!-- =========================
-    3. 활동 정보
-========================= -->
-            <div class="fc-card">
-                <h5>활동 정보</h5>
-
-                <?php if ($activity): ?>
-                    <table class="fc-table">
-
-                        <tr>
-                            <th>지역</th>
-                            <td colspan="3">
-                                <?php foreach (explode(',', $activity['region']) as $r): ?>
-                                    <span class="badge bg-secondary">
-                                        <?= fc_region_label(trim($r)) ?>
-                                    </span>
-                                <?php endforeach; ?>
-
-                            </td>
-                        </tr>
-
-                        <tr>
-                            <th>보험</th>
-                            <td colspan="3"><?php foreach (explode(',', $activity['insurance_types']) as $item): ?>
-                                    <span class="badge bg-light text-dark border">
-                                        <?= fc_insurance_label(trim($item)) ?>
-                                    </span>
-                                <?php endforeach; ?>
-                            </td>
-                        </tr>
-
-                        <tr>
-                            <th>한줄</th>
-                            <td colspan="3"><?= esc($activity['hero_line']) ?></td>
-                        </tr>
-
-                        <tr>
-                            <th>소개</th>
-                            <td colspan="3"><?= nl2br(esc($activity['intro'])) ?></td>
-                        </tr>
-
-                        <tr>
-                            <th>경력</th>
-                            <td colspan="3"><?= nl2br(esc($activity['career'])) ?></td>
-                        </tr>
-
-                    </table>
-                <?php else: ?>
-                    <div style="padding:10px;">없음</div>
-                <?php endif; ?>
-            </div>
-
-            <!-- =========================
-    4. 활동 자료
-========================= -->
-            <div class="fc-card">
-                <h5>활동 자료</h5>
-
-                <div style="padding:10px;">
-                    <?php foreach ($activityItems as $item): ?>
-
-                        <?php
-                        $file = $item['file_path'] ?? null;
-                        $ext = $file ? strtolower(pathinfo($file, PATHINFO_EXTENSION)) : '';
-
-                        $imageExt = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp'];
-                        $isImage = in_array($ext, $imageExt);
-                        ?>
-
-                        <div style="margin-bottom:10px; border-bottom:1px solid #eee; padding-bottom:10px;">
-
-                            <b><?= esc($item['title']) ?></b>
-                            <span style="color:#999;font-size:12px;">
-                                (<?= esc($item['type']) ?>)
-                            </span>
-
-                            <!-- =========================
-                이미지 파일
-            ========================= -->
-                            <?php if ($file && $isImage): ?>
-                                <div style="margin-top:8px;">
-                                    <img
-                                        src="/uploads/activity/<?= esc($file) ?>"
-                                        class="fc-img-thumb js-img-view"
-                                        data-src="/uploads/activity/<?= esc($file) ?>">
+            <div class="summary-grid">
+                <div class="wire-card">
+                    <div class="wire-head">기본 정보</div>
+                    <div class="wire-body">
+                        <div class="basic-layout">
+                            <div>
+                                <div class="profile-thumb">
+                                    <?php if ($profileImageUrl !== ''): ?>
+                                        <img src="<?= esc($profileImageUrl) ?>" alt="">
+                                    <?php else: ?>
+                                        <div class="fallback">FC</div>
+                                    <?php endif; ?>
                                 </div>
-                            <?php endif; ?>
-
-                            <!-- =========================
-                일반 파일 (다운로드)
-            ========================= -->
-                            <?php if ($file && !$isImage): ?>
-                                <div style="margin-top:8px;">
-                                    <a href="/uploads/activity/<?= esc($file) ?>"
-                                        download
-                                        class="btn btn-sm btn-outline-primary">
-                                        파일 다운로드
-                                    </a>
+                                <button type="button" class="btn btn-outline-danger btn-sm mt-2" disabled>삭제</button>
+                            </div>
+                            <div class="field-list">
+                                <div class="field-row">
+                                    <div class="field-label">ID(이메일 주소)</div>
+                                    <div class="field-value"><?= esc($m['email']) ?></div>
                                 </div>
-                            <?php endif; ?>
-
-                            <!-- =========================
-                외부 링크
-            ========================= -->
-                            <?php if ($item['url']): ?>
-                                <div style="margin-top:6px;">
-                                    <a href="<?= esc($item['url']) ?>" target="_blank">
-                                        링크 열기
-                                    </a>
+                                <div class="field-row">
+                                    <div class="field-label">비밀번호</div>
+                                    <div class="field-value">
+                                        <button type="button" class="btn btn-outline-secondary btn-sm" onclick="resetFcPassword(<?= (int) $m['member_id'] ?>)">비밀번호 재설정 메일발송</button>
+                                    </div>
                                 </div>
-                            <?php endif; ?>
-
+                                <div class="field-row">
+                                    <div class="field-label">이름</div>
+                                    <div class="field-value"><?= esc($m['name']) ?></div>
+                                </div>
+                                <div class="field-row">
+                                    <div class="field-label">휴대폰번호</div>
+                                    <div class="field-value"><?= esc($m['phone']) ?></div>
+                                </div>
+                            </div>
                         </div>
 
-                    <?php endforeach; ?>
-                </div>
-            </div>
-
-            <!-- =========================
-    5. 스토리
-========================= -->
-            <!-- =========================
-    5. 스토리 (FULL REFACTOR)
-========================= -->
-
-            <!-- 🔥 1. 스토리 영상 -->
-            <div class="fc-card">
-                <h5>스토리 영상</h5>
-
-                <div style="padding:10px;">
-                    <?php if ($story && $story['story_video']): ?>
-                        <video controls style="width:100%; max-height:420px; border-radius:6px; background:#000;">
-                            <source src="/uploads/story/video/<?= esc($story['story_video']) ?>">
-                        </video>
-                    <?php else: ?>
-                        <div style="color:#999;">등록된 영상이 없습니다.</div>
-                    <?php endif; ?>
-                </div>
-            </div>
-
-
-            <!-- 🔥 2. 스토리 대표 이미지 -->
-            <div class="fc-card">
-                <h5>스토리 대표 이미지</h5>
-
-                <div style="padding:10px;">
-                    <?php if ($story && $story['story_image']): ?>
-                        <img
-                            src="/uploads/story/main/<?= esc($story['story_image']) ?>"
-                            class="fc-img-thumb js-img-view"
-                            data-src="/uploads/story/main/<?= esc($story['story_image']) ?>"
-                            style="width:200px; height:200px;">
-                    <?php else: ?>
-                        <div style="color:#999;">대표 이미지 없음</div>
-                    <?php endif; ?>
-                </div>
-            </div>
-
-
-            <!-- 🔥 3. 스토리 이미지 갤러리 -->
-            <div class="fc-card">
-                <h5>스토리 이미지 갤러리</h5>
-
-                <div style="padding:10px; display:flex; flex-wrap:wrap; gap:10px;">
-
-                    <?php if (!empty($storyImages)): ?>
-                        <?php foreach ($storyImages as $img): ?>
-                            <img
-                                src="/uploads/story/images/<?= esc($img['image_path']) ?>"
-                                class="fc-img-thumb js-img-view"
-                                data-src="/uploads/story/images/<?= esc($img['image_path']) ?>">
-                        <?php endforeach; ?>
-                    <?php else: ?>
-                        <div style="color:#999;">등록된 이미지가 없습니다.</div>
-                    <?php endif; ?>
-
-                </div>
-            </div>
-
-            <!-- =========================
-    6. 심의
-========================= -->
-            <!-- =========================
-    6. 심의
-========================= -->
-            <!-- =========================
-    6. 심의 정보 (REFACTORED UI)
-========================= -->
-            <div class="fc-card">
-                <h5>심의 정보</h5>
-
-                <?php if ($review): ?>
-
-                    <div style="padding:15px;">
-
-                        <!-- 기본 정보 -->
-                        <table class="fc-table">
-                            <tr>
-                                <th>심의번호</th>
-                                <td><?= esc($review['deliberation_no']) ?></td>
-
-                                <th>상태</th>
-                                <td>
-                                    <?php if ($review['status'] === 'APPROVE'): ?>
-                                        <span class="badge bg-success">승인완료</span>
-                                    <?php elseif ($review['status'] === 'REJECT'): ?>
-                                        <span class="badge bg-danger">반려</span>
-                                    <?php else: ?>
-                                        <span class="badge bg-warning">대기</span>
-                                    <?php endif; ?>
-                                </td>
-                            </tr>
-
-                            <tr>
-                                <th>기간</th>
-                                <td colspan="3">
-                                    <?= $review['approval_start'] ?> ~ <?= $review['approval_end'] ?>
-                                </td>
-                            </tr>
-
-                            <tr>
-                                <th>심의 의견</th>
-                                <td colspan="3">
-                                    <?= nl2br(esc($review['deliberation_opinion'])) ?>
-                                </td>
-                            </tr>
-
-                            <?php if (!empty($review['reject_reason'])): ?>
-                                <tr>
-                                    <th style="color:#d33;">반려 사유</th>
-                                    <td colspan="3" style="color:#d33;">
-                                        <?= nl2br(esc($review['reject_reason'])) ?>
-                                    </td>
-                                </tr>
-                            <?php endif; ?>
-                        </table>
-
-                        <!-- =========================
-                버튼 영역
-            ========================= -->
-                        <?php if ($review['status'] === 'WAIT'): ?>
-                            <div style="
-                    margin-top:20px;
-                    display:flex;
-                    justify-content:center;
-                    gap:10px;
-                ">
-
-                                <!-- 승인 -->
-                                <form method="post" action="/admin/fc-members/review/approve">
-                                    <input type="hidden" name="member_uid" value="<?= esc($m['member_uid']) ?>">
-                                    <button type="submit"
-                                        class="btn btn-success btn-sm"
-                                        style="min-width:120px;">
-                                        ✔ 승인 완료
-                                    </button>
-                                </form>
-
-                                <!-- 반려 -->
-                                <button type="button"
-                                    class="btn btn-outline-danger btn-sm"
-                                    style="min-width:120px;"
-                                    onclick="openRejectModal('<?= esc($m['member_uid']) ?>')">
-                                    ✖ 반려 처리
-                                </button>
-
+                        <div class="mt-3">
+                            <div class="field-label mb-2">운영진 메모</div>
+                            <textarea id="fcAdminMemo" class="memo-box"><?= esc((string) ($m['admin_memo'] ?? '')) ?></textarea>
+                            <div class="text-end mt-2">
+                                <button type="button" class="btn btn-primary btn-sm" onclick="saveFcMemo(<?= (int) $m['member_id'] ?>)">메모 저장</button>
                             </div>
-                        <?php endif; ?>
-
+                        </div>
                     </div>
+                </div>
 
-                <?php else: ?>
-                    <div style="padding:15px; color:#999;">
-                        심의 정보 없음
+                <div class="wire-card">
+                    <div class="wire-head">활동 정보</div>
+                    <div class="wire-body">
+                        <div class="activity-list">
+                            <div class="activity-row">
+                                <span class="label">가입일자</span>
+                                <span><?= esc($m['created_at'] ?? '-') ?></span>
+                            </div>
+                            <div class="activity-row">
+                                <span class="label">최종 로그인 일자</span>
+                                <span><?= esc($m['last_login_at'] ?? '-') ?></span>
+                            </div>
+                            <div class="activity-row">
+                                <span class="label">조회 수</span>
+                                <span class="value"><?= number_format($viewCount) ?></span>
+                            </div>
+                            <div class="activity-row">
+                                <span class="label">상담 요청 건수</span>
+                                <a href="<?= base_url('admin/contents/counsels?fc_member_id=' . (int) $m['member_id']) ?>" class="btn btn-outline-primary btn-sm">
+                                    <?= number_format($counselCount) ?>건
+                                </a>
+                            </div>
+                            <div class="activity-row">
+                                <span class="label">후기 등록 건수</span>
+                                <a href="<?= base_url('admin/contents/reviews?fc_member_id=' . (int) $m['member_id']) ?>" class="btn btn-outline-primary btn-sm">
+                                    <?= number_format($reviewCount) ?>건
+                                </a>
+                            </div>
+                        </div>
                     </div>
-                <?php endif; ?>
+                </div>
             </div>
 
+            <div class="wire-card">
+                <div class="tab-bar">
+                    <button type="button" class="btn btn-primary btn-sm js-tab" data-tab="profile">프로필</button>
+                    <button type="button" class="btn btn-outline-primary btn-sm js-tab" data-tab="activity">활동 정보</button>
+                    <button type="button" class="btn btn-outline-primary btn-sm js-tab" data-tab="story">활동 스토리</button>
+                    <button type="button" class="btn btn-outline-primary btn-sm js-tab" data-tab="review">심의필 정보</button>
+                </div>
+                <div class="wire-body">
+                    <div class="profile-main-action">
+                        <button type="button" class="btn btn-outline-primary btn-sm" onclick="alert('프로필 메인 노출 처리 완료 되었습니다.')">프로필 메인 노출</button>
+                    </div>
+
+                    <div id="tab-profile" class="tab-panel active">
+                        <div class="field-list">
+                            <div class="field-row">
+                                <div class="field-label">소속 원수사</div>
+                                <div class="field-value"><?= esc(implode(' / ', $companies) ?: '-') ?></div>
+                            </div>
+                            <div class="field-row">
+                                <div class="field-label">소속 GA</div>
+                                <div class="field-value"><?= $value($profile, 'ga') ?></div>
+                            </div>
+                            <div class="field-row">
+                                <div class="field-label">직책</div>
+                                <div class="field-value"><?= $value($profile, 'position') ?></div>
+                            </div>
+                            <div class="field-row">
+                                <div class="field-label">보험 자격 취득일</div>
+                                <div class="field-value"><?= esc($licenseYears) ?></div>
+                            </div>
+                            <div class="field-row">
+                                <div class="field-label">보험모집종사자 등록번호</div>
+                                <div class="field-value"><?= $value($profile, 'license_no') ?></div>
+                            </div>
+                            <div class="field-row">
+                                <div class="field-label">상담 가능 시간</div>
+                                <div class="field-value"><?= esc(($profile['time_from'] ?? '-') . ' : 00 ~ ' . ($profile['time_to'] ?? '-') . ' : 00') ?></div>
+                            </div>
+                            <div class="field-row">
+                                <div class="field-label">상담 가능한 언어</div>
+                                <div class="field-value"><?= $value($profile, 'language') ?></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="tab-activity" class="tab-panel">
+                        <div class="field-list">
+                            <div class="field-row">
+                                <div class="field-label">본인 활동 지역</div>
+                                <div class="field-value"><?= $value($activity, 'region') ?></div>
+                            </div>
+                            <div class="field-row">
+                                <div class="field-label">운영 가능 보험 항목</div>
+                                <div class="field-value"><?= $value($activity, 'insurance_types') ?></div>
+                            </div>
+                            <div class="field-row">
+                                <div class="field-label">전문 분야</div>
+                                <div class="field-value"><?= $value($activity, 'hero_line') ?></div>
+                            </div>
+                            <div class="field-row">
+                                <div class="field-label">자기소개</div>
+                                <div class="field-value"><?= nl2br(esc((string) ($activity['intro'] ?? '-'))) ?></div>
+                            </div>
+                            <div class="field-row">
+                                <div class="field-label">경력사항</div>
+                                <div class="field-value"><?= nl2br(esc((string) ($activity['career'] ?? '-'))) ?></div>
+                            </div>
+                            <div class="field-row">
+                                <div class="field-label">이력 및 인증</div>
+                                <div class="field-value">
+                                    <?php if (!empty($activityItemGroups)): ?>
+                                        <div class="activity-cert-list">
+                                            <?php foreach ($activityItemGroups as $category => $items): ?>
+                                                <?php foreach ($items as $item): ?>
+                                                    <div class="activity-cert-item">
+                                                        <div>
+                                                            <div class="activity-cert-title">
+                                                                <?= esc($item['title'] ?? '-') ?>
+                                                            </div>
+                                                            <div class="activity-cert-meta">
+                                                                <?= esc($category) ?>
+                                                                <?php if (!empty($item['start_date']) || !empty($item['end_date'])): ?>
+                                                                    · <?= esc(($item['start_date'] ?? '-') . ' ~ ' . ($item['end_date'] ?? '-')) ?>
+                                                                <?php endif; ?>
+                                                                <?php if (!empty($item['content'])): ?>
+                                                                    · <?= esc($item['content']) ?>
+                                                                <?php endif; ?>
+                                                            </div>
+                                                        </div>
+                                                        <div class="activity-cert-actions">
+                                                            <?php if (!empty($item['file_path'])): ?>
+                                                                <a href="<?= base_url(ltrim($item['file_path'], '/')) ?>" class="btn btn-outline-primary btn-sm" download>
+                                                                    다운로드
+                                                                </a>
+                                                            <?php endif; ?>
+                                                            <?php if (!empty($item['url'])): ?>
+                                                                <a href="<?= esc($item['url']) ?>" class="btn btn-outline-secondary btn-sm" target="_blank" rel="noopener">
+                                                                    새창
+                                                                </a>
+                                                            <?php endif; ?>
+                                                        </div>
+                                                    </div>
+                                                <?php endforeach; ?>
+                                            <?php endforeach; ?>
+                                        </div>
+                                    <?php else: ?>
+                                        -
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="tab-story" class="tab-panel">
+                        <div class="story-section">
+                            <div class="field-row">
+                                <div class="field-label">활동 영상</div>
+                                <div class="field-value">
+                                    <?php if (!empty($story['story_video'])): ?>
+                                        <?php $videoUrl = base_url('uploads/story/video/' . ltrim($story['story_video'], '/')); ?>
+                                        <div class="story-grid">
+                                            <div class="story-thumb">
+                                                <button type="button" class="preview" onclick="openMediaModal('video', <?= json_encode($videoUrl) ?>)">
+                                                    <span class="story-play">▶</span>
+                                                </button>
+                                                <button type="button" class="btn btn-outline-danger btn-sm story-delete" onclick="deleteStoryFile('video')">삭제</button>
+                                            </div>
+                                        </div>
+                                    <?php else: ?>
+                                        <span class="text-muted">등록된 활동 영상이 없습니다.</span>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+                            <div class="field-row">
+                                <div class="field-label">활동 이미지</div>
+                                <div class="field-value">
+                                    <?php if (!empty($story['story_image']) || !empty($storyImages)): ?>
+                                        <div class="story-grid">
+                                            <?php if (!empty($story['story_image'])): ?>
+                                                <?php $mainImageUrl = base_url('uploads/story/main/' . ltrim($story['story_image'], '/')); ?>
+                                                <div class="story-thumb">
+                                                    <button type="button" class="preview" onclick="openMediaModal('image', <?= json_encode($mainImageUrl) ?>)">
+                                                        <img src="<?= esc($mainImageUrl) ?>" alt="">
+                                                    </button>
+                                                    <span class="story-badge">대표</span>
+                                                    <button type="button" class="btn btn-outline-danger btn-sm story-delete" onclick="deleteStoryFile('main_image')">삭제</button>
+                                                </div>
+                                            <?php endif; ?>
+                                            <?php foreach ($storyImages as $img): ?>
+                                                <?php $imageUrl = base_url('uploads/story/images/' . ltrim($img['image_path'], '/')); ?>
+                                                <div class="story-thumb">
+                                                    <button type="button" class="preview" onclick="openMediaModal('image', <?= json_encode($imageUrl) ?>)">
+                                                        <img src="<?= esc($imageUrl) ?>" alt="">
+                                                    </button>
+                                                    <button type="button" class="btn btn-outline-danger btn-sm story-delete" onclick="deleteStoryFile('image', <?= (int) $img['id'] ?>)">삭제</button>
+                                                </div>
+                                            <?php endforeach; ?>
+                                        </div>
+                                    <?php else: ?>
+                                        <span class="text-muted">등록된 활동 이미지가 없습니다.</span>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="tab-review" class="tab-panel">
+                        <?php if ($review): ?>
+                            <div class="field-list">
+                                <div class="field-row">
+                                    <div class="field-label">심의필 번호</div>
+                                    <div class="field-value"><?= esc($review['deliberation_no'] ?? '-') ?></div>
+                                </div>
+                                <div class="field-row">
+                                    <div class="field-label">심의필 승인 기간</div>
+                                    <div class="field-value"><?= esc(($review['approval_start'] ?? '-') . ' ~ ' . ($review['approval_end'] ?? '-')) ?></div>
+                                </div>
+                                <div class="field-row">
+                                    <div class="field-label">심의 의견</div>
+                                    <div class="field-value"><?= nl2br(esc((string) ($review['deliberation_opinion'] ?? '-'))) ?></div>
+                                </div>
+                                <div class="field-row">
+                                    <div class="field-label">심의결과 회신문 파일</div>
+                                    <div class="field-value">
+                                        <?php if (!empty($review['deliberation_file'])): ?>
+                                            <a href="<?= base_url(ltrim($review['deliberation_file'], '/')) ?>" class="btn btn-outline-primary btn-sm" download>
+                                                파일 다운로드
+                                            </a>
+                                            <span class="ms-2"><?= esc(basename($review['deliberation_file'])) ?></span>
+                                        <?php else: ?>
+                                            -
+                                        <?php endif; ?>
+                                    </div>
+                                </div>
+                                <div class="field-row">
+                                    <div class="field-label">승인 현황</div>
+                                    <div class="field-value">
+                                        <?php if (($review['status'] ?? '') === 'APPROVE'): ?>
+                                            <span class="review-status approve">승인완료</span>
+                                            <span class="ms-2"><?= esc($review['approve_at'] ?? '-') ?></span>
+                                        <?php elseif (($review['status'] ?? '') === 'REJECT'): ?>
+                                            <span class="review-status reject">승인거부</span>
+                                            <span class="ms-2"><?= esc($review['reject_reason'] ?? '거부사유 없음') ?> / <?= esc($review['approve_at'] ?? '-') ?></span>
+                                        <?php else: ?>
+                                            <span class="review-status wait">승인요청중</span>
+                                        <?php endif; ?>
+                                    </div>
+                                </div>
+                            </div>
+                        <?php else: ?>
+                            <div class="text-muted">심의필 정보가 없습니다.</div>
+                        <?php endif; ?>
+                    </div>
+                </div>
+            </div>
         </div>
     </section>
 </div>
-<div id="img-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.8); z-index:9999; justify-content:center; align-items:center;">
-    <img id="img-modal-src" style="max-width:90%; max-height:90%; border-radius:8px;">
-</div>
-<!-- =========================
-    반려 모달
-========================= -->
-<div id="rejectModal"
-    style="
-        display:none;
-        position:fixed;
-        inset:0;
-        background:rgba(0,0,0,0.6);
-        z-index:99999;
-        justify-content:center;
-        align-items:center;
-     ">
 
-    <div style="
-        width:420px;
-        background:#fff;
-        border-radius:10px;
-        overflow:hidden;
-        box-shadow:0 10px 30px rgba(0,0,0,0.3);
-    ">
-
-        <!-- 헤더 -->
-        <div style="
-            padding:12px 15px;
-            background:#dc3545;
-            color:#fff;
-            font-weight:700;
-        ">
-            반려 처리
+<div id="mediaModal" class="media-modal" onclick="closeMediaModal()">
+    <div class="media-modal-body" onclick="event.stopPropagation()">
+        <div class="text-end mb-2">
+            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="closeMediaModal()">닫기</button>
         </div>
-
-        <!-- 바디 -->
-        <form method="post" action="/admin/fc-members/review/reject">
-            <input type="hidden" name="member_uid" id="reject_member_uid">
-
-            <div style="padding:15px;">
-
-                <label style="font-size:13px; font-weight:600;">
-                    반려 사유
-                </label>
-
-                <textarea name="reject_reason"
-                    required
-                    style="
-                            width:100%;
-                            height:120px;
-                            margin-top:8px;
-                            padding:10px;
-                            border:1px solid #ddd;
-                            border-radius:6px;
-                            resize:none;
-                          "
-                    placeholder="예: 서류 미비 / 정보 불일치 / 승인 기준 미충족 등"></textarea>
-
-            </div>
-
-            <!-- 버튼 -->
-            <div style="
-                padding:12px 15px;
-                display:flex;
-                justify-content:flex-end;
-                gap:8px;
-                border-top:1px solid #eee;
-                background:#fafafa;
-            ">
-                <button type="button"
-                    onclick="closeRejectModal()"
-                    class="btn btn-light btn-sm">
-                    취소
-                </button>
-
-                <button type="submit"
-                    class="btn btn-danger btn-sm">
-                    반려 확정
-                </button>
-            </div>
-
-        </form>
-
+        <div id="mediaModalContent"></div>
     </div>
 </div>
+
+<script>
+document.querySelectorAll('.js-tab').forEach(function (button) {
+    button.addEventListener('click', function () {
+        document.querySelectorAll('.js-tab').forEach(function (tab) {
+            tab.classList.remove('btn-primary');
+            tab.classList.add('btn-outline-primary');
+        });
+        button.classList.remove('btn-outline-primary');
+        button.classList.add('btn-primary');
+
+        document.querySelectorAll('.tab-panel').forEach(function (panel) {
+            panel.classList.remove('active');
+        });
+        document.getElementById('tab-' + button.dataset.tab).classList.add('active');
+    });
+});
+
+function saveFcMemo(memberId) {
+    fetch('<?= base_url('admin/fc-members/memo-save') ?>', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'},
+        body: new URLSearchParams({
+            member_id: memberId,
+            admin_memo: document.getElementById('fcAdminMemo').value
+        })
+    })
+        .then(function (response) { return response.json(); })
+        .then(function (json) {
+            alert(json.status === 'success' ? '입력하신 정보가 저장되었습니다.' : '메모 저장에 실패했습니다.');
+        })
+        .catch(function () { alert('메모 저장에 실패했습니다.'); });
+}
+
+function resetFcPassword(memberId) {
+    if (!confirm('해당 회원에게 비밀번호 재설정 메일을 보내시겠습니까?')) {
+        return;
+    }
+
+    fetch('<?= base_url('admin/fc-members/password-reset') ?>', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'},
+        body: new URLSearchParams({member_id: memberId})
+    })
+        .then(function (response) { return response.json(); })
+        .then(function (json) {
+            if (json.status !== 'success') {
+                alert('비밀번호 재설정에 실패했습니다.');
+                return;
+            }
+            alert('메일발송 완료되었습니다.\n메일 설정이 없는 경우 임시 비밀번호: ' + json.temporary_password);
+        })
+        .catch(function () { alert('비밀번호 재설정에 실패했습니다.'); });
+}
+
+function deleteFcMember(memberId) {
+    if (!confirm('해당회원을 탈퇴처리 하시겠습니까?\n탈퇴처리 시 모든 정보가 삭제되며 복구하실 수 없습니다.')) {
+        return;
+    }
+
+    fetch('<?= base_url('admin/fc-members/delete') ?>', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'},
+        body: new URLSearchParams({member_id: memberId})
+    })
+        .then(function (response) { return response.json(); })
+        .then(function (json) {
+            if (json.status === 'success') {
+                alert('탈퇴처리 완료되었습니다.');
+                window.location.href = '<?= base_url('admin/fc-members') ?>';
+                return;
+            }
+            alert('탈퇴 처리에 실패했습니다.');
+        })
+        .catch(function () { alert('탈퇴 처리에 실패했습니다.'); });
+}
+
+function openMediaModal(type, url) {
+    var content = document.getElementById('mediaModalContent');
+    if (type === 'video') {
+        content.innerHTML = '<video controls autoplay><source src="' + url + '"></video>';
+    } else {
+        content.innerHTML = '<img src="' + url + '" alt="">';
+    }
+
+    document.getElementById('mediaModal').classList.add('is-open');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeMediaModal() {
+    document.getElementById('mediaModal').classList.remove('is-open');
+    document.getElementById('mediaModalContent').innerHTML = '';
+    document.body.style.overflow = '';
+}
+
+function deleteStoryFile(type, imageId) {
+    if (!confirm('해당 파일을 삭제하시겠습니까?\n삭제 시 복구하실 수 없습니다.')) {
+        return;
+    }
+
+    fetch('<?= base_url('admin/fc-members/story/delete') ?>', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'},
+        body: new URLSearchParams({
+            member_id: <?= (int) $m['member_id'] ?>,
+            type: type,
+            image_id: imageId || 0
+        })
+    })
+        .then(function (response) { return response.json(); })
+        .then(function (json) {
+            if (json.status === 'success') {
+                alert('삭제 완료 되었습니다.');
+                window.location.reload();
+                return;
+            }
+            alert('삭제 처리에 실패했습니다.');
+        })
+        .catch(function () { alert('삭제 처리에 실패했습니다.'); });
+}
+</script>
+
 <?= $this->include('admin/layout/footer') ?>
-
-<script>
-    document.addEventListener('click', function(e) {
-        const img = e.target.closest('.js-img-view');
-        if (!img) return;
-
-        const modal = document.getElementById('img-modal');
-        const modalImg = document.getElementById('img-modal-src');
-
-        modalImg.src = img.dataset.src;
-        modal.style.display = 'flex';
-    });
-
-    // 닫기
-    document.getElementById('img-modal').addEventListener('click', function() {
-        this.style.display = 'none';
-    });
-</script>
-
-<script>
-    function openRejectModal(uid) {
-        document.getElementById('reject_member_uid').value = uid;
-        document.getElementById('rejectModal').style.display = 'flex';
-    }
-
-    function closeRejectModal() {
-        document.getElementById('rejectModal').style.display = 'none';
-    }
-</script>

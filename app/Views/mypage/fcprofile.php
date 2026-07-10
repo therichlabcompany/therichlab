@@ -18,12 +18,13 @@
             정확한 정보는 신뢰도를 높입니다.
           </p>
 
-          <form class="form-box" method="post" id="fc-member-basic-form">
+          <form class="form-box" method="post" id="fc-member-basic-form" enctype="multipart/form-data">
             <?php include_once (COMPONENT_PATH . '/fc_profile_input.php');  ?>
 
             <div class="form-actions">
                 <button type="submit">저장</button>
             </div>
+          </form>
         </div>
       </main>
 

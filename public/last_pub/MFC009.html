@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>회원가입 선택</title>
+
+    <link rel="stylesheet" href="../assets/css/reset.css" />
+    <link rel="stylesheet" href="../assets/css/common.css" />
+    <link rel="stylesheet" href="../assets/css/layout.css" />
+    <link rel="stylesheet" href="../assets/css/content.css" />
+  </head>
+  <body class="popup-open">
+    <!-- GNB「회원가입」진입 화면 — 중앙 팝업만 노출 -->
+    <div class="c-modal signup-type is-open" role="dialog" aria-modal="true">
+      <button type="button" class="c-modal-backdrop" data-popup-close aria-label="닫기"></button>
+      <div class="c-modal-panel">
+        <div class="c-modal-head">
+          <h2 class="c-modal-title">회원가입 선택</h2>
+          <button type="button" class="c-modal-close" data-popup-close aria-label="닫기"></button>
+        </div>
+        <div class="c-modal-body">
+          <div class="signup-type-options">
+            <button type="button" class="signup-type-card individual">
+              <span aria-hidden="true">
+                <img src="../assets/images/ic-signup-individual.svg" alt="" />
+              </span>
+              <strong>개인회원 가입</strong>
+              <p>개인회원으로 가입하시고 원하는 설계사를 통해 보험상담하세요.</p>
+            </button>
+            <button type="button" class="signup-type-card fc">
+              <span aria-hidden="true">
+                <img src="../assets/images/ic-signup-fc.svg" alt="" />
+              </span>
+              <strong>FC회원 가입</strong>
+              <p>FC회원으로 가입하시고 프로필도 홍보하고 상담신청 받아보세요.</p>
+            </button>
+          </div>
+        </div>
+        <div class="c-modal-foot">
+          <button type="button" class="btn btn-line" data-popup-close>확인</button>
+        </div>
+      </div>
+    </div>
+
+    <script src="../assets/js/ui.js"></script>
+    <script src="../assets/js/popup.js"></script>
+    <script src="../assets/js/common.js"></script>
+  </body>
+</html>

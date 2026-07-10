@@ -288,6 +288,11 @@
             if(el.dataset.existing){
 
                 formData.append(
+                    'story_image_order[]',
+                    'existing:' + el.dataset.id
+                );
+
+                formData.append(
                     'keep_images[]',
                     el.dataset.id
                 );
@@ -300,6 +305,11 @@
                 const obj=fileStore.find(v=>v.element===el);
 
                 if(obj){
+
+                    formData.append(
+                        'story_image_order[]',
+                        'new'
+                    );
 
                     formData.append(
                         'story_images[]',

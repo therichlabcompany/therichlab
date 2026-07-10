@@ -1,0 +1,2038 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MYFC UI 가이드 · Storybook</title>
+    <link rel="stylesheet" href="../assets/css/reset.css" />
+    <link rel="stylesheet" href="../assets/css/common.css" />
+    <link rel="stylesheet" href="../assets/css/layout.css" />
+    <link rel="stylesheet" href="../assets/css/content.css" />
+    <style>
+      /* Storybook chrome only — 앱 화면과 분리 */
+      :root {
+        --sb-bg: #f4f6f9;
+        --sb-sidebar: #1e293b;
+        --sb-sidebar-text: #e2e8f0;
+        --sb-sidebar-muted: #94a3b8;
+        --sb-sidebar-active: #3b82f6;
+        --sb-bar: #ffffff;
+        --sb-border: #e2e8f0;
+        --sb-card: #ffffff;
+        --sb-radius: 12px;
+        --sb-sidebar-w: 260px;
+      }
+
+      .sb-app {
+        display: flex;
+        min-height: 100vh;
+        background: var(--sb-bg);
+        font-size: 15px;
+        color: var(--text);
+      }
+
+      .sb-sidebar {
+        position: sticky;
+        top: 0;
+        align-self: flex-start;
+        width: var(--sb-sidebar-w);
+        min-height: 100vh;
+        background: var(--sb-sidebar);
+        color: var(--sb-sidebar-text);
+        padding: 20px 0 32px;
+        flex-shrink: 0;
+        z-index: 20;
+        transition: transform 0.2s ease;
+      }
+
+      .sb-brand {
+        padding: 0 20px 20px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        margin-bottom: 16px;
+      }
+
+      .sb-brand strong {
+        display: block;
+        font-size: 15px;
+        font-weight: 700;
+        letter-spacing: -0.02em;
+      }
+
+      .sb-brand span {
+        display: block;
+        margin-top: 6px;
+        font-size: 12px;
+        color: var(--sb-sidebar-muted);
+        line-height: 1.45;
+      }
+
+      .sb-nav-group {
+        margin-top: 18px;
+        padding: 0 12px;
+      }
+
+      .sb-nav-label {
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--sb-sidebar-muted);
+        padding: 0 8px 8px;
+      }
+
+      .sb-nav a {
+        display: block;
+        padding: 9px 12px;
+        border-radius: 8px;
+        color: var(--sb-sidebar-text);
+        text-decoration: none;
+        font-size: 13px;
+        font-weight: 500;
+        transition:
+          background 0.15s ease,
+          color 0.15s ease;
+      }
+
+      .sb-nav a:hover {
+        background: rgba(255, 255, 255, 0.06);
+      }
+
+      .sb-nav a.is-active {
+        background: rgba(59, 130, 246, 0.22);
+        color: #fff;
+      }
+
+      .sb-main {
+        flex: 1;
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .sb-topbar {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        padding: 14px 28px;
+        background: var(--sb-bar);
+        border-bottom: 1px solid var(--sb-border);
+        box-shadow: 0 1px 0 rgba(15, 23, 42, 0.04);
+      }
+
+      .sb-menu-btn {
+        display: none;
+        width: 40px;
+        height: 40px;
+        border: 1px solid var(--sb-border);
+        border-radius: 8px;
+        background: #fff;
+        cursor: pointer;
+        font-size: 18px;
+        line-height: 1;
+      }
+
+      .sb-topbar h1 {
+        margin: 0;
+        font-size: 18px;
+        font-weight: 700;
+        letter-spacing: -0.03em;
+      }
+
+      .sb-topbar p {
+        margin: 0;
+        font-size: 13px;
+        color: var(--text-muted);
+      }
+
+      .sb-canvas {
+        padding: 28px 32px 80px;
+        max-width: 1100px;
+      }
+
+      .sb-section {
+        margin-bottom: 40px;
+        scroll-margin-top: 72px;
+      }
+
+      .sb-section > h2 {
+        margin: 0 0 8px;
+        font-size: 22px;
+        font-weight: 800;
+        letter-spacing: -0.03em;
+        color: var(--text);
+      }
+
+      .sb-lead {
+        margin: 0 0 20px;
+        font-size: 14px;
+        color: var(--text-sub);
+        line-height: 1.65;
+      }
+
+      .sb-story {
+        background: var(--sb-card);
+        border: 1px solid var(--sb-border);
+        border-radius: var(--sb-radius);
+        margin-bottom: 20px;
+        overflow: hidden;
+        box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+      }
+
+      .sb-story-head {
+        padding: 16px 20px;
+        border-bottom: 1px solid var(--sb-border);
+        background: linear-gradient(180deg, #fafbfc 0%, #fff 100%);
+      }
+
+      .sb-story-head h3 {
+        margin: 0 0 6px;
+        font-size: 15px;
+        font-weight: 700;
+        color: var(--text);
+      }
+
+      .sb-story-head p {
+        margin: 0;
+        font-size: 13px;
+        color: var(--text-muted);
+        line-height: 1.5;
+      }
+
+      .sb-preview {
+        padding: 24px;
+        background: var(--bg-sub);
+      }
+
+      .sb-preview-label {
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--text-muted);
+        margin-bottom: 12px;
+      }
+
+      .sb-code {
+        margin: 0;
+        padding: 16px 20px;
+        font-family: Consolas, 'Courier New', monospace;
+        font-size: 12px;
+        line-height: 1.55;
+        background: #0f172a;
+        color: #e2e8f0;
+        overflow-x: auto;
+        border-top: 1px solid var(--sb-border);
+      }
+
+      .sb-code kbd {
+        color: #7dd3fc;
+      }
+
+      .sb-code .sb-code-muted {
+        color: #94a3b8;
+      }
+
+      .sb-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 13px;
+      }
+
+      .sb-table th,
+      .sb-table td {
+        padding: 10px 14px;
+        border-bottom: 1px solid var(--sb-border);
+        text-align: left;
+        vertical-align: top;
+      }
+
+      .sb-table th {
+        background: var(--bg-sub);
+        font-weight: 600;
+        color: var(--text-sub);
+        white-space: nowrap;
+      }
+
+      .sb-table code {
+        font-size: 12px;
+        background: var(--bg-elevated);
+        padding: 2px 6px;
+        border-radius: 4px;
+      }
+
+      .sb-token-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+        gap: 12px;
+      }
+
+      .sb-token-swatch {
+        border-radius: 10px;
+        overflow: hidden;
+        border: 1px solid var(--border);
+        background: #fff;
+      }
+
+      .sb-token-swatch .color {
+        height: 56px;
+      }
+
+      .sb-token-swatch .meta {
+        padding: 10px 10px 12px;
+        font-size: 11px;
+        color: var(--text-muted);
+        line-height: 1.35;
+      }
+
+      .sb-token-swatch .meta strong {
+        display: block;
+        font-size: 12px;
+        color: var(--text);
+        margin-bottom: 4px;
+      }
+
+      .sb-checklist {
+        margin: 0;
+        padding-left: 20px;
+      }
+
+      .sb-checklist li {
+        margin-bottom: 8px;
+        color: var(--text-sub);
+        line-height: 1.55;
+      }
+
+      .sb-preview-header {
+        max-width: 100%;
+        overflow: hidden;
+        border-radius: 8px;
+        border: 1px solid var(--border);
+        background: #fff;
+      }
+
+      .sb-preview-header .site-header {
+        position: relative;
+      }
+
+      .sb-preview-header .header-mo {
+        display: none;
+      }
+
+      /* 서브 페이지 헤더(뒤로+MO 바) 스토리 — PC 뷰포트에서도 격자만 시각화 */
+      .sb-preview-header.sb-preview-header--subdemo .header-mo {
+        display: grid !important;
+        grid-template-columns: 44px 1fr 44px;
+        align-items: center;
+        width: 100%;
+        max-width: 100%;
+        margin: 0 auto;
+        padding: 12px 18px;
+        box-sizing: border-box;
+        min-height: 52px;
+        background: var(--bg);
+        border-bottom: 1px solid var(--border);
+      }
+
+      .sb-preview-header.sb-preview-header--subdemo .header-inner {
+        display: none !important;
+      }
+
+      .sb-nav a.sb-nav-sub {
+        padding-left: 20px;
+        font-size: 12px;
+        font-weight: 500;
+        opacity: 0.95;
+      }
+
+      .sb-partial-map-note {
+        margin: 16px 0 0;
+        font-size: 13px;
+        color: var(--text-muted);
+        line-height: 1.55;
+      }
+
+      /* guide.html 이관 — 데모 보조 */
+      .sb-demo-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        align-items: center;
+        margin-top: 12px;
+      }
+
+      .sb-demo-row--mt10 {
+        margin-top: 10px;
+      }
+
+      .sb-demo-row--mt14 {
+        margin-top: 14px;
+      }
+
+      .sb-hint {
+        margin-top: 10px;
+        font-size: 14px;
+        color: var(--text-muted);
+      }
+
+      .sb-hint--flush {
+        margin: 0;
+      }
+
+      .sb-hint--readout {
+        margin: 12px 0 0;
+      }
+
+      .sb-form-stack .form-actions + .form-actions {
+        margin-top: 20px;
+      }
+
+      .sb-swatch-grid {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+      }
+
+      .sb-swatch {
+        width: 140px;
+      }
+
+      .sb-swatch-chip {
+        height: 42px;
+        border-radius: 8px;
+      }
+
+      .sb-swatch-chip--text {
+        background: #0f172a;
+      }
+
+      .sb-swatch-chip--text-sub {
+        background: var(--text-sub);
+      }
+
+      .sb-swatch-chip--primary {
+        background: #2563eb;
+      }
+
+      .sb-swatch-chip--primary-hover {
+        background: #1d4ed8;
+      }
+
+      .sb-swatch-chip--border {
+        background: #e2e8f0;
+      }
+
+      .sb-swatch-chip--bg-sub {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+      }
+
+      .sb-swatch-chip--error {
+        background: #dc2626;
+      }
+
+      .sb-swatch-chip--success {
+        background: #0d9488;
+      }
+
+      .sb-swatch-label {
+        margin: 6px 0 0;
+        font-size: 12px;
+        color: var(--text-muted);
+      }
+
+      .sb-guide-modal-body {
+        padding: 20px;
+      }
+
+      .sb-guide-modal-p {
+        margin: 0;
+      }
+
+      .sb-guide-modal-p--spaced {
+        margin: 0 0 8px;
+      }
+
+      .sb-guide-modal-sub {
+        margin: 0;
+        color: var(--text-muted);
+      }
+
+      .sb-form-choice-demo .c-check,
+      .sb-form-choice-demo .c-radio {
+        font-size: 15px;
+        line-height: 1.45;
+        color: var(--text-sub);
+      }
+
+      @media (max-width: 900px) {
+        .sb-menu-btn {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+        }
+
+        .sb-sidebar {
+          position: fixed;
+          left: 0;
+          top: 0;
+          height: 100vh;
+          transform: translateX(-100%);
+          box-shadow: 8px 0 32px rgba(0, 0, 0, 0.2);
+        }
+
+        .sb-sidebar.is-open {
+          transform: translateX(0);
+        }
+
+        .sb-overlay {
+          display: none;
+          position: fixed;
+          inset: 0;
+          background: rgba(15, 23, 42, 0.45);
+          z-index: 15;
+        }
+
+        .sb-overlay.is-open {
+          display: block;
+        }
+
+        .sb-canvas {
+          padding: 20px 16px 60px;
+        }
+      }
+
+      /* 공통 간격 시각화 (Storybook 전용 · 앱 화면과 무관) */
+      .sb-gviz {
+        max-width: 440px;
+        margin: 0 auto;
+      }
+
+      .sb-gviz-note {
+        margin: 0 0 12px;
+        font-size: 12px;
+        color: var(--text-muted);
+        line-height: 1.5;
+      }
+
+      .sb-gviz-outer {
+        border: 2px dashed #94a3b8;
+        border-radius: 10px;
+        overflow: hidden;
+        background: #fff;
+        box-sizing: border-box;
+      }
+
+      .sb-gviz-bar {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-sizing: border-box;
+        font-family: ui-monospace, Consolas, monospace;
+        font-size: 11px;
+        font-weight: 700;
+        color: #4c1d95;
+        background: rgba(139, 92, 246, 0.28);
+        letter-spacing: 0.02em;
+      }
+
+      .sb-gviz-row {
+        display: flex;
+        align-items: stretch;
+        min-height: 100px;
+      }
+
+      .sb-gviz-rail {
+        flex-shrink: 0;
+        width: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(139, 92, 246, 0.22);
+        font-family: ui-monospace, Consolas, monospace;
+        font-size: 9px;
+        font-weight: 700;
+        color: #5b21b6;
+        writing-mode: vertical-rl;
+        text-orientation: mixed;
+        line-height: 1.2;
+        letter-spacing: 0.14em;
+      }
+
+      .sb-gviz-core {
+        flex: 1;
+        min-width: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 12px 10px;
+        font-size: 13px;
+        color: var(--text-sub);
+        background: #f8fafc;
+      }
+
+      .sb-gviz-stack {
+        max-width: 360px;
+        margin: 0 auto;
+        border: 2px dashed #94a3b8;
+        border-radius: 10px;
+        overflow: hidden;
+        background: #fff;
+      }
+
+      .sb-gviz-stack .sb-gviz-bar {
+        min-height: 22px;
+        font-size: 10px;
+      }
+
+      .sb-gviz-fake-title {
+        margin: 0;
+        padding: 14px 16px 0;
+        font-size: 22px;
+        font-weight: 800;
+        text-align: center;
+        letter-spacing: -0.03em;
+        color: var(--text);
+      }
+
+      .sb-gviz-fake-lead {
+        margin: 0;
+        padding: 0 16px 14px;
+        text-align: center;
+        font-size: 14px;
+        color: var(--text-muted);
+        line-height: 1.55;
+      }
+
+      .sb-gviz-list {
+        margin: 0;
+        padding: 0 16px 0;
+        list-style: none;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .sb-gviz-list li {
+        padding: 10px 12px;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        margin: 0;
+        font-size: 13px;
+        background: #fff;
+      }
+
+      .sb-gviz-rail--wide {
+        width: 28px;
+        font-size: 8px;
+      }
+
+      .sb-gviz-row--auto {
+        min-height: 0;
+      }
+
+      .sb-gviz-foot {
+        padding: 0 16px 16px;
+      }
+
+      .sb-gviz-foot .btn {
+        width: 100%;
+      }
+    </style>
+  </head>
+  <body class="sb-app">
+    <aside class="sb-sidebar" id="sbSidebar">
+      <p class="visually-hidden">섹션 메뉴</p>
+      <div class="sb-brand">
+        <strong>MYFC UI Guide</strong>
+        <span>공통 구조 · 컴포넌트 프리뷰<br />정적 HTML / 프로젝트 CSS 연동</span>
+      </div>
+      <nav class="sb-nav" id="sbNav">
+        <div class="sb-nav-group">
+          <div class="sb-nav-label">시작</div>
+          <a href="#sb-intro">소개</a>
+        </div>
+        <div class="sb-nav-group">
+          <div class="sb-nav-label">구조</div>
+          <a href="#sb-folder">폴더 구조</a>
+          <a href="#sb-css-order">CSS 로드 순서</a>
+        </div>
+        <div class="sb-nav-group">
+          <div class="sb-nav-label">Foundations</div>
+          <a href="#sb-tokens">디자인 토큰</a>
+          <a href="#sb-color-hex">HEX 팔레트</a>
+          <a href="#sb-typography">타이포그래피</a>
+          <a href="#sb-layout">레이아웃 래퍼</a>
+          <a href="#sb-spacing">공통 간격</a>
+        </div>
+        <div class="sb-nav-group">
+          <div class="sb-nav-label">Layout · 파셜</div>
+          <a href="#sb-layout-partials">분리 가이드</a>
+          <a href="#sb-header-guest" class="sb-nav-sub">헤더 · Guest</a>
+          <a href="#sb-header-member" class="sb-nav-sub">헤더 · Member</a>
+          <a href="#sb-header-sub" class="sb-nav-sub">헤더 · 서브(MO)</a>
+          <a href="#sb-footer" class="sb-nav-sub">푸터</a>
+        </div>
+        <div class="sb-nav-group">
+          <div class="sb-nav-label">Components</div>
+          <a href="#sb-principles">원칙 · 접근성</a>
+          <a href="#sb-buttons">버튼</a>
+          <a href="#sb-form">폼 필드 · Combo</a>
+          <a href="#sb-tabs">단계 탭 (c-tabs)</a>
+          <a href="#sb-actions">폼 액션</a>
+          <a href="#sb-agree">약관 · 체크</a>
+          <a href="#sb-check-radio">체크 · 라디오</a>
+          <a href="#sb-popups">팝업 데모</a>
+          <a href="#sb-toast">토스트</a>
+          <a href="#sb-picker">선택 팝업</a>
+        </div>
+        <div class="sb-nav-group">
+          <div class="sb-nav-label">Scripts · 운영</div>
+          <a href="#sb-modal">모달 훅</a>
+          <a href="#sb-js">JS 로드 순서</a>
+          <a href="#sb-meta">화면 메타데이터</a>
+          <a href="#sb-naming">네이밍</a>
+          <a href="#sb-checklist">체크리스트</a>
+          <a href="#sb-refs">소스 맵</a>
+        </div>
+      </nav>
+    </aside>
+    <div class="sb-overlay" id="sbOverlay" hidden></div>
+
+    <div class="sb-main">
+      <header class="sb-topbar">
+        <button type="button" class="sb-menu-btn" id="sbMenuBtn" aria-label="메뉴 열기">☰</button>
+        <div>
+          <h1>공통 UI · Storybook 뷰</h1>
+          <p>실제 `assets/css`를 불러온 라이브 프리뷰와 문서 섹션입니다.</p>
+        </div>
+      </header>
+
+      <div class="sb-canvas">
+        <section class="sb-section" id="sb-intro">
+          <h2>소개</h2>
+          <p class="sb-lead">완성 HTML/CSS/JS 기준 공통 패턴을 한 화면에서 확인합니다.</p>
+          <div class="sb-story">
+            <div class="sb-story-head">
+              <h3>관련 링크</h3>
+              <p>화면목록 테이블 · 데이터 정의</p>
+            </div>
+            <div class="sb-preview" style="background: #fff">
+              <p style="margin: 0 0 12px; font-size: 14px">
+                <a href="../index.html" style="color: var(--primary); font-weight: 600">index.html — 화면목록</a>
+              </p>
+              <p style="margin: 0; font-size: 13px; color: var(--text-muted)">guide/data.js · guide/list.js</p>
+            </div>
+          </div>
+        </section>
+
+        <section class="sb-section" id="sb-principles">
+          <h2>원칙 · 접근성</h2>
+          <p class="sb-lead">
+            <code>aria-labelledby</code> · <code>aria-label</code>(이름)은 <strong>button</strong> · <strong>a</strong>에만 둡니다.
+          </p>
+        </section>
+
+        <section class="sb-section" id="sb-folder">
+          <h2>폴더 구조</h2>
+          <p class="sb-lead">화면·스타일·스크립트·가이드 데이터의 위치입니다.</p>
+          <div class="sb-story">
+            <div class="sb-story-head">
+              <h3>경로 요약</h3>
+            </div>
+            <div style="padding: 0">
+              <table class="sb-table">
+                <thead>
+                  <tr>
+                    <th>경로</th>
+                    <th>역할</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><code>html/</code></td>
+                    <td>화면별 정적 HTML</td>
+                  </tr>
+                  <tr>
+                    <td><code>assets/css/</code></td>
+                    <td>reset · common · layout · content</td>
+                  </tr>
+                  <tr>
+                    <td><code>assets/js/</code></td>
+                    <td>ui · popup · common</td>
+                  </tr>
+                  <tr>
+                    <td><code>guide/data.js</code></td>
+                    <td><code>TABLE_DATE</code> 화면 메타</td>
+                  </tr>
+                  <tr>
+                    <td><code>index.html</code></td>
+                    <td>관리용 화면목록</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <section class="sb-section" id="sb-css-order">
+          <h2>CSS 로드 순서</h2>
+          <p class="sb-lead">
+            서브 페이지 표준. 순서를 바꾸면 스타일이 깨질 수 있습니다. 메인(<code>MFC001</code> 등)은 Swiper CSS를 맨 위에 두고
+            <code>main.css</code>로 <code>content.css</code> 대신 쓰는 경우가 있습니다. (<code>guide/MYFC_공통구조_가이드.md</code> §2 참고)
+          </p>
+          <div class="sb-story">
+            <div class="sb-story-head">
+              <h3>링크 태그</h3>
+            </div>
+            <pre class="sb-code">
+&lt;link rel="stylesheet" href="../assets/css/reset.css" /&gt;
+&lt;link rel="stylesheet" href="../assets/css/common.css" /&gt;
+&lt;link rel="stylesheet" href="../assets/css/layout.css" /&gt;
+&lt;link rel="stylesheet" href="../assets/css/content.css" /&gt;</pre
+            >
+          </div>
+        </section>
+
+        <section class="sb-section" id="sb-tokens">
+          <h2>디자인 토큰</h2>
+          <p class="sb-lead"><code>common.css</code>의 <kbd>:root</kbd> 변수입니다. 프리뷰는 실제 CSS 변수를 사용합니다.</p>
+          <div class="sb-story">
+            <div class="sb-story-head">
+              <h3>색상 스와치</h3>
+              <p>배경색으로 토큰 값을 표시합니다.</p>
+            </div>
+            <div class="sb-preview">
+              <div class="sb-token-grid">
+                <div class="sb-token-swatch">
+                  <div class="color" style="background: var(--text)"></div>
+                  <div class="meta"><strong>--text</strong>본문 강조</div>
+                </div>
+                <div class="sb-token-swatch">
+                  <div class="color" style="background: var(--text-sub)"></div>
+                  <div class="meta"><strong>--text-sub</strong>보조</div>
+                </div>
+                <div class="sb-token-swatch">
+                  <div class="color" style="background: var(--primary)"></div>
+                  <div class="meta"><strong>--primary</strong>브랜드</div>
+                </div>
+                <div class="sb-token-swatch">
+                  <div class="color" style="background: var(--danger)"></div>
+                  <div class="meta"><strong>--danger</strong>위험</div>
+                </div>
+                <div class="sb-token-swatch">
+                  <div class="color" style="background: var(--success)"></div>
+                  <div class="meta"><strong>--success</strong>성공</div>
+                </div>
+                <div class="sb-token-swatch">
+                  <div class="color" style="background: var(--border)"></div>
+                  <div class="meta"><strong>--border</strong>구분선</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="sb-story" id="sb-color-hex">
+            <div class="sb-story-head">
+              <h3>HEX 팔레트 (고정값 참조)</h3>
+              <p>기존 공통 UI 가이드의 컬러 칩과 동일합니다. 구현은 가능하면 위 CSS 변수를 우선합니다.</p>
+            </div>
+            <div class="sb-preview" style="background: #fff">
+              <div class="sb-swatch-grid">
+                <div class="sb-swatch">
+                  <div class="sb-swatch-chip sb-swatch-chip--text"></div>
+                  <p class="sb-swatch-label"><code>#0f172a</code> text</p>
+                </div>
+                <div class="sb-swatch">
+                  <div class="sb-swatch-chip sb-swatch-chip--text-sub"></div>
+                  <p class="sb-swatch-label"><code>#4b586b</code> text-sub</p>
+                </div>
+                <div class="sb-swatch">
+                  <div class="sb-swatch-chip sb-swatch-chip--primary"></div>
+                  <p class="sb-swatch-label"><code>#2563eb</code> primary</p>
+                </div>
+                <div class="sb-swatch">
+                  <div class="sb-swatch-chip sb-swatch-chip--primary-hover"></div>
+                  <p class="sb-swatch-label"><code>#1d4ed8</code> primary-hover</p>
+                </div>
+                <div class="sb-swatch">
+                  <div class="sb-swatch-chip sb-swatch-chip--border"></div>
+                  <p class="sb-swatch-label"><code>#e2e8f0</code> border</p>
+                </div>
+                <div class="sb-swatch">
+                  <div class="sb-swatch-chip sb-swatch-chip--bg-sub"></div>
+                  <p class="sb-swatch-label"><code>#f8fafc</code> bg-sub</p>
+                </div>
+                <div class="sb-swatch">
+                  <div class="sb-swatch-chip sb-swatch-chip--error"></div>
+                  <p class="sb-swatch-label"><code>#dc2626</code> error</p>
+                </div>
+                <div class="sb-swatch">
+                  <div class="sb-swatch-chip sb-swatch-chip--success"></div>
+                  <p class="sb-swatch-label"><code>#0d9488</code> success</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="sb-section" id="sb-typography">
+          <h2>타이포그래피</h2>
+          <p class="sb-lead">본 페이지도 동일하게 Pretendard 스택을 상속합니다.</p>
+          <div class="sb-story">
+            <div class="sb-story-head">
+              <h3>본문 · 제목 샘플</h3>
+            </div>
+            <div class="sb-preview" style="background: #fff">
+              <p style="margin: 0 0 8px; font-size: 28px; font-weight: 800; letter-spacing: -0.03em">페이지 메인 타이틀</p>
+              <p style="margin: 0 0 16px; font-size: 16px; color: var(--text-sub); line-height: 1.6">
+                서브 설명 문단입니다. color는 <code>var(--text-sub)</code>를 사용하는 패턴이 많습니다.
+              </p>
+              <p style="margin: 0; font-size: 14px; color: var(--text-muted)">캡션 · 보조 텍스트 (--text-muted)</p>
+            </div>
+          </div>
+        </section>
+
+        <section class="sb-section" id="sb-layout">
+          <h2>레이아웃 래퍼</h2>
+          <p class="sb-lead"><code>layout-wrapper</code>와 페이지 타입 조합입니다.</p>
+          <div class="sb-story">
+            <div class="sb-story-head">
+              <h3>클래스 조합</h3>
+            </div>
+            <div style="padding: 0">
+              <table class="sb-table">
+                <tbody>
+                  <tr>
+                    <th>조합</th>
+                    <td><code>layout-wrapper main-page</code></td>
+                    <td>메인 홈</td>
+                  </tr>
+                  <tr>
+                    <th>조합</th>
+                    <td><code>layout-wrapper form-page signup-page</code></td>
+                    <td>FC 가입·회원정보 단계 폼</td>
+                  </tr>
+                  <tr>
+                    <th>폭</th>
+                    <td><code>page-inner</code> / <code>page-inner-narrow</code></td>
+                    <td>1024px · 500px 계열</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <section class="sb-section" id="sb-spacing">
+          <h2>공통 간격</h2>
+          <p class="sb-lead">
+            실제 앱에는 없는 <strong>보라색 띠</strong>로만 표시합니다. 값은 <code>common.css</code> · <code>main.css</code> 기준입니다.
+            가로는 <code>|&lt;-- px --&gt;|</code>, 세로 옆 여백은 <code>l---px---l</code> 형태로 읽습니다.
+          </p>
+
+          <div class="sb-story">
+            <div class="sb-story-head">
+              <h3>본문 <code>main</code> · 데스크톱</h3>
+              <p><code>.layout-wrapper &gt; main</code> — 상·하 56 · 좌우 24</p>
+            </div>
+            <div class="sb-preview" style="background: #e2e8f0">
+              <div class="sb-gviz" role="img" aria-label="데스크톱 main 패딩 시각화">
+                <p class="sb-gviz-note">점선 안 = 한 화면의 <code>main</code> 안쪽</p>
+                <div class="sb-gviz-outer">
+                  <div class="sb-gviz-bar" style="min-height: 56px">|&lt;-- 56px (상단) --&gt;|</div>
+                  <div class="sb-gviz-row">
+                    <div class="sb-gviz-rail" aria-hidden="true">l---24---l</div>
+                    <div class="sb-gviz-core">.page-inner / 콘텐츠</div>
+                    <div class="sb-gviz-rail" aria-hidden="true">l---24---l</div>
+                  </div>
+                  <div class="sb-gviz-bar" style="min-height: 56px">|&lt;-- 56px (하단 = 상단과 동일) --&gt;|</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="sb-story">
+            <div class="sb-story-head">
+              <h3>본문 <code>main</code> · 모바일 (640px 이하)</h3>
+              <p>상·하 36 · 좌우 20</p>
+            </div>
+            <div class="sb-preview" style="background: #e2e8f0">
+              <div class="sb-gviz" role="img" aria-label="모바일 main 패딩 시각화">
+                <div class="sb-gviz-outer">
+                  <div class="sb-gviz-bar" style="min-height: 36px">|&lt;-- 36px (상단) --&gt;|</div>
+                  <div class="sb-gviz-row">
+                    <div class="sb-gviz-rail" aria-hidden="true">l---20---l</div>
+                    <div class="sb-gviz-core">콘텐츠</div>
+                    <div class="sb-gviz-rail" aria-hidden="true">l---20---l</div>
+                  </div>
+                  <div class="sb-gviz-bar" style="min-height: 36px">|&lt;-- 36px (하단 = 상단과 동일) --&gt;|</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="sb-story">
+            <div class="sb-story-head">
+              <h3>메인 타이틀 + 리드</h3>
+              <p><code>.page-main-title</code> · <code>.page-main-lead</code> 및 <code>:has(+ .page-main-lead)</code></p>
+            </div>
+            <div class="sb-preview" style="background: #e2e8f0">
+              <div class="sb-gviz-stack" role="img" aria-label="타이틀과 리드 사이 간격">
+                <p class="sb-gviz-fake-title">페이지 제목</p>
+                <div class="sb-gviz-bar" style="min-height: 22px">|&lt;-- 10px (제목↔리드) --&gt;|</div>
+                <p class="sb-gviz-fake-lead">리드 문단 한 줄 설명</p>
+                <div class="sb-gviz-bar" style="min-height: 26px">|&lt;-- 24px (리드 아래, 데스크톱) --&gt;|</div>
+                <div class="sb-gviz-core" style="min-height: 48px; border-radius: 0">폼 · 목록 시작</div>
+              </div>
+              <p class="sb-gviz-note" style="margin: 12px 0 0">모바일에서는 리드 아래 여백 <strong>20px</strong>, 리드 글자 14px.</p>
+            </div>
+          </div>
+
+          <div class="sb-story">
+            <div class="sb-story-head">
+              <h3>섹션 블록 간격</h3>
+              <p><code>.section</code> — 첫 섹션 이후 위쪽 바깥 여백</p>
+            </div>
+            <div class="sb-preview" style="background: #e2e8f0">
+              <div class="sb-gviz" role="img" aria-label="section margin-top">
+                <div class="sb-gviz-outer" style="max-width: 360px">
+                  <div class="sb-gviz-core" style="min-height: 40px; border-bottom: 1px dashed #cbd5e1">이전 블록</div>
+                  <div class="sb-gviz-bar" style="min-height: 70px">|&lt;-- 70px (데스크톱) --&gt;|</div>
+                  <div class="sb-gviz-core" style="min-height: 56px">.section</div>
+                </div>
+                <p class="sb-gviz-note">모바일에서는 같은 규칙이 <strong>36px</strong>으로 바뀝니다.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="sb-story">
+            <div class="sb-story-head">
+              <h3>랜딩 <code>main-page</code> · 모바일</h3>
+              <p>
+                <code>main.css</code> — 히어로와 <code>main</code> 사이·<code>main</code>과 푸터 사이 <strong>상·하 36px</strong> (좌우 0)
+              </p>
+            </div>
+            <div class="sb-preview" style="background: #e2e8f0">
+              <div class="sb-gviz" role="img" aria-label="main-page main 상하 패딩">
+                <div class="sb-gviz-outer" style="max-width: 320px">
+                  <div class="sb-gviz-core" style="min-height: 36px; font-size: 12px">히어로 영역 (요약)</div>
+                  <div class="sb-gviz-bar" style="min-height: 36px">|&lt;-- 36px (상) --&gt;|</div>
+                  <div class="sb-gviz-core" style="min-height: 48px"><code>main</code> 본문</div>
+                  <div class="sb-gviz-bar" style="min-height: 36px">|&lt;-- 36px (하 = 상과 동일) --&gt;|</div>
+                  <div class="sb-gviz-core" style="min-height: 24px; font-size: 12px">푸터 직전</div>
+                </div>
+                <p class="sb-gviz-note">
+                  데스크톱 랜딩은 <code>main</code>에 <code>padding: 0</code> — 히어로가 <code>main</code> 밖에 있어
+                  <code>layout-wrapper &gt; main</code> 패딩 규칙과 다릅니다.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div class="sb-story">
+            <div class="sb-story-head">
+              <h3>모달·바텀시트형 (참고)</h3>
+              <p>내부 패딩 32 · 제목↔목록 16 · 행 간 8 · 목록↔버튼 16 (피그마 스펙 예시)</p>
+            </div>
+            <div class="sb-preview" style="background: #e2e8f0">
+              <div class="sb-gviz-outer" style="max-width: 400px; margin: 0 auto" role="img" aria-label="모달형 간격 예시">
+                <div class="sb-gviz-bar" style="min-height: 32px">|&lt;-- 32px (안쪽 상) --&gt;|</div>
+                <div class="sb-gviz-row sb-gviz-row--auto">
+                  <div class="sb-gviz-rail sb-gviz-rail--wide" aria-hidden="true">l---32---l</div>
+                  <div style="flex: 1; min-width: 0; background: #fff">
+                    <p class="sb-gviz-fake-title" style="padding-top: 8px; padding-bottom: 0">결제 방법</p>
+                    <div class="sb-gviz-bar" style="min-height: 16px">|&lt;-- 16px --&gt;|</div>
+                    <ul class="sb-gviz-list">
+                      <li>항목 1 · 설명</li>
+                      <li>항목 2 · 설명</li>
+                    </ul>
+                    <div class="sb-gviz-bar" style="min-height: 16px">|&lt;-- 16px --&gt;|</div>
+                    <div class="sb-gviz-foot">
+                      <button type="button" class="btn btn-primary" disabled>확인</button>
+                    </div>
+                  </div>
+                  <div class="sb-gviz-rail sb-gviz-rail--wide" aria-hidden="true">l---32---l</div>
+                </div>
+                <div class="sb-gviz-bar" style="min-height: 32px">|&lt;-- 32px (안쪽 하) --&gt;|</div>
+              </div>
+              <p class="sb-gviz-note" style="margin-top: 12px; margin-bottom: 0">
+                좌우 보라 띠 = 안쪽 좌우 <strong>32px</strong>. 목록 행 사이는 <strong>8px</strong> (<code>gap</code>). 본문
+                <code>main</code> 패딩과는 별개 예시입니다.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <!-- 레이아웃 파셜: 표·주석 토큰으로 블록 경계 표시 · 검색 키 PARTIAL_FILE -->
+        <section class="sb-section" id="sb-layout-partials">
+          <h2>레이아웃 · 파셜 분리</h2>
+          <p class="sb-lead">
+            실제 화면은 <code>layout-wrapper</code> 안에 <strong>헤더 → main → 푸터</strong> 순입니다. 아래 파일명은 쪼개 넣을 때 붙이기
+            쉬운 <strong>예시</strong>이며, 프로젝트 폴더 규칙에 맞게 바꿔 쓰면 됩니다.
+          </p>
+
+          <div class="sb-story">
+            <div class="sb-story-head">
+              <h3>블록 단위 (예시)</h3>
+              <p>복사 시 HTML 주석 <code>PARTIAL_FILE</code> 줄만 제거하면 됩니다.</p>
+            </div>
+            <div class="sb-preview" style="background: var(--bg)">
+              <table class="sb-table">
+                <thead>
+                  <tr>
+                    <th>예시 파일</th>
+                    <th>포함 마크업</th>
+                    <th>비고</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><code>includes/site-header-guest.html</code></td>
+                    <td><code>&lt;header class="site-header guest"&gt;</code> … <code>header-inner</code>까지</td>
+                    <td>비로그인 GNB (검색·회원가입·로그인)</td>
+                  </tr>
+                  <tr>
+                    <td><code>includes/site-header-member.html</code></td>
+                    <td><code>&lt;header class="site-header member"&gt;</code> … (알림·아바타 등)</td>
+                    <td>로그인 후 · 메인형</td>
+                  </tr>
+                  <tr>
+                    <td><code>includes/site-header-sub.html</code></td>
+                    <td><code>header-mo</code> + <code>header-inner</code> 묶음</td>
+                    <td>서브 페이지(MO 뒤로·닫기 등) — 참고: <code>MFC004_L01_03.html</code></td>
+                  </tr>
+                  <tr>
+                    <td><code>includes/site-footer.html</code></td>
+                    <td><code>&lt;footer class="site-footer"&gt;</code> 전체</td>
+                    <td>로고·회사정보·특허·링크 한 블록</td>
+                  </tr>
+                </tbody>
+              </table>
+              <p class="sb-partial-map-note">
+                문서·에디터에서 <code>PARTIAL_FILE</code>로 검색하면 주석으로 표시한 블록 경계를 찾을 수 있습니다.
+              </p>
+            </div>
+            <pre class="sb-code" id="sb-layout-shell-example">&lt;div class="layout-wrapper main-page"&gt;
+  <span class="sb-code-muted">&lt;!-- 헤더 블록 (guest / member / 서브형 중 하나) --&gt;</span>
+  &lt;main&gt; … 본문 … &lt;/main&gt;
+  <span class="sb-code-muted">&lt;!-- 푸터 블록 --&gt;</span>
+&lt;/div&gt;</pre>
+          </div>
+        </section>
+
+        <section class="sb-section" id="sb-header">
+          <h2>헤더 타입</h2>
+          <p class="sb-lead">
+            루트는 항상 <code>&lt;header class="site-header guest|member"&gt;</code> 입니다. 로그인 전후는 <strong>클래스 한 줄</strong>과
+            <code>.guest</code> / <code>.member</code> 리스트 항목 표시 전환으로 처리합니다.
+          </p>
+
+          <div class="sb-story" id="sb-header-guest">
+            <div class="sb-story-head">
+              <h3>Guest · PC GNB</h3>
+              <p><code>PARTIAL_FILE: includes/site-header-guest.html</code></p>
+            </div>
+            <div class="sb-preview">
+              <p class="sb-preview-label">Live preview</p>
+              <div class="sb-preview-header">
+                <!-- PARTIAL_FILE: includes/site-header-guest.html -->
+                <header class="site-header guest">
+                  <div class="header-inner">
+                    <div class="logo">
+                      <a href="../html/MFC001.html">
+                        <img src="../assets/images/logo.png" alt="보험사 연계 서비스" class="logo-img" />
+                      </a>
+                    </div>
+                    <nav class="gnb">
+                      <ul>
+                        <li>
+                          <a href="../html/MFC002.html" class="gnb-search">
+                            <img src="../assets/images/ic-search.svg" alt="" class="gnb-ico" />
+                          </a>
+                        </li>
+                        <li class="guest">
+                          <a href="../html/MFC007.html" class="gnb-btn-line">회원가입</a>
+                        </li>
+                        <li class="guest">
+                          <a href="#" class="gnb-btn-line">로그인</a>
+                        </li>
+                        <li class="member">
+                          <button type="button" class="gnb-avatar" aria-label="마이페이지 메뉴 열기">
+                            <img src="../assets/images/temp/@profile-m.png" alt="" class="gnb-avatar-img" />
+                          </button>
+                        </li>
+                      </ul>
+                    </nav>
+                  </div>
+                </header>
+                <!-- /PARTIAL_FILE: includes/site-header-guest.html -->
+              </div>
+            </div>
+          </div>
+
+          <div class="sb-story" id="sb-header-member">
+            <div class="sb-story-head">
+              <h3>Member · PC GNB</h3>
+              <p><code>PARTIAL_FILE: includes/site-header-member.html</code></p>
+            </div>
+            <div class="sb-preview">
+              <p class="sb-preview-label">Live preview</p>
+              <div class="sb-preview-header">
+                <!-- PARTIAL_FILE: includes/site-header-member.html -->
+                <header class="site-header member">
+                  <div class="header-inner">
+                    <div class="logo">
+                      <a href="../html/MFC001.html">
+                        <img src="../assets/images/logo.png" alt="보험사 연계 서비스" class="logo-img" />
+                      </a>
+                    </div>
+                    <nav class="gnb">
+                      <ul>
+                        <li>
+                          <a href="#" class="gnb-search">
+                            <img src="../assets/images/ic-search.svg" alt="" class="gnb-ico" />
+                          </a>
+                        </li>
+                        <li>
+                          <a href="#" class="gnb-bell">
+                            <img src="../assets/images/ic-bell.svg" alt="" class="gnb-ico" />
+                          </a>
+                        </li>
+                        <li class="guest">
+                          <a href="#" class="gnb-btn-line">회원가입</a>
+                        </li>
+                        <li class="guest">
+                          <a href="#" class="gnb-btn-line">로그인</a>
+                        </li>
+                        <li class="member">
+                          <button type="button" class="gnb-avatar" aria-label="마이페이지 메뉴 열기">
+                            <img src="../assets/images/temp/@profile-m.png" alt="" class="gnb-avatar-img" />
+                          </button>
+                        </li>
+                      </ul>
+                    </nav>
+                  </div>
+                </header>
+                <!-- /PARTIAL_FILE: includes/site-header-member.html -->
+              </div>
+            </div>
+          </div>
+
+          <div class="sb-story" id="sb-header-sub">
+            <div class="sb-story-head">
+              <h3>서브 페이지 · MO 상단바 + PC GNB</h3>
+              <p>
+                <code>header-mo</code>는 뷰포트 ≤640px에서만 노출됩니다. 아래는 스토리북에서만 MO 바를 강제로 보이게 한 예시입니다.
+                (<code>.sb-preview-header--subdemo</code>)
+              </p>
+            </div>
+            <div class="sb-preview">
+              <p class="sb-preview-label">Live preview (MO 바 강제)</p>
+              <div class="sb-preview-header sb-preview-header--subdemo" style="max-width: 420px">
+                <!-- PARTIAL_FILE: includes/site-header-sub.html -->
+                <header class="site-header member">
+                  <div class="header-mo">
+                    <a href="../html/MFC001.html" aria-label="뒤로">
+                      <img src="../assets/images/ic-chevron-left.svg" alt="" />
+                    </a>
+                    <div class="header-mo-spacer" aria-hidden="true"></div>
+                  </div>
+                  <div class="header-inner">
+                    <div class="logo">
+                      <a href="../html/MFC001.html">
+                        <img src="../assets/images/logo.png" alt="보험사 연계 서비스" class="logo-img" />
+                      </a>
+                    </div>
+                    <nav class="gnb">
+                      <ul>
+                        <li>
+                          <a href="../html/MFC002.html" class="gnb-search">
+                            <img src="../assets/images/ic-search.svg" alt="" class="gnb-ico" />
+                          </a>
+                        </li>
+                        <li class="guest">
+                          <a href="#" class="gnb-btn-line">회원가입</a>
+                        </li>
+                        <li class="guest">
+                          <a href="#" class="gnb-btn-line">로그인</a>
+                        </li>
+                        <li class="member">
+                          <button type="button" class="gnb-avatar" aria-label="마이페이지 메뉴 열기">
+                            <img src="../assets/images/temp/@profile-m.png" alt="" class="gnb-avatar-img" />
+                          </button>
+                        </li>
+                      </ul>
+                    </nav>
+                  </div>
+                </header>
+                <!-- /PARTIAL_FILE: includes/site-header-sub.html -->
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="sb-section" id="sb-footer">
+          <h2>푸터</h2>
+          <p class="sb-lead">
+            <code>site-footer</code> · <code>footer-inner</code> · <code>footer-columns</code>(왼쪽 <code>footer-col</code>, 오른쪽
+            <code>footer-trail</code>) 구조입니다. 아래 블록 전체를 한 파일로 묶어 두면 유지보수에 유리합니다.
+          </p>
+          <div class="sb-story">
+            <div class="sb-story-head">
+              <h3>Preview</h3>
+              <p><code>PARTIAL_FILE: includes/site-footer.html</code></p>
+            </div>
+            <div class="sb-preview">
+              <p class="sb-preview-label">Live preview</p>
+              <!-- PARTIAL_FILE: includes/site-footer.html -->
+              <footer class="site-footer" style="position: relative; margin: 0">
+                <div class="footer-inner">
+                  <div class="footer-columns">
+                    <div class="footer-col">
+                      <p class="footer-logo">
+                        <a href="../html/MFC001.html" class="footer-logo-link">
+                          <img src="../assets/images/footer-logo.svg" alt="MyFC" />
+                        </a>
+                      </p>
+                      <div class="footer-info">
+                        <p class="footer-ceo">
+                          <span>(주)더리치랩</span>
+                          <span>대표이사 박영진</span>
+                        </p>
+                        <p class="footer-info-split">
+                          <span>서울특별시 강남구 테헤란로 507, 8층 131호</span>
+                          <span>E-mail : <a href="mailto:myfc.helpdesk@gmail.com">myfc.helpdesk@gmail.com</a></span>
+                        </p>
+                        <p class="footer-info-split">
+                          <span>사업자등록번호 : 762-88-02797</span>
+                          <span>통신판매번호 : 제 2025-서울강남-06308호</span>
+                        </p>
+                        <p class="footer-info-split">
+                          <span>이용문의 : 010-9941-2899</span>
+                        </p>
+                      </div>
+                      <p class="copyright">© 2026 TheRichLab Corp.</p>
+                    </div>
+                    <div class="footer-trail">
+                      <ul class="footer-links">
+                        <li><a href="#">회사소개</a></li>
+                        <li><a href="#">이용약관</a></li>
+                        <li><a href="#">개인정보 처리방침</a></li>
+                        <li><a href="#">법적책임</a></li>
+                      </ul>
+                      <div class="footer-patent">
+                        <p class="footer-patent-mark">
+                          <img src="../assets/images/kipo-logo.svg" alt="특허청" />
+                          <span>특허청</span>
+                        </p>
+                        <div class="footer-patent-text">
+                          <p>MyFC의 서비스는 여러 건의 특허가 출원되어 있습니다</p>
+                          <p>(특허번호 : 10-2026-0062616 / 10-2026-0064554 외 다수)</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </footer>
+              <!-- /PARTIAL_FILE: includes/site-footer.html -->
+            </div>
+          </div>
+        </section>
+
+        <section class="sb-section" id="sb-buttons">
+          <h2>공통 버튼</h2>
+          <p class="sb-lead">
+            베이스는 <code>.btn</code> 하나이고, 목적에 따라 <code>btn-primary</code> · <code>btn-line</code> · <code>btn-sub</code>와 필요
+            시 크기 <code>btn-sm</code>을 <strong>함께</strong> 붙입니다. (<code>class="btn btn-primary"</code>,
+            <code>class="btn btn-line btn-sm"</code> 등)
+          </p>
+          <div class="sb-story">
+            <div class="sb-story-head">
+              <h3>주요 CTA · 폼 제출</h3>
+            </div>
+            <div class="sb-preview" style="background: #fff">
+              <p class="sb-hint sb-hint--flush">btn-primary</p>
+              <div class="sb-demo-row sb-demo-row--mt10">
+                <button type="button" class="btn btn-primary">btn-primary</button>
+                <button type="button" class="btn btn-primary" disabled>disabled</button>
+              </div>
+              <p class="sb-hint">테두리형 보조 · 링크를 버튼처럼</p>
+              <div class="sb-demo-row sb-demo-row--mt10">
+                <button type="button" class="btn btn-line">btn-line</button>
+                <a href="#" class="btn btn-line" onclick="return false;">a.btn-line</a>
+              </div>
+              <p class="sb-hint">취소 · 보조 (모달 취소 등)</p>
+              <div class="sb-demo-row sb-demo-row--mt10">
+                <button type="button" class="btn btn-sub">btn-sub</button>
+              </div>
+              <p class="sb-hint">작은 보조 · 인라인</p>
+              <div class="sb-demo-row sb-demo-row--mt10">
+                <button type="button" class="btn btn-primary btn-sm">btn-primary btn-sm</button>
+                <button type="button" class="btn btn-line btn-sm">btn-line btn-sm</button>
+                <a href="#" class="btn btn-line btn-sm" onclick="return false;">a.btn-line.btn-sm</a>
+              </div>
+              <p class="sb-hint" style="margin-top: 14px">
+                모달 하단 <code>.c-modal-btns</code> 안에서는 폭·높이가 레이아웃에 맞게 따로 잡히므로, 변형 클래스명만 동일하게 맞추면
+                됩니다.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <section class="sb-section" id="sb-form">
+          <h2>폼 · Combo</h2>
+          <p class="sb-lead"><code>form-box</code> 안의 <code>form-field</code>, <code>combo</code> 패턴입니다.</p>
+          <div class="sb-story">
+            <div class="sb-story-head">
+              <h3>Preview</h3>
+            </div>
+            <div class="sb-preview">
+              <form class="form-box" method="post" onsubmit="return false;" style="max-width: 420px">
+                <div class="form-field">
+                  <label class="form-label" for="sb-demo-email">이메일</label>
+                  <input class="form-input" id="sb-demo-email" type="email" placeholder="example@mail.com" />
+                </div>
+                <div class="form-field">
+                  <label class="form-label" for="sb-demo-pw">비밀번호</label>
+                  <div class="combo">
+                    <input class="form-input" id="sb-demo-pw" type="password" value="••••••••" readonly />
+                    <button type="button">재설정</button>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+        </section>
+
+        <section class="sb-section" id="sb-tabs">
+          <h2>단계 탭 (c-tabs)</h2>
+          <p class="sb-lead"><code>signup-page</code> 하위에서 스타일이 적용됩니다.</p>
+          <div class="sb-story">
+            <div class="sb-story-head">
+              <h3>Preview · FC 회원정보 4단계</h3>
+            </div>
+            <div class="sb-preview">
+              <div class="signup-page" style="padding: 8px 0">
+                <nav class="c-tabs">
+                  <a href="#">기본정보 입력</a>
+                  <a href="#" aria-current="page">프로필 입력</a>
+                  <a href="#">활동정보 입력</a>
+                  <a href="#">활동 스토리</a>
+                </nav>
+                <p class="signup-step-lead" style="margin-top: 20px; margin-bottom: 0">
+                  단계 설명 문구는 <code>signup-step-lead</code> 클래스를 사용합니다.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="sb-section" id="sb-actions">
+          <h2>폼 액션</h2>
+          <p class="sb-lead">
+            <code>common.css</code> — <strong>기본</strong>(주 버튼 전폭) · <strong>form-actions-sub</strong>(주 버튼 아래 보조 행 균등
+            분할) · <strong>form-actions-split</strong>(2열: 보조+주, 640px 이하 세로 스택). 모달 하단은 <code>.c-modal-btns</code>가 유사
+            그리드입니다.
+          </p>
+          <p class="sb-lead" style="margin-top: -12px">
+            폼 맨 아래 CTA는 <code>.form-actions</code>로 감싸고, 주 버튼(<code>.btn.btn-primary</code>)은 <strong>직계 자식</strong>으로
+            둡니다. 상단 여백·주 버튼 전폭은 <code>common.css</code>에서 처리합니다. 네이밍 요약은
+            <a href="naming-conventions.md" style="color: var(--primary)">guide/naming-conventions.md</a> 2)절을 참고하세요.
+          </p>
+
+          <div class="sb-story">
+            <div class="sb-story-head">
+              <h3>1) 기본 — 주 버튼 한 줄(전폭)</h3>
+              <p>가입·문의 등 단일 CTA. <code>.form-actions</code> 직계 자식 <code>.btn.btn-primary</code></p>
+            </div>
+            <div class="sb-preview">
+              <form class="form-box" onsubmit="return false;" style="max-width: 420px">
+                <div class="form-actions">
+                  <button type="button" class="btn btn-primary">신청하기</button>
+                </div>
+              </form>
+            </div>
+            <pre class="sb-code">
+&lt;div class="form-actions"&gt;
+  &lt;button type="submit" class="btn btn-primary"&gt;…&lt;/button&gt;
+&lt;/div&gt;</pre
+            >
+          </div>
+
+          <div class="sb-story">
+            <div class="sb-story-head">
+              <h3>2) 주 버튼 + 보조 행 — <code>form-actions-sub</code></h3>
+              <p>확인 등 전폭 주 버튼 아래, 보조 버튼을 한 행에 균등 배치 (상담 상세 <code>MFC005_L01_03_01</code> 등).</p>
+            </div>
+            <div class="sb-preview">
+              <form class="form-box" onsubmit="return false;" style="max-width: 420px">
+                <div class="form-actions">
+                  <button type="button" class="btn btn-primary">확인</button>
+                  <div class="form-actions-sub">
+                    <button type="button" class="btn btn-sub" disabled>상담완료하기</button>
+                    <button type="button" class="btn btn-sub">상담거부처리</button>
+                  </div>
+                </div>
+              </form>
+            </div>
+            <pre class="sb-code">
+&lt;div class="form-actions"&gt;
+  &lt;button type="button" class="btn btn-primary"&gt;확인&lt;/button&gt;
+  &lt;div class="form-actions-sub"&gt;
+    &lt;button type="button" class="btn btn-sub"&gt;…&lt;/button&gt;
+    &lt;button type="button" class="btn btn-sub"&gt;…&lt;/button&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</pre
+            >
+          </div>
+
+          <div class="sb-story">
+            <div class="sb-story-head">
+              <h3>3) 2열 스플릿 — <code>form-actions form-actions-split</code></h3>
+              <p>
+                <strong>한 가지 스타일</strong>입니다. 좁은 보조(보통 <code>a.btn</code> 링크) + 넓은 주 버튼(<code>.btn-primary</code>).
+                화면마다 라벨만 다릅니다. 예: 마이페이지 <code>MFC005_L01_01</code> — 「내 프로필…」+「수정 완료」 / 단계 폼 —
+                「이전」+「다음」. 오른쪽은 제출이면 <code>type="submit"</code>으로 둘 수 있습니다.
+              </p>
+            </div>
+            <div class="sb-preview">
+              <form class="form-box" onsubmit="return false;" style="max-width: 620px">
+                <div class="form-actions form-actions-split">
+                  <a href="#" class="btn" onclick="return false;">이전</a>
+                  <button type="button" class="btn btn-primary">다음</button>
+                </div>
+              </form>
+            </div>
+            <pre class="sb-code">
+&lt;div class="form-actions form-actions-split"&gt;
+  &lt;a href="…" class="btn"&gt;보조(링크/이전 등)&lt;/a&gt;
+  &lt;button type="submit" class="btn btn-primary"&gt;주요 액션&lt;/button&gt;
+&lt;/div&gt;</pre
+            >
+          </div>
+        </section>
+
+        <section class="sb-section" id="sb-agree">
+          <h2>약관 · 체크</h2>
+          <p class="sb-lead"><code>signup-agree</code> · <code>c-check</code></p>
+          <div class="sb-story">
+            <div class="sb-story-head">
+              <h3>Preview (미동작 샘플)</h3>
+            </div>
+            <div class="sb-preview">
+              <div class="form-box" style="max-width: 480px">
+                <div class="signup-agree">
+                  <label class="all c-check">
+                    <input type="checkbox" name="sb_all" />
+                    <span>전체 동의</span>
+                  </label>
+                  <div>
+                    <label class="c-check">
+                      <input type="checkbox" name="sb_terms" />
+                      <span>[필수] 이용약관 동의</span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="sb-section" id="sb-check-radio">
+          <h2>체크 · 라디오</h2>
+          <p class="sb-lead">
+            공통 클래스: <code>.c-check</code> / <code>.c-radio</code> (약관 블록은 위
+            <a href="#sb-agree" style="color: var(--primary)">약관 · 체크</a> 참고)
+          </p>
+          <div class="sb-story">
+            <div class="sb-story-head">
+              <h3>Preview</h3>
+            </div>
+            <div class="sb-preview sb-form-choice-demo" style="background: #fff">
+              <p class="sb-hint sb-hint--flush">체크박스</p>
+              <div class="sb-demo-row sb-demo-row--mt14">
+                <label class="c-check"><input type="checkbox" checked /><span>개인정보 수집 및 이용 동의</span></label>
+                <label class="c-check"><input type="checkbox" /><span>마케팅 정보 수신 동의</span></label>
+              </div>
+              <p class="sb-hint">라디오</p>
+              <div class="sb-demo-row sb-demo-row--mt10">
+                <label class="c-radio"><input type="radio" name="sb-storybook-radio" checked /><span>첨부파일 등록</span></label>
+                <label class="c-radio"><input type="radio" name="sb-storybook-radio" /><span>링크주소 등록</span></label>
+                <label class="c-radio"><input type="radio" name="sb-storybook-radio" /><span>기타정보 입력</span></label>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="sb-section" id="sb-popups">
+          <h2>팝업 데모</h2>
+          <p class="sb-lead">
+            <code>.c-modal.sm</code> / <code>.md</code> / <code>.lg</code> — 하단 단일 버튼은 <code>.c-modal-foot &gt; .btn</code> 직접
+            배치(100% 폭), 2버튼은 <code>.c-modal-btns</code> 래퍼 사용
+          </p>
+          <div class="sb-story">
+            <div class="sb-preview" style="background: #fff">
+              <div class="sb-demo-row" style="margin: 0">
+                <button type="button" class="btn" data-popup-target="#popup-guide-sm">SM</button>
+                <button type="button" class="btn" data-popup-target="#popup-guide-md">MD</button>
+                <button type="button" class="btn" data-popup-target="#popup-guide-lg">LG</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="sb-section" id="sb-toast">
+          <h2>토스트 데모</h2>
+          <p class="sb-lead">
+            <code>MyFC.showToast(message, { type: 'error', durationMs })</code> — 아래 버튼은 <code>data-toast</code>로 연동됩니다.
+          </p>
+          <div class="sb-story">
+            <div class="sb-preview" style="background: #fff">
+              <div class="sb-demo-row" style="margin: 0">
+                <button type="button" class="btn" data-toast="기본 토스트입니다.">기본</button>
+                <button type="button" class="btn" data-toast="오류가 발생했습니다." data-toast-type="error">error</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="sb-section" id="sb-picker">
+          <h2>선택 팝업</h2>
+          <p class="sb-lead">
+            <code>data-popup-target</code> + <code>data-popup-sync</code> 로 hidden과 동기화합니다. 복수 선택은 <code>.c-modal</code> 루트에
+            <code>data-popup-multiselect</code>를 두고, 확정 값은 쉼표로 구분해 저장합니다.
+          </p>
+          <div class="sb-story">
+            <div class="sb-story-head">
+              <h3>단일 선택</h3>
+            </div>
+            <div class="sb-preview" style="background: #fff">
+              <button type="button" class="directory-select" data-popup-target="#popup-guide-demo" data-popup-sync="#guide-demo-value">
+                <span>항목 선택</span>
+              </button>
+              <input type="hidden" id="guide-demo-value" name="guide_demo" value="" />
+              <p class="sb-hint sb-hint--readout">현재 값: <strong id="guide-demo-readout">(비어 있음)</strong></p>
+            </div>
+            <div class="sb-story-head">
+              <h3>복수 선택</h3>
+            </div>
+            <div class="sb-preview" style="background: #fff">
+              <button
+                type="button"
+                class="directory-select"
+                data-popup-target="#popup-guide-demo-multi"
+                data-popup-sync="#guide-demo-multi-value"
+              >
+                <span>항목 선택</span>
+              </button>
+              <input type="hidden" id="guide-demo-multi-value" name="guide_demo_multi" value="" />
+              <p class="sb-hint sb-hint--readout">현재 값: <strong id="guide-demo-multi-readout">(비어 있음)</strong></p>
+            </div>
+            <div class="sb-story-head">
+              <h3>복수 선택 마크업</h3>
+            </div>
+            <div class="sb-preview" style="background: #fff; padding: 0">
+              <pre class="sb-code" style="margin: 0; border-radius: 0">
+&lt;!-- 트리거·hidden: 단일과 동일 --&gt;
+&lt;button type="button" class="directory-select"
+  data-popup-target="#popup-ms" data-popup-sync="#ms-value"&gt;
+  &lt;span&gt;항목 선택&lt;/span&gt;
+&lt;/button&gt;
+&lt;input type="hidden" id="ms-value" value="" /&gt;
+
+&lt;!-- 복수: .c-modal에 data-popup-multiselect, 확정은 data-popup-confirm --&gt;
+&lt;div id="popup-ms" class="c-modal" data-popup-multiselect&gt;
+  &lt;!-- …헤더·backdrop… --&gt;
+  &lt;ul class="c-modal-list"&gt;
+    &lt;li&gt;
+      &lt;button type="button" class="c-modal-option" data-value=""&gt;
+        &lt;span class="c-modal-option-label"&gt;전체&lt;/span&gt;&lt;span class="c-modal-option-ico"&gt;&lt;/span&gt;
+      &lt;/button&gt;
+    &lt;/li&gt;
+    &lt;li&gt;
+      &lt;button type="button" class="c-modal-option" data-value="opt_a"&gt;
+        &lt;span class="c-modal-option-label"&gt;옵션 A&lt;/span&gt;&lt;span class="c-modal-option-ico"&gt;&lt;/span&gt;
+      &lt;/button&gt;
+    &lt;/li&gt;
+  &lt;/ul&gt;
+  &lt;div class="c-modal-foot"&gt;
+    &lt;button type="button" class="btn btn-line" data-popup-confirm&gt;확인&lt;/button&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</pre
+              >
+              <p class="sb-hint" style="padding: 12px 16px; margin: 0">
+                hidden에는 <code>opt_a,opt_c</code>처럼 쉼표 구분. 전체 마크업은 위 데모 <code>#popup-guide-demo-multi</code>·
+                <a href="#sb-modal" style="color: var(--primary)">모달 훅</a>·<code>assets/js/popup.js</code> 주석 참고.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <section class="sb-section" id="sb-modal">
+          <h2>모달 훅</h2>
+          <p class="sb-lead">
+            <code>popup.js</code> — 자세한 속성은 소스 상단 주석 참고. 위 <a href="#sb-popups" style="color: var(--primary)">팝업 데모</a> ·
+            <a href="#sb-picker" style="color: var(--primary)">선택 팝업</a>에서 라이브 동작을 확인할 수 있습니다.
+          </p>
+          <div class="sb-story">
+            <div class="sb-story-head">
+              <h3>데이터 속성 요약</h3>
+            </div>
+            <div style="padding: 0">
+              <table class="sb-table">
+                <thead>
+                  <tr>
+                    <th>훅</th>
+                    <th>역할</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><code>data-popup-target</code></td>
+                    <td>열 대상 모달 <kbd>#id</kbd></td>
+                  </tr>
+                  <tr>
+                    <td><code>data-popup-sync</code></td>
+                    <td>hidden 등 값 동기화</td>
+                  </tr>
+                  <tr>
+                    <td><code>data-popup-close</code> / <code>data-popup-confirm</code></td>
+                    <td>닫기 · 확인(선택 확정 후 hidden·트리거 라벨 반영; 복수 선택 시 반드시 확인 버튼 필요)</td>
+                  </tr>
+                  <tr>
+                    <td><code>data-popup-multiselect</code></td>
+                    <td>복수 선택 모달(루트). hidden 값은 쉼표 구분 문자열</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <section class="sb-section" id="sb-js">
+          <h2>JavaScript 로드 순서</h2>
+          <div class="sb-story">
+            <pre class="sb-code">
+&lt;script src="../assets/js/ui.js"&gt;&lt;/script&gt;
+&lt;script src="../assets/js/popup.js"&gt;&lt;/script&gt;
+&lt;script src="../assets/js/common.js"&gt;&lt;/script&gt;</pre
+            >
+          </div>
+        </section>
+
+        <section class="sb-section" id="sb-meta">
+          <h2>화면 메타데이터</h2>
+          <p class="sb-lead"><code>guide/data.js</code>의 <code>TABLE_DATE</code>와 <code>index.html</code> 목록 연동.</p>
+        </section>
+
+        <section class="sb-section" id="sb-naming">
+          <h2>파일 · ID 네이밍</h2>
+          <div class="sb-story">
+            <div style="padding: 0">
+              <table class="sb-table">
+                <tbody>
+                  <tr>
+                    <th>MFC 접두어</th>
+                    <td>화면 ID와 파일명 동기 (예: <code>MFC005_L01_01.html</code>)</td>
+                  </tr>
+                  <tr>
+                    <th>언더스코어</th>
+                    <td>IA depth 반영 (<code>MFC005_L01</code>, <code>MFC005_L01_01</code>)</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <section class="sb-section" id="sb-checklist">
+          <h2>신규 화면 체크리스트</h2>
+          <div class="sb-story">
+            <div class="sb-story-head">
+              <h3>작업 순서</h3>
+            </div>
+            <div class="sb-preview" style="background: #fff">
+              <ol class="sb-checklist">
+                <li>CSS 4종 링크 순서 유지</li>
+                <li><code>layout-wrapper</code> + 페이지 타입 클래스</li>
+                <li>
+                  헤더 <code>guest</code> / <code>member</code> / 서브 <code>header-mo</code> — 마크업은
+                  <a href="#sb-layout-partials" style="color: var(--primary)">레이아웃 · 파셜</a> 참고
+                </li>
+                <li>폼은 <code>form-box</code> → 필드 / <code>combo</code> / <code>form-actions</code></li>
+                <li>모달은 <code>popup.js</code> 훅 준수</li>
+                <li>스크립트: ui → popup → common</li>
+                <li><code>guide/data.js</code> 행 추가 후 목록 확인</li>
+              </ol>
+            </div>
+          </div>
+        </section>
+
+        <section class="sb-section" id="sb-refs">
+          <h2>소스 맵</h2>
+          <div class="sb-story">
+            <div style="padding: 0">
+              <table class="sb-table">
+                <tbody>
+                  <tr>
+                    <th>토큰 · 폼 베이스</th>
+                    <td><code>assets/css/common.css</code></td>
+                  </tr>
+                  <tr>
+                    <th>레이아웃 파셜</th>
+                    <td><code>guide/ui-storybook.html</code> — <code>#sb-layout-partials</code>, 검색 <code>PARTIAL_FILE</code></td>
+                  </tr>
+                  <tr>
+                    <th>헤더 · 푸터</th>
+                    <td><code>assets/css/layout.css</code></td>
+                  </tr>
+                  <tr>
+                    <th>회원가입 흐름</th>
+                    <td><code>assets/css/content.css</code> (<code>.signup-page</code>)</td>
+                  </tr>
+                  <tr>
+                    <th>모달</th>
+                    <td><code>assets/js/popup.js</code></td>
+                  </tr>
+                  <tr>
+                    <th>프로필 메뉴</th>
+                    <td><code>assets/js/common.js</code></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <!-- guide.html 이관: 중앙 모달 데모 -->
+    <div id="popup-guide-sm" class="c-modal sm">
+      <button type="button" class="c-modal-backdrop" data-popup-close></button>
+      <div class="c-modal-panel">
+        <div class="c-modal-head">
+          <h2 class="c-modal-title">SM 팝업</h2>
+          <button type="button" class="c-modal-close" data-popup-close aria-label="닫기"></button>
+        </div>
+        <div class="c-modal-body sb-guide-modal-body">
+          <p class="sb-guide-modal-p modal-text">기본 크기 팝업입니다.</p>
+        </div>
+        <div class="c-modal-foot">
+          <button type="button" class="btn btn-primary" data-popup-close>확인</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="popup-guide-md" class="c-modal md">
+      <button type="button" class="c-modal-backdrop" data-popup-close></button>
+      <div class="c-modal-panel">
+        <div class="c-modal-head">
+          <h2 class="c-modal-title">MD 팝업</h2>
+          <button type="button" class="c-modal-close" data-popup-close aria-label="닫기"></button>
+        </div>
+        <div class="c-modal-body sb-guide-modal-body">
+          <p class="sb-guide-modal-p">중간 크기 팝업입니다.</p>
+        </div>
+        <div class="c-modal-foot">
+          <div class="c-modal-btns">
+            <button type="button" class="btn btn-sub" data-popup-close>취소</button>
+            <button type="button" class="btn btn-primary" data-popup-close>확인</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="popup-guide-lg" class="c-modal lg">
+      <button type="button" class="c-modal-backdrop" data-popup-close></button>
+      <div class="c-modal-panel">
+        <div class="c-modal-head">
+          <h2 class="c-modal-title">LG 팝업</h2>
+          <button type="button" class="c-modal-close" data-popup-close aria-label="닫기"></button>
+        </div>
+        <div class="c-modal-body sb-guide-modal-body">
+          <p class="sb-guide-modal-p sb-guide-modal-p--spaced">큰 팝업(미리보기/상세형)에 사용합니다.</p>
+          <p class="sb-guide-modal-sub">길거나 많은 콘텐츠를 담을 때 적합합니다.</p>
+        </div>
+        <div class="c-modal-foot">
+          <div class="c-modal-btns">
+            <button type="button" class="btn btn-sub" data-popup-close>닫기</button>
+            <button type="button" class="btn btn-primary" data-popup-close>확인</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="popup-guide-demo" class="c-modal">
+      <button type="button" class="c-modal-backdrop" data-popup-close></button>
+      <div class="c-modal-panel">
+        <div class="c-modal-head">
+          <h2 class="c-modal-title">데모 선택</h2>
+          <button type="button" class="c-modal-close" data-popup-close aria-label="닫기"></button>
+        </div>
+        <div class="c-modal-body">
+          <ul class="c-modal-list">
+            <li>
+              <button type="button" class="c-modal-option" data-value="">
+                <span class="c-modal-option-label">전체</span>
+                <span class="c-modal-option-ico"></span>
+              </button>
+            </li>
+            <li>
+              <button type="button" class="c-modal-option" data-value="opt_a">
+                <span class="c-modal-option-label">옵션 A</span>
+                <span class="c-modal-option-ico"></span>
+              </button>
+            </li>
+            <li>
+              <button type="button" class="c-modal-option" data-value="opt_b">
+                <span class="c-modal-option-label">옵션 B</span>
+                <span class="c-modal-option-ico"></span>
+              </button>
+            </li>
+          </ul>
+        </div>
+        <div class="c-modal-foot">
+          <button type="button" class="btn btn-line" data-popup-confirm>확인</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="popup-guide-demo-multi" class="c-modal" data-popup-multiselect>
+      <button type="button" class="c-modal-backdrop" data-popup-close></button>
+      <div class="c-modal-panel">
+        <div class="c-modal-head">
+          <h2 class="c-modal-title">데모 선택 (복수)</h2>
+          <button type="button" class="c-modal-close" data-popup-close aria-label="닫기"></button>
+        </div>
+        <div class="c-modal-body">
+          <ul class="c-modal-list">
+            <li>
+              <button type="button" class="c-modal-option" data-value="">
+                <span class="c-modal-option-label">전체</span>
+                <span class="c-modal-option-ico"></span>
+              </button>
+            </li>
+            <li>
+              <button type="button" class="c-modal-option" data-value="opt_a">
+                <span class="c-modal-option-label">옵션 A</span>
+                <span class="c-modal-option-ico"></span>
+              </button>
+            </li>
+            <li>
+              <button type="button" class="c-modal-option" data-value="opt_b">
+                <span class="c-modal-option-label">옵션 B</span>
+                <span class="c-modal-option-ico"></span>
+              </button>
+            </li>
+            <li>
+              <button type="button" class="c-modal-option" data-value="opt_c">
+                <span class="c-modal-option-label">옵션 C</span>
+                <span class="c-modal-option-ico"></span>
+              </button>
+            </li>
+          </ul>
+        </div>
+        <div class="c-modal-foot">
+          <button type="button" class="btn btn-line" data-popup-confirm>확인</button>
+        </div>
+      </div>
+    </div>
+
+    <script src="../assets/js/ui.js"></script>
+    <script src="../assets/js/popup.js"></script>
+    <script src="../assets/js/common.js"></script>
+    <script>
+      (function () {
+        var pairs = [
+          ['guide-demo-value', 'guide-demo-readout'],
+          ['guide-demo-multi-value', 'guide-demo-multi-readout'],
+        ];
+
+        function syncReadouts() {
+          var i;
+          var inp;
+          var out;
+          var v;
+          for (i = 0; i < pairs.length; i++) {
+            inp = document.getElementById(pairs[i][0]);
+            out = document.getElementById(pairs[i][1]);
+            if (!inp || !out) continue;
+            v = inp.value;
+            out.textContent = v === '' ? '(비어 있음)' : v;
+          }
+        }
+
+        var j;
+        var inpEl;
+        syncReadouts();
+        for (j = 0; j < pairs.length; j++) {
+          inpEl = document.getElementById(pairs[j][0]);
+          if (inpEl) inpEl.addEventListener('change', syncReadouts);
+        }
+        document.addEventListener(
+          'click',
+          function (e) {
+            if (e.target.closest('[data-popup-confirm]')) {
+              setTimeout(syncReadouts, 0);
+            }
+          },
+          true,
+        );
+      })();
+    </script>
+
+    <script>
+      (function () {
+        var sidebar = document.getElementById('sbSidebar');
+        var overlay = document.getElementById('sbOverlay');
+        var menuBtn = document.getElementById('sbMenuBtn');
+        var navLinks = document.querySelectorAll('#sbNav a[href^="#"]');
+
+        function openMenu() {
+          sidebar.classList.add('is-open');
+          overlay.hidden = false;
+          overlay.classList.add('is-open');
+        }
+
+        function closeMenu() {
+          sidebar.classList.remove('is-open');
+          overlay.classList.remove('is-open');
+          overlay.hidden = true;
+        }
+
+        if (menuBtn) {
+          menuBtn.addEventListener('click', function () {
+            if (sidebar.classList.contains('is-open')) closeMenu();
+            else openMenu();
+          });
+        }
+        if (overlay) overlay.addEventListener('click', closeMenu);
+
+        function setActiveNav() {
+          var sections = document.querySelectorAll('.sb-section[id]');
+          var scrollPos = window.scrollY + 120;
+          var current = null;
+          sections.forEach(function (sec) {
+            if (sec.offsetTop <= scrollPos) current = sec.getAttribute('id');
+          });
+          navLinks.forEach(function (a) {
+            var href = a.getAttribute('href');
+            var id = href && href.charAt(0) === '#' ? href.slice(1) : '';
+            a.classList.toggle('is-active', id === current);
+          });
+        }
+
+        window.addEventListener('scroll', setActiveNav, { passive: true });
+        setActiveNav();
+
+        navLinks.forEach(function (a) {
+          a.addEventListener('click', function () {
+            if (window.innerWidth <= 900) closeMenu();
+          });
+        });
+      })();
+    </script>
+  </body>
+</html>

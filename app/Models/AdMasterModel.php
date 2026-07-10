@@ -15,6 +15,8 @@ class AdMasterModel extends Model
         'amount',
         'start_date',
         'end_date',
+        'approved_at',
+        'approved_by',
         'click_count',
 
         // region
@@ -24,6 +26,7 @@ class AdMasterModel extends Model
         'banner_image_url',
         'banner_link_url',
         'banner_need_design',
+        'banner_position',
 
         // product
         'insurance_type',

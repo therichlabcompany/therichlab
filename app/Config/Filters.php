@@ -35,6 +35,9 @@ class Filters extends BaseFilters
         'pagecache'     => PageCache::class,
         'performance'   => PerformanceMetrics::class,
         'adminAuth'     => \App\Filters\AdminAuthFilter::class,
+        'memberAuth'    => \App\Filters\MemberTypeFilter::class,
+        'memberUser'    => \App\Filters\MemberTypeFilter::class,
+        'memberFc'      => \App\Filters\MemberTypeFilter::class,
     ];
 
     /**
@@ -107,5 +110,57 @@ class Filters extends BaseFilters
      *
      * @var array<string, array<string, list<string>>>
      */
-    public array $filters = [];
+    public array $filters = [
+        'memberAuth' => [
+            'before' => [
+                'mypage/withdrawal',
+                'mypage/withdrawalLast',
+                'mypage/withdrawAjax',
+            ],
+        ],
+        'memberUser:USER' => [
+            'before' => [
+                'mypage/info',
+                'mypage/certificate',
+                'mypage/favoriteFc',
+                'mypage/counselList',
+                'mypage/counselReview/*',
+                'mypage/counselReviewLast',
+                'mypage/counselReviewSubmitAjax/*',
+                'mypage/reviewWrite',
+                'mypage/reviewWriteLast',
+                'mypage/reviewList',
+                'mypage/reviewDetailAjax/*',
+                'mypage/security/*',
+                'mypage/updateInfo',
+            ],
+        ],
+        'memberFc:FC' => [
+            'before' => [
+                'mypage/fcinfo',
+                'mypage/fcprofile',
+                'mypage/updateProfileImage',
+                'mypage/fcactivity',
+                'mypage/fcstory',
+                'mypage/fcreviewed',
+                'mypage/fccounsel',
+                'mypage/fccounselview/*',
+                'mypage/ajax_save_reviewed',
+                'mypage/fccounsel/status',
+                'mypage/adlist',
+                'mypage/adlistRegionFc',
+                'mypage/adlistBanner',
+                'mypage/adlistProductFc',
+                'mypage/adlistLanguageFc',
+                'mypage/adlistReview',
+                'mypage/adLast',
+                'mypage/ad/*',
+                'member/updateBasicInfo',
+                'member/fc/profile/update',
+                'member/fc/activity/save',
+                'member/fc/story/save',
+                'fcpage/info',
+            ],
+        ],
+    ];
 }

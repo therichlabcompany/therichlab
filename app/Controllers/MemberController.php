@@ -205,6 +205,8 @@ class MemberController extends BaseController
     public function fcJoin_step2(): string
     {
         //return pageView('welcome_message');
+        $db = \Config\Database::connect();
+        $memberUid = session()->get('member_uid');
         $header_class = "form-page signup-page";
         $popup_page = [];
 
@@ -217,7 +219,10 @@ class MemberController extends BaseController
         $data = [
             "header_class" => $header_class,
             "popup_page" => $popup_page,
-            "modal_page" => $modal_page
+            "modal_page" => $modal_page,
+            "profile" => $memberUid
+                ? ($db->table('my_fc_profile')->where('member_uid', $memberUid)->get()->getRowArray() ?? [])
+                : [],
         ];
 
 
@@ -228,6 +233,8 @@ class MemberController extends BaseController
     {
         //return pageView('welcome_message');
         helper(['region', 'insurance']);
+        $db = \Config\Database::connect();
+        $memberUid = session()->get('member_uid');
         $header_class = "form-page signup-page";
         $popup_page = [];
 
@@ -241,9 +248,17 @@ class MemberController extends BaseController
             "header_class" => $header_class,
             "popup_page" => $popup_page,
             "modal_page" => $modal_page,
-            "profile" => [], // ⭐ 핵심
-            "activity"     => [],
-            "activityItems" => [],
+            "activity" => $memberUid
+                ? ($db->table('my_fc_profile_activity')->where('member_uid', $memberUid)->get()->getRowArray() ?? [])
+                : [],
+            "activityItems" => $memberUid
+                ? $db->table('my_fc_profile_activity_item')
+                    ->where('member_uid', $memberUid)
+                    ->orderBy('sort_order', 'ASC')
+                    ->orderBy('item_id', 'ASC')
+                    ->get()
+                    ->getResultArray()
+                : [],
         ];
 
 
@@ -253,6 +268,8 @@ class MemberController extends BaseController
     public function fcJoin_step4(): string
     {
         //return pageView('welcome_message');
+        $db = \Config\Database::connect();
+        $memberUid = session()->get('member_uid');
         $header_class = "form-page signup-page";
         $popup_page = [];
 
@@ -262,7 +279,18 @@ class MemberController extends BaseController
         $data = [
             "header_class" => $header_class,
             "popup_page" => $popup_page,
-            "modal_page" => $modal_page
+            "modal_page" => $modal_page,
+            "story" => $memberUid
+                ? ($db->table('my_fc_profile_story')->where('member_uid', $memberUid)->get()->getRowArray() ?? [])
+                : [],
+            "storyImages" => $memberUid
+                ? $db->table('my_fc_profile_story_image')
+                    ->where('member_uid', $memberUid)
+                    ->orderBy('sort_order', 'ASC')
+                    ->orderBy('id', 'ASC')
+                    ->get()
+                    ->getResultArray()
+                : [],
         ];
 
 
@@ -310,7 +338,6 @@ class MemberController extends BaseController
 
         $exists = $db->table('my_fc_member')
             ->where('email', $email)
-            ->where('deleted_at', null)
             ->countAllResults();
 
         return $this->response->setJSON([
@@ -346,7 +373,6 @@ class MemberController extends BaseController
 
         $exists = $db->table('my_fc_member')
             ->where('phone', $phone)
-            ->where('deleted_at', null)
             ->countAllResults();
 
         return $this->response->setJSON([
@@ -363,39 +389,60 @@ class MemberController extends BaseController
 
             $db->transBegin();
 
-            // =========================
-            // JSON 입력 받기
-            // =========================
             $data = $this->request->getJSON(true);
 
             if (!$data) {
                 throw new \Exception('잘못된 요청입니다.');
             }
 
-            // =========================
-            // 1. 기본값 정리
-            // =========================
             $email = strtolower(trim($data['email'] ?? ''));
             $phone = preg_replace('/[^0-9]/', '', $data['phone'] ?? '');
-
             $password = $data['password'] ?? '';
             $passwordConfirm = $data['password_confirm'] ?? '';
-
-            $memberType = $data['member_type'] ?? 'USER';
+            $memberType = strtoupper(trim($data['member_type'] ?? 'USER'));
+            $name = trim($data['name'] ?? '');
+            $birth = preg_replace('/[^0-9]/', '', $data['birth'] ?? '');
+            $gender = strtoupper(trim($data['gender'] ?? ''));
 
             // =========================
             // 2. 검증
             // =========================
-            if (!$email || !$phone || !$password) {
+            if (!$email || !$phone || !$password || !$passwordConfirm || !$name) {
                 throw new \Exception('필수값 누락');
+            }
+
+            if (!in_array($memberType, ['USER', 'FC'], true)) {
+                throw new \Exception('회원 유형이 올바르지 않습니다.');
             }
 
             if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
                 throw new \Exception('이메일 형식 오류');
             }
 
+            if (strlen($phone) < 10 || strlen($phone) > 11) {
+                throw new \Exception('휴대폰 번호를 확인해주세요.');
+            }
+
             if ($password !== $passwordConfirm) {
                 throw new \Exception('비밀번호 불일치');
+            }
+
+            if ($memberType === 'USER') {
+                if (!preg_match('/^\d{8}$/', $birth)) {
+                    throw new \Exception('생년월일은 8자리 숫자로 입력해주세요.');
+                }
+
+                if (!in_array($gender, ['M', 'F'], true)) {
+                    throw new \Exception('성별을 선택해주세요.');
+                }
+
+                if (
+                    empty($data['agree_age']) ||
+                    empty($data['agree_terms']) ||
+                    empty($data['agree_privacy'])
+                ) {
+                    throw new \Exception('필수 약관에 동의해주세요.');
+                }
             }
 
             // =========================
@@ -412,45 +459,33 @@ class MemberController extends BaseController
                 throw new \Exception('이미 가입된 정보입니다.');
             }
 
+            $now = date('Y-m-d H:i:s');
+
             // =========================
             // 4. INSERT
             // =========================
             $memberData = [
                 'member_uid' => $this->generateMemberUid(),
-
                 'member_type' => $memberType,
                 'email'       => $email,
                 'password'    => password_hash($password, PASSWORD_DEFAULT),
                 'phone'       => $phone,
-
-                'name'   => $data['name'] ?? '',
-                'birth'  => $data['birth'] ?? '',
-                'gender' => $data['gender'] ?? '',
-
-                'phone_verified' => $data['phone_verified'] ?? 'N',
-
-                'agree_age'       => !empty($data['agree_age']) ? 'Y' : 'N',
-                'agree_terms'     => !empty($data['agree_terms']) ? 'Y' : 'N',
-                'agree_privacy'   => !empty($data['agree_privacy']) ? 'Y' : 'N',
-                'agree_marketing' => !empty($data['agree_marketing']) ? 'Y' : 'N',
-
-                'created_at' => date('Y-m-d H:i:s'),
+                'name'        => $name,
+                'birth'       => $birth ?: null,
+                'gender'      => $gender ?: null,
+                'phone_verified' => ($data['phone_verified'] ?? 'N') === 'Y' ? 'Y' : 'N',
+                'agree_age'       => !empty($data['agree_age']) ? 1 : 0,
+                'agree_terms'     => !empty($data['agree_terms']) ? 1 : 0,
+                'agree_privacy'   => !empty($data['agree_privacy']) ? 1 : 0,
+                'agree_marketing' => !empty($data['agree_marketing']) ? 1 : 0,
+                'join_ip' => $this->request->getIPAddress(),
+                'fc_step' => $memberType === 'FC' ? 1 : 0,
+                'created_at' => $now,
             ];
 
             $db->table('my_fc_member')->insert($memberData);
 
             $memberId = $db->insertID();
-
-            // =========================
-            // 5. FC 확장 구조 (미래용)
-            // =========================
-            if ($memberType === 'FC') {
-                $db->table('my_fc_fc_profile')->insert([
-                    'member_id' => $memberId,
-                    'status'    => 'PENDING',
-                    'created_at' => date('Y-m-d H:i:s')
-                ]);
-            }
 
             // =========================
             // 2. user check
@@ -505,11 +540,17 @@ class MemberController extends BaseController
     private function generateMemberUid()
     {
         $chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789abcdefghijklmnopqrstuvwxyz';
+        $db = \Config\Database::connect();
 
-        $uid = '';
-        for ($i = 0; $i < 20; $i++) {
-            $uid .= $chars[random_int(0, strlen($chars) - 1)];
-        }
+        do {
+            $uid = '';
+            for ($i = 0; $i < 20; $i++) {
+                $uid .= $chars[random_int(0, strlen($chars) - 1)];
+            }
+            $exists = $db->table('my_fc_member')
+                ->where('member_uid', $uid)
+                ->countAllResults();
+        } while ($exists > 0);
 
         return $uid;
     }
@@ -625,9 +666,53 @@ class MemberController extends BaseController
                 throw new \Exception('로그인이 필요합니다.');
             }
 
+            $member = $db->table('my_fc_member')
+                ->where('member_uid', $memberUid)
+                ->where('member_type', 'FC')
+                ->where('deleted_at', null)
+                ->get()
+                ->getRowArray();
+
+            if (!$member) {
+                throw new \Exception('FC 회원만 등록할 수 있습니다.');
+            }
+
             $db->transBegin();
 
             helper('fileupload_helper');
+
+            $company = trim((string) $this->request->getPost('company'));
+            $companySub = trim((string) $this->request->getPost('company_sub'));
+            $ga = trim((string) $this->request->getPost('ga'));
+            $position = trim((string) $this->request->getPost('position'));
+            $licenseDate = trim((string) $this->request->getPost('license_date'));
+            $licenseNo = preg_replace('/[^0-9]/', '', (string) $this->request->getPost('license_no'));
+            $timeFrom = $this->request->getPost('time_from');
+            $timeTo = $this->request->getPost('time_to');
+            $language = trim((string) $this->request->getPost('language'));
+
+            if ($company === '' && $ga === '') {
+                throw new \Exception('소속 원수사 또는 소속 GA 중 하나는 반드시 입력해주세요.');
+            }
+
+            if ($ga !== '' && $companySub !== '') {
+                throw new \Exception('소속 GA를 입력한 경우 추가 소속 보험사는 입력할 수 없습니다.');
+            }
+
+            if ($position === '' || $licenseDate === '' || $licenseNo === '' || $language === '') {
+                throw new \Exception('프로필 필수값을 입력해주세요.');
+            }
+
+            if (!is_numeric($timeFrom) || !is_numeric($timeTo)) {
+                throw new \Exception('상담 가능 시간을 선택해주세요.');
+            }
+
+            $timeFrom = (int) $timeFrom;
+            $timeTo = (int) $timeTo;
+
+            if ($timeFrom < 0 || $timeFrom > 23 || $timeTo < 0 || $timeTo > 23) {
+                throw new \Exception('상담 가능 시간 값이 올바르지 않습니다.');
+            }
 
             // =========================
             // 1. 기존 데이터 확인
@@ -652,15 +737,15 @@ class MemberController extends BaseController
             // =========================
             $data = [
                 'member_uid'   => $memberUid,
-                'company'      => $this->request->getPost('company'),
-                'company_sub'  => $this->request->getPost('company_sub'),
-                'ga'           => $this->request->getPost('ga'),
-                'position'     => $this->request->getPost('position'),
-                'license_date' => $this->request->getPost('license_date'),
-                'license_no'   => $this->request->getPost('license_no'),
-                'time_from'    => $this->request->getPost('time_from'),
-                'time_to'      => $this->request->getPost('time_to'),
-                'language'     => $this->request->getPost('language'),
+                'company'      => $company !== '' ? $company : null,
+                'company_sub'  => $companySub !== '' ? $companySub : null,
+                'ga'           => $ga !== '' ? $ga : null,
+                'position'     => $position,
+                'license_date' => $licenseDate,
+                'license_no'   => $licenseNo,
+                'time_from'    => $timeFrom,
+                'time_to'      => $timeTo,
+                'language'     => $language,
                 'updated_at'   => date('Y-m-d H:i:s'),
             ];
 
@@ -696,6 +781,7 @@ class MemberController extends BaseController
                 ->where('member_uid', $memberUid)
                 ->update([
                     'fc_step' => 2,
+                    'fc_review_status' => 'WAIT',
                     'updated_at' => date('Y-m-d H:i:s')
                 ]);
 
@@ -738,7 +824,28 @@ class MemberController extends BaseController
                 throw new \Exception('로그인이 필요합니다.');
             }
 
+            $member = $db->table('my_fc_member')
+                ->where('member_uid', $memberUid)
+                ->where('member_type', 'FC')
+                ->where('deleted_at', null)
+                ->get()
+                ->getRowArray();
+
+            if (!$member) {
+                throw new \Exception('FC 회원만 등록할 수 있습니다.');
+            }
+
             $db->transBegin();
+
+            $region = trim((string) $this->request->getPost('region'));
+            $insuranceTypes = trim((string) $this->request->getPost('insurance_types'));
+            $heroLine = trim((string) $this->request->getPost('history'));
+            $intro = trim((string) $this->request->getPost('intro'));
+            $career = trim((string) $this->request->getPost('career'));
+
+            if ($region === '' || $heroLine === '' || $intro === '' || $career === '') {
+                throw new \Exception('활동 정보 필수값을 입력해주세요.');
+            }
 
             // ===========================
             // Activity 저장
@@ -748,15 +855,15 @@ class MemberController extends BaseController
 
                 'member_uid'      => $memberUid,
 
-                'region'          => $this->request->getPost('region'),
+                'region'          => $region,
 
-                'insurance_types' => $this->request->getPost('insurance_types'),
+                'insurance_types' => $insuranceTypes !== '' ? $insuranceTypes : null,
 
-                'hero_line'       => $this->request->getPost('history'),
+                'hero_line'       => $heroLine,
 
-                'intro'           => $this->request->getPost('intro'),
+                'intro'           => $intro,
 
-                'career'          => $this->request->getPost('career'),
+                'career'          => $career,
 
                 'updated_at'      => date('Y-m-d H:i:s'),
 
@@ -831,7 +938,12 @@ class MemberController extends BaseController
                 $items = [];
             }
 
+            if (empty($items)) {
+                throw new \Exception('이력 및 인증을 최소 1개 이상 입력해주세요.');
+            }
+
             $keepIds = [];
+            $savedItemCount = 0;
 
             // ===========================
             // items 저장
@@ -851,9 +963,9 @@ class MemberController extends BaseController
 
                     'title'      => trim($item['title'] ?? ''),
 
-                    'content'    => $item['content'] ?? null,
+                    'content'    => trim($item['content'] ?? '') ?: null,
 
-                    'url'        => $item['url'] ?? null,
+                    'url'        => trim($item['url'] ?? '') ?: null,
 
                     'sort_order' => $i,
 
@@ -863,6 +975,10 @@ class MemberController extends BaseController
 
                 // 제목 없으면 skip
                 if ($data['title'] == '') {
+                    continue;
+                }
+
+                if (!in_array($type, ['file', 'link', 'text'], true)) {
                     continue;
                 }
 
@@ -921,6 +1037,18 @@ class MemberController extends BaseController
                             }
                         }
                     }
+
+                    if (empty($data['file_path'])) {
+                        throw new \Exception('첨부 파일을 선택해주세요.');
+                    }
+                }
+
+                if ($type === 'link' && empty($data['url'])) {
+                    throw new \Exception('링크 주소를 입력해주세요.');
+                }
+
+                if ($type === 'text' && empty($data['content'])) {
+                    throw new \Exception('기타 정보를 입력해주세요.');
                 }
 
                 // ==========================
@@ -935,6 +1063,7 @@ class MemberController extends BaseController
                         ->update($data);
 
                     $keepIds[] = $itemId;
+                    $savedItemCount++;
                 }
 
                 // ==========================
@@ -949,7 +1078,12 @@ class MemberController extends BaseController
                         ->insert($data);
 
                     $keepIds[] = $db->insertID();
+                    $savedItemCount++;
                 }
+            }
+
+            if ($savedItemCount < 1) {
+                throw new \Exception('이력 및 인증을 최소 1개 이상 입력해주세요.');
             }
 
             // ===========================
@@ -961,6 +1095,7 @@ class MemberController extends BaseController
                 ->update([
 
                     'fc_step'    => 3,
+                    'fc_review_status' => 'WAIT',
 
                     'updated_at' => date('Y-m-d H:i:s')
 
@@ -1015,6 +1150,17 @@ class MemberController extends BaseController
 
             if (!$memberUid) {
                 throw new \Exception('로그인이 필요합니다.');
+            }
+
+            $member = $db->table('my_fc_member')
+                ->where('member_uid', $memberUid)
+                ->where('member_type', 'FC')
+                ->where('deleted_at', null)
+                ->get()
+                ->getRowArray();
+
+            if (!$member) {
+                throw new \Exception('FC 회원만 등록할 수 있습니다.');
             }
 
             $db->transBegin();
@@ -1108,14 +1254,54 @@ class MemberController extends BaseController
                 $keepImages=[];
             }
 
-            //---------------------------------------------------
-            // 삭제 이미지 찾기
-            //---------------------------------------------------
+            $imageOrder=$this->request->getPost('story_image_order');
+
+            if(!is_array($imageOrder)){
+                $imageOrder=[];
+            }
+
+            $files=$this->request->getFiles();
+            $newImageFiles=[];
+
+            if(isset($files['story_images'])){
+                $newImageFiles=is_array($files['story_images'])
+                    ? $files['story_images']
+                    : [$files['story_images']];
+            }
+
+            $validNewImageCount=0;
+
+            foreach($newImageFiles as $file){
+                if($file && $file->isValid()){
+                    $validNewImageCount++;
+                }
+            }
+
+            if(count($keepImages) + $validNewImageCount < 1){
+                throw new \Exception('스토리 이미지를 최소 1개 이상 등록해주세요.');
+            }
 
             $oldImages=$db->table('my_fc_profile_story_image')
                 ->where('member_uid',$memberUid)
                 ->get()
                 ->getResultArray();
+
+            $keepImages=array_values(array_unique(array_filter($keepImages)));
+            $oldImageIds=array_column($oldImages,'id');
+
+            if(empty($imageOrder)){
+                foreach($keepImages as $id){
+                    $imageOrder[]='existing:'.$id;
+                }
+
+                for($i=0;$i<$validNewImageCount;$i++){
+                    $imageOrder[]='new';
+                }
+            }
+
+            //---------------------------------------------------
+            // 삭제 이미지 찾기
+            //---------------------------------------------------
 
             foreach($oldImages as $img){
 
@@ -1134,32 +1320,30 @@ class MemberController extends BaseController
             }
 
             //---------------------------------------------------
-            // 기존 이미지 순서
+            // 이미지 순서 및 신규 이미지
             //---------------------------------------------------
 
-            foreach($keepImages as $sort=>$id){
+            $sort=0;
+            $newFileIndex=0;
 
-                $db->table('my_fc_profile_story_image')
-                    ->where('id',$id)
-                    ->update([
+            foreach($imageOrder as $token){
+                if(strpos($token,'existing:')===0){
+                    $id=(int) substr($token,9);
 
-                        'sort_order'=>$sort
+                    if($id>0 && in_array($id,$oldImageIds)){
+                        $db->table('my_fc_profile_story_image')
+                            ->where('id',$id)
+                            ->where('member_uid',$memberUid)
+                            ->update([
+                                'sort_order'=>$sort++
+                            ]);
+                    }
 
-                    ]);
+                    continue;
+                }
 
-            }
-
-            //---------------------------------------------------
-            // 신규 이미지
-            //---------------------------------------------------
-
-            $files=$this->request->getFiles();
-
-            $sort=count($keepImages);
-
-            if(isset($files['story_images'])){
-
-                foreach($files['story_images'] as $file){
+                if($token==='new' && isset($newImageFiles[$newFileIndex])){
+                    $file=$newImageFiles[$newFileIndex++];
 
                     if(!$file->isValid()) continue;
 
@@ -1169,19 +1353,12 @@ class MemberController extends BaseController
                     );
 
                     $db->table('my_fc_profile_story_image')->insert([
-
                         'member_uid'=>$memberUid,
-
                         'image_path'=>$path,
-
                         'sort_order'=>$sort++,
-
                         'created_at'=>date('Y-m-d H:i:s')
-
                     ]);
-
                 }
-
             }
 
             //---------------------------------------------------
@@ -1193,10 +1370,16 @@ class MemberController extends BaseController
                 ->update([
 
                     'fc_step'=>4,
+                    'fc_review_status'=>'WAIT',
 
                     'updated_at'=>date('Y-m-d H:i:s')
 
                 ]);
+
+            $session->set([
+                'fc_step'=>4,
+                'fc_onboarding'=>true,
+            ]);
 
             $db->transCommit();
 
@@ -1229,6 +1412,7 @@ class MemberController extends BaseController
         $session = session();
 
         $memberId = $session->get('member_id');
+        $memberUid = $session->get('member_uid');
 
         if (!$memberId) {
             return $this->response->setJSON([
@@ -1239,7 +1423,8 @@ class MemberController extends BaseController
 
         $data = $this->request->getJSON(true);
 
-        $phone = trim($data['phone'] ?? '');
+        $phone = preg_replace('/[^0-9]/', '', $data['phone'] ?? '');
+        $name = trim($data['name'] ?? '');
         $agreeMarketing = (int)($data['agree_marketing'] ?? 0);
 
         if (!$phone) {
@@ -1249,7 +1434,36 @@ class MemberController extends BaseController
             ]);
         }
 
+        if (strlen($phone) < 10 || strlen($phone) > 11) {
+            return $this->response->setJSON([
+                'status' => 'error',
+                'message' => '휴대폰 번호를 확인해주세요.'
+            ]);
+        }
+
+        if ($name === '') {
+            return $this->response->setJSON([
+                'status' => 'error',
+                'message' => '이름을 입력해주세요.'
+            ]);
+        }
+
         $db = \Config\Database::connect();
+
+        $member = $db->table('my_fc_member')
+            ->where('member_id', $memberId)
+            ->where('member_uid', $memberUid)
+            ->where('member_type', 'FC')
+            ->where('deleted_at', null)
+            ->get()
+            ->getRowArray();
+
+        if (!$member) {
+            return $this->response->setJSON([
+                'status' => 'error',
+                'message' => 'FC 회원만 수정할 수 있습니다.'
+            ]);
+        }
 
         // 휴대폰 중복 체크
         $exists = $db->table('my_fc_member')
@@ -1268,8 +1482,10 @@ class MemberController extends BaseController
         $db->table('my_fc_member')
             ->where('member_id', $memberId)
             ->update([
+                'name' => $name,
                 'phone' => $phone,
                 'agree_marketing' => $agreeMarketing,
+                'fc_review_status' => 'WAIT',
                 'updated_at' => date('Y-m-d H:i:s')
             ]);
 
