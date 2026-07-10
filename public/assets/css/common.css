@@ -2087,3 +2087,107 @@ body.popup-open {
   cursor: default;
   opacity: 0.38;
 }
+
+
+/* íŒŒì¼ ì²¨ë¶€ â€” .form-box ê³µí†µ (ìƒë‹´ ìš”ì²­Â·ì‹¬ì˜í•„Â·ê´‘ê³  ì‹ ì²­ ë“±, .file-upload-rows í–‰ ì‚¬ìš© ì‹œ) */
+.form-box .file-upload > .file-upload-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.form-box .file-upload > .file-upload-head .form-label {
+  margin: 0;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.form-box .file-upload > .file-upload-head > .btn {
+  flex-shrink: 0;
+}
+
+.form-box .file-upload .file-upload-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-box .file-upload .file-upload-rows > [data-upload-row] {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  position: relative;
+}
+
+.form-box .file-upload .file-upload-rows > [data-upload-row] > input[readonly] {
+  flex: 1;
+  min-width: 0;
+  box-sizing: border-box;
+  height: 50px;
+  padding: 0 16px;
+  line-height: 1.4;
+  color: var(--text-muted);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-family: inherit;
+  cursor: default;
+}
+
+.form-box .file-upload .file-upload-rows > [data-upload-row] > input[readonly]::placeholder {
+  color: var(--text-placeholder);
+}
+
+.form-box .file-upload .file-upload-rows > [data-upload-row] > input[readonly]:focus {
+  box-shadow: none;
+  border-color: var(--border);
+}
+
+.form-box .file-upload .file-upload-rows > [data-upload-row] > .file-upload-file-trigger {
+  box-sizing: border-box;
+  flex: 0 0 104px;
+  width: 104px;
+  min-width: 104px;
+  height: 50px;
+  padding: 0 14px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+  border: 1px solid var(--border-strong);
+  border-radius: 8px;
+  background: var(--bg);
+  white-space: nowrap;
+}
+
+.form-box .file-upload .file-upload-rows > [data-upload-row] > .file-upload-row-remove {
+  box-sizing: border-box;
+  flex: 0 0 50px;
+  width: 50px;
+  min-width: 50px;
+  height: 50px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg-sub);
+}
+
+.form-box .file-upload > .file-upload-add {
+  display: block;
+  width: 24px;
+  height: 24px;
+  margin: 10px auto 0;
+  border: none;
+  border-radius: 50%;
+  background: #dbeafe;
+  color: var(--primary);
+  font-size: 18px;
+  line-height: 24px;
+}
+
+.form-box .file-upload > .file-upload-add::before {
+  content: '+';
+}

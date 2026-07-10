@@ -6,6 +6,7 @@ use CodeIgniter\Router\RouteCollection;
  * @var RouteCollection $routes
  */
 $routes->get('/', 'Home::index');
+$routes->get('/index_pro', 'Home::index_pro');
 
 $routes->get('/fc/recommend', 'Home::recommend');
 

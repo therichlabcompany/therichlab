@@ -52,6 +52,44 @@ class Home extends BaseController
         ]);
     }
 
+    public function index_pro(): string
+    {
+        helper(['region', 'insurance']);
+
+        $header_class = "main-page";
+
+        $popup_page = [];
+        $modal_page = [];
+
+        $regionOptions = $this->modalOptions('region_modal.php', true);
+        $insuranceOptions = $this->modalOptions('insurance_modal.php', true);
+        $languageOptions = $this->languageOptions();
+
+        $adFcList = $this->mainRecommendFcList();
+        $productFcList = $this->activeProductFcList();
+        $languageFcList = $this->activeLanguageFcList();
+        $reviewList = $this->activeReviewList();
+        $insuranceInList = $this->activeInsuranceInList();
+        $topBannerAds = $this->activeBannerAds('top');
+        $bottomBannerAds = $this->activeBannerAds('bottom');
+
+        return $this->renderView('main/index_pro', [
+            "header_class" => $header_class,
+            "popup_page" => $popup_page,
+            "modal_page" => $modal_page,
+            "ad_fc_list" => $adFcList,
+            "product_fc_list" => $productFcList,
+            "language_fc_list" => $languageFcList,
+            "review_list" => $reviewList,
+            "insurance_in_list" => $insuranceInList,
+            "region_options" => $regionOptions,
+            "insurance_options" => $insuranceOptions,
+            "language_options" => $languageOptions,
+            "top_banner_ads" => $topBannerAds,
+            "bottom_banner_ads" => $bottomBannerAds,
+        ]);
+    }
+
     private function fcList(int $limit = 20): array
     {
         return $this->fcRows(null, $limit);
