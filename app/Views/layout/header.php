@@ -9,7 +9,7 @@
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
     <link rel="stylesheet" href="<?= base_url('assets/css/reset.css?v=3') ?>" />
-    <link rel="stylesheet" href="<?= base_url('assets/css/common.css?v=3') ?>" />
+    <link rel="stylesheet" href="<?= base_url('assets/css/common.css?v=4') ?>" />
     <link rel="stylesheet" href="<?= base_url('assets/css/layout.css?v=3') ?>" />
     <link rel="stylesheet" href="<?= base_url('assets/css/main.css?v=3') ?>" />
     <link rel="stylesheet" href="<?= base_url('assets/css/content.css?v=7') ?>" />

@@ -13,10 +13,12 @@
                 <textarea class="form-textarea" id="insurance-in-body" name="body" minlength="100" required placeholder="궁금한 내용을 자세히 입력해 주세요."><?= esc(old('body', $question['body'] ?? '')) ?></textarea>
             </div>
             <div class="form-field"><label class="form-label" for="insurance-in-file">첨부파일</label>
-                <div class="file-upload">
-                    <div>
+                <div class="file-upload" data-insurance-upload>
+                <div class="file-upload-rows">
+                  <div data-upload-row>
                         <input class="form-input" data-file-name readonly placeholder="파일을 선택해 주세요"><input class="visually-hidden" id="insurance-in-file" name="attach_file" type="file" accept=".pdf,.xls,.xlsx,.hwp,.jpg,.jpeg,.png,.gif"><button type="button" class="file-upload-file-trigger" onclick="document.getElementById('insurance-in-file').click()">파일찾기</button>
                     </div>
+                </div>
                 </div>
                 <ul class="dash-list">
                     <li>첨부 가능한 파일은 20MB 이하의 <strong class="warn">.pdf .xls .xlsx .hwp .jpg .png .gif</strong>입니다.</li>

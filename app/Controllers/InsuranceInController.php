@@ -80,7 +80,7 @@ class InsuranceInController extends BaseController
             }
         }
         return $this->renderView('insurance_in/write', [
-            'header_class' => 'insurance-in-page', 'question' => $question,
+            'header_class' => 'form-page insurance-in-page insurance-in-form-page', 'question' => $question,
         ]);
     }
 
