@@ -222,6 +222,7 @@ $routes->group('admin', [
     $routes->post('fc-members/memo-save', 'FcMember::saveMemo');
     $routes->post('fc-members/password-reset', 'FcMember::resetPassword');
     $routes->post('fc-members/status', 'FcMember::changeStatus');
+    $routes->post('fc-members/approve', 'FcMember::approve');
     $routes->post('fc-members/delete', 'FcMember::delete');
     $routes->post('fc-members/story/delete', 'FcMember::deleteStoryFile');
 

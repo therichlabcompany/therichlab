@@ -405,6 +405,15 @@ foreach ($activityItems ?? [] as $item) {
             <div class="top-actions">
                 <a href="<?= base_url('admin/fc-members') ?>" class="btn btn-outline-secondary btn-sm">리스트 돌아가기</a>
                 <a href="<?= base_url('admin/fc-members/' . (int) $m['member_id'] . '/preview') ?>" class="btn btn-outline-secondary btn-sm" target="_blank" rel="noopener">FC 미리보기</a>
+                <?php if (($m['fc_review_status'] ?? '') !== 'APPROVE'): ?>
+                    <form method="post" action="<?= base_url('admin/fc-members/approve') ?>" class="d-inline" onsubmit="return confirm('이 FC를 승인하고 홈페이지 FC 목록에 노출하시겠습니까?');">
+                        <?= csrf_field() ?>
+                        <input type="hidden" name="member_id" value="<?= (int) $m['member_id'] ?>">
+                        <button type="submit" class="btn btn-primary btn-sm">FC 승인</button>
+                    </form>
+                <?php else: ?>
+                    <span class="review-status approve">FC 승인완료</span>
+                <?php endif; ?>
                 <a href="<?= base_url('admin/ads/normal?member_id=' . (int) $m['member_id']) ?>" class="btn btn-outline-secondary btn-sm">광고 현황</a>
                 <a href="<?= base_url('admin/fc-members/' . (int) $m['member_id'] . '/edit') ?>" class="btn btn-outline-secondary btn-sm">회원 수정</a>
                 <button type="button" class="btn btn-outline-danger btn-sm" onclick="deleteFcMember(<?= (int) $m['member_id'] ?>)">회원 탈퇴</button>
@@ -498,10 +507,6 @@ foreach ($activityItems ?? [] as $item) {
                     <button type="button" class="btn btn-outline-primary btn-sm js-tab" data-tab="review">심의필 정보</button>
                 </div>
                 <div class="wire-body">
-                    <div class="profile-main-action">
-                        <button type="button" class="btn btn-outline-primary btn-sm" onclick="alert('프로필 메인 노출 처리 완료 되었습니다.')">프로필 메인 노출</button>
-                    </div>
-
                     <div id="tab-profile" class="tab-panel active">
                         <div class="field-list">
                             <div class="field-row">

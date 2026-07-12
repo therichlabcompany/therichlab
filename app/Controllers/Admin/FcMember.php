@@ -752,6 +752,58 @@ class FcMember extends BaseController
         return $this->response->setJSON(['status' => 'success']);
     }
 
+    public function approve()
+    {
+        $memberId = (int) $this->request->getPost('member_id');
+        $member = $this->db->table('my_fc_member')
+            ->select('member_id, member_uid, status')
+            ->where('member_id', $memberId)
+            ->where('member_type', 'FC')
+            ->where('deleted_at', null)
+            ->get()
+            ->getRowArray();
+
+        if (!$member) {
+            return redirect()->back()->with('error', '승인할 FC 회원을 찾을 수 없습니다.');
+        }
+
+        if (in_array($member['status'] ?? '', ['BLOCK', 'LEAVE'], true)) {
+            return redirect()->back()->with('error', '차단 또는 탈퇴 상태의 FC 회원은 승인할 수 없습니다.');
+        }
+
+        $now = date('Y-m-d H:i:s');
+        $adminUid = (string) (session()->get('admin_username')
+            ?? session()->get('admin_name')
+            ?? session()->get('admin_id')
+            ?? 'admin');
+
+        $this->db->transStart();
+        $this->db->table('my_fc_member')
+            ->where('member_id', $memberId)
+            ->where('member_type', 'FC')
+            ->update([
+                'status' => 'ACTIVE',
+                'fc_review_status' => 'APPROVE',
+                'updated_at' => $now,
+            ]);
+
+        $this->db->table('my_fc_reviewed')
+            ->where('member_uid', $member['member_uid'])
+            ->update([
+                'status' => 'APPROVE',
+                'reject_reason' => null,
+                'approve_admin_uid' => $adminUid,
+                'approve_at' => $now,
+            ]);
+        $this->db->transComplete();
+
+        if ($this->db->transStatus() === false) {
+            return redirect()->back()->with('error', 'FC 승인 처리에 실패했습니다.');
+        }
+
+        return redirect()->back()->with('success', 'FC 승인이 완료되어 홈페이지 FC 목록에 노출됩니다.');
+    }
+
     public function delete()
     {
         $memberId = (int) $this->request->getPost('member_id');

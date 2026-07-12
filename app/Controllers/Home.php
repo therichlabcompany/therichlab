@@ -223,6 +223,7 @@ class Home extends BaseController
             ->join('(' . $reviewAggregate . ') rv', 'rv.fc_member_uid = m.member_uid', 'left', false)
             ->where('m.deleted_at IS NULL', null, false)
             ->where('m.member_type', 'FC')
+            ->where('m.status', 'ACTIVE')
             ->where('m.fc_review_status', 'APPROVE')
             ->limit($limit)
             ->get()
@@ -444,6 +445,7 @@ class Home extends BaseController
         $builder->groupBy('m.member_uid');
 
         $builder->where('m.member_type', 'FC');
+        $builder->where('m.status', 'ACTIVE');
         $builder->where('m.fc_review_status', 'APPROVE');
         $builder->where('m.deleted_at IS NULL', null, false);
 
