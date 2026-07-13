@@ -4215,3 +4215,9 @@ a.fc-detail-cta {
   line-height: 1.7;
   color: var(--text-sub);
 }
+.form-guide {
+  margin-left: 6px;
+  color: var(--text-sub);
+  font-size: 13px;
+  font-weight: 500;
+}

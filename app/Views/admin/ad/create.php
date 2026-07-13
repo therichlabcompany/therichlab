@@ -84,8 +84,9 @@ $status = old('status', 'apply');
                                 <input type="text" class="form-control" value="<?= $kind === 'top' ? '상단 배너' : '하단 배너' ?>" readonly>
                             </div>
                             <div class="edit-field full">
-                                <label for="banner_image">배너 이미지</label>
+                                <label for="banner_image">배너 이미지 (권장 964 × 180px)</label>
                                 <input id="banner_image" name="banner_image" type="file" class="form-control" accept="image/*">
+                                <small class="text-muted d-block mt-1">PC 노출 영역은 964 × 180px이며, 모바일에서는 높이 140px에 맞춰 이미지 중앙을 기준으로 잘라서 표시됩니다.</small>
                             </div>
                             <div class="edit-field">
                                 <label for="banner_link_url">배너 링크 URL</label>

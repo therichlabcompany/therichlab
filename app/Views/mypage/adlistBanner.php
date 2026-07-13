@@ -15,7 +15,7 @@
             <div class="form-field">
                 <div class="file-upload" data-banner-upload>
                     <div class="file-upload-head">
-                        <label class="form-label" for="banner-filename">광고 배너 업로드 <b>*</b></label>
+                        <label class="form-label" for="banner-filename">광고 배너 업로드 <b>*</b> <span class="form-guide">권장 964 × 180px</span></label>
                         <button type="button" class="btn btn-line btn-sm">노출 영역 확인</button>
                     </div>
                     <div class="file-upload-rows" data-upload-rows>
@@ -39,7 +39,8 @@
                     </div>
                 </div>
                 <ul class="dash-list">
-                    <li>배너 이미지 사이즈는 <strong>964x180</strong> 으로 제작하셔야 됩니다.</li>
+                    <li>배너 이미지 권장 사이즈는 <strong>964 × 180px</strong>입니다.</li>
+                    <li>모바일에서는 동일 이미지가 영역 높이 <strong>140px</strong>에 맞춰 중앙 기준으로 노출됩니다.</li>
                     <li>첨부 가능한 파일 형식은 <strong class="warn">.png .jpg .gif</strong> 로 등록해주세요.</li>
                 </ul>
                 <label class="c-check">
