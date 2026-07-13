@@ -277,6 +277,12 @@ abstract class BaseController extends Controller
             "modal_page" =>
                 $data["modal_page"] ?? [],
 
+            "agreementTerms" =>
+                $data["agreementTerms"] ?? [],
+
+            "agreementPrivacy" =>
+                $data["agreementPrivacy"] ?? [],
+
 
             // 회원 프로필
             "memberProfile" =>

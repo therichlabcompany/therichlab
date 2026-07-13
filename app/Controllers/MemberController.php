@@ -131,10 +131,13 @@ class MemberController extends BaseController
         ];
 
 
+        $agreements = $this->signupAgreementDocuments();
         $data = [
             "header_class" => $header_class,
             "popup_page" => $popup_page,
-            "modal_page" => $modal_page
+            "modal_page" => $modal_page,
+            "agreementTerms" => $agreements['TERMS'],
+            "agreementPrivacy" => $agreements['PRIVACY'],
         ];
 
 
@@ -173,14 +176,46 @@ class MemberController extends BaseController
         ];
 
 
+        $agreements = $this->signupAgreementDocuments();
         $data = [
             "header_class" => $header_class,
             "popup_page" => $popup_page,
-            "modal_page" => $modal_page
+            "modal_page" => $modal_page,
+            "agreementTerms" => $agreements['TERMS'],
+            "agreementPrivacy" => $agreements['PRIVACY'],
         ];
 
 
         return $this->renderView('member/fcAgree', $data);
+    }
+
+    private function signupAgreementDocuments(): array
+    {
+        $documents = [
+            'TERMS' => ['title' => '이용약관', 'content' => ''],
+            'PRIVACY' => ['title' => '개인정보 수집 및 이용', 'content' => ''],
+        ];
+
+        $rows = \Config\Database::connect()->table('my_fc_terms')
+            ->whereIn('term_type', array_keys($documents))
+            ->where('display_status', 'Y')
+            ->where('deleted_at', null)
+            ->orderBy('created_at', 'DESC')
+            ->orderBy('term_id', 'DESC')
+            ->get()
+            ->getResultArray();
+
+        foreach ($rows as $row) {
+            $type = (string) ($row['term_type'] ?? '');
+            if (isset($documents[$type]) && $documents[$type]['content'] === '') {
+                $documents[$type] = [
+                    'title' => (string) ($row['title'] ?? $documents[$type]['title']),
+                    'content' => (string) ($row['content'] ?? ''),
+                ];
+            }
+        }
+
+        return $documents;
     }
 
     public function fcJoin_step1(): string

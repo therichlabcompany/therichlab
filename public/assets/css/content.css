@@ -3942,6 +3942,14 @@ a.fc-detail-cta {
   margin-bottom: 0;
 }
 
+.layout-wrapper.terms-page .terms-body .terms-spacer {
+  height: 12px;
+}
+
+.layout-wrapper.terms-page .terms-body .terms-list-item {
+  padding-left: 16px;
+}
+
 /* MFC012 · 보험IN */
 .insurance-in-page > main > .page-inner-narrow { max-width: 880px; }
 .insurance-in-alert { margin: 0 0 20px; padding: 12px 16px; border-radius: 8px; background: #f3f4f6; text-align: center; }
@@ -4201,4 +4209,9 @@ a.fc-detail-cta {
   color: #475569;
   font-size: 14px;
   font-weight: 700;
+}
+.c-modal.terms .modal-policy-text {
+  white-space: normal;
+  line-height: 1.7;
+  color: var(--text-sub);
 }

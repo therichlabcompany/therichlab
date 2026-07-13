@@ -3025,6 +3025,7 @@ class Management extends BaseController
             ['label' => '중지', 'term_type' => '', 'display_status' => 'N'],
             ['label' => '이용약관', 'term_type' => 'TERMS', 'display_status' => ''],
             ['label' => '개인정보', 'term_type' => 'PRIVACY', 'display_status' => ''],
+            ['label' => '법적책임', 'term_type' => 'LEGAL', 'display_status' => ''],
             ['label' => '마케팅', 'term_type' => 'MARKETING', 'display_status' => ''],
         ];
 
@@ -3118,6 +3119,7 @@ class Management extends BaseController
         return [
             'TERMS' => '이용약관',
             'PRIVACY' => '개인정보처리방침',
+            'LEGAL' => '법적책임',
             'MARKETING' => '마케팅 수신 동의',
             'LOCATION' => '위치기반서비스 약관',
             'FC' => 'FC 회원 약관',

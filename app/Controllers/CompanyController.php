@@ -16,55 +16,41 @@ class CompanyController extends BaseController
 
     public function terms(): string
     {
-        helper(['region', 'insurance']);
-
-        $header_class = "form-page terms-page";
-
-        $popup_page = [];
-        $modal_page = [];
-
-        return $this->renderView('company/terms', [
-            "header_class" => $header_class,
-            "popup_page" => $popup_page,
-            "modal_page" => $modal_page
-        ]);
+        return $this->renderPolicy('TERMS', '이용약관');
     }
 
 
     public function privacy(): string
     {
-        helper(['region', 'insurance']);
-
-        $header_class = "form-page terms-page";
-
-        $popup_page = [];
-        $modal_page = [];
-
-        return $this->renderView('company/privacy', [
-            "header_class" => $header_class,
-            "popup_page" => $popup_page,
-            "modal_page" => $modal_page
-        ]);
+        return $this->renderPolicy('PRIVACY', '개인정보처리방침');
     }
 
     public function legal(): string
     {
-        helper(['region', 'insurance']);
-
-        $header_class = "form-page terms-page";
-
-        $popup_page = [];
-        $modal_page = [];
-
-        return $this->renderView('company/legal', [
-            "header_class" => $header_class,
-            "popup_page" => $popup_page,
-            "modal_page" => $modal_page
-        ]);
+        return $this->renderPolicy('LEGAL', '법적책임');
     }
 
-    
+    private function renderPolicy(string $type, string $defaultTitle): string
+    {
+        helper(['region', 'insurance']);
 
-    
+        $term = $this->db->table('my_fc_terms')
+            ->where('term_type', $type)
+            ->where('display_status', 'Y')
+            ->where('deleted_at', null)
+            ->orderBy('created_at', 'DESC')
+            ->orderBy('term_id', 'DESC')
+            ->get()
+            ->getRowArray();
+
+        return $this->renderView('company/document', [
+            'header_class' => 'form-page terms-page',
+            'popup_page' => [],
+            'modal_page' => [],
+            'title' => $term['title'] ?? $defaultTitle,
+            'content' => $term['content'] ?? '',
+            'version' => $term['version'] ?? '',
+        ]);
+    }
 
 }
