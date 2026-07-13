@@ -738,6 +738,7 @@ body.profile-open {
 }
 
 .list-avatar {
+  width: 90px;
   height: 90px;
   border-radius: 8px;
   object-fit: cover;

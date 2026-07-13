@@ -35,7 +35,7 @@ class Home extends BaseController
         $topBannerAds = $this->activeBannerAds('top');
         $bottomBannerAds = $this->activeBannerAds('bottom');
 
-        return $this->renderView('main/index', [
+        return $this->renderView('main/index_pro', [
             "header_class" => $header_class,
             "popup_page" => $popup_page,
             "modal_page" => $modal_page,
@@ -171,7 +171,7 @@ class Home extends BaseController
                     m.member_id,
                     m.member_uid,
                     m.name,
-                    m.profile_image AS member_profile_image,
+                    COALESCE(NULLIF(p.profile_image, ""), NULLIF(m.profile_image, "")) AS profile_image,
                     p.company,
                     p.company_sub,
                     p.ga,
@@ -202,7 +202,7 @@ class Home extends BaseController
                     m.member_id,
                     m.member_uid,
                     m.name,
-                    m.profile_image AS member_profile_image,
+                    COALESCE(NULLIF(p.profile_image, ""), NULLIF(m.profile_image, "")) AS profile_image,
                     p.company,
                     p.company_sub,
                     p.ga,
@@ -428,7 +428,7 @@ class Home extends BaseController
         $builder->select('
             m.member_uid,
             m.name,
-            m.profile_image,
+            COALESCE(NULLIF(p.profile_image, ""), NULLIF(m.profile_image, "")) AS profile_image,
 
             p.company,
             a.region,
@@ -488,9 +488,11 @@ class Home extends BaseController
                 $tags .= '<span>' . fc_insurance_label($item) . '</span>';
             }
 
-            $img = !empty($row['profile_image'])
-                ? '/uploads/profile/' . $row['profile_image']
-                : SITE_IMG_URL . 'images/temp/@profile-m.png';
+            $profilePath = trim((string) ($row['profile_image'] ?? ''));
+            $img = $profilePath !== '' ? '/uploads/profile/' . ltrim($profilePath, '/') : '';
+            $profileMedia = $img !== ''
+                ? '<img src="' . esc($img) . '" class="avatar" alt="" onerror="this.removeAttribute(\'src\'); this.classList.add(\'is-empty\');" />'
+                : '<span class="avatar is-empty" aria-hidden="true"></span>';
 
             $html .= '
             <div class="swiper-slide">
@@ -500,7 +502,7 @@ class Home extends BaseController
 
                             <div class="profile">
 
-                                <img src="' . $img . '" class="avatar" />
+                                ' . $profileMedia . '
 
                                 <div>
 

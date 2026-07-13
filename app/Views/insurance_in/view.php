@@ -2,7 +2,7 @@
 $uid = (string) session('member_uid');
 $type = (string) session('member_type');
 $owner = $uid !== '' && $uid === $question['member_uid'];
-$profileImage = static fn($row) => !empty($row['profile_image']) ? base_url('uploads/profile/' . $row['profile_image']) : SITE_IMG_URL . 'images/temp/@profile-m.png';
+$profileImage = static fn($row) => !empty($row['profile_image']) ? base_url('uploads/profile/' . $row['profile_image']) : '';
 ?>
 <main>
     <div class="page-inner-narrow">
@@ -34,7 +34,7 @@ $profileImage = static fn($row) => !empty($row['profile_image']) ? base_url('upl
                             </div><?php endif; ?>
                         <article class="card">
                             <div class="card-body">
-                                <div class="profile"><img src="<?= $profileImage($answer) ?>" alt="" class="avatar">
+                                <div class="profile"><?php if ($profileImage($answer) !== ''): ?><img src="<?= esc($profileImage($answer)) ?>" alt="" class="avatar" onerror="this.removeAttribute('src'); this.classList.add('is-empty');"><?php else: ?><span class="avatar is-empty" aria-hidden="true"></span><?php endif; ?>
                                     <div>
                                         <p class="profile-name"><?= esc($answer['name']) ?></p>
                                         <p class="c-rate"><span class="c-rate-star">★</span> <?= number_format((float)$answer['rating'], 1) ?> <span class="c-rate-count">(<?= number_format($answer['rating_count']) ?>)</span></p>

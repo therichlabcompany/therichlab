@@ -74,10 +74,11 @@ if (empty($insuranceText)) $insuranceText = "전체";
                                     <div class="profile">
 
                                         <!-- profile image -->
-                                        <img
-                                            src="<?= !empty($row['profile_image']) ? '/uploads/profile/' . $row['profile_image'] : SITE_IMG_URL . 'images/temp/@profile-m.png' ?>"
-                                            alt=""
-                                            class="avatar" />
+                                        <?php if (!empty($row['profile_image'])): ?>
+                                            <img src="/uploads/profile/<?= esc($row['profile_image']) ?>" alt="" class="avatar" onerror="this.removeAttribute('src'); this.classList.add('is-empty');" />
+                                        <?php else: ?>
+                                            <span class="avatar is-empty" aria-hidden="true"></span>
+                                        <?php endif; ?>
 
                                         <div>
 

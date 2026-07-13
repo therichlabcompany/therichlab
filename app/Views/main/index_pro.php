@@ -11,7 +11,7 @@ $languageOptions = $language_options ?? [];
 $topBannerAds = $top_banner_ads ?? [];
 $bottomBannerAds = $bottom_banner_ads ?? [];
 
-$mainImageUrl = static function (?string $path, string $fallback): string {
+$mainImageUrl = static function (?string $path, string $fallback = '', string $directory = 'banner'): string {
     $path = trim((string) $path);
     if ($path === '') {
         return $fallback;
@@ -22,10 +22,7 @@ $mainImageUrl = static function (?string $path, string $fallback): string {
     if (strpos($path, '/') === 0) {
         return $path;
     }
-    if ($fallback === '') {
-        return '/uploads/banner/' . $path;
-    }
-    return '/uploads/profile/' . $path;
+    return '/uploads/' . trim($directory, '/') . '/' . $path;
 };
 
 $mainFcRegionLabel = static function (array $row): string {
@@ -190,14 +187,18 @@ $mainChunks = static function (array $rows, int $size): array {
                         <?php foreach ($mainRecommendList as $adFc): ?>
                             <?php
                             $tags = $mainFcInsuranceTags($adFc);
-                            $profileImage = $mainImageUrl($adFc['member_profile_image'] ?? '', SITE_IMG_URL . 'images/temp/@profile-m.png');
+                            $profileImage = $mainImageUrl($adFc['profile_image'] ?? '', '', 'profile');
                             ?>
                             <div class="swiper-slide" data-filter-values="<?= esc($mainRegionFilterValues($adFc)) ?>">
                                 <article class="card">
                                     <div class="card-body">
                                         <a class="card-link" href="<?= esc($mainFcHref($adFc)) ?>">
                                             <div class="profile">
-                                                <img src="<?= esc($profileImage) ?>" alt="" class="avatar" />
+                                                <?php if ($profileImage !== ''): ?>
+                                                    <img src="<?= esc($profileImage) ?>" alt="" class="avatar" onerror="this.removeAttribute('src'); this.classList.add('is-empty');" />
+                                                <?php else: ?>
+                                                    <span class="avatar is-empty" aria-hidden="true"></span>
+                                                <?php endif; ?>
                                                 <div>
                                                     <p class="profile-name"><?= esc($adFc['name'] ?? '-') ?></p>
                                                     <p class="c-rate">
@@ -283,12 +284,16 @@ $mainChunks = static function (array $rows, int $size): array {
                             <div class="swiper-slide list-grid">
                                 <?php foreach ($chunk as $row): ?>
                                     <?php
-                                    $profileImage = $mainImageUrl($row['member_profile_image'] ?? '', SITE_IMG_URL . 'images/temp/@profile-m.png');
+                                    $profileImage = $mainImageUrl($row['profile_image'] ?? '', '', 'profile');
                                     $desc = trim((string) ($row['hero_line'] ?? $row['intro'] ?? ''));
                                     ?>
                                     <a href="<?= esc($mainFcHref($row)) ?>" class="list-item" data-filter-values="<?= esc($mainInsuranceFilterValues($row)) ?>">
                                         <div class="list-left">
-                                            <img src="<?= esc($profileImage) ?>" alt="" class="list-avatar" />
+                                            <?php if ($profileImage !== ''): ?>
+                                                <img src="<?= esc($profileImage) ?>" alt="" class="list-avatar" onerror="this.removeAttribute('src'); this.classList.add('is-empty');" />
+                                            <?php else: ?>
+                                                <span class="list-avatar is-empty" aria-hidden="true"></span>
+                                            <?php endif; ?>
                                             <div class="list-text">
                                                 <p class="list-title"><?= esc($row['name'] ?? '-') ?></p>
                                                 <p class="c-rate"><span class="c-rate-star">★</span> <?= number_format((float) ($row['rating'] ?? 0), 1) ?> <span class="c-rate-count">(<?= number_format((int) ($row['rating_count'] ?? 0)) ?>)</span></p>
@@ -437,11 +442,15 @@ $mainChunks = static function (array $rows, int $size): array {
                                 <div class="language-list-grid">
                                     <?php foreach ($chunk as $row): ?>
                                         <?php
-                                        $profileImage = $mainImageUrl($row['member_profile_image'] ?? '', SITE_IMG_URL . 'images/temp/@profile-m.png');
+                                        $profileImage = $mainImageUrl($row['profile_image'] ?? '', '', 'profile');
                                         $tags = array_slice($mainFcInsuranceTags($row), 0, 3);
                                         ?>
                                         <a href="<?= esc($mainFcHref($row)) ?>" class="language-card" data-filter-values="<?= esc($mainLanguageFilterValues($row)) ?>">
-                                            <img src="<?= esc($profileImage) ?>" alt="" class="avatar" />
+                                            <?php if ($profileImage !== ''): ?>
+                                                <img src="<?= esc($profileImage) ?>" alt="" class="avatar" onerror="this.removeAttribute('src'); this.classList.add('is-empty');" />
+                                            <?php else: ?>
+                                                <span class="avatar is-empty" aria-hidden="true"></span>
+                                            <?php endif; ?>
                                             <div class="language-body">
                                                 <p class="list-title"><?= esc($row['name'] ?? '-') ?></p>
                                                 <p class="c-rate"><span class="c-rate-star">★</span> <?= number_format((float) ($row['rating'] ?? 0), 1) ?> <span class="c-rate-count">(<?= number_format((int) ($row['rating_count'] ?? 0)) ?>)</span></p>

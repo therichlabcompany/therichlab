@@ -1227,6 +1227,11 @@ br.br-mo {
   flex: none;
 }
 
+.avatar.is-empty,
+.list-avatar.is-empty {
+  background: #e5e7eb;
+}
+
 .c-rate {
   margin: 0 0 4px;
   font-size: 14px;
