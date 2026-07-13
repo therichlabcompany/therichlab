@@ -4,6 +4,8 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title><?= esc($title ?? '관리자') ?></title>
+    <link rel="icon" type="image/svg+xml" href="<?= base_url('assets/images/myfc-favicon.svg') ?>">
+    <link rel="shortcut icon" type="image/svg+xml" href="<?= base_url('assets/images/myfc-favicon.svg') ?>">
 
     <!-- AdminLTE v4 CSS -->
     <link rel="stylesheet" href="<?= base_url('assets/css/common.css?v=3') ?>">
@@ -15,7 +17,10 @@
     <!-- 상단 메뉴 -->
     <nav class="app-header navbar navbar-expand bg-body admin-header">
         <div class="container-fluid">
-            <a class="navbar-brand" href="<?= base_url('admin') ?>">관리자</a>
+            <a class="navbar-brand admin-brand" href="<?= base_url('admin') ?>">
+                <img src="<?= base_url('assets/images/logo.png') ?>" alt="MyFC" class="admin-brand-logo">
+                <span>관리자</span>
+            </a>
         </div>
     </nav>
 
@@ -24,6 +29,7 @@
         <div class="sidebar-brand">
         
             <a href="<?= base_url('admin') ?>" class="brand-link text-decoration-none">
+                <img src="<?= base_url('assets/images/logo.png') ?>" alt="MyFC" class="brand-image admin-sidebar-brand-image">
                 <span class="brand-text fw-light">Admin</span>
             </a>
 

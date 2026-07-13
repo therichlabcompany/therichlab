@@ -211,7 +211,7 @@ $adminName = $adminName ?? 'admin';
                         <div class="detail-label">심의결과 회신문 파일</div>
                         <div class="detail-value">
                             <?php if (!empty($row['deliberation_file'])): ?>
-                                <a href="<?= base_url(ltrim($row['deliberation_file'], '/')) ?>" class="btn btn-outline-primary btn-sm" download>
+                                <a href="<?= base_url('admin/contents/deliberations/' . (int) $row['id'] . '/download') ?>" class="btn btn-outline-primary btn-sm">
                                     파일 다운로드
                                 </a>
                                 <span class="ms-2"><?= esc(basename($row['deliberation_file'])) ?></span>

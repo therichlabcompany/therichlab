@@ -22,6 +22,7 @@ $bulkForm = $bulkForm ?? [];
 $page = max(1, (int) ($page ?? 1));
 $totalPages = max(1, (int) ($totalPages ?? 1));
 $pageQuery = is_array($pageQuery ?? null) ? $pageQuery : [];
+$perPage = max(1, (int) ($perPage ?? 20));
 ?>
 
 <style>
@@ -242,7 +243,7 @@ $pageQuery = is_array($pageQuery ?? null) ? $pageQuery : [];
             <div class="page-card">
                 <div class="page-card-head">
                     <span><?= esc($title) ?></span>
-                    <span>20개 노출</span>
+                    <span><?= number_format($perPage) ?>개 노출</span>
                 </div>
                 <div class="page-card-body table-responsive">
                     <?php if (!empty($bulkForm)): ?>

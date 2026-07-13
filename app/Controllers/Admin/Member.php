@@ -134,8 +134,12 @@ class Member extends BaseController
     public function export()
     {
         $request = $this->request;
-        $builder = $this->db->table('my_fc_member')
-            ->select('name, email, phone, birth, gender, created_at, member_uid')
+        $builder = $this->db->table('my_fc_member m')
+            ->select(
+                'm.member_id, m.member_uid, m.member_type, m.email, m.phone, m.phone_verified, m.name, m.birth, m.gender, m.nickname, m.status, m.login_fail_count, m.password_reset_at, m.last_login_at, m.agree_age, m.agree_terms, m.agree_privacy, m.agree_marketing, m.join_ip, m.admin_memo, m.created_at, m.updated_at, m.app_platform, m.app_token_expire_at, m.app_token_updated_at, m.fc_step, m.fc_review_status,'
+                . ' (SELECT COUNT(*) FROM my_fc_counsel c WHERE c.member_uid = m.member_uid AND c.deleted_at IS NULL) AS counsel_count,'
+                . ' (SELECT COUNT(*) FROM my_fc_counsel_review r WHERE r.member_uid = m.member_uid AND r.deleted_at IS NULL) AS review_count'
+            )
             ->where('member_type', 'USER')
             ->where('deleted_at', null);
 
@@ -154,25 +158,24 @@ class Member extends BaseController
             }
         }
 
-        $rows = $builder->orderBy('created_at', 'DESC')->get()->getResultArray();
+        $sortField = (string) ($request->getGet('sort') ?? 'member_id');
+        $sortOrder = strtoupper((string) ($request->getGet('order') ?? 'DESC'));
+        $allowedSort = ['member_id', 'email', 'name', 'member_type', 'status', 'created_at'];
+
+        if (!in_array($sortField, $allowedSort, true)) {
+            $sortField = 'member_id';
+        }
+
+        if (!in_array($sortOrder, ['ASC', 'DESC'], true)) {
+            $sortOrder = 'DESC';
+        }
+
+        $rows = $builder->orderBy('m.' . $sortField, $sortOrder)->get()->getResultArray();
         $csv = "\xEF\xBB\xBF";
-        $csv .= "이름,이메일주소,휴대폰번호,생년월일,성별,상담요청건수,가입일시\n";
+        $csv .= $this->csvLine($this->memberExportHeaders());
 
         foreach ($rows as $row) {
-            $counselCount = $this->db->table('my_fc_counsel')
-                ->where('member_uid', $row['member_uid'])
-                ->where('deleted_at', null)
-                ->countAllResults();
-
-            $csv .= $this->csvLine([
-                $row['name'] ?? '',
-                $row['email'] ?? '',
-                $row['phone'] ?? '',
-                $row['birth'] ?? '',
-                ($row['gender'] ?? '') === 'F' ? '여성' : (($row['gender'] ?? '') === 'M' ? '남성' : ''),
-                (string) $counselCount,
-                !empty($row['created_at']) ? date('Ymd H:i:s', strtotime($row['created_at'])) : '',
-            ]);
+            $csv .= $this->csvLine($this->memberExportRow($row));
         }
 
         return $this->response
@@ -258,6 +261,8 @@ class Member extends BaseController
         $member = $this->getMember((int) $id);
         $status = strtoupper((string) ($this->request->getGet('status') ?? 'ALL'));
         $selectedUid = (string) ($this->request->getGet('counsel_uid') ?? '');
+        $page = max(1, (int) ($this->request->getGet('page') ?? 1));
+        $perPage = 5;
         $allowedStatus = ['ALL', 'REQUEST', 'COMPLETE'];
 
         if (!in_array($status, $allowedStatus, true)) {
@@ -291,8 +296,13 @@ class Member extends BaseController
             $builder->where('c.status', $status);
         }
 
+        $total = (clone $builder)->countAllResults();
+        $totalPages = max(1, (int) ceil($total / $perPage));
+        $page = min($page, $totalPages);
+
         $counsels = $builder
             ->orderBy('c.created_at', 'DESC')
+            ->limit($perPage, ($page - 1) * $perPage)
             ->get()
             ->getResultArray();
 
@@ -301,11 +311,36 @@ class Member extends BaseController
         }
 
         $selectedCounsel = null;
-        foreach ($counsels as $counsel) {
-            if ($counsel['counsel_uid'] === $selectedUid) {
-                $selectedCounsel = $counsel;
-                break;
-            }
+        if ($selectedUid !== '') {
+            $selectedCounsel = $this->db->table('my_fc_counsel c')
+                ->select("
+                    c.*,
+                    fc.name AS fc_name,
+                    fp.profile_image,
+                    fp.company,
+                    fp.company_sub,
+                    fpa.region,
+                    fpa.intro,
+                    COALESCE(rs.avg_rating, 0) AS avg_rating
+                ")
+                ->join('my_fc_member fc', 'fc.member_uid = c.fc_member_uid', 'left')
+                ->join('my_fc_profile fp', 'fp.member_uid = c.fc_member_uid', 'left')
+                ->join('my_fc_profile_activity fpa', 'fpa.member_uid = c.fc_member_uid', 'left')
+                ->join(
+                    '(SELECT fc_member_uid, AVG(rating) AS avg_rating FROM my_fc_counsel_review WHERE deleted_at IS NULL GROUP BY fc_member_uid) rs',
+                    'rs.fc_member_uid = c.fc_member_uid',
+                    'left',
+                    false
+                )
+                ->where('c.member_uid', $member['member_uid'])
+                ->where('c.counsel_uid', $selectedUid)
+                ->where('c.deleted_at', null)
+                ->get()
+                ->getRowArray();
+        }
+
+        if (!$selectedCounsel && !empty($counsels)) {
+            $selectedCounsel = $counsels[0];
         }
 
         $files = [];
@@ -335,6 +370,11 @@ class Member extends BaseController
             'files' => $files,
             'status' => $status,
             'statusCounts' => $statusCounts ?: [],
+            'page' => $page,
+            'perPage' => $perPage,
+            'total' => $total,
+            'totalPages' => $totalPages,
+            'pager' => \Config\Services::pager(),
         ]);
     }
 
@@ -677,9 +717,13 @@ class Member extends BaseController
     public function downloadFile($securityId)
     {
         $file = $this->getSecurityFile((int) $securityId);
-        $path = WRITEPATH . $file['file_path'];
+        $path = $this->resolveUploadPath((string) ($file['file_path'] ?? ''));
 
-        if (!is_file($path)) {
+        if (!$path && !empty($file['saved_name'])) {
+            $path = WRITEPATH . 'uploads/security/' . ltrim((string) $file['saved_name'], '/');
+        }
+
+        if (!$path || !is_file($path)) {
             throw PageNotFoundException::forPageNotFound();
         }
 
@@ -741,18 +785,43 @@ class Member extends BaseController
     {
         $securityId = (int) $this->request->getPost('security_id');
         $file = $this->getSecurityFile($securityId);
-        $path = WRITEPATH . $file['file_path'];
+        $memberUid = (string) ($file['member_uid'] ?? '');
+        $path = $this->resolveUploadPath((string) ($file['file_path'] ?? ''));
 
-        if (is_file($path)) {
+        if (!$path && !empty($file['saved_name'])) {
+            $path = WRITEPATH . 'uploads/security/' . ltrim((string) $file['saved_name'], '/');
+        }
+
+        if ($path && is_file($path)) {
             @unlink($path);
         }
+
+        $now = date('Y-m-d H:i:s');
+        $this->db->transStart();
 
         $this->db->table('my_fc_member_security')
             ->where('security_id', $securityId)
             ->update([
-                'deleted_at' => date('Y-m-d H:i:s'),
-                'updated_at' => date('Y-m-d H:i:s'),
+                'deleted_at' => $now,
+                'updated_at' => $now,
             ]);
+
+        $remainingCount = $this->db->table('my_fc_member_security')
+            ->where('member_uid', $memberUid)
+            ->where('deleted_at', null)
+            ->countAllResults();
+
+        if ($remainingCount < 1) {
+            $this->db->table('my_fc_member_security')
+                ->where('member_uid', $memberUid)
+                ->delete();
+        }
+
+        $this->db->transComplete();
+
+        if (! $this->request->isAJAX()) {
+            return redirect()->back()->with('success', '파일이 삭제되었습니다.');
+        }
 
         return $this->response->setJSON([
             'status' => 'success',
@@ -918,6 +987,106 @@ class Member extends BaseController
         return implode(',', array_map(static function ($value) {
             return '"' . str_replace('"', '""', (string) $value) . '"';
         }, $columns)) . "\n";
+    }
+
+    private function memberExportHeaders(): array
+    {
+        return [
+            '회원번호',
+            '회원UID',
+            '회원구분',
+            '이름',
+            '이메일',
+            '휴대폰',
+            '휴대폰인증',
+            '생년월일',
+            '성별',
+            '닉네임',
+            '회원상태',
+            '로그인실패횟수',
+            '비밀번호재설정일',
+            '최종로그인',
+            '가입동의(나이)',
+            '약관동의',
+            '개인정보동의',
+            '마케팅동의',
+            '가입IP',
+            '관리자메모',
+            '가입일시',
+            '수정일시',
+            '앱플랫폼',
+            '앱토큰만료일',
+            '앱토큰갱신일',
+            'FC단계',
+            '심의필상태',
+            '상담요청건수',
+            '후기건수',
+        ];
+    }
+
+    private function memberExportRow(array $row): array
+    {
+        return [
+            $row['member_id'] ?? '',
+            $row['member_uid'] ?? '',
+            ($row['member_type'] ?? '') === 'USER' ? '개인' : (string) ($row['member_type'] ?? ''),
+            $row['name'] ?? '',
+            $row['email'] ?? '',
+            $row['phone'] ?? '',
+            $this->yesNoLabel($row['phone_verified'] ?? ''),
+            $this->formatBirth($row['birth'] ?? ''),
+            $this->genderLabel($row['gender'] ?? ''),
+            $row['nickname'] ?? '',
+            $row['status'] ?? '',
+            $row['login_fail_count'] ?? 0,
+            $row['password_reset_at'] ?? '',
+            $row['last_login_at'] ?? '',
+            $this->boolLabel($row['agree_age'] ?? 0),
+            $this->boolLabel($row['agree_terms'] ?? 0),
+            $this->boolLabel($row['agree_privacy'] ?? 0),
+            $this->boolLabel($row['agree_marketing'] ?? 0),
+            $row['join_ip'] ?? '',
+            $row['admin_memo'] ?? '',
+            $row['created_at'] ?? '',
+            $row['updated_at'] ?? '',
+            $row['app_platform'] ?? '',
+            $row['app_token_expire_at'] ?? '',
+            $row['app_token_updated_at'] ?? '',
+            $row['fc_step'] ?? '',
+            $row['fc_review_status'] ?? '',
+            $row['counsel_count'] ?? 0,
+            $row['review_count'] ?? 0,
+        ];
+    }
+
+    private function yesNoLabel($value): string
+    {
+        return ((string) $value) === 'Y' ? 'Y' : 'N';
+    }
+
+    private function boolLabel($value): string
+    {
+        return ((string) $value === '1' || (string) $value === 'Y') ? 'Y' : 'N';
+    }
+
+    private function genderLabel($value): string
+    {
+        return match ((string) $value) {
+            'M' => '남성',
+            'F' => '여성',
+            default => '',
+        };
+    }
+
+    private function formatBirth($value): string
+    {
+        $value = trim((string) $value);
+
+        if ($value === '' || strlen($value) !== 8) {
+            return $value;
+        }
+
+        return substr($value, 0, 4) . '-' . substr($value, 4, 2) . '-' . substr($value, 6, 2);
     }
 
     private function isAllowedUploadExtension(string $extension): bool

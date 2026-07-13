@@ -8,9 +8,20 @@ $value = static fn ($key) => isset($m[$key]) && $m[$key] !== '' && $m[$key] !== 
     ? esc((string) $m[$key])
     : '-';
 
-$dateValue = static fn ($key) => isset($m[$key]) && $m[$key] !== '' && $m[$key] !== null
-    ? esc((string) $m[$key])
-    : '-';
+$dateValue = static function ($key) use ($m) {
+    if (!isset($m[$key]) || $m[$key] === '' || $m[$key] === null) {
+        return '-';
+    }
+
+    $value = (string) $m[$key];
+    $timestamp = strtotime($value);
+
+    if ($timestamp === false) {
+        return esc($value);
+    }
+
+    return esc(date('Y-m-d H:i:s', $timestamp));
+};
 
 $genderLabel = match ($m['gender'] ?? '') {
     'M' => '남성',
@@ -370,8 +381,7 @@ $error = session()->getFlashdata('error');
         justify-content: center;
         width: 100%;
         height: 100%;
-        color: #64748b;
-        font-weight: 800;
+        background: #e5e7eb;
     }
 
     .review-detail-fc-name {
@@ -721,9 +731,16 @@ $error = session()->getFlashdata('error');
                         <div class="review-detail-fc">
                             <div class="review-detail-avatar">
                                 <?php if ($profileImageUrl !== ''): ?>
-                                    <img src="<?= esc($profileImageUrl) ?>" alt="" onerror="this.removeAttribute('src'); this.classList.add('is-empty');">
+                                    <img
+                                        src="<?= esc($profileImageUrl) ?>"
+                                        alt=""
+                                        onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+                                    >
                                 <?php else: ?>
                                     <div class="fallback" aria-hidden="true"></div>
+                                <?php endif; ?>
+                                <?php if ($profileImageUrl !== ''): ?>
+                                    <div class="fallback" aria-hidden="true" style="display:none;"></div>
                                 <?php endif; ?>
                             </div>
                             <div>

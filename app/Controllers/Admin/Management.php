@@ -17,11 +17,39 @@ class Management extends BaseController
 
     public function inactiveMembers()
     {
-        $rows = $this->db->table('my_fc_member')
+        $page = max(1, (int) ($this->request->getGet('page') ?? 1));
+        $perPage = 20;
+        $startDate = trim((string) ($this->request->getGet('start_date') ?? ''));
+        $endDate = trim((string) ($this->request->getGet('end_date') ?? ''));
+        $keyword = trim((string) ($this->request->getGet('q') ?? ''));
+
+        $builder = $this->db->table('my_fc_member')
             ->select('member_id, member_type, email, phone, name, created_at, deleted_at')
-            ->where('deleted_at IS NOT NULL', null, false)
+            ->where('deleted_at IS NOT NULL', null, false);
+
+        if ($startDate !== '') {
+            $builder->where('deleted_at >=', $startDate . ' 00:00:00');
+        }
+
+        if ($endDate !== '') {
+            $builder->where('deleted_at <=', $endDate . ' 23:59:59');
+        }
+
+        if ($keyword !== '') {
+            $builder->groupStart()
+                ->like('name', $keyword)
+                ->orLike('email', $keyword)
+                ->orLike('phone', $keyword)
+                ->groupEnd();
+        }
+
+        $total = (clone $builder)->countAllResults();
+        $totalPages = max(1, (int) ceil($total / $perPage));
+        $page = min($page, $totalPages);
+
+        $rows = $builder
             ->orderBy('deleted_at', 'DESC')
-            ->limit(20)
+            ->limit($perPage, ($page - 1) * $perPage)
             ->get()
             ->getResultArray();
 
@@ -36,8 +64,12 @@ class Management extends BaseController
             'title' => '탈퇴 회원',
             'breadcrumb' => 'Main > 대시보드 > 탈퇴 회원',
             'countLabel' => '탈퇴 회원',
-            'count' => count($rows),
-            'searchPlaceholder' => '탈퇴기간으로 검색',
+            'count' => $total,
+            'searchPlaceholder' => '이름, 이메일, 휴대폰번호 또는 탈퇴기간으로 검색',
+            'searchAction' => base_url('admin/inactive-members'),
+            'searchValue' => $keyword,
+            'dateFrom' => $startDate,
+            'dateTo' => $endDate,
             'tabs' => ['최근 탈퇴 순'],
             'headers' => ['회원구분', '이름', '이메일', '휴대폰번호', '가입일', '탈퇴일'],
             'rows' => array_map(static fn ($row) => [
@@ -48,22 +80,34 @@ class Management extends BaseController
                 $row['created_at'] ?? '-',
                 $row['deleted_at'] ?? '-',
             ], $rows),
+            'page' => $page,
+            'totalPages' => $totalPages,
+            'perPage' => $perPage,
+            'pageQuery' => array_filter([
+                'q' => $keyword,
+                'start_date' => $startDate,
+                'end_date' => $endDate,
+            ], static fn ($value) => (string) $value !== ''),
         ]);
     }
 
     public function counsels()
     {
         $filters = $this->counselFilters();
+        $page = max(1, (int) ($this->request->getGet('page') ?? 1));
+        $perPage = 5;
         $builder = $this->counselListBuilder();
         $this->applyCounselFilters($builder, $filters);
 
         $countBuilder = $this->counselListBuilder();
         $this->applyCounselFilters($countBuilder, $filters);
         $total = $countBuilder->countAllResults();
+        $totalPages = max(1, (int) ceil($total / $perPage));
+        $page = min($page, $totalPages);
 
         $rows = $builder
             ->orderBy('c.created_at', 'DESC')
-            ->limit(20)
+            ->limit($perPage, ($page - 1) * $perPage)
             ->get()
             ->getResultArray();
 
@@ -91,7 +135,8 @@ class Management extends BaseController
             'searchHidden' => ['status' => $filters['status']],
             'tabs' => $this->counselTabs($filters),
             'actions' => [['label' => 'EXCEL', 'url' => $exportUrl]],
-            'headers' => ['상담 신청자', '상담 FC', '상담상태', '상담신청일', '상담요청일'],
+            'perPage' => $perPage,
+            'headers' => ['상담 신청자', '상담 FC', '상담상태', '상담신청일', '희망 상담요청일자'],
             'rows' => array_map(function ($row) {
                 return [
                     '<a href="' . base_url('admin/contents/counsels/' . (int) $row['counsel_id']) . '">' . esc(($row['name'] ?? '-') . ' (' . ($row['email'] ?? '-') . ')') . '</a>',
@@ -101,6 +146,14 @@ class Management extends BaseController
                     esc($row['reserve_datetime'] ?? '-'),
                 ];
             }, $rows),
+            'page' => $page,
+            'totalPages' => $totalPages,
+            'pageQuery' => array_filter([
+                'status' => $filters['status'],
+                'q' => $filters['q'],
+                'start_date' => $filters['start_date'],
+                'end_date' => $filters['end_date'],
+            ], static fn ($value) => (string) $value !== ''),
         ]);
     }
 
@@ -173,11 +226,22 @@ class Management extends BaseController
 
     public function deliberations()
     {
-        $rows = $this->db->table('my_fc_reviewed r')
-            ->select('r.id, r.member_uid, r.deliberation_no, r.status, r.created_at, m.name, m.email')
-            ->join('my_fc_member m', 'm.member_uid = r.member_uid', 'left')
+        $filters = $this->deliberationFilters();
+        $page = max(1, (int) ($this->request->getGet('page') ?? 1));
+        $perPage = 20;
+
+        $builder = $this->deliberationListBuilder();
+        $this->applyDeliberationFilters($builder, $filters);
+
+        $countBuilder = $this->deliberationListBuilder();
+        $this->applyDeliberationFilters($countBuilder, $filters);
+        $total = $countBuilder->countAllResults();
+        $totalPages = max(1, (int) ceil($total / $perPage));
+        $page = min($page, $totalPages);
+
+        $rows = $builder
             ->orderBy('r.created_at', 'DESC')
-            ->limit(20)
+            ->limit($perPage, ($page - 1) * $perPage)
             ->get()
             ->getResultArray();
 
@@ -185,10 +249,12 @@ class Management extends BaseController
             'title' => '심의필 신청 관리',
             'breadcrumb' => 'Main > 대시보드 > 컨텐츠 관리 > 심의필 신청 관리',
             'countLabel' => '심의필 신청',
-            'count' => count($rows),
+            'count' => $total,
             'searchPlaceholder' => 'FC회원명, FC회원 이메일주소, 심의필 번호로 검색',
-            'tabs' => ['전체', '승인 대기', '승인 완료', '승인 거부'],
-            'actions' => [['label' => 'EXCEL', 'url' => '#', 'ready' => true]],
+            'searchValue' => $filters['q'],
+            'searchHidden' => ['status' => $filters['status']],
+            'tabs' => $this->deliberationTabs($filters),
+            'actions' => [['label' => 'EXCEL', 'url' => $this->deliberationsExportUrl($filters)]],
             'headers' => ['신청 FC', '승인 상태', '심의필번호', '승인신청일'],
             'rows' => array_map(function ($row) {
                 return [
@@ -198,7 +264,38 @@ class Management extends BaseController
                     esc($row['created_at'] ?? '-'),
                 ];
             }, $rows),
+            'page' => $page,
+            'totalPages' => $totalPages,
+            'perPage' => $perPage,
+            'pageQuery' => array_filter([
+                'status' => $filters['status'],
+                'q' => $filters['q'],
+            ], static fn ($value) => (string) $value !== ''),
         ]);
+    }
+
+    public function deliberationsExport()
+    {
+        $filters = $this->deliberationFilters();
+        $builder = $this->deliberationListBuilder();
+        $this->applyDeliberationFilters($builder, $filters);
+
+        $rows = $builder
+            ->orderBy('r.created_at', 'DESC')
+            ->get()
+            ->getResultArray();
+
+        $csv = "\xEF\xBB\xBF";
+        $csv .= $this->csvLine($this->deliberationExportHeaders());
+
+        foreach ($rows as $row) {
+            $csv .= $this->csvLine($this->deliberationExportRow($row));
+        }
+
+        return $this->response
+            ->setHeader('Content-Type', 'text/csv; charset=UTF-8')
+            ->setHeader('Content-Disposition', 'attachment; filename="deliberations_' . date('Ymd_His') . '.csv"')
+            ->setBody($csv);
     }
 
     public function deliberationDetail($id)
@@ -231,6 +328,36 @@ class Management extends BaseController
             'decisionUrl' => base_url('admin/contents/deliberations/' . (int) $id . '/decision'),
             'adminName' => (string) (session()->get('admin_username') ?? session()->get('admin_name') ?? session()->get('admin_id') ?? 'admin'),
         ]);
+    }
+
+    public function deliberationDownload($id)
+    {
+        $row = $this->db->table('my_fc_reviewed')
+            ->select('deliberation_file')
+            ->where('id', (int) $id)
+            ->get()
+            ->getRowArray();
+
+        $storedPath = trim((string) ($row['deliberation_file'] ?? ''));
+        if ($storedPath === '') {
+            return redirect()->back()->with('error', '다운로드할 파일이 없습니다.');
+        }
+
+        $fullPath = WRITEPATH . 'uploads/review/' . ltrim($storedPath, '/');
+        if (!is_file($fullPath)) {
+            $altPath = WRITEPATH . ltrim($storedPath, '/');
+            if (is_file($altPath)) {
+                $fullPath = $altPath;
+            }
+        }
+
+        if (!is_file($fullPath)) {
+            return redirect()->back()->with('error', '다운로드할 실제 파일이 없습니다.');
+        }
+
+        return $this->response
+            ->download($fullPath, null)
+            ->setFileName(basename($storedPath));
     }
 
     public function deliberationDecision($id)
@@ -307,16 +434,20 @@ class Management extends BaseController
     public function reviews()
     {
         $filters = $this->reviewFilters();
+        $page = max(1, (int) ($this->request->getGet('page') ?? 1));
+        $perPage = 20;
         $builder = $this->reviewBuilder();
         $this->applyReviewFilters($builder, $filters);
 
         $countBuilder = $this->reviewBuilder();
         $this->applyReviewFilters($countBuilder, $filters);
         $total = $countBuilder->countAllResults();
+        $totalPages = max(1, (int) ceil($total / $perPage));
+        $page = min($page, $totalPages);
 
         $rows = $builder
             ->orderBy('r.created_at', 'DESC')
-            ->limit(20)
+            ->limit($perPage, ($page - 1) * $perPage)
             ->get()
             ->getResultArray();
 
@@ -325,8 +456,15 @@ class Management extends BaseController
             'breadcrumb' => 'Main > 대시보드 > 컨텐츠 관리 > 후기 관리',
             'countLabel' => '후기 관리',
             'count' => $total,
+            'searchAction' => base_url('admin/contents/reviews'),
+            'searchPlaceholder' => '작성자명, FC회원명, 제목으로 검색',
+            'searchValue' => $filters['q'],
+            'dateFrom' => $filters['start_date'],
+            'dateTo' => $filters['end_date'],
+            'searchHidden' => ['display_status' => $filters['display_status']],
             'tabs' => $this->reviewTabs($filters),
-            'actions' => [['label' => 'EXCEL', 'url' => '#', 'ready' => true]],
+            'actions' => [['label' => 'EXCEL', 'url' => $this->reviewsExportUrl($filters)]],
+            'perPage' => $perPage,
             'headers' => ['제목', '별점', '작성자', '상담 FC', '노출상태', '조회수', '작성일'],
             'rows' => array_map(function ($row) {
                 return [
@@ -339,7 +477,39 @@ class Management extends BaseController
                     esc($row['created_at'] ?? '-'),
                 ];
             }, $rows),
+            'page' => $page,
+            'totalPages' => $totalPages,
+            'pageQuery' => array_filter([
+                'display_status' => $filters['display_status'],
+                'q' => $filters['q'],
+                'start_date' => $filters['start_date'],
+                'end_date' => $filters['end_date'],
+            ], static fn ($value) => (string) $value !== ''),
         ]);
+    }
+
+    public function reviewsExport()
+    {
+        $filters = $this->reviewFilters();
+        $builder = $this->reviewBuilder();
+        $this->applyReviewFilters($builder, $filters);
+
+        $rows = $builder
+            ->orderBy('r.created_at', 'DESC')
+            ->get()
+            ->getResultArray();
+
+        $csv = "\xEF\xBB\xBF";
+        $csv .= $this->csvLine($this->reviewExportHeaders());
+
+        foreach ($rows as $row) {
+            $csv .= $this->csvLine($this->reviewExportRow($row));
+        }
+
+        return $this->response
+            ->setHeader('Content-Type', 'text/csv; charset=UTF-8')
+            ->setHeader('Content-Disposition', 'attachment; filename="reviews_' . date('Ymd_His') . '.csv"')
+            ->setBody($csv);
     }
 
     public function reviewDetail($id)
@@ -591,18 +761,46 @@ class Management extends BaseController
             ->getResultArray();
 
         $first = $files[0] ?? [];
+        $filesHtml = '';
+
+        if (!empty($files)) {
+            $filesHtml .= '<div class="table-responsive"><table class="table table-bordered table-sm align-middle mb-0">';
+            $filesHtml .= '<thead><tr><th style="width:60px;">NO</th><th>파일명</th><th style="width:110px;">확장자</th><th style="width:110px;">용량</th><th style="width:140px;">등록일</th><th style="width:150px;">관리</th></tr></thead><tbody>';
+
+            foreach ($files as $index => $file) {
+                $downloadUrl = base_url('admin/members/files/' . (int) $file['security_id'] . '/download');
+                $filesHtml .= '<tr>';
+                $filesHtml .= '<td class="text-center">' . ($index + 1) . '</td>';
+                $filesHtml .= '<td><a href="' . esc($downloadUrl) . '">' . esc($file['original_name'] ?? $file['saved_name'] ?? '-') . '</a></td>';
+                $filesHtml .= '<td class="text-center">' . esc($file['file_ext'] ?? '-') . '</td>';
+                $filesHtml .= '<td class="text-end">' . esc($this->formatBytes($file['file_size'] ?? 0)) . '</td>';
+                $filesHtml .= '<td class="text-center">' . esc($file['created_at'] ?? '-') . '</td>';
+                $filesHtml .= '<td class="text-center">';
+                $filesHtml .= '<div class="d-inline-flex gap-1">';
+                $filesHtml .= '<a class="btn btn-outline-primary btn-sm" href="' . esc($downloadUrl) . '">다운로드</a>';
+                $filesHtml .= '<form action="' . esc(base_url('admin/members/files/delete')) . '" method="post" onsubmit="return confirm(\'해당 파일을 삭제하시겠습니까?\');" style="display:inline-block;">';
+                $filesHtml .= csrf_field();
+                $filesHtml .= '<input type="hidden" name="security_id" value="' . (int) $file['security_id'] . '">';
+                $filesHtml .= '<button type="submit" class="btn btn-outline-danger btn-sm">삭제</button>';
+                $filesHtml .= '</form>';
+                $filesHtml .= '</div>';
+                $filesHtml .= '</td>';
+                $filesHtml .= '</tr>';
+            }
+
+            $filesHtml .= '</tbody></table></div>';
+        } else {
+            $filesHtml = '<div class="text-muted">등록된 첨부파일이 없습니다.</div>';
+        }
 
         return $this->page([
             'title' => '증권 관리 상세',
             'breadcrumb' => 'Main > 대시보드 > 컨텐츠 관리 > 증권 관리 > 증권 상세',
             'backUrl' => base_url('admin/contents/securities'),
-            'actions' => [['label' => '삭제하기', 'url' => '#', 'ready' => true]],
             'detail' => [
                 '등록자' => esc(($first['name'] ?? '-') . ' (' . ($first['email'] ?? '-') . ')'),
                 '등록일' => esc($first['created_at'] ?? '-'),
-                '증권파일' => implode('<br>', array_map(static function ($file) {
-                    return esc($file['original_name'] ?? '-');
-                }, $files)) ?: '-',
+                '증권파일' => $filesHtml,
             ],
             'missing' => ['증권 관리 전용 삭제 이력/노출상태 테이블은 없습니다.'],
         ]);
@@ -1616,13 +1814,16 @@ class Management extends BaseController
             'actions' => [
                 ['label' => '팝업 등록', 'url' => base_url('admin/popups/create')],
             ],
-            'headers' => ['팝업', '노출상태', '노출기간', '정렬', '등록일'],
+            'headers' => ['팝업', '노출상태', '노출기간', '정렬', '등록일', '관리'],
             'rows' => array_map(function ($row) {
                 $thumb = !empty($row['image_path'])
                     ? '<img src="' . esc(base_url(ltrim($row['image_path'], '/'))) . '" alt="" style="width:72px;height:48px;object-fit:cover;border-radius:6px;border:1px solid #d8e0ea;">'
                     : '<span class="text-muted">이미지 없음</span>';
 
                 $title = '<a href="' . base_url('admin/popups/' . (int) $row['popup_id']) . '">' . esc($row['title'] ?? '-') . '</a>';
+                $deleteForm = '<form action="' . esc(base_url('admin/popups/' . (int) $row['popup_id'] . '/delete')) . '" method="post" onsubmit="return confirm(\'이 팝업을 삭제하시겠습니까?\');" style="display:inline-block;margin-left:6px;">'
+                    . csrf_field()
+                    . '<button type="submit" class="btn btn-outline-danger btn-sm">삭제</button></form>';
 
                 return [
                     $thumb . '<div class="mt-2 fw-semibold">' . $title . '</div>',
@@ -1630,6 +1831,7 @@ class Management extends BaseController
                     esc(($row['start_at'] ?? '-') . ' ~ ' . ($row['end_at'] ?? '-')),
                     esc((string) ((int) ($row['sort_order'] ?? 0))),
                     esc($row['created_at'] ?? '-'),
+                    '<a href="' . base_url('admin/popups/' . (int) $row['popup_id'] . '/edit') . '" class="btn btn-outline-primary btn-sm">수정</a>' . $deleteForm,
                 ];
             }, $rows),
         ]);
@@ -1650,6 +1852,8 @@ class Management extends BaseController
 
     public function popupStore()
     {
+        helper('fileupload_helper');
+
         try {
             $data = $this->popupPostData(null, false);
         } catch (\Throwable $e) {
@@ -1698,6 +1902,8 @@ class Management extends BaseController
             return redirect()->to(base_url('admin/popups'))->with('error', '팝업 정보를 찾을 수 없습니다.');
         }
 
+        helper('fileupload_helper');
+
         try {
             $data = $this->popupPostData($popup, true);
         } catch (\Throwable $e) {
@@ -1713,6 +1919,31 @@ class Management extends BaseController
             ->update($data);
 
         return redirect()->to(base_url('admin/popups'))->with('success', '팝업이 수정되었습니다.');
+    }
+
+    public function popupDelete($id)
+    {
+        $popup = $this->db->table('my_fc_popup')
+            ->where('popup_id', (int) $id)
+            ->where('deleted_at', null)
+            ->get()
+            ->getRowArray();
+
+        if (!$popup) {
+            return redirect()->to(base_url('admin/popups'))->with('error', '팝업 정보를 찾을 수 없습니다.');
+        }
+
+        $this->deletePublicFile((string) ($popup['image_path'] ?? ''));
+
+        $this->db->table('my_fc_popup')
+            ->where('popup_id', (int) $id)
+            ->update([
+                'deleted_at' => date('Y-m-d H:i:s'),
+                'display_status' => 'N',
+                'updated_at' => date('Y-m-d H:i:s'),
+            ]);
+
+        return redirect()->to(base_url('admin/popups'))->with('success', '팝업이 삭제되었습니다.');
     }
 
     public function pushes()
@@ -2217,6 +2448,9 @@ class Management extends BaseController
 
         return [
             'display_status' => $status,
+            'q' => trim((string) $this->request->getGet('q')),
+            'start_date' => trim((string) $this->request->getGet('start_date')),
+            'end_date' => trim((string) $this->request->getGet('end_date')),
         ];
     }
 
@@ -2239,6 +2473,9 @@ class Management extends BaseController
         foreach ($tabs as $status => $label) {
             $query = array_filter([
                 'display_status' => $status,
+                'q' => $filters['q'],
+                'start_date' => $filters['start_date'],
+                'end_date' => $filters['end_date'],
             ], static fn ($value) => (string) $value !== '');
 
             $url = base_url('admin/popups');
@@ -3224,6 +3461,87 @@ class Management extends BaseController
         ][$status] ?? '승인 대기';
     }
 
+    private function deliberationFilters(): array
+    {
+        $status = strtoupper(trim((string) $this->request->getGet('status')));
+        if (!in_array($status, ['ALL', 'WAIT', 'APPROVE', 'REJECT'], true)) {
+            $status = 'ALL';
+        }
+
+        return [
+            'status' => $status,
+            'q' => trim((string) $this->request->getGet('q')),
+            'start_date' => trim((string) $this->request->getGet('start_date')),
+            'end_date' => trim((string) $this->request->getGet('end_date')),
+        ];
+    }
+
+    private function applyDeliberationFilters($builder, array $filters): void
+    {
+        if (($filters['status'] ?? 'ALL') !== 'ALL') {
+            $builder->where('r.status', $filters['status']);
+        }
+
+        if (($filters['q'] ?? '') !== '') {
+            $q = $filters['q'];
+            $builder->groupStart()
+                ->like('m.name', $q)
+                ->orLike('m.email', $q)
+                ->orLike('r.deliberation_no', $q)
+                ->groupEnd();
+        }
+    }
+
+    private function deliberationTabs(array $filters): array
+    {
+        $tabs = [
+            'ALL' => '전체',
+            'WAIT' => '승인 대기',
+            'APPROVE' => '승인 완료',
+            'REJECT' => '승인 거부',
+        ];
+
+        $items = [];
+        foreach ($tabs as $status => $label) {
+            $query = array_filter([
+                'status' => $status,
+                'q' => $filters['q'],
+                'start_date' => $filters['start_date'],
+                'end_date' => $filters['end_date'],
+            ], static fn ($value) => (string) $value !== '');
+
+            $url = base_url('admin/contents/deliberations');
+            if (!empty($query)) {
+                $url .= '?' . http_build_query($query);
+            }
+
+            $items[] = [
+                'label' => $label,
+                'url' => $url,
+                'active' => ($filters['status'] ?? 'ALL') === $status,
+            ];
+        }
+
+        return $items;
+    }
+
+    private function reviewsExportUrl(array $filters): string
+    {
+        $query = array_filter([
+            'display_status' => $filters['display_status'],
+            'q' => $filters['q'],
+            'start_date' => $filters['start_date'],
+            'end_date' => $filters['end_date'],
+        ], static fn ($value) => (string) $value !== '');
+
+        $url = base_url('admin/contents/reviews/export');
+        if (!empty($query)) {
+            $url .= '?' . http_build_query($query);
+        }
+
+        return $url;
+    }
+
     private function reviewDisplayStatusLabel(string $status): string
     {
         return $status === 'N' ? '비노출' : '노출중';
@@ -3238,6 +3556,9 @@ class Management extends BaseController
 
         return [
             'display_status' => $status,
+            'q' => trim((string) $this->request->getGet('q')),
+            'start_date' => trim((string) $this->request->getGet('start_date')),
+            'end_date' => trim((string) $this->request->getGet('end_date')),
         ];
     }
 
@@ -3245,6 +3566,26 @@ class Management extends BaseController
     {
         if (($filters['display_status'] ?? '') !== '') {
             $builder->where('r.display_status', $filters['display_status']);
+        }
+
+        if (($filters['start_date'] ?? '') !== '') {
+            $builder->where('r.created_at >=', $filters['start_date'] . ' 00:00:00');
+        }
+
+        if (($filters['end_date'] ?? '') !== '') {
+            $builder->where('r.created_at <=', $filters['end_date'] . ' 23:59:59');
+        }
+
+        if (($filters['q'] ?? '') !== '') {
+            $q = $filters['q'];
+            $builder->groupStart()
+                ->like('r.title', $q)
+                ->orLike('r.body', $q)
+                ->orLike('u.name', $q)
+                ->orLike('u.email', $q)
+                ->orLike('f.name', $q)
+                ->orLike('f.email', $q)
+                ->groupEnd();
         }
     }
 
@@ -3260,6 +3601,9 @@ class Management extends BaseController
         foreach ($tabs as $status => $label) {
             $query = array_filter([
                 'display_status' => $status,
+                'q' => $filters['q'],
+                'start_date' => $filters['start_date'],
+                'end_date' => $filters['end_date'],
             ], static fn ($value) => (string) $value !== '');
 
             $url = base_url('admin/contents/reviews');
@@ -3277,10 +3621,134 @@ class Management extends BaseController
         return $items;
     }
 
+    private function deliberationsExportUrl(array $filters): string
+    {
+        $query = array_filter([
+            'status' => $filters['status'],
+            'q' => $filters['q'],
+        ], static fn ($value) => (string) $value !== '');
+
+        $url = base_url('admin/contents/deliberations/export');
+        if (!empty($query)) {
+            $url .= '?' . http_build_query($query);
+        }
+
+        return $url;
+    }
+
+    private function deliberationExportHeaders(): array
+    {
+        return [
+            '신청ID',
+            'FC회원명',
+            'FC회원이메일',
+            'FC회원UID',
+            '심의필번호',
+            '승인상태',
+            '승인기간시작',
+            '승인기간종료',
+            '심의의견',
+            '회신문파일',
+            '거부사유',
+            '승인관리자',
+            '승인일시',
+            '신청일시',
+            '수정일시',
+        ];
+    }
+
+    private function deliberationExportRow(array $row): array
+    {
+        return [
+            $row['id'] ?? '',
+            $row['name'] ?? '',
+            $row['email'] ?? '',
+            $row['member_uid'] ?? '',
+            $row['deliberation_no'] ?? '',
+            $this->reviewedStatus((string) ($row['status'] ?? 'WAIT')),
+            $row['approval_start'] ?? '',
+            $row['approval_end'] ?? '',
+            $row['deliberation_opinion'] ?? '',
+            $row['deliberation_file'] ?? '',
+            $row['reject_reason'] ?? '',
+            $row['approve_admin_uid'] ?? '',
+            $row['approve_at'] ?? '',
+            $row['created_at'] ?? '',
+            $row['updated_at'] ?? '',
+        ];
+    }
+
+    private function reviewExportHeaders(): array
+    {
+        return [
+            '후기ID',
+            '제목',
+            '별점',
+            '작성자명',
+            '작성자이메일',
+            '상담FC명',
+            '상담FC이메일',
+            '상담UID',
+            '노출상태',
+            '조회수',
+            '내용',
+            '작성일시',
+            '수정일시',
+        ];
+    }
+
+    private function reviewExportRow(array $row): array
+    {
+        return [
+            $row['review_id'] ?? '',
+            $row['title'] ?? '',
+            $row['rating'] ?? '',
+            $row['user_name'] ?? '',
+            $row['user_email'] ?? '',
+            $row['fc_name'] ?? '',
+            $row['fc_email'] ?? '',
+            $row['counsel_uid'] ?? '',
+            $this->reviewDisplayStatusLabel((string) ($row['display_status'] ?? 'Y')),
+            $row['view_count'] ?? 0,
+            $row['body'] ?? '',
+            $row['created_at'] ?? '',
+            $row['updated_at'] ?? '',
+        ];
+    }
+
+    private function csvLine(array $columns): string
+    {
+        return implode(',', array_map(static function ($value) {
+            return '"' . str_replace('"', '""', (string) $value) . '"';
+        }, $columns)) . "\n";
+    }
+
+    private function formatBytes($bytes): string
+    {
+        $bytes = (int) $bytes;
+
+        if ($bytes <= 0) {
+            return '-';
+        }
+
+        if ($bytes >= 1048576) {
+            return number_format($bytes / 1048576, 1) . ' MB';
+        }
+
+        return number_format($bytes / 1024, 1) . ' KB';
+    }
+
     private function reviewHistoryBuilder()
     {
         return $this->db->table('my_fc_reviewed_history h')
             ->select('h.*');
+    }
+
+    private function deliberationListBuilder()
+    {
+        return $this->db->table('my_fc_reviewed r')
+            ->select('r.id, r.member_uid, r.deliberation_no, r.status, r.created_at, m.name, m.email')
+            ->join('my_fc_member m', 'm.member_uid = r.member_uid', 'left');
     }
 
     private function insertReviewedHistory(

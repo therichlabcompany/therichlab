@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="MyFC">
+  <rect width="64" height="64" rx="16" fill="#1e40af"/>
+  <rect x="8" y="8" width="48" height="48" rx="12" fill="#2563eb"/>
+  <text x="32" y="36" text-anchor="middle" fill="#ffffff"
+        font-family="Pretendard, Arial, sans-serif"
+        font-size="16" font-weight="800" letter-spacing="-0.8">MyFC</text>
+</svg>

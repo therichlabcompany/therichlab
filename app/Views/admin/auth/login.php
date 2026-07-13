@@ -113,6 +113,15 @@
             font-size: 14px;
         }
 
+        .login-help-note {
+            margin: 18px 0 0;
+            color: #64748b;
+            font-size: 13px;
+            line-height: 1.55;
+            text-align: center;
+            word-break: keep-all;
+        }
+
         .login-footer {
             margin-top: 20px;
             text-align: center;
@@ -169,6 +178,11 @@
                     로그인
                 </button>
             </form>
+
+            <p class="login-help-note">
+                아이디 및 비밀번호 분실 시 고객센터로 문의 주세요<br>
+                문의E-mail : help@myfc.co.kr
+            </p>
         </div>
     </div>
 

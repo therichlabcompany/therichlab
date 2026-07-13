@@ -5,7 +5,7 @@
 $question = $question ?? [];
 $answers = $answers ?? [];
 $files = $files ?? [];
-$profileImage = static fn(array $row): string => !empty($row['profile_image']) ? base_url('uploads/profile/' . $row['profile_image']) : base_url('assets/images/temp/@profile-m.png');
+$profileImage = static fn(array $row): string => profile_image_url($row['profile_image'] ?? '');
 ?>
 <style>
 .insurance-admin-detail { padding:18px 8px 36px; color:#172033; }
@@ -25,7 +25,9 @@ $profileImage = static fn(array $row): string => !empty($row['profile_image']) ?
 .insurance-answer-toolbar { display:flex; justify-content:flex-end; margin-bottom:8px; }
 .insurance-fc-card { display:flex; justify-content:space-between; gap:16px; padding:16px; border:1px solid #dfe5ec; border-radius:10px; }
 .insurance-fc-profile { display:flex; gap:14px; min-width:0; }
-.insurance-fc-profile img { width:70px; height:70px; flex:0 0 70px; border:1px solid #dfe5ec; border-radius:50%; object-fit:cover; }
+.insurance-fc-profile .avatar { width:70px; height:70px; flex:0 0 70px; border:1px solid #dfe5ec; border-radius:50%; overflow:hidden; background:#e5e7eb; }
+.insurance-fc-profile .avatar img { width:100%; height:100%; object-fit:cover; }
+.insurance-fc-profile .avatar .fallback { width:100%; height:100%; background:#e5e7eb; }
 .insurance-fc-name { margin:0 0 3px; font-size:16px; font-weight:800; }
 .insurance-fc-meta { margin:2px 0; color:#64748b; font-size:13px; }
 .insurance-tags { display:flex; flex-wrap:wrap; gap:5px; margin-top:7px; }
@@ -46,7 +48,7 @@ $profileImage = static fn(array $row): string => !empty($row['profile_image']) ?
     <section class="insurance-answer-section"><h2 class="insurance-answer-section-title">FC 답변 <span class="text-primary"><?= count($answers) ?>건</span></h2>
         <?php foreach ($answers as $answer): ?><?php $tags=array_filter(array_map('trim',explode(',',(string)($answer['insurance_types']??'')))); ?>
         <article class="insurance-answer"><div class="insurance-answer-toolbar"><form method="post" action="<?= base_url('admin/contents/insurance-in/' . (int)$question['question_id'] . '/answers/' . (int)$answer['answer_id'] . '/delete') ?>" onsubmit="return confirm('이 FC 답변을 삭제하시겠습니까?')"><?= csrf_field() ?><button class="btn btn-outline-danger btn-sm">답변 삭제</button></form></div>
-            <div class="insurance-fc-card"><div class="insurance-fc-profile"><img src="<?= esc($profileImage($answer)) ?>" alt=""><div><p class="insurance-fc-name"><?= esc($answer['name'] ?? '-') ?></p><p class="insurance-fc-meta">★ <?= number_format((float)($answer['rating']??0),1) ?> (<?= number_format((int)($answer['rating_count']??0)) ?>)</p><p class="insurance-fc-meta"><?= esc($answer['company'] ?: $answer['ga'] ?: '소속 정보 없음') ?> · <?= esc($answer['region'] ?? '지역 정보 없음') ?></p><?php if($tags): ?><div class="insurance-tags"><?php foreach(array_slice($tags,0,6) as $tag): ?><span><?= esc(fc_insurance_label($tag)) ?></span><?php endforeach; ?></div><?php endif; ?></div></div><a class="btn btn-outline-primary btn-sm" href="<?= base_url('admin/fc-members/' . (int)($answer['member_id']??0)) ?>">FC 상세</a></div>
+            <div class="insurance-fc-card"><div class="insurance-fc-profile"><div class="avatar"><?php $avatarUrl = $profileImage($answer); ?><?php if ($avatarUrl !== ''): ?><img src="<?= esc($avatarUrl) ?>" alt="" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"><?php else: ?><div class="fallback"></div><?php endif; ?><?php if ($avatarUrl !== ''): ?><div class="fallback" style="display:none;"></div><?php endif; ?></div><div><p class="insurance-fc-name"><?= esc($answer['name'] ?? '-') ?></p><p class="insurance-fc-meta">★ <?= number_format((float)($answer['rating']??0),1) ?> (<?= number_format((int)($answer['rating_count']??0)) ?>)</p><p class="insurance-fc-meta"><?= esc($answer['company'] ?: $answer['ga'] ?: '소속 정보 없음') ?> · <?= esc($answer['region'] ?? '지역 정보 없음') ?></p><?php if($tags): ?><div class="insurance-tags"><?php foreach(array_slice($tags,0,6) as $tag): ?><span><?= esc(fc_insurance_label($tag)) ?></span><?php endforeach; ?></div><?php endif; ?></div></div><a class="btn btn-outline-primary btn-sm" href="<?= base_url('admin/fc-members/' . (int)($answer['member_id']??0)) ?>">FC 상세</a></div>
             <div class="insurance-answer-content"><div class="insurance-meta">답변 작성일 <?= esc($answer['created_at'] ?? '-') ?></div><div class="insurance-answer-body mt-2"><?= nl2br(esc((string)($answer['body']??'-'))) ?></div></div>
         </article><?php endforeach; ?>
         <?php if(!$answers): ?><div class="text-center text-muted py-5">등록된 FC 답변이 없습니다.</div><?php endif; ?>

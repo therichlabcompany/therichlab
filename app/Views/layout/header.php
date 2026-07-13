@@ -6,6 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <title>MyFC</title>
+    <link rel="icon" type="image/svg+xml" href="<?= base_url('assets/images/myfc-favicon.svg') ?>" />
+    <link rel="shortcut icon" type="image/svg+xml" href="<?= base_url('assets/images/myfc-favicon.svg') ?>" />
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
     <link rel="stylesheet" href="<?= base_url('assets/css/reset.css?v=3') ?>" />
@@ -296,7 +298,7 @@ document.addEventListener('DOMContentLoaded', function () {
             <div class="header-inner">
                 <div class="logo">
                     <a href="/">
-                        <img src="<?= SITE_IMG_URL ?>images/logo.png" alt="보험사 연계 서비스" class="logo-img" />
+                        <img src="<?= SITE_IMG_URL ?>images/logo.png" alt="MyFC" class="logo-img" />
                     </a>
                 </div>
                 <nav class="gnb">

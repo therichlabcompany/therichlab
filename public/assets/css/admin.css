@@ -250,6 +250,27 @@ body.admin-shell .btn-primary:hover {
   border-color: var(--admin-primary-hover);
 }
 
+body.admin-shell .admin-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+body.admin-shell .admin-brand-logo {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+  flex: 0 0 auto;
+}
+
+body.admin-shell .admin-sidebar-brand-image {
+  width: 30px;
+  height: 30px;
+  object-fit: contain;
+}
+
 /* 관리자 탭은 활성 상태에서도 크기를 바꾸지 않고 색상만 변경한다. */
 body.admin-shell .tab-row > .btn.btn-primary,
 body.admin-shell .fc-sort-tabs > .btn.btn-primary,

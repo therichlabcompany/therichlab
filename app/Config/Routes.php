@@ -240,9 +240,12 @@ $routes->group('admin', [
     $routes->get('contents/counsels/export', 'Management::counselsExport');
     $routes->get('contents/counsels/(:num)', 'Management::counselDetail/$1');
     $routes->get('contents/deliberations', 'Management::deliberations');
+    $routes->get('contents/deliberations/export', 'Management::deliberationsExport');
     $routes->get('contents/deliberations/(:num)', 'Management::deliberationDetail/$1');
+    $routes->get('contents/deliberations/(:num)/download', 'Management::deliberationDownload/$1');
     $routes->post('contents/deliberations/(:num)/decision', 'Management::deliberationDecision/$1');
     $routes->get('contents/reviews', 'Management::reviews');
+    $routes->get('contents/reviews/export', 'Management::reviewsExport');
     $routes->get('contents/reviews/(:num)', 'Management::reviewDetail/$1');
     $routes->post('contents/reviews/(:num)/display', 'Management::reviewDisplayUpdate/$1');
     $routes->get('contents/insurance-in', 'Management::insuranceIn');
@@ -258,6 +261,7 @@ $routes->group('admin', [
     $routes->get('popups/(:num)', 'Management::popupEdit/$1');
     $routes->get('popups/(:num)/edit', 'Management::popupEdit/$1');
     $routes->post('popups/(:num)/update', 'Management::popupUpdate/$1');
+    $routes->post('popups/(:num)/delete', 'Management::popupDelete/$1');
     $routes->get('pushes', 'Management::pushes');
     $routes->get('pushes/create', 'Management::pushCreate');
     $routes->post('pushes/create', 'Management::pushStore');

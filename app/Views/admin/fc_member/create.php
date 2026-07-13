@@ -20,6 +20,14 @@ $reviewStatus = old('fc_review_status', 'WAIT');
     .create-field.full { grid-column: 1 / -1; }
     .create-field label { display: block; margin-bottom: 6px; color: #4b586b; font-size: 13px; font-weight: 800; }
     .create-actions { display: flex; justify-content: flex-end; gap: 8px; margin: 16px 0 24px; }
+    .autofill-guard {
+        position: absolute;
+        left: -9999px;
+        width: 1px;
+        height: 1px;
+        opacity: 0;
+        pointer-events: none;
+    }
     @media (max-width: 768px) {
         .create-grid { grid-template-columns: 1fr; }
         .create-field.full { grid-column: auto; }
@@ -41,29 +49,31 @@ $reviewStatus = old('fc_review_status', 'WAIT');
                 <div class="alert alert-danger"><?= esc($error) ?></div>
             <?php endif; ?>
 
-            <form action="<?= base_url('admin/fc-members/create') ?>" method="post" enctype="multipart/form-data">
+            <form action="<?= base_url('admin/fc-members/create') ?>" method="post" enctype="multipart/form-data" autocomplete="off">
+                <input class="autofill-guard" type="text" name="fake_username" tabindex="-1" aria-hidden="true" autocomplete="username">
+                <input class="autofill-guard" type="password" name="fake_password" tabindex="-1" aria-hidden="true" autocomplete="new-password">
                 <div class="create-card">
                     <div class="create-card-head">기본정보</div>
                     <div class="create-card-body create-grid">
                         <div class="create-field">
                             <label for="email">이메일</label>
-                            <input id="email" name="email" type="email" class="form-control" value="<?= esc(old('email')) ?>" required>
+                            <input id="email" name="email" type="email" class="form-control" value="<?= esc(old('email')) ?>" autocomplete="off" required>
                         </div>
                         <div class="create-field">
                             <label for="name">이름</label>
-                            <input id="name" name="name" type="text" class="form-control" value="<?= esc(old('name')) ?>" required>
+                            <input id="name" name="name" type="text" class="form-control" value="<?= esc(old('name')) ?>" autocomplete="off" required>
                         </div>
                         <div class="create-field">
                             <label for="password">비밀번호</label>
-                            <input id="password" name="password" type="password" class="form-control" required>
+                            <input id="password" name="password" type="password" class="form-control" autocomplete="new-password" required>
                         </div>
                         <div class="create-field">
                             <label for="password_confirm">비밀번호 확인</label>
-                            <input id="password_confirm" name="password_confirm" type="password" class="form-control" required>
+                            <input id="password_confirm" name="password_confirm" type="password" class="form-control" autocomplete="new-password" required>
                         </div>
                         <div class="create-field">
                             <label for="phone">휴대폰 번호</label>
-                            <input id="phone" name="phone" type="text" class="form-control" value="<?= esc(old('phone')) ?>" required>
+                            <input id="phone" name="phone" type="text" class="form-control" value="<?= esc(old('phone')) ?>" autocomplete="off" required>
                         </div>
                         <div class="create-field">
                             <label for="phone_verified">휴대폰 인증여부</label>

@@ -33,7 +33,28 @@ $fileSize = static function ($bytes) {
     return number_format($bytes / 1024, 1) . ' KB';
 };
 
+$formatDateTime = static function ($value) {
+    $value = trim((string) $value);
+
+    if ($value === '') {
+        return '-';
+    }
+
+    $timestamp = strtotime($value);
+
+    if ($timestamp === false) {
+        return $value;
+    }
+
+    return date('Y-m-d H:i:s', $timestamp);
+};
+
 $selectedUid = $selectedCounsel['counsel_uid'] ?? '';
+$page = max(1, (int) ($page ?? 1));
+$perPage = max(1, (int) ($perPage ?? 5));
+$total = max(0, (int) ($total ?? 0));
+$totalPages = max(1, (int) ceil($total / $perPage));
+$currentPage = min($page, $totalPages);
 ?>
 
 <style>
@@ -136,13 +157,10 @@ $selectedUid = $selectedCounsel['counsel_uid'] ?? '';
     }
 
     .fc-avatar .fallback {
-        display: flex;
-        align-items: center;
-        justify-content: center;
+        display: block;
         width: 100%;
         height: 100%;
-        color: #64748b;
-        font-weight: 800;
+        background: #e5e7eb;
     }
 
     .counsel-list-main {
@@ -281,7 +299,9 @@ $selectedUid = $selectedCounsel['counsel_uid'] ?? '';
                 <div class="counsel-card">
                     <div class="counsel-card-head">
                         <span>상담 요청 리스트</span>
-                        <span class="text-muted"><?= number_format(count($counsels)) ?>건</span>
+                        <span class="text-muted">
+                            <?= number_format(count($counsels)) ?>건 / 총 <?= number_format($total) ?>건
+                        </span>
                     </div>
                     <div class="counsel-card-body">
                         <div class="counsel-list">
@@ -289,10 +309,7 @@ $selectedUid = $selectedCounsel['counsel_uid'] ?? '';
                                 <?php foreach ($counsels as $counsel): ?>
                                     <?php
                                     [$counselStatusLabel, $counselStatusClass] = $statusLabel($counsel['status'] ?? '');
-                                    $profileImage = trim((string) ($counsel['profile_image'] ?? ''));
-                                    $profileImageUrl = $profileImage !== ''
-                                        ? base_url(ltrim($profileImage, '/'))
-                                        : '';
+                                    $profileImageUrl = profile_image_url($counsel['profile_image'] ?? '');
                                     ?>
                                     <a
                                         href="<?= base_url('admin/members/' . (int) $m['member_id'] . '/counsels?status=' . urlencode($status) . '&counsel_uid=' . urlencode($counsel['counsel_uid'])) ?>"
@@ -300,9 +317,16 @@ $selectedUid = $selectedCounsel['counsel_uid'] ?? '';
                                     >
                                         <div class="fc-avatar">
                                             <?php if ($profileImageUrl !== ''): ?>
-                                                <img src="<?= esc($profileImageUrl) ?>" alt="">
+                                                <img
+                                                    src="<?= esc($profileImageUrl) ?>"
+                                                    alt=""
+                                                    onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"
+                                                >
                                             <?php else: ?>
-                                                <div class="fallback">FC</div>
+                                                <div class="fallback"></div>
+                                            <?php endif; ?>
+                                            <?php if ($profileImageUrl !== ''): ?>
+                                                <div class="fallback" style="display:none;"></div>
                                             <?php endif; ?>
                                         </div>
                                         <div class="counsel-list-main">
@@ -311,6 +335,8 @@ $selectedUid = $selectedCounsel['counsel_uid'] ?? '';
                                                 <span class="badge bg-<?= esc($counselStatusClass) ?>"><?= esc($counselStatusLabel) ?></span>
                                             </div>
                                             <div class="counsel-meta">
+                                                희망 상담요청일자 <?= esc($formatDateTime($counsel['reserve_datetime'] ?? '')) ?>
+                                                ·
                                                 별점 <?= number_format((float) ($counsel['avg_rating'] ?? 0), 1) ?>
                                                 · <?= esc($counsel['company'] ?: '-') ?>
                                                 · <?= esc($counsel['region'] ?: '-') ?>
@@ -340,9 +366,9 @@ $selectedUid = $selectedCounsel['counsel_uid'] ?? '';
                         <?php if ($selectedCounsel): ?>
                             <div class="detail-grid">
                                 <div class="detail-label">상담 요청 일자</div>
-                                <div class="detail-value"><?= esc($selectedCounsel['created_at'] ?? '-') ?></div>
-                                <div class="detail-label">희망 상담일시</div>
-                                <div class="detail-value"><?= esc($selectedCounsel['reserve_datetime'] ?? '-') ?></div>
+                                <div class="detail-value"><?= esc($formatDateTime($selectedCounsel['created_at'] ?? '')) ?></div>
+                                <div class="detail-label">희망 상담요청일자</div>
+                                <div class="detail-value"><?= esc($formatDateTime($selectedCounsel['reserve_datetime'] ?? '')) ?></div>
                                 <div class="detail-label">신청자</div>
                                 <div class="detail-value"><?= esc($selectedCounsel['name'] ?? '-') ?></div>
                                 <div class="detail-label">연락처</div>
@@ -356,6 +382,25 @@ $selectedUid = $selectedCounsel['counsel_uid'] ?? '';
                             <div class="text-center text-muted py-5">선택된 상담 요청이 없습니다.</div>
                         <?php endif; ?>
                     </div>
+                    <?php if ($totalPages > 1): ?>
+                        <div class="counsel-card-body pt-0">
+                            <nav aria-label="상담 요청 페이지">
+                                <ul class="pagination pagination-sm justify-content-center mb-0">
+                                    <li class="page-item <?= $currentPage <= 1 ? 'disabled' : '' ?>">
+                                        <a class="page-link" href="<?= base_url('admin/members/' . (int) $m['member_id'] . '/counsels?status=' . urlencode($status) . '&page=' . max(1, $currentPage - 1)) ?>">이전</a>
+                                    </li>
+                                    <?php for ($i = 1; $i <= $totalPages; $i++): ?>
+                                        <li class="page-item <?= $i === $currentPage ? 'active' : '' ?>">
+                                            <a class="page-link" href="<?= base_url('admin/members/' . (int) $m['member_id'] . '/counsels?status=' . urlencode($status) . '&page=' . $i) ?>"><?= $i ?></a>
+                                        </li>
+                                    <?php endfor; ?>
+                                    <li class="page-item <?= $currentPage >= $totalPages ? 'disabled' : '' ?>">
+                                        <a class="page-link" href="<?= base_url('admin/members/' . (int) $m['member_id'] . '/counsels?status=' . urlencode($status) . '&page=' . min($totalPages, $currentPage + 1)) ?>">다음</a>
+                                    </li>
+                                </ul>
+                            </nav>
+                        </div>
+                    <?php endif; ?>
                 </div>
             </div>
 

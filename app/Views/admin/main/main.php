@@ -97,7 +97,7 @@ $imageUrl = static function (?string $path): string {
                 <a href="<?= base_url('admin/fc-members') ?>"><?= $number($counts['newFcMembers'] ?? 0) ?></a>
             </div>
             <div class="metric-card">
-                <strong>상담 요청</strong>
+                <strong>상담요청(대기)</strong>
                 <a href="<?= base_url('admin/contents/counsels?status=REQUEST') ?>"><?= $number($counts['counselRequests'] ?? 0) ?></a>
             </div>
             <div class="metric-card">
@@ -131,15 +131,9 @@ $imageUrl = static function (?string $path): string {
                 <span>가입 회원</span>
                 <a href="<?= base_url('admin/members') ?>" class="btn btn-outline-secondary btn-sm">더보기</a>
             </div>
-            <div class="dash-list-body">
+                <div class="dash-list-body">
                 <?php foreach ($members as $row): ?>
                     <a class="dash-row" href="<?= esc($row['detail_url']) ?>">
-                        <?php $img = $imageUrl($row['image_path'] ?? ''); ?>
-                        <?php if ($img !== ''): ?>
-                            <img class="dash-avatar" src="<?= esc($img) ?>" alt="">
-                        <?php else: ?>
-                            <span class="dash-avatar"><?= esc(mb_substr((string) ($row['name'] ?? '회'), 0, 1)) ?></span>
-                        <?php endif; ?>
                         <span class="dash-main">
                             <span class="dash-title"><?= esc(($row['member_type_label'] ?? '-') . ' · ' . ($row['name'] ?? '-')) ?></span>
                             <span class="dash-sub"><?= esc($row['email'] ?? '-') ?></span>
@@ -154,18 +148,12 @@ $imageUrl = static function (?string $path): string {
 
         <section class="dash-list">
             <div class="dash-list-head">
-                <span>상담 요청</span>
+                <span>상담요청(대기)</span>
                 <a href="<?= base_url('admin/contents/counsels?status=REQUEST') ?>" class="btn btn-outline-secondary btn-sm">더보기</a>
             </div>
             <div class="dash-list-body">
                 <?php foreach ($counsels as $row): ?>
                     <a class="dash-row" href="<?= base_url('admin/contents/counsels/' . (int) ($row['counsel_id'] ?? 0)) ?>">
-                        <?php $img = $imageUrl($row['fc_profile_image'] ?? ''); ?>
-                        <?php if ($img !== ''): ?>
-                            <img class="dash-avatar" src="<?= esc($img) ?>" alt="">
-                        <?php else: ?>
-                            <span class="dash-avatar">FC</span>
-                        <?php endif; ?>
                         <span class="dash-main">
                             <span class="dash-title">상담요청회원 : <?= esc($row['user_name'] ?? '-') ?></span>
                             <span class="dash-sub">FC회원 : <?= esc($row['fc_name'] ?? '-') ?></span>
@@ -187,7 +175,6 @@ $imageUrl = static function (?string $path): string {
                 <?php foreach ($ads as $row): ?>
                     <?php $kind = ($row['ad_type'] ?? '') === 'banner' ? (($row['banner_position'] ?? '') === 'bottom' ? 'bottom' : 'top') : 'normal'; ?>
                     <a class="dash-row" href="<?= base_url('admin/ads/' . $kind . '/status?ad_id=' . (int) ($row['id'] ?? 0)) ?>">
-                        <span class="dash-avatar">AD</span>
                         <span class="dash-main">
                             <span class="dash-title"><?= esc(($row['ad_type'] ?? '') === 'banner' ? '배너광고' : '일반광고') ?> · <?= esc($row['name'] ?? '-') ?></span>
                             <span class="dash-sub"><?= esc(($row['start_date'] ?? '-') . ' ~ ' . ($row['end_date'] ?? '-')) ?> / <?= number_format((int) ($row['amount'] ?? 0)) ?>원</span>
@@ -209,7 +196,6 @@ $imageUrl = static function (?string $path): string {
         <div class="dash-list-body">
             <?php foreach ($reviews as $row): ?>
                 <a class="dash-row" href="<?= base_url('admin/contents/reviews/' . (int) ($row['review_id'] ?? 0)) ?>">
-                    <span class="dash-avatar">후</span>
                     <span class="dash-main">
                         <span class="dash-title"><?= esc($row['title'] ?? '-') ?></span>
                         <span class="dash-sub"><?= esc(($row['user_name'] ?? '-') . ' (FC회원: ' . ($row['fc_name'] ?? '-') . ')') ?></span>

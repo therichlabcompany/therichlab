@@ -30,6 +30,10 @@ $companies = array_filter([
     $profile['company_sub'] ?? '',
 ]);
 
+$isHomepageVisible = (($m['status'] ?? '') === 'ACTIVE')
+    && (($m['fc_review_status'] ?? '') === 'APPROVE')
+    && !empty($profile);
+
 $activityItemGroups = [];
 foreach ($activityItems ?? [] as $item) {
     $category = $item['category'] ?: '이력 및 인증';
@@ -124,8 +128,7 @@ foreach ($activityItems ?? [] as $item) {
         justify-content: center;
         width: 100%;
         height: 100%;
-        color: #64748b;
-        font-weight: 800;
+        background: #e5e7eb;
     }
 
     .field-list {
@@ -404,6 +407,9 @@ foreach ($activityItems ?? [] as $item) {
             <div class="top-actions">
                 <a href="<?= base_url('admin/fc-members') ?>" class="btn btn-outline-secondary btn-sm">리스트 돌아가기</a>
                 <a href="<?= base_url('admin/fc-members/' . (int) $m['member_id'] . '/preview') ?>" class="btn btn-outline-secondary btn-sm" target="_blank" rel="noopener">FC 미리보기</a>
+                <span class="review-status <?= $isHomepageVisible ? 'approve' : 'wait' ?>">
+                    <?= $isHomepageVisible ? '홈페이지 노출중' : '홈페이지 비노출' ?>
+                </span>
                 <?php if (($m['fc_review_status'] ?? '') !== 'APPROVE'): ?>
                     <form method="post" action="<?= base_url('admin/fc-members/approve') ?>" class="d-inline" onsubmit="return confirm('이 FC를 승인하고 홈페이지 FC 목록에 노출하시겠습니까?');">
                         <?= csrf_field() ?>
@@ -426,9 +432,16 @@ foreach ($activityItems ?? [] as $item) {
                             <div>
                                 <div class="profile-thumb">
                                     <?php if ($profileImageUrl !== ''): ?>
-                                        <img src="<?= esc($profileImageUrl) ?>" alt="" onerror="this.removeAttribute('src'); this.classList.add('is-empty');">
+                                        <img
+                                            src="<?= esc($profileImageUrl) ?>"
+                                            alt=""
+                                            onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+                                        >
                                     <?php else: ?>
                                         <div class="fallback" aria-hidden="true"></div>
+                                    <?php endif; ?>
+                                    <?php if ($profileImageUrl !== ''): ?>
+                                        <div class="fallback" aria-hidden="true" style="display:none;"></div>
                                     <?php endif; ?>
                                 </div>
                                 <button type="button" class="btn btn-outline-danger btn-sm mt-2" disabled>삭제</button>
@@ -679,7 +692,7 @@ foreach ($activityItems ?? [] as $item) {
                                     <div class="field-label">심의결과 회신문 파일</div>
                                     <div class="field-value">
                                         <?php if (!empty($review['deliberation_file'])): ?>
-                                            <a href="<?= base_url(ltrim($review['deliberation_file'], '/')) ?>" class="btn btn-outline-primary btn-sm" download>
+                                            <a href="<?= base_url('admin/contents/deliberations/' . (int) ($review['id'] ?? 0) . '/download') ?>" class="btn btn-outline-primary btn-sm">
                                                 파일 다운로드
                                             </a>
                                             <span class="ms-2"><?= esc(basename($review['deliberation_file'])) ?></span>

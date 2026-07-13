@@ -9,6 +9,7 @@ $backUrl = $backUrl ?? base_url('admin/popups');
 $actionUrl = $actionUrl ?? '#';
 $buttonLabel = $buttonLabel ?? '저장';
 $imageRequired = (bool) ($imageRequired ?? false);
+$error = session()->getFlashdata('error');
 
 $dtValue = static function (string $value): string {
     if ($value === '') {
@@ -132,6 +133,10 @@ $linkTarget = old('link_target', $popup['link_target'] ?? '_self');
             <div class="mb-3">
                 <a href="<?= esc($backUrl) ?>" class="btn btn-outline-secondary btn-sm">리스트로 돌아가기</a>
             </div>
+
+            <?php if ($error): ?>
+                <div class="alert alert-danger"><?= esc($error) ?></div>
+            <?php endif; ?>
 
             <form action="<?= esc($actionUrl) ?>" method="post" enctype="multipart/form-data">
                 <?= csrf_field() ?>
