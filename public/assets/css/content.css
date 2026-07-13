@@ -2726,6 +2726,18 @@ a.fc-detail-cta {
     font-size: 13px;
   }
 
+  .signup-page .fc-info-tabs {
+    overflow: hidden;
+  }
+
+  .signup-page .fc-info-tabs > a {
+    flex: 1 1 25%;
+    min-width: 0;
+    padding: 6px 2px;
+    font-size: 11px;
+    letter-spacing: -0.04em;
+  }
+
   .signup-page .signup-step-lead {
     margin-bottom: 14px;
   }

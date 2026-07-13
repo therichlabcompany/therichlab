@@ -250,6 +250,16 @@ body.admin-shell .btn-primary:hover {
   border-color: var(--admin-primary-hover);
 }
 
+/* 관리자 탭은 활성 상태에서도 크기를 바꾸지 않고 색상만 변경한다. */
+body.admin-shell .tab-row > .btn.btn-primary,
+body.admin-shell .fc-sort-tabs > .btn.btn-primary,
+body.admin-shell .counsel-tabs > .btn.btn-primary,
+body.admin-shell .tab-bar > .btn.btn-primary {
+  width: auto !important;
+  min-width: 0;
+  flex: 0 0 auto;
+}
+
 body.admin-shell .btn-success {
   background: #0d9488;
   border-color: #0d9488;

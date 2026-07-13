@@ -401,8 +401,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const result = await res.json();
 
             if (result.status === 'success') {
-                //location.href = '/member/fcJoin4';
-                alert('활동 정보가 변경되었습니다.')
+                alert('활동 정보가 변경되었습니다.');
             } else {
                 alert(result.message || '저장 실패');
             }
@@ -415,4 +414,4 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
 });
-</script>      
+</script>

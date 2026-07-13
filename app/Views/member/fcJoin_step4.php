@@ -19,7 +19,7 @@
         <form class="form-box" method="post" enctype="multipart/form-data">
             <?php include_once (COMPONENT_PATH . '/fc_stroy_input.php');  ?>
             <div class="form-actions">
-                <button type="submit">저장</button>
+                <button type="submit">저장하고 내 FC 페이지 보기</button>
             </div>
         </form>
     </div>
@@ -336,7 +336,7 @@
 
             if(result.status==='success'){
 
-                location.href='/member/fcComplete';
+                location.href=result.redirect_url || '/fc/view?uid=<?= rawurlencode((string) session()->get('member_uid')) ?>';
                 //alert("활동 스토리가 저장 되었습니다.")
 
             }else{

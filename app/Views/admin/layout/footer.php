@@ -6,7 +6,7 @@
     </footer>
 </div>
 
-<link rel="stylesheet" href="<?= base_url('assets/css/admin.css?v=5') ?>">
+<link rel="stylesheet" href="<?= base_url('assets/css/admin.css?v=6') ?>">
 
 <!-- AdminLTE v4 JS -->
 <script src="<?= base_url('assets/adminlte/dist/js/adminlte.min.js') ?>"></script>

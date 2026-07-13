@@ -116,7 +116,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const result = await res.json();
 
             if (result.status === 'success') {
-                //location.href = '/member/fcJoin3';
                 alert('프로필 정보가 수정되었습니다.');
             } else {
                 alert(result.message || '저장 실패');

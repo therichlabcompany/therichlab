@@ -830,7 +830,7 @@ class MemberController extends BaseController
             $db->transCommit();
 
             return $this->response->setJSON([
-                'status' => 'success'
+                'status' => 'success',
             ]);
         } catch (\Throwable $e) {
 
@@ -1151,7 +1151,7 @@ class MemberController extends BaseController
 
                 'status' => 'success',
 
-                'message' => '저장되었습니다.'
+                'message' => '저장되었습니다.',
 
             ]);
         } catch (\Throwable $e) {
@@ -1420,7 +1420,8 @@ class MemberController extends BaseController
 
             return $this->response->setJSON([
 
-                'status'=>'success'
+                'status'=>'success',
+                'redirect_url' => base_url('fc/view') . '?uid=' . rawurlencode((string) $memberUid),
 
             ]);
 
