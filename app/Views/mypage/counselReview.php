@@ -1,7 +1,5 @@
 <?php
-$profileImage = !empty($counsel['profile_image'])
-    ? '/uploads/profile/' . $counsel['profile_image']
-    : SITE_IMG_URL . 'images/temp/@profile-w.png';
+$profileImage = profile_image_url($counsel['profile_image'] ?? '');
 
 $companyLine = [];
 
@@ -32,7 +30,11 @@ if (!empty($counsel['region'])) {
         </p>
 
         <article class="consult-request-fc">
-            <img src="<?= esc($profileImage) ?>" alt="FC 프로필 사진" />
+            <?php if ($profileImage !== ''): ?>
+                <img src="<?= esc($profileImage) ?>" alt="FC 프로필 사진" onerror="this.removeAttribute('src'); this.classList.add('is-empty');" />
+            <?php else: ?>
+                <span class="avatar is-empty" aria-hidden="true"></span>
+            <?php endif; ?>
 
             <div>
                 <h2><?= esc($counsel['fc_name']) ?></h2>

@@ -1,8 +1,18 @@
 <main>
     <div class="page-inner">
+        <?php if (!empty($is_owner_preview)): ?>
+            <div class="fc-owner-preview-notice">
+                현재 관리자 승인 전입니다. 등록한 FC 정보는 본인에게만 미리보기로 표시됩니다.
+            </div>
+        <?php endif; ?>
         <article class="fc-detail-card">
             <div class="fc-detail-head">
-                <img src="<?= !empty($profile['profile_image']) ? '/uploads/profile/' . $profile['profile_image'] : SITE_IMG_URL . 'images/temp/@profile-m.png' ?>" alt="" />
+                <?php $fcDetailProfileImage = profile_image_url($profile['profile_image'] ?? ''); ?>
+                <?php if ($fcDetailProfileImage !== ''): ?>
+                    <img src="<?= esc($fcDetailProfileImage) ?>" alt="" onerror="this.removeAttribute('src'); this.classList.add('is-empty');" />
+                <?php else: ?>
+                    <span class="fc-detail-profile-empty" aria-hidden="true"></span>
+                <?php endif; ?>
                 <div class="fc-detail-head-main">
                     <!-- 소속: 보험사 최대 2곳 또는 GA 최대 1곳(데이터에 맞게 노출) -->
                     <?php

@@ -488,8 +488,7 @@ class Home extends BaseController
                 $tags .= '<span>' . fc_insurance_label($item) . '</span>';
             }
 
-            $profilePath = trim((string) ($row['profile_image'] ?? ''));
-            $img = $profilePath !== '' ? '/uploads/profile/' . ltrim($profilePath, '/') : '';
+            $img = profile_image_url($row['profile_image'] ?? '');
             $profileMedia = $img !== ''
                 ? '<img src="' . esc($img) . '" class="avatar" alt="" onerror="this.removeAttribute(\'src\'); this.classList.add(\'is-empty\');" />'
                 : '<span class="avatar is-empty" aria-hidden="true"></span>';

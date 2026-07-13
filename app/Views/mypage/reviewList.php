@@ -41,10 +41,6 @@
                                         <?php foreach ($chunk as $row): ?>
 
                                             <?php
-                                            $profileImage = !empty($row['profile_image'])
-                                                ? '/uploads/profile/' . $row['profile_image']
-                                                : SITE_IMG_URL . 'images/temp/@profile-m.png';
-
                                             $name = $row['fc_name'] ?? '익명';
                                             $maskedName = mb_substr($name, 0, 1) . '**';
                                             ?>

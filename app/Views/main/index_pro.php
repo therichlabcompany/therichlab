@@ -25,6 +25,8 @@ $mainImageUrl = static function (?string $path, string $fallback = '', string $d
     return '/uploads/' . trim($directory, '/') . '/' . $path;
 };
 
+$mainProfileImageUrl = static fn (?string $path): string => profile_image_url($path);
+
 $mainFcRegionLabel = static function (array $row): string {
     $regions = array_filter(array_map('trim', explode(',', (string) ($row['region'] ?? ''))));
     if (!$regions) {
@@ -187,7 +189,7 @@ $mainChunks = static function (array $rows, int $size): array {
                         <?php foreach ($mainRecommendList as $adFc): ?>
                             <?php
                             $tags = $mainFcInsuranceTags($adFc);
-                            $profileImage = $mainImageUrl($adFc['profile_image'] ?? '', '', 'profile');
+                            $profileImage = $mainProfileImageUrl($adFc['profile_image'] ?? '');
                             ?>
                             <div class="swiper-slide" data-filter-values="<?= esc($mainRegionFilterValues($adFc)) ?>">
                                 <article class="card">
@@ -284,7 +286,7 @@ $mainChunks = static function (array $rows, int $size): array {
                             <div class="swiper-slide list-grid">
                                 <?php foreach ($chunk as $row): ?>
                                     <?php
-                                    $profileImage = $mainImageUrl($row['profile_image'] ?? '', '', 'profile');
+                                    $profileImage = $mainProfileImageUrl($row['profile_image'] ?? '');
                                     $desc = trim((string) ($row['hero_line'] ?? $row['intro'] ?? ''));
                                     ?>
                                     <a href="<?= esc($mainFcHref($row)) ?>" class="list-item" data-filter-values="<?= esc($mainInsuranceFilterValues($row)) ?>">
@@ -442,7 +444,7 @@ $mainChunks = static function (array $rows, int $size): array {
                                 <div class="language-list-grid">
                                     <?php foreach ($chunk as $row): ?>
                                         <?php
-                                        $profileImage = $mainImageUrl($row['profile_image'] ?? '', '', 'profile');
+                                        $profileImage = $mainProfileImageUrl($row['profile_image'] ?? '');
                                         $tags = array_slice($mainFcInsuranceTags($row), 0, 3);
                                         ?>
                                         <a href="<?= esc($mainFcHref($row)) ?>" class="language-card" data-filter-values="<?= esc($mainLanguageFilterValues($row)) ?>">

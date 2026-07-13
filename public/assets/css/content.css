@@ -673,6 +673,14 @@ a.directory-select > span {
   background: #eef2f7;
 }
 
+.fc-detail-card .fc-detail-head > .fc-detail-profile-empty {
+  width: 96px;
+  height: 96px;
+  flex: 0 0 96px;
+  border-radius: 50%;
+  background: #e5e7eb;
+}
+
 .fc-detail-card .fc-detail-head .fc-detail-head-main {
   min-width: 0;
 }
@@ -4183,4 +4191,14 @@ a.fc-detail-cta {
   .insurance-in-answer-page .insurance-in-register > .card .card-body { flex-direction: column; padding: 14px 16px; }
   .insurance-in-answer-page .insurance-in-register > .card .insurance-in-fc-actions { width: 100%; }
   .insurance-in-answer-page .insurance-in-register > .card .insurance-in-fc-actions .btn-line { width: 100%; min-width: 0; }
+}
+.fc-owner-preview-notice {
+  margin: 0 0 16px;
+  padding: 13px 16px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  background: #f1f5f9;
+  color: #475569;
+  font-size: 14px;
+  font-weight: 700;
 }

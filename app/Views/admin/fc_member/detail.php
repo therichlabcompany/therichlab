@@ -13,8 +13,7 @@ $value = static fn ($array, $key) => isset($array[$key]) && $array[$key] !== '' 
     ? esc((string) $array[$key])
     : '-';
 
-$profileImage = trim((string) ($profile['profile_image'] ?? ''));
-$profileImageUrl = $profileImage !== '' ? base_url(ltrim($profileImage, '/')) : '';
+$profileImageUrl = profile_image_url($profile['profile_image'] ?? '');
 
 $licenseYears = '-';
 if (!empty($profile['license_date'])) {
@@ -427,9 +426,9 @@ foreach ($activityItems ?? [] as $item) {
                             <div>
                                 <div class="profile-thumb">
                                     <?php if ($profileImageUrl !== ''): ?>
-                                        <img src="<?= esc($profileImageUrl) ?>" alt="">
+                                        <img src="<?= esc($profileImageUrl) ?>" alt="" onerror="this.removeAttribute('src'); this.classList.add('is-empty');">
                                     <?php else: ?>
-                                        <div class="fallback">FC</div>
+                                        <div class="fallback" aria-hidden="true"></div>
                                     <?php endif; ?>
                                 </div>
                                 <button type="button" class="btn btn-outline-danger btn-sm mt-2" disabled>삭제</button>

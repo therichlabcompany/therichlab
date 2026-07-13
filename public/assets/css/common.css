@@ -1228,7 +1228,8 @@ br.br-mo {
 }
 
 .avatar.is-empty,
-.list-avatar.is-empty {
+.list-avatar.is-empty,
+.gnb-avatar-img.is-empty {
   background: #e5e7eb;
 }
 

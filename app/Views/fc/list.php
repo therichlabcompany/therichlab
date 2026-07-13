@@ -74,8 +74,9 @@ if (empty($insuranceText)) $insuranceText = "전체";
                                     <div class="profile">
 
                                         <!-- profile image -->
-                                        <?php if (!empty($row['profile_image'])): ?>
-                                            <img src="/uploads/profile/<?= esc($row['profile_image']) ?>" alt="" class="avatar" onerror="this.removeAttribute('src'); this.classList.add('is-empty');" />
+                                        <?php $profileImageUrl = profile_image_url($row['profile_image'] ?? ''); ?>
+                                        <?php if ($profileImageUrl !== ''): ?>
+                                            <img src="<?= esc($profileImageUrl) ?>" alt="" class="avatar" onerror="this.removeAttribute('src'); this.classList.add('is-empty');" />
                                         <?php else: ?>
                                             <span class="avatar is-empty" aria-hidden="true"></span>
                                         <?php endif; ?>

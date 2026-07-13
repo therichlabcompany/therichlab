@@ -316,9 +316,12 @@ document.addEventListener('DOMContentLoaded', function () {
                         <?php else: ?>
                         <li class="member">
                             <button type="button" class="gnb-avatar" data-profile-toggle aria-expanded="false" aria-label="마이페이지 메뉴 열기">
-                                <img src="<?= !empty($memberProfile['profile_image'])
-        ? '/uploads/profile/'.$memberProfile['profile_image']
-        : SITE_IMG_URL . 'images/temp/@profile-m.png' ?>" alt="" class="gnb-avatar-img" />
+                                <?php $headerProfileImage = profile_image_url($memberProfile['profile_image'] ?? ''); ?>
+                                <?php if ($headerProfileImage !== ''): ?>
+                                    <img src="<?= esc($headerProfileImage) ?>" alt="" class="gnb-avatar-img" onerror="this.removeAttribute('src'); this.classList.add('is-empty');" />
+                                <?php else: ?>
+                                    <span class="gnb-avatar-img is-empty" aria-hidden="true"></span>
+                                <?php endif; ?>
                                 
                             </button>
                         </li>
@@ -335,6 +338,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     <?php if ($memberType === 'FC'): ?>
                         
                     <ul>
+                        <li><a href="<?= base_url('fc/view') ?>?uid=<?= rawurlencode((string) session()->get('member_uid')) ?>">내 FC 페이지 보기</a></li>
                         <li><a href="/mypage/fcinfo">내 정보</a></li>
                         <li><a href="/mypage/fcprofile">프로필 관리</a></li>
                         <li><a href="/mypage/fcreviewed">심의필 정보 관리</a></li>
@@ -367,6 +371,7 @@ document.addEventListener('DOMContentLoaded', function () {
             </div>
             <?php if ($memberType === 'FC'): ?>
             <ul>
+                <li><a href="<?= base_url('fc/view') ?>?uid=<?= rawurlencode((string) session()->get('member_uid')) ?>">내 FC 페이지 보기</a></li>
                 <li><a href="/mypage/fcinfo">내 정보</a></li>
                 <li><a href="/mypage/fcprofile">프로필 관리</a></li>
                 <li><a href="/mypage/fcreviewed">심의필 정보 관리</a></li>

@@ -227,15 +227,33 @@ class FcController extends BaseController
         // =========================
         $member = $db->table('my_fc_member')
             ->where('member_uid', $uid)
+            ->where('member_type', 'FC')
             ->where('deleted_at IS NULL', null, false)
             ->get()
             ->getRowArray();
 
+        if (!$member) {
+            throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound();
+        }
 
-        $db->table('my_fc_profile')
-            ->where('member_uid', $uid)
-            ->set('view_count', 'view_count+1', false)
-            ->update();
+        $sessionMemberUid = (string) session()->get('member_uid');
+        $isOwner = session()->get('member_type') === 'FC'
+            && $sessionMemberUid !== ''
+            && hash_equals((string) $member['member_uid'], $sessionMemberUid);
+        $isAdminPreview = (bool) session()->get('admin_logged_in');
+        $isPublic = ($member['status'] ?? '') === 'ACTIVE'
+            && ($member['fc_review_status'] ?? '') === 'APPROVE';
+
+        if (!$isPublic && !$isOwner && !$isAdminPreview) {
+            throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound();
+        }
+
+        if ($isPublic && !$isOwner && !$isAdminPreview) {
+            $db->table('my_fc_profile')
+                ->where('member_uid', $uid)
+                ->set('view_count', 'view_count+1', false)
+                ->update();
+        }
 
         // =========================
         // 2. PROFILE
@@ -328,7 +346,7 @@ class FcController extends BaseController
 
         $reviewStats = $reviewStatsBuilder->get()->getRowArray();
 
-        $memberUid = session()->get('member_uid');
+        $memberUid = $sessionMemberUid;
 
         $isBookmarked = false;
 
@@ -356,6 +374,7 @@ class FcController extends BaseController
             "rating"        => $reviewStats['rating'] ?? 0,
             "rating_count"  => $reviewStats['rating_count'] ?? 0,
             "bookmark_status" => $isBookmarked,
+            "is_owner_preview" => $isOwner && !$isPublic,
 
         ];
 

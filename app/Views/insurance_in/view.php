@@ -2,7 +2,7 @@
 $uid = (string) session('member_uid');
 $type = (string) session('member_type');
 $owner = $uid !== '' && $uid === $question['member_uid'];
-$profileImage = static fn($row) => !empty($row['profile_image']) ? base_url('uploads/profile/' . $row['profile_image']) : '';
+$profileImage = static fn($row) => profile_image_url($row['profile_image'] ?? '');
 ?>
 <main>
     <div class="page-inner-narrow">

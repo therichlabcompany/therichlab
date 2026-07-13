@@ -20,6 +20,8 @@ use Psr\Log\LoggerInterface;
  */
 abstract class BaseController extends Controller
 {
+    protected $helpers = ['profile_image'];
+
     /**
      * Be sure to declare properties for any property fetch you initialized.
      * The creation of dynamic property is deprecated in PHP 8.2.
@@ -77,10 +79,10 @@ abstract class BaseController extends Controller
         $memberProfile = null;
 
         if ($memberUid) {
-            $memberProfile = $db->table('my_fc_profile')
-                ->select('profile_image')
-                ->where('member_uid', $memberUid)
-                
+            $memberProfile = $db->table('my_fc_member m')
+                ->select('COALESCE(NULLIF(p.profile_image, ""), NULLIF(m.profile_image, "")) AS profile_image', false)
+                ->join('my_fc_profile p', 'p.member_uid = m.member_uid', 'left')
+                ->where('m.member_uid', $memberUid)
                 ->get()
                 ->getRowArray();
         }

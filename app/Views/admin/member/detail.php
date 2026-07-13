@@ -715,16 +715,15 @@ $error = session()->getFlashdata('error');
             <?php if (!empty($reviews)): ?>
                 <?php foreach ($reviews as $index => $review): ?>
                     <?php
-                    $profileImage = trim((string) ($review['profile_image'] ?? ''));
-                    $profileImageUrl = $profileImage !== '' ? base_url(ltrim($profileImage, '/')) : '';
+                    $profileImageUrl = profile_image_url($review['profile_image'] ?? '');
                     ?>
                     <article class="review-detail-panel" data-review-detail="<?= (int) $index ?>" style="display:none;">
                         <div class="review-detail-fc">
                             <div class="review-detail-avatar">
                                 <?php if ($profileImageUrl !== ''): ?>
-                                    <img src="<?= esc($profileImageUrl) ?>" alt="">
+                                    <img src="<?= esc($profileImageUrl) ?>" alt="" onerror="this.removeAttribute('src'); this.classList.add('is-empty');">
                                 <?php else: ?>
-                                    <div class="fallback">FC</div>
+                                    <div class="fallback" aria-hidden="true"></div>
                                 <?php endif; ?>
                             </div>
                             <div>
