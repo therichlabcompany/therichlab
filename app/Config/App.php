@@ -210,6 +210,8 @@ class App extends BaseConfig
     {
         parent::__construct();
 
+        $this->baseURL = 'https://myfc.co.kr/';
+
         $configuredBaseURL = trim((string) env('app.baseURL', ''));
 
         if ($configuredBaseURL !== '') {
