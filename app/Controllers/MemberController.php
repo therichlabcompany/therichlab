@@ -627,7 +627,7 @@ class MemberController extends BaseController
         $request = $this->request;
 
         if (!$mobileOk->isConfigured()) {
-            log_message('error', $this->formatMobileOkFailureLog('request', 'missing-configuration', [
+            $this->writeMobileOkLog($this->formatMobileOkFailureLog('request', 'missing-configuration', [
                 'message' => '본인인증 설정이 누락되었습니다.',
                 'mode' => $mobileOk->mode(),
                 'serviceId' => $mobileOk->serviceId(),
@@ -656,7 +656,7 @@ class MemberController extends BaseController
         }
 
         if (!$mobileOk->sdkAvailable()) {
-            log_message('error', $this->formatMobileOkFailureLog('request', 'sdk-missing', [
+            $this->writeMobileOkLog($this->formatMobileOkFailureLog('request', 'sdk-missing', [
                 'message' => 'MobileOK SDK 파일 또는 composer autoload를 찾을 수 없습니다.',
                 'mode' => $mobileOk->mode(),
                 'serviceId' => $mobileOk->serviceId(),
@@ -711,7 +711,7 @@ class MemberController extends BaseController
                 ->setContentType('application/json', 'UTF-8')
                 ->setBody(json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
         } catch (\Throwable $e) {
-            log_message('error', $this->formatMobileOkFailureLog('request', 'exception', [
+            $this->writeMobileOkLog($this->formatMobileOkFailureLog('request', 'exception', [
                 'message' => $e->getMessage(),
                 'exceptionClass' => get_class($e),
                 'mode' => $mobileOk->mode(),
@@ -763,7 +763,7 @@ class MemberController extends BaseController
         }
 
         if (!$payload) {
-            log_message('error', $this->formatMobileOkFailureLog('result', 'payload-missing', [
+            $this->writeMobileOkLog($this->formatMobileOkFailureLog('result', 'payload-missing', [
                 'message' => '본인인증 결과가 없습니다.',
                 'mode' => $mobileOk->mode(),
                 'serviceId' => $mobileOk->serviceId(),
@@ -793,7 +793,7 @@ class MemberController extends BaseController
         $issueDate = trim((string) ($resultData['issueDate'] ?? ''));
 
         if ($resultCode !== '' && $resultCode !== '2000') {
-            log_message('error', $this->formatMobileOkFailureLog('result', 'result-code-failed', [
+            $this->writeMobileOkLog($this->formatMobileOkFailureLog('result', 'result-code-failed', [
                 'message' => $resultMsg !== '' ? $resultMsg : '본인인증에 실패했습니다.',
                 'mode' => $mobileOk->mode(),
                 'serviceId' => $mobileOk->serviceId(),
@@ -819,7 +819,7 @@ class MemberController extends BaseController
         }
 
         if ($sessionTxId !== '' && $resultTxId !== '' && $sessionTxId !== $resultTxId) {
-            log_message('error', $this->formatMobileOkFailureLog('result', 'txid-mismatch', [
+            $this->writeMobileOkLog($this->formatMobileOkFailureLog('result', 'txid-mismatch', [
                 'message' => '본인인증 거래 정보가 일치하지 않습니다.',
                 'mode' => $mobileOk->mode(),
                 'serviceId' => $mobileOk->serviceId(),
@@ -845,7 +845,7 @@ class MemberController extends BaseController
         }
 
         if ($issueDate !== '' && $mobileOk->isExpired($issueDate)) {
-            log_message('error', $this->formatMobileOkFailureLog('result', 'token-expired', [
+            $this->writeMobileOkLog($this->formatMobileOkFailureLog('result', 'token-expired', [
                 'message' => '본인인증 유효 시간이 만료되었습니다.',
                 'mode' => $mobileOk->mode(),
                 'serviceId' => $mobileOk->serviceId(),
@@ -891,7 +891,7 @@ class MemberController extends BaseController
         }
 
         if ($phone === '') {
-            log_message('error', $this->formatMobileOkFailureLog('result', 'phone-missing', [
+            $this->writeMobileOkLog($this->formatMobileOkFailureLog('result', 'phone-missing', [
                 'message' => '휴대폰 번호를 확인할 수 없습니다.',
                 'mode' => $mobileOk->mode(),
                 'serviceId' => $mobileOk->serviceId(),
@@ -917,7 +917,7 @@ class MemberController extends BaseController
         }
 
         if ($name === '' && $siteId === '') {
-            log_message('error', $this->formatMobileOkFailureLog('result', 'identity-missing', [
+            $this->writeMobileOkLog($this->formatMobileOkFailureLog('result', 'identity-missing', [
                 'message' => '본인인증 결과를 확인할 수 없습니다.',
                 'mode' => $mobileOk->mode(),
                 'serviceId' => $mobileOk->serviceId(),
@@ -1013,6 +1013,23 @@ class MemberController extends BaseController
         }
 
         return implode("\n", $lines);
+    }
+
+    private function writeMobileOkLog(string $message): void
+    {
+        $path = $this->mobileOkLogPath();
+        $entry = '[' . date('Y-m-d H:i:s') . "]\n" . $message . "\n\n";
+
+        if (!is_dir(dirname($path))) {
+            mkdir(dirname($path), 0775, true);
+        }
+
+        file_put_contents($path, $entry, FILE_APPEND | LOCK_EX);
+    }
+
+    private function mobileOkLogPath(): string
+    {
+        return WRITEPATH . 'logs/mobileok-' . date('Y-m-d') . '.log';
     }
 
     private function generateMemberUid()
