@@ -228,7 +228,7 @@ class MobileOkService
 
     public function sdkManagerPath(): string
     {
-        return ROOTPATH . 'public/auth/sample/PHP-phpseclib3.0/mok/mobileOK_manager_phpseclib_v3.0_v1.0.2.php';
+        return ROOTPATH . 'app/ThirdParty/MobileOk/mobileOK_manager_phpseclib_v3.0_v1.0.2.php';
     }
 
     public function sdkAvailable(): bool
