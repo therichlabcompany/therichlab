@@ -624,8 +624,31 @@ class MemberController extends BaseController
     {
         $mobileOk = service('mobileOk');
         $session = session();
+        $request = $this->request;
 
         if (!$mobileOk->isConfigured()) {
+            log_message('error', $this->formatMobileOkFailureLog('request', 'missing-configuration', [
+                'message' => '본인인증 설정이 누락되었습니다.',
+                'mode' => $mobileOk->mode(),
+                'serviceId' => $mobileOk->serviceId(),
+                'keyPath' => $mobileOk->keyPath(),
+                'keyExists' => is_file($mobileOk->keyPath()) ? 'Y' : 'N',
+                'keyReadable' => is_readable($mobileOk->keyPath()) ? 'Y' : 'N',
+                'enabled' => $mobileOk->isEnabled() ? 'Y' : 'N',
+                'missingConfiguration' => $mobileOk->missingConfiguration(),
+                'requestMethod' => $request->getMethod(),
+                'requestUri' => (string) current_url(true),
+                'host' => (string) ($request->getServer('HTTP_HOST') ?? ''),
+                'scheme' => (string) (function_exists('is_https') && is_https() ? 'https' : 'http'),
+                'referer' => (string) ($request->getServer('HTTP_REFERER') ?? ''),
+                'userAgent' => (string) ($request->getUserAgent() ? $request->getUserAgent()->getAgentString() : ''),
+                'clientIp' => (string) $request->getIPAddress(),
+                'baseUrl' => base_url('/'),
+                'requestJsUrl' => $mobileOk->requestJsUrl(),
+                'resultRequestUrl' => $mobileOk->resultRequestUrl(),
+                'returnUrl' => $mobileOk->returnUrl(),
+            ]));
+
             return $this->response->setStatusCode(503)->setJSON([
                 'status' => 'error',
                 'message' => implode(' ', $mobileOk->missingConfiguration()),
@@ -633,6 +656,30 @@ class MemberController extends BaseController
         }
 
         if (!$mobileOk->sdkAvailable()) {
+            log_message('error', $this->formatMobileOkFailureLog('request', 'sdk-missing', [
+                'message' => 'MobileOK SDK 파일 또는 composer autoload를 찾을 수 없습니다.',
+                'mode' => $mobileOk->mode(),
+                'serviceId' => $mobileOk->serviceId(),
+                'keyPath' => $mobileOk->keyPath(),
+                'keyExists' => is_file($mobileOk->keyPath()) ? 'Y' : 'N',
+                'keyReadable' => is_readable($mobileOk->keyPath()) ? 'Y' : 'N',
+                'sdkAutoloadPath' => $mobileOk->sdkAutoloadPath(),
+                'sdkAutoloadExists' => is_file($mobileOk->sdkAutoloadPath()) ? 'Y' : 'N',
+                'sdkManagerPath' => $mobileOk->sdkManagerPath(),
+                'sdkManagerExists' => is_file($mobileOk->sdkManagerPath()) ? 'Y' : 'N',
+                'requestMethod' => $request->getMethod(),
+                'requestUri' => (string) current_url(true),
+                'host' => (string) ($request->getServer('HTTP_HOST') ?? ''),
+                'scheme' => (string) (function_exists('is_https') && is_https() ? 'https' : 'http'),
+                'referer' => (string) ($request->getServer('HTTP_REFERER') ?? ''),
+                'userAgent' => (string) ($request->getUserAgent() ? $request->getUserAgent()->getAgentString() : ''),
+                'clientIp' => (string) $request->getIPAddress(),
+                'baseUrl' => base_url('/'),
+                'requestJsUrl' => $mobileOk->requestJsUrl(),
+                'resultRequestUrl' => $mobileOk->resultRequestUrl(),
+                'returnUrl' => $mobileOk->returnUrl(),
+            ]));
+
             return $this->response->setStatusCode(503)->setJSON([
                 'status' => 'error',
                 'message' => 'MobileOK SDK 파일 또는 composer autoload를 찾을 수 없습니다.',
@@ -664,9 +711,37 @@ class MemberController extends BaseController
                 ->setContentType('application/json', 'UTF-8')
                 ->setBody(json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
         } catch (\Throwable $e) {
-            log_message('error', 'MobileOK request failed: {message}', [
+            log_message('error', $this->formatMobileOkFailureLog('request', 'exception', [
                 'message' => $e->getMessage(),
-            ]);
+                'exceptionClass' => get_class($e),
+                'mode' => $mobileOk->mode(),
+                'enabled' => $mobileOk->isEnabled() ? 'Y' : 'N',
+                'serviceId' => $mobileOk->serviceId(),
+                'clientPrefix' => $mobileOk->clientPrefix(),
+                'usageCode' => $mobileOk->usageCode(),
+                'serviceType' => $mobileOk->serviceType(),
+                'retTransferType' => $mobileOk->retTransferType(),
+                'requestMode' => $mobileOk->requestMode(),
+                'keyPath' => $mobileOk->keyPath(),
+                'keyExists' => is_file($mobileOk->keyPath()) ? 'Y' : 'N',
+                'keyReadable' => is_readable($mobileOk->keyPath()) ? 'Y' : 'N',
+                'sdkAutoloadPath' => $mobileOk->sdkAutoloadPath(),
+                'sdkAutoloadExists' => is_file($mobileOk->sdkAutoloadPath()) ? 'Y' : 'N',
+                'sdkManagerPath' => $mobileOk->sdkManagerPath(),
+                'sdkManagerExists' => is_file($mobileOk->sdkManagerPath()) ? 'Y' : 'N',
+                'requestMethod' => $request->getMethod(),
+                'requestUri' => (string) current_url(true),
+                'host' => (string) ($request->getServer('HTTP_HOST') ?? ''),
+                'scheme' => (string) (function_exists('is_https') && is_https() ? 'https' : 'http'),
+                'referer' => (string) ($request->getServer('HTTP_REFERER') ?? ''),
+                'userAgent' => (string) ($request->getUserAgent() ? $request->getUserAgent()->getAgentString() : ''),
+                'clientIp' => (string) $request->getIPAddress(),
+                'baseUrl' => base_url('/'),
+                'requestJsUrl' => $mobileOk->requestJsUrl(),
+                'resultRequestUrl' => $mobileOk->resultRequestUrl(),
+                'returnUrl' => $mobileOk->returnUrl(),
+                'clientTxId' => $clientTxId ?? '',
+            ]));
 
             return $this->response->setStatusCode(500)->setJSON([
                 'status' => 'error',
@@ -680,6 +755,7 @@ class MemberController extends BaseController
         $mobileOk = service('mobileOk');
         $session = session();
         $db = \Config\Database::connect();
+        $request = $this->request;
 
         $payload = $this->request->getJSON(true);
         if (!$payload) {
@@ -687,6 +763,22 @@ class MemberController extends BaseController
         }
 
         if (!$payload) {
+            log_message('error', $this->formatMobileOkFailureLog('result', 'payload-missing', [
+                'message' => '본인인증 결과가 없습니다.',
+                'mode' => $mobileOk->mode(),
+                'serviceId' => $mobileOk->serviceId(),
+                'resultRequestUrl' => $mobileOk->resultRequestUrl(),
+                'requestUri' => (string) current_url(true),
+                'requestMethod' => $request->getMethod(),
+                'host' => (string) ($request->getServer('HTTP_HOST') ?? ''),
+                'scheme' => (string) (function_exists('is_https') && is_https() ? 'https' : 'http'),
+                'referer' => (string) ($request->getServer('HTTP_REFERER') ?? ''),
+                'userAgent' => (string) ($request->getUserAgent() ? $request->getUserAgent()->getAgentString() : ''),
+                'clientIp' => (string) $request->getIPAddress(),
+                'sessionTxId' => (string) $session->get('phone_auth_tx_id'),
+                'sessionRequestedAt' => (string) $session->get('phone_auth_requested_at'),
+            ]));
+
             return $this->response->setJSON([
                 'status' => 'error',
                 'message' => '본인인증 결과가 없습니다.',
@@ -701,6 +793,25 @@ class MemberController extends BaseController
         $issueDate = trim((string) ($resultData['issueDate'] ?? ''));
 
         if ($resultCode !== '' && $resultCode !== '2000') {
+            log_message('error', $this->formatMobileOkFailureLog('result', 'result-code-failed', [
+                'message' => $resultMsg !== '' ? $resultMsg : '본인인증에 실패했습니다.',
+                'mode' => $mobileOk->mode(),
+                'serviceId' => $mobileOk->serviceId(),
+                'resultRequestUrl' => $mobileOk->resultRequestUrl(),
+                'requestUri' => (string) current_url(true),
+                'requestMethod' => $request->getMethod(),
+                'host' => (string) ($request->getServer('HTTP_HOST') ?? ''),
+                'scheme' => (string) (function_exists('is_https') && is_https() ? 'https' : 'http'),
+                'referer' => (string) ($request->getServer('HTTP_REFERER') ?? ''),
+                'userAgent' => (string) ($request->getUserAgent() ? $request->getUserAgent()->getAgentString() : ''),
+                'clientIp' => (string) $request->getIPAddress(),
+                'sessionTxId' => $sessionTxId,
+                'resultTxId' => $resultTxId,
+                'issueDate' => $issueDate,
+                'payloadKeys' => array_keys($resultData),
+                'resultData' => $resultData,
+            ]));
+
             return $this->response->setJSON([
                 'status' => 'error',
                 'message' => $resultMsg !== '' ? $resultMsg : '본인인증에 실패했습니다.',
@@ -708,6 +819,25 @@ class MemberController extends BaseController
         }
 
         if ($sessionTxId !== '' && $resultTxId !== '' && $sessionTxId !== $resultTxId) {
+            log_message('error', $this->formatMobileOkFailureLog('result', 'txid-mismatch', [
+                'message' => '본인인증 거래 정보가 일치하지 않습니다.',
+                'mode' => $mobileOk->mode(),
+                'serviceId' => $mobileOk->serviceId(),
+                'resultRequestUrl' => $mobileOk->resultRequestUrl(),
+                'requestUri' => (string) current_url(true),
+                'requestMethod' => $request->getMethod(),
+                'host' => (string) ($request->getServer('HTTP_HOST') ?? ''),
+                'scheme' => (string) (function_exists('is_https') && is_https() ? 'https' : 'http'),
+                'referer' => (string) ($request->getServer('HTTP_REFERER') ?? ''),
+                'userAgent' => (string) ($request->getUserAgent() ? $request->getUserAgent()->getAgentString() : ''),
+                'clientIp' => (string) $request->getIPAddress(),
+                'sessionTxId' => $sessionTxId,
+                'resultTxId' => $resultTxId,
+                'issueDate' => $issueDate,
+                'payloadKeys' => array_keys($resultData),
+                'resultData' => $resultData,
+            ]));
+
             return $this->response->setJSON([
                 'status' => 'error',
                 'message' => '본인인증 거래 정보가 일치하지 않습니다.',
@@ -715,6 +845,25 @@ class MemberController extends BaseController
         }
 
         if ($issueDate !== '' && $mobileOk->isExpired($issueDate)) {
+            log_message('error', $this->formatMobileOkFailureLog('result', 'token-expired', [
+                'message' => '본인인증 유효 시간이 만료되었습니다.',
+                'mode' => $mobileOk->mode(),
+                'serviceId' => $mobileOk->serviceId(),
+                'resultRequestUrl' => $mobileOk->resultRequestUrl(),
+                'requestUri' => (string) current_url(true),
+                'requestMethod' => $request->getMethod(),
+                'host' => (string) ($request->getServer('HTTP_HOST') ?? ''),
+                'scheme' => (string) (function_exists('is_https') && is_https() ? 'https' : 'http'),
+                'referer' => (string) ($request->getServer('HTTP_REFERER') ?? ''),
+                'userAgent' => (string) ($request->getUserAgent() ? $request->getUserAgent()->getAgentString() : ''),
+                'clientIp' => (string) $request->getIPAddress(),
+                'sessionTxId' => $sessionTxId,
+                'resultTxId' => $resultTxId,
+                'issueDate' => $issueDate,
+                'payloadKeys' => array_keys($resultData),
+                'resultData' => $resultData,
+            ]));
+
             return $this->response->setJSON([
                 'status' => 'error',
                 'message' => '본인인증 유효 시간이 만료되었습니다.',
@@ -742,6 +891,25 @@ class MemberController extends BaseController
         }
 
         if ($phone === '') {
+            log_message('error', $this->formatMobileOkFailureLog('result', 'phone-missing', [
+                'message' => '휴대폰 번호를 확인할 수 없습니다.',
+                'mode' => $mobileOk->mode(),
+                'serviceId' => $mobileOk->serviceId(),
+                'resultRequestUrl' => $mobileOk->resultRequestUrl(),
+                'requestUri' => (string) current_url(true),
+                'requestMethod' => $request->getMethod(),
+                'host' => (string) ($request->getServer('HTTP_HOST') ?? ''),
+                'scheme' => (string) (function_exists('is_https') && is_https() ? 'https' : 'http'),
+                'referer' => (string) ($request->getServer('HTTP_REFERER') ?? ''),
+                'userAgent' => (string) ($request->getUserAgent() ? $request->getUserAgent()->getAgentString() : ''),
+                'clientIp' => (string) $request->getIPAddress(),
+                'sessionTxId' => $sessionTxId,
+                'resultTxId' => $resultTxId,
+                'issueDate' => $issueDate,
+                'payloadKeys' => array_keys($resultData),
+                'resultData' => $resultData,
+            ]));
+
             return $this->response->setJSON([
                 'status' => 'error',
                 'message' => '휴대폰 번호를 확인할 수 없습니다.',
@@ -749,6 +917,25 @@ class MemberController extends BaseController
         }
 
         if ($name === '' && $siteId === '') {
+            log_message('error', $this->formatMobileOkFailureLog('result', 'identity-missing', [
+                'message' => '본인인증 결과를 확인할 수 없습니다.',
+                'mode' => $mobileOk->mode(),
+                'serviceId' => $mobileOk->serviceId(),
+                'resultRequestUrl' => $mobileOk->resultRequestUrl(),
+                'requestUri' => (string) current_url(true),
+                'requestMethod' => $request->getMethod(),
+                'host' => (string) ($request->getServer('HTTP_HOST') ?? ''),
+                'scheme' => (string) (function_exists('is_https') && is_https() ? 'https' : 'http'),
+                'referer' => (string) ($request->getServer('HTTP_REFERER') ?? ''),
+                'userAgent' => (string) ($request->getUserAgent() ? $request->getUserAgent()->getAgentString() : ''),
+                'clientIp' => (string) $request->getIPAddress(),
+                'sessionTxId' => $sessionTxId,
+                'resultTxId' => $resultTxId,
+                'issueDate' => $issueDate,
+                'payloadKeys' => array_keys($resultData),
+                'resultData' => $resultData,
+            ]));
+
             return $this->response->setJSON([
                 'status' => 'error',
                 'message' => '본인인증 결과를 확인할 수 없습니다.',
@@ -801,6 +988,31 @@ class MemberController extends BaseController
             'issueDate' => $issueDate,
             'phone_verified' => 'Y',
         ]);
+    }
+
+    /**
+     * 업체 전달용 실패 로그를 만든다.
+     *
+     * @param array<string, mixed> $context
+     */
+    private function formatMobileOkFailureLog(string $stage, string $reason, array $context): string
+    {
+        $lines = [
+            '[MobileOK Failure]',
+            'stage: ' . $stage,
+            'reason: ' . $reason,
+        ];
+
+        foreach ($context as $key => $value) {
+            if (is_array($value)) {
+                $lines[] = $key . ': ' . json_encode($value, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+                continue;
+            }
+
+            $lines[] = $key . ': ' . (string) $value;
+        }
+
+        return implode("\n", $lines);
     }
 
     private function generateMemberUid()
