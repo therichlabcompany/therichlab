@@ -132,12 +132,17 @@ class MemberController extends BaseController
 
 
         $agreements = $this->signupAgreementDocuments();
+        $mobileOk = service('mobileOk');
         $data = [
             "header_class" => $header_class,
             "popup_page" => $popup_page,
             "modal_page" => $modal_page,
             "agreementTerms" => $agreements['TERMS'],
             "agreementPrivacy" => $agreements['PRIVACY'],
+            "mobileOkEnabled" => $mobileOk->isConfigured(),
+            "mobileOkJsUrl" => $mobileOk->requestJsUrl(),
+            "mobileOkRequestUrl" => base_url('member/phone-auth/request'),
+            "mobileOkResultUrl" => $mobileOk->returnUrl(),
         ];
 
 
@@ -227,10 +232,15 @@ class MemberController extends BaseController
         $modal_page = [];
 
 
+        $mobileOk = service('mobileOk');
         $data = [
             "header_class" => $header_class,
             "popup_page" => $popup_page,
-            "modal_page" => $modal_page
+            "modal_page" => $modal_page,
+            "mobileOkEnabled" => $mobileOk->isConfigured(),
+            "mobileOkJsUrl" => $mobileOk->requestJsUrl(),
+            "mobileOkRequestUrl" => base_url('member/phone-auth/request'),
+            "mobileOkResultUrl" => $mobileOk->returnUrl(),
         ];
 
 
@@ -419,6 +429,7 @@ class MemberController extends BaseController
     public function register()
     {
         $db = \Config\Database::connect();
+        $session = session();
 
         try {
 
@@ -438,11 +449,17 @@ class MemberController extends BaseController
             $name = trim($data['name'] ?? '');
             $birth = preg_replace('/[^0-9]/', '', $data['birth'] ?? '');
             $gender = strtoupper(trim($data['gender'] ?? ''));
+            $phoneVerified = 'N';
+            $authPhone = preg_replace('/[^0-9]/', '', (string) $session->get('phone_auth_phone'));
+            $authName = trim((string) $session->get('phone_auth_name'));
+            $authBirth = preg_replace('/[^0-9]/', '', (string) $session->get('phone_auth_birth'));
+            $authGender = strtoupper(trim((string) $session->get('phone_auth_gender')));
+            $authVerified = (bool) $session->get('phone_auth_verified');
 
             // =========================
             // 2. 검증
             // =========================
-            if (!$email || !$phone || !$password || !$passwordConfirm || !$name) {
+            if (!$email || !$phone || !$password || !$passwordConfirm) {
                 throw new \Exception('필수값 누락');
             }
 
@@ -462,13 +479,27 @@ class MemberController extends BaseController
                 throw new \Exception('비밀번호 불일치');
             }
 
-            if ($memberType === 'USER') {
-                if (!preg_match('/^\d{8}$/', $birth)) {
-                    throw new \Exception('생년월일은 8자리 숫자로 입력해주세요.');
+            if ($authVerified) {
+                if ($authPhone === '' || $authPhone !== $phone) {
+                    throw new \Exception('인증된 휴대폰 번호와 입력값이 일치하지 않습니다.');
                 }
 
-                if (!in_array($gender, ['M', 'F'], true)) {
-                    throw new \Exception('성별을 선택해주세요.');
+                $phoneVerified = 'Y';
+            } elseif (in_array($memberType, ['USER', 'FC'], true)) {
+                throw new \Exception('휴대폰 인증을 먼저 완료해주세요.');
+            }
+
+            if ($memberType === 'USER') {
+                if (!$authVerified) {
+                    throw new \Exception('휴대폰 인증을 먼저 완료해주세요.');
+                }
+
+                $name = $authName;
+                $birth = $authBirth;
+                $gender = $authGender;
+
+                if ($name === '' || !preg_match('/^\d{8}$/', $birth) || !in_array($gender, ['M', 'F'], true)) {
+                    throw new \Exception('휴대폰 인증 정보를 확인해주세요.');
                 }
 
                 if (
@@ -477,6 +508,14 @@ class MemberController extends BaseController
                     empty($data['agree_privacy'])
                 ) {
                     throw new \Exception('필수 약관에 동의해주세요.');
+                }
+            } elseif ($memberType === 'FC') {
+                if ($name === '' && $authName !== '') {
+                    $name = $authName;
+                }
+
+                if ($name === '') {
+                    throw new \Exception('이름을 입력해주세요.');
                 }
             }
 
@@ -508,7 +547,7 @@ class MemberController extends BaseController
                 'name'        => $name,
                 'birth'       => $birth ?: null,
                 'gender'      => $gender ?: null,
-                'phone_verified' => ($data['phone_verified'] ?? 'N') === 'Y' ? 'Y' : 'N',
+                'phone_verified' => $phoneVerified,
                 'agree_age'       => !empty($data['agree_age']) ? 1 : 0,
                 'agree_terms'     => !empty($data['agree_terms']) ? 1 : 0,
                 'agree_privacy'   => !empty($data['agree_privacy']) ? 1 : 0,
@@ -554,6 +593,15 @@ class MemberController extends BaseController
             }
 
             $session->set($sessionData);
+            $session->remove([
+                'phone_auth_verified',
+                'phone_auth_phone',
+                'phone_auth_name',
+                'phone_auth_birth',
+                'phone_auth_gender',
+                'phone_auth_verified_at',
+                'phone_auth_tx_id',
+            ]);
 
             $db->transCommit();
 
@@ -570,6 +618,189 @@ class MemberController extends BaseController
                 'message' => $e->getMessage()
             ]);
         }
+    }
+
+    public function phoneAuthRequest()
+    {
+        $mobileOk = service('mobileOk');
+        $session = session();
+
+        if (!$mobileOk->isConfigured()) {
+            return $this->response->setStatusCode(503)->setJSON([
+                'status' => 'error',
+                'message' => implode(' ', $mobileOk->missingConfiguration()),
+            ]);
+        }
+
+        if (!$mobileOk->sdkAvailable()) {
+            return $this->response->setStatusCode(503)->setJSON([
+                'status' => 'error',
+                'message' => 'MobileOK SDK 파일 또는 composer autoload를 찾을 수 없습니다.',
+            ]);
+        }
+
+        try {
+            $clientTxId = $mobileOk->makeClientTxId();
+            $session->set([
+                'phone_auth_tx_id' => $clientTxId,
+                'phone_auth_requested_at' => date('Y-m-d H:i:s'),
+                'phone_auth_verified' => false,
+                'phone_auth_phone' => null,
+                'phone_auth_name' => null,
+                'phone_auth_birth' => null,
+                'phone_auth_gender' => null,
+                'phone_auth_issue_date' => null,
+                'phone_auth_result_code' => null,
+            ]);
+
+            $manager = $mobileOk->createSdkManager();
+            $payload = $mobileOk->makeRequestPayload(
+                $manager,
+                $clientTxId,
+                $mobileOk->returnUrl()
+            );
+
+            return $this->response
+                ->setContentType('application/json', 'UTF-8')
+                ->setBody(json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
+        } catch (\Throwable $e) {
+            log_message('error', 'MobileOK request failed: {message}', [
+                'message' => $e->getMessage(),
+            ]);
+
+            return $this->response->setStatusCode(500)->setJSON([
+                'status' => 'error',
+                'message' => '휴대폰 본인인증 요청을 생성하지 못했습니다.',
+            ]);
+        }
+    }
+
+    public function phoneAuthResult()
+    {
+        $mobileOk = service('mobileOk');
+        $session = session();
+        $db = \Config\Database::connect();
+
+        $payload = $this->request->getJSON(true);
+        if (!$payload) {
+            $payload = $this->request->getPost();
+        }
+
+        if (!$payload) {
+            return $this->response->setJSON([
+                'status' => 'error',
+                'message' => '본인인증 결과가 없습니다.',
+            ]);
+        }
+
+        $resultData = $payload['payload'] ?? $payload;
+        $resultCode = (string) ($resultData['resultCode'] ?? '');
+        $resultMsg = (string) ($resultData['resultMsg'] ?? '');
+        $sessionTxId = (string) $session->get('phone_auth_tx_id');
+        $resultTxId = (string) ($resultData['clientTxId'] ?? '');
+        $issueDate = trim((string) ($resultData['issueDate'] ?? ''));
+
+        if ($resultCode !== '' && $resultCode !== '2000') {
+            return $this->response->setJSON([
+                'status' => 'error',
+                'message' => $resultMsg !== '' ? $resultMsg : '본인인증에 실패했습니다.',
+            ]);
+        }
+
+        if ($sessionTxId !== '' && $resultTxId !== '' && $sessionTxId !== $resultTxId) {
+            return $this->response->setJSON([
+                'status' => 'error',
+                'message' => '본인인증 거래 정보가 일치하지 않습니다.',
+            ]);
+        }
+
+        if ($issueDate !== '' && $mobileOk->isExpired($issueDate)) {
+            return $this->response->setJSON([
+                'status' => 'error',
+                'message' => '본인인증 유효 시간이 만료되었습니다.',
+            ]);
+        }
+
+        $phone = $mobileOk->normalizePhone((string) ($resultData['userPhone'] ?? $resultData['phone'] ?? ''));
+        $name = trim((string) ($resultData['userName'] ?? $resultData['name'] ?? ''));
+        $birth = preg_replace('/[^0-9]/', '', (string) ($resultData['userBirthday'] ?? $resultData['birth'] ?? ''));
+        $gender = strtoupper(trim((string) ($resultData['userGender'] ?? $resultData['gender'] ?? '')));
+        $ci = trim((string) ($resultData['ci'] ?? ''));
+        $di = trim((string) ($resultData['di'] ?? ''));
+        $siteId = trim((string) ($resultData['siteID'] ?? ''));
+        $providerId = trim((string) ($resultData['providerId'] ?? ''));
+        $serviceType = trim((string) ($resultData['serviceType'] ?? ''));
+        $reqAuthType = trim((string) ($resultData['reqAuthType'] ?? ''));
+        $reqDate = trim((string) ($resultData['reqDate'] ?? ''));
+        $issuer = trim((string) ($resultData['issuer'] ?? ''));
+        $nation = trim((string) ($resultData['userNation'] ?? ''));
+
+        if ($gender === '1') {
+            $gender = 'M';
+        } elseif ($gender === '2') {
+            $gender = 'F';
+        }
+
+        if ($phone === '') {
+            return $this->response->setJSON([
+                'status' => 'error',
+                'message' => '휴대폰 번호를 확인할 수 없습니다.',
+            ]);
+        }
+
+        if ($name === '' && $siteId === '') {
+            return $this->response->setJSON([
+                'status' => 'error',
+                'message' => '본인인증 결과를 확인할 수 없습니다.',
+            ]);
+        }
+
+        $exists = $db->table('my_fc_member')
+            ->where('phone', $phone)
+            ->where('deleted_at', null)
+            ->countAllResults();
+
+        if ($exists > 0) {
+            return $this->response->setJSON([
+                'status' => 'error',
+                'duplicate' => true,
+                'message' => '이미 사용 중인 휴대폰 번호입니다.',
+            ]);
+        }
+
+        $session->set([
+            'phone_auth_verified' => true,
+            'phone_auth_result_code' => $resultCode,
+            'phone_auth_result_msg' => $resultMsg,
+            'phone_auth_phone' => $phone,
+            'phone_auth_name' => $name,
+            'phone_auth_birth' => $birth,
+            'phone_auth_gender' => $gender,
+            'phone_auth_ci' => $ci,
+            'phone_auth_di' => $di,
+            'phone_auth_site_id' => $siteId,
+            'phone_auth_provider_id' => $providerId,
+            'phone_auth_service_type' => $serviceType,
+            'phone_auth_req_auth_type' => $reqAuthType,
+            'phone_auth_req_date' => $reqDate,
+            'phone_auth_issuer' => $issuer,
+            'phone_auth_nation' => $nation,
+            'phone_auth_issue_date' => $issueDate,
+            'phone_auth_verified_at' => date('Y-m-d H:i:s'),
+            'phone_auth_tx_id' => $resultTxId !== '' ? $resultTxId : $sessionTxId,
+        ]);
+
+        return $this->response->setJSON([
+            'status' => 'success',
+            'phone' => $phone,
+            'name' => $name,
+            'birth' => $birth,
+            'gender' => $gender,
+            'resultCode' => $resultCode,
+            'resultMsg' => $resultMsg,
+            'issueDate' => $issueDate,
+            'phone_verified' => 'Y',
+        ]);
     }
 
     private function generateMemberUid()

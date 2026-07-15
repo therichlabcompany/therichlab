@@ -139,6 +139,8 @@ $routes->group('member', function ($routes) {
 
     $routes->post('check-email', 'MemberController::checkEmail');
     $routes->post('check-phone', 'MemberController::checkPhone');
+    $routes->get('phone-auth/request', 'MemberController::phoneAuthRequest');
+    $routes->post('phone-auth/result', 'MemberController::phoneAuthResult');
 
     $routes->post('register', 'MemberController::register');
 

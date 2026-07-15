@@ -29,4 +29,13 @@ class Services extends BaseService
      *     return new \CodeIgniter\Example();
      * }
      */
+
+    public static function mobileOk(bool $getShared = true): \App\Libraries\MobileOkService
+    {
+        if ($getShared) {
+            return static::getSharedInstance('mobileOk');
+        }
+
+        return new \App\Libraries\MobileOkService();
+    }
 }

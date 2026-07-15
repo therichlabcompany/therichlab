@@ -16,7 +16,7 @@ class App extends BaseConfig
      *
      * E.g., http://example.com/
      */
-    public string $baseURL = 'http://localhost:8080/';
+    public string $baseURL = 'https://myfc.co.kr/';
 
     /**
      * Allowed Hostnames in the Site URL other than the hostname in the baseURL.
@@ -29,7 +29,13 @@ class App extends BaseConfig
      *
      * @var list<string>
      */
-    public array $allowedHostnames = [];
+    public array $allowedHostnames = [
+        'myfc.co.kr',
+        'www.myfc.co.kr',
+        'myfc.kr',
+        'www.myfc.kr',
+        'therichlab.local',
+    ];
 
     /**
      * --------------------------------------------------------------------------
@@ -199,4 +205,116 @@ class App extends BaseConfig
      * @see http://www.w3.org/TR/CSP/
      */
     public bool $CSPEnabled = false;
+
+    public function __construct()
+    {
+        parent::__construct();
+
+        $configuredBaseURL = trim((string) env('app.baseURL', ''));
+
+        if ($configuredBaseURL !== '') {
+            $this->baseURL = $this->normalizeBaseURL($configuredBaseURL);
+        } elseif (PHP_SAPI !== 'cli') {
+            $detectedBaseURL = $this->detectCurrentBaseURL();
+            if ($detectedBaseURL !== null) {
+                $this->baseURL = $detectedBaseURL;
+            }
+        }
+
+        $this->allowedHostnames = array_values(array_unique(array_filter(array_map(
+            static fn (string $hostname): string => strtolower(trim($hostname)),
+            $this->allowedHostnames
+        ))));
+    }
+
+    private function normalizeBaseURL(string $baseURL): string
+    {
+        return rtrim($baseURL, '/') . '/';
+    }
+
+    private function detectCurrentBaseURL(): ?string
+    {
+        $host = $this->detectCurrentHost();
+        if ($host === null) {
+            return null;
+        }
+
+        return $this->detectCurrentScheme() . '://' . $host . '/';
+    }
+
+    private function detectCurrentHost(): ?string
+    {
+        $hostHeader = $_SERVER['HTTP_X_FORWARDED_HOST'] ?? $_SERVER['HTTP_HOST'] ?? $_SERVER['SERVER_NAME'] ?? '';
+        $hostHeader = strtolower(trim((string) $hostHeader));
+
+        if ($hostHeader === '') {
+            return null;
+        }
+
+        $host = strtolower(trim(explode(',', $hostHeader)[0]));
+        $host = preg_replace('/:\d+$/', '', $host) ?? '';
+
+        if ($host === '') {
+            return null;
+        }
+
+        if (!in_array($host, $this->allowedHostnames, true)) {
+            return null;
+        }
+
+        return $host;
+    }
+
+    private function detectCurrentScheme(): string
+    {
+        $host = $this->detectCurrentHost();
+        if ($host !== null && $this->isLocalHost($host)) {
+            return 'http';
+        }
+
+        if ($host !== null && $this->isProductionHost($host)) {
+            return 'https';
+        }
+
+        $forwardedProto = strtolower(trim((string) ($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '')));
+        if ($forwardedProto === 'https') {
+            return 'https';
+        }
+
+        $forwardedSsl = strtolower(trim((string) ($_SERVER['HTTP_X_FORWARDED_SSL'] ?? '')));
+        if ($forwardedSsl === 'on' || $forwardedSsl === '1' || $forwardedSsl === 'https') {
+            return 'https';
+        }
+
+        $https = strtolower(trim((string) ($_SERVER['HTTPS'] ?? '')));
+        if ($https !== '' && $https !== 'off') {
+            return 'https';
+        }
+
+        if ((string) ($_SERVER['SERVER_PORT'] ?? '') === '443') {
+            return 'https';
+        }
+
+        return 'http';
+    }
+
+    private function isLocalHost(string $host): bool
+    {
+        return in_array($host, [
+            'therichlab.local',
+            'localhost',
+            '127.0.0.1',
+            '::1',
+        ], true);
+    }
+
+    private function isProductionHost(string $host): bool
+    {
+        return in_array($host, [
+            'myfc.co.kr',
+            'www.myfc.co.kr',
+            'myfc.kr',
+            'www.myfc.kr',
+        ], true);
+    }
 }

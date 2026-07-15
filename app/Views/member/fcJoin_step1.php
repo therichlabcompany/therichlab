@@ -8,78 +8,118 @@
         </p>
         <?php
             $menu_step = "step2";
-            include_once (COMPONENT_PATH . '/fc_tab_nav.php'); 
+            include_once (COMPONENT_PATH . '/fc_tab_nav.php');
         ?>
-        
+
         <p class="signup-step-lead">
             고객이 상담을 신청할 수 있도록<br class="br-mo" />
             연락 가능한 정보를 입력해주세요.
         </p>
 
         <form id="fcSignupForm" class="form-box" method="post">
-
             <input type="hidden" name="member_type" value="FC">
             <input type="hidden" name="phone_verified" id="phone_verified" value="N">
 
-            
-            <?php include_once (COMPONENT_PATH . '/join_default_input.php');  ?>
+            <?php include_once (COMPONENT_PATH . '/join_default_input.php'); ?>
+
             <div class="form-actions">
                 <button type="button" id="btnSubmit" disabled class="btn-primary">완료</button>
             </div>
-
         </form>
     </div>
 </main>
 
+<?php if (!empty($mobileOkJsUrl) && !empty($mobileOkEnabled)): ?>
+<script src="<?= esc($mobileOkJsUrl) ?>"></script>
+<?php endif; ?>
+
 <script>
-    let fcEmailChecked = false;
+let fcEmailChecked = false;
 let fcPhoneChecked = false;
 
-document.addEventListener('DOMContentLoaded', () => {
+const mobileOkEnabled = <?= json_encode((bool) ($mobileOkEnabled ?? false)) ?>;
+const mobileOkRequestUrl = <?= json_encode($mobileOkRequestUrl ?? '') ?>;
+const mobileOkResultUrl = <?= json_encode($mobileOkResultUrl ?? '') ?>;
+const mobileOkResultCallback = 'fcMemberPhoneAuthResult';
 
+function digitsOnly(value) {
+    return (value || '').replace(/[^0-9]/g, '');
+}
+
+function updateSubmitState() {
+    const btnSubmit = document.getElementById('btnSubmit');
     const emailInput = document.getElementById('email');
     const phoneInput = document.getElementById('phone');
+    const password = document.getElementById('password');
+    const passwordConfirm = document.getElementById('password-confirm');
+    const nameInput = document.getElementById('name');
 
+    if (!btnSubmit || !emailInput || !phoneInput || !password || !passwordConfirm || !nameInput) {
+        return;
+    }
+
+    const valid =
+        emailInput.value.trim() &&
+        password.value &&
+        passwordConfirm.value &&
+        phoneInput.value.trim() &&
+        nameInput.value.trim();
+
+    btnSubmit.disabled = !valid || !fcEmailChecked || !fcPhoneChecked;
+}
+
+function setPhoneVerified(verified) {
+    const phoneVerifiedInput = document.getElementById('phone_verified');
+    if (phoneVerifiedInput) {
+        phoneVerifiedInput.value = verified ? 'Y' : 'N';
+    }
+}
+
+function setPhoneButtonLabel(state) {
+    const button = document.getElementById('btnPhoneCheck');
+    if (!button) {
+        return;
+    }
+
+    const defaultLabel = button.dataset.defaultLabel || '변경/인증';
+    const completeLabel = button.dataset.completeLabel || '인증완료';
+    button.textContent = state === 'complete' ? completeLabel : defaultLabel;
+}
+
+function setPhoneAuthValues(payload) {
+    const phoneInput = document.getElementById('phone');
+    const nameInput = document.getElementById('name');
+
+    const phone = digitsOnly(payload.userPhone ?? payload.phone ?? '');
+    const name = (payload.userName ?? payload.name ?? '').trim();
+
+    if (phoneInput && phone) {
+        phoneInput.value = phone;
+    }
+
+    if (nameInput && name) {
+        nameInput.value = name;
+    }
+
+    fcPhoneChecked = true;
+    setPhoneVerified(true);
+    setPhoneButtonLabel('complete');
+    updateSubmitState();
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    const emailInput = document.getElementById('email');
+    const phoneInput = document.getElementById('phone');
     const btnEmailCheck = document.getElementById('btnEmailCheck');
     const btnPhoneCheck = document.getElementById('btnPhoneCheck');
     const btnSubmit = document.getElementById('btnSubmit');
 
-    // =========================
-    // 버튼 활성화
-    // =========================
-
-    function checkSubmit() {
-
-        const email = emailInput.value.trim();
-        const password = document.getElementById('password').value;
-        const passwordConfirm = document.getElementById('password-confirm').value;
-        const phone = phoneInput.value.trim();
-        const name = document.getElementById('name').value.trim();
-
-        const valid =
-            email &&
-            password &&
-            passwordConfirm &&
-            phone &&
-            name;
-
-        btnSubmit.disabled = !valid;
-    }
-
-    document
-        .querySelectorAll('#fcSignupForm input')
-        .forEach(el => {
-            el.addEventListener('input', checkSubmit);
-        });
-
-    // =========================
-    // 이메일 중복확인
-    // =========================
+    document.querySelectorAll('#fcSignupForm input').forEach(el => {
+        el.addEventListener('input', updateSubmitState);
+    });
 
     btnEmailCheck.addEventListener('click', async () => {
-
         const email = emailInput.value.trim();
-
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
         if (!emailRegex.test(email)) {
@@ -88,7 +128,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         try {
-
             const res = await fetch('/member/check-email', {
                 method: 'POST',
                 headers: {
@@ -101,7 +140,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const result = await res.json();
 
             if (result.status === 'success') {
-
                 if (result.duplicate) {
                     alert('이미 사용 중인 이메일입니다.');
                     fcEmailChecked = false;
@@ -109,72 +147,79 @@ document.addEventListener('DOMContentLoaded', () => {
                     alert('사용 가능한 이메일입니다.');
                     fcEmailChecked = true;
                 }
-
             } else {
-                alert('처리 중 오류');
+                alert(result.message || '처리 중 오류');
             }
-
         } catch (e) {
             alert('서버 통신 실패');
         }
 
+        updateSubmitState();
     });
 
     emailInput.addEventListener('input', () => {
         fcEmailChecked = false;
+        updateSubmitState();
     });
 
-    // =========================
-    // 휴대폰 인증
-    // =========================
+    window.fcMemberPhoneAuthResult = function (result) {
+        let payload = result;
 
-    btnPhoneCheck.addEventListener('click', async () => {
+        if (typeof result === 'string') {
+            try {
+                payload = JSON.parse(result);
+            } catch (error) {
+                payload = { resultMsg: result };
+            }
+        }
 
-        let phone = phoneInput.value.replace(/[^0-9]/g, '');
-
-        if (phone.length < 10) {
-            alert('휴대폰 번호를 확인해주세요.');
+        if (!payload || (payload.resultCode && payload.resultCode !== '2000')) {
+            alert(payload?.resultMsg || '휴대폰 인증에 실패했습니다.');
             return;
         }
 
-        try {
-
-            const res = await fetch('/member/check-phone', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest'
-                },
-                body: JSON.stringify({ phone })
-            });
-
-            const result = await res.json();
-
-            if (result.status === 'success') {
-
-                if (result.duplicate) {
-                    alert('이미 사용 중인 휴대폰 번호입니다.');
+        fetch(mobileOkResultUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: JSON.stringify({ payload })
+        })
+            .then(res => res.json())
+            .then(res => {
+                if (res.status !== 'success') {
                     fcPhoneChecked = false;
-                } else {
-                    alert('사용 가능한 휴대폰 번호입니다.');
-                    fcPhoneChecked = true;
+                    setPhoneVerified(false);
+                    setPhoneButtonLabel('default');
+                    updateSubmitState();
+                    alert(res.message || '휴대폰 인증 처리 중 오류가 발생했습니다.');
+                    return;
                 }
 
-            } else {
-                alert(result.message || '처리 중 오류');
-            }
+                setPhoneAuthValues(res);
+                alert('휴대폰 인증이 완료되었습니다.');
+            })
+            .catch(() => {
+                alert('서버 통신 실패');
+            });
+    };
 
-        } catch (e) {
-            alert('서버 통신 실패');
+    btnPhoneCheck.addEventListener('click', () => {
+        if (mobileOkEnabled && window.MOBILEOK && typeof window.MOBILEOK.process === 'function' && mobileOkRequestUrl) {
+            window.MOBILEOK.process(mobileOkRequestUrl, 'WB', mobileOkResultCallback);
+            return;
         }
 
+        alert('휴대폰 본인인증 설정이 완료되지 않았습니다.');
     });
 
     phoneInput.addEventListener('input', function () {
-
         fcPhoneChecked = false;
+        setPhoneVerified(false);
+        setPhoneButtonLabel('default');
 
-        let value = this.value.replace(/[^0-9]/g, '');
+        let value = digitsOnly(this.value);
 
         if (value.length > 11) {
             value = value.substring(0, 11);
@@ -187,14 +232,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         this.value = value;
+        updateSubmitState();
     });
 
-    // =========================
-    // 가입
-    // =========================
-
     btnSubmit.addEventListener('click', async () => {
-
         if (!fcEmailChecked) {
             alert('이메일 중복확인을 해주세요.');
             return;
@@ -216,7 +257,6 @@ document.addEventListener('DOMContentLoaded', () => {
         };
 
         try {
-
             const res = await fetch('/member/register', {
                 method: 'POST',
                 headers: {
@@ -229,22 +269,16 @@ document.addEventListener('DOMContentLoaded', () => {
             const result = await res.json();
 
             if (result.status === 'success') {
-
                 location.href = '/member/fcJoin2';
-
             } else {
-
                 alert(result.message || '처리 실패');
-
             }
-
         } catch (e) {
-
             alert('서버 통신 실패');
-
         }
-
     });
 
+    setPhoneButtonLabel('default');
+    updateSubmitState();
 });
 </script>
