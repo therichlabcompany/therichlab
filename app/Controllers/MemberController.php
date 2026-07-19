@@ -707,9 +707,11 @@ class MemberController extends BaseController
                 $mobileOk->returnUrl()
             );
 
+            // MobileOK 표준창 스크립트는 이 응답을 JSON.parse()한 객체로 팝업에 전달한다.
+            // CI의 JSON 응답 처리를 사용해 Content-Type과 본문 형식을 일관되게 유지한다.
             return $this->response
-                ->setContentType('application/json', 'UTF-8')
-                ->setBody(json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
+                ->setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
+                ->setJSON($payload);
         } catch (\Throwable $e) {
             $this->writeMobileOkLog($this->formatMobileOkFailureLog('request', 'exception', [
                 'message' => $e->getMessage(),

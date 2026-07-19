@@ -213,8 +213,9 @@ class App extends BaseConfig
         $this->baseURL = 'https://myfc.co.kr/';
 
         $configuredBaseURL = trim((string) env('app.baseURL', ''));
+        $isConfiguredBaseURLValid = $configuredBaseURL !== '' && filter_var($configuredBaseURL, FILTER_VALIDATE_URL) !== false;
 
-        if ($configuredBaseURL !== '') {
+        if ($isConfiguredBaseURLValid) {
             $this->baseURL = $this->normalizeBaseURL($configuredBaseURL);
         } elseif (PHP_SAPI !== 'cli') {
             $detectedBaseURL = $this->detectCurrentBaseURL();

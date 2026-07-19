@@ -139,7 +139,8 @@ $routes->group('member', function ($routes) {
 
     $routes->post('check-email', 'MemberController::checkEmail');
     $routes->post('check-phone', 'MemberController::checkPhone');
-    $routes->get('phone-auth/request', 'MemberController::phoneAuthRequest');
+    // MobileOK 표준창 스크립트는 거래 요청 URL을 POST로 호출한다.
+    $routes->post('phone-auth/request', 'MemberController::phoneAuthRequest');
     $routes->post('phone-auth/result', 'MemberController::phoneAuthResult');
 
     $routes->post('register', 'MemberController::register');
