@@ -1485,6 +1485,7 @@ class MypageController extends BaseController
         $email   = $this->request->getPost('email');
         $phone   = $this->request->getPost('phone');
         $name    = $this->request->getPost('name');
+        $birth   = $this->request->getPost('birth');
         $agreeMk = $this->request->getPost('agree_marketing');
         $gender = $this->request->getPost('gender');
 
@@ -1533,12 +1534,32 @@ class MypageController extends BaseController
             }
         }
 
+        // 본인인증을 완료한 번호라면 인증기관에서 받은 인적 정보를 우선 반영한다.
+        // 클라이언트에서 값을 변경해 보내도 인증 결과와 다른 정보로 저장되지 않도록 한다.
+        $authPhone = preg_replace('/[^0-9]/', '', (string) $session->get('phone_auth_phone'));
+        if ((bool) $session->get('phone_auth_verified') && $authPhone === $phone) {
+            $authName = trim((string) $session->get('phone_auth_name'));
+            $authBirth = preg_replace('/[^0-9]/', '', (string) $session->get('phone_auth_birth'));
+            $authGender = strtoupper(trim((string) $session->get('phone_auth_gender')));
+
+            if ($authName !== '') {
+                $name = $authName;
+            }
+            if ($authBirth !== '') {
+                $birth = $authBirth;
+            }
+            if (in_array($authGender, ['M', 'F'], true)) {
+                $gender = $authGender;
+            }
+        }
+
         // =========================
         // 2. 업데이트 데이터
         // =========================
         $data = [
             'phone'            => $phone,
             'name'             => $name,
+            'birth'            => $birth,
             'gender'           => $gender,   // ⭐ 추가
             'phone_verified'   => $phone !== $currentPhone ? 'Y' : ($currentMember['phone_verified'] ?? 'N'),
             'agree_marketing'  => $agreeMk,

@@ -9,6 +9,8 @@
     const resultUrl = <?= json_encode($mobileOkResultUrl ?? '') ?>;
     const phoneInput = document.getElementById('phone');
     const phoneButton = document.getElementById('btnPhoneCheck');
+    const nameInput = document.getElementById('name');
+    const birthInput = document.getElementById('my-birth') || document.getElementById('birth');
     let phoneVerified = false;
 
     const digitsOnly = (value) => String(value || '').replace(/\D/g, '');
@@ -57,6 +59,32 @@
 
                 phoneInput.value = phone;
                 phoneInput.readOnly = true;
+
+                if (nameInput && response.name) {
+                    nameInput.value = response.name;
+                }
+
+                if (birthInput && response.birth) {
+                    birthInput.value = digitsOnly(response.birth);
+                }
+
+                const gender = String(response.gender || '').toUpperCase();
+                if (gender === 'M' || gender === 'F') {
+                    const genderRadio = document.querySelector(`input[name="gender"][value="${gender}"]`);
+                    if (genderRadio) {
+                        genderRadio.checked = true;
+                    }
+
+                    const genderInput = document.getElementById('gender');
+                    const genderDisplay = document.getElementById('gender-display');
+                    if (genderInput) {
+                        genderInput.value = gender;
+                    }
+                    if (genderDisplay) {
+                        genderDisplay.value = gender === 'M' ? '남성' : '여성';
+                    }
+                }
+
                 phoneVerified = true;
                 setButtonLabel('인증완료');
             })
