@@ -79,6 +79,7 @@
         </p>
     </div>
 </main>
+<?php include_once (COMPONENT_PATH . '/mobileok_phone_edit.php'); ?>
 <script>
 document.querySelector('.form-box').addEventListener('submit', function(e){
     e.preventDefault();

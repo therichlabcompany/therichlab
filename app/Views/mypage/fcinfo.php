@@ -64,6 +64,7 @@ $profileImage = !empty($profile['profile_image'])
         </p>
     </div>
 </main>
+<?php include_once (COMPONENT_PATH . '/mobileok_phone_edit.php'); ?>
 
 <script>
 document.getElementById('btnProfileUpload').addEventListener('click', () => {

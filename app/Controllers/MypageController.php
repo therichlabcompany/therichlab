@@ -68,6 +68,11 @@ class MypageController extends BaseController
             "user" => $user, // ⭐ 핵심
             "profile" => $profile, // ⭐ 핵심
         ];
+        $mobileOk = service('mobileOk');
+        $data['mobileOkEnabled'] = $mobileOk->isConfigured();
+        $data['mobileOkJsUrl'] = $mobileOk->requestJsUrl();
+        $data['mobileOkRequestUrl'] = base_url('member/phone-auth/request');
+        $data['mobileOkResultUrl'] = $mobileOk->returnUrl();
         $data['mode'] = 'edit';
 
 
@@ -562,6 +567,11 @@ class MypageController extends BaseController
             "user" => $user, // ⭐ 핵심
             "profile" => $profile, // ⭐ 핵심
         ];
+        $mobileOk = service('mobileOk');
+        $data['mobileOkEnabled'] = $mobileOk->isConfigured();
+        $data['mobileOkJsUrl'] = $mobileOk->requestJsUrl();
+        $data['mobileOkRequestUrl'] = base_url('member/phone-auth/request');
+        $data['mobileOkResultUrl'] = $mobileOk->returnUrl();
         $data['mode'] = 'edit';
 
         return $this->renderView('mypage/fcinfo', $data);
@@ -1478,6 +1488,51 @@ class MypageController extends BaseController
         $agreeMk = $this->request->getPost('agree_marketing');
         $gender = $this->request->getPost('gender');
 
+        $currentMember = $memberModel
+            ->where('member_uid', $memberUid)
+            ->where('deleted_at', null)
+            ->first();
+
+        if (!$currentMember) {
+            return $this->response->setJSON([
+                'status' => 'error',
+                'message' => '회원 정보를 찾을 수 없습니다.'
+            ]);
+        }
+
+        $phone = preg_replace('/[^0-9]/', '', (string) $phone);
+        $currentPhone = preg_replace('/[^0-9]/', '', (string) ($currentMember['phone'] ?? ''));
+
+        if ($phone === '' || strlen($phone) < 10 || strlen($phone) > 11) {
+            return $this->response->setJSON([
+                'status' => 'error',
+                'message' => '휴대폰 번호를 확인해주세요.'
+            ]);
+        }
+
+        if ($phone !== $currentPhone) {
+            $authPhone = preg_replace('/[^0-9]/', '', (string) $session->get('phone_auth_phone'));
+            if (!(bool) $session->get('phone_auth_verified') || $authPhone !== $phone) {
+                return $this->response->setJSON([
+                    'status' => 'error',
+                    'message' => '변경할 휴대폰 번호를 본인인증해주세요.'
+                ]);
+            }
+
+            $duplicate = $memberModel
+                ->where('phone', $phone)
+                ->where('member_uid !=', $memberUid)
+                ->where('deleted_at', null)
+                ->countAllResults();
+
+            if ($duplicate > 0) {
+                return $this->response->setJSON([
+                    'status' => 'error',
+                    'message' => '이미 사용 중인 휴대폰 번호입니다.'
+                ]);
+            }
+        }
+
         // =========================
         // 2. 업데이트 데이터
         // =========================
@@ -1485,6 +1540,7 @@ class MypageController extends BaseController
             'phone'            => $phone,
             'name'             => $name,
             'gender'           => $gender,   // ⭐ 추가
+            'phone_verified'   => $phone !== $currentPhone ? 'Y' : ($currentMember['phone_verified'] ?? 'N'),
             'agree_marketing'  => $agreeMk,
             'updated_at'       => date('Y-m-d H:i:s'),
         ];
