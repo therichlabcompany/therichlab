@@ -25,6 +25,20 @@
     </div>
 </main>
 
+<div class="c-modal deliberation-guide" id="fc-deliberation-registration-notice" role="dialog" aria-modal="true" aria-labelledby="fc-deliberation-registration-title" hidden>
+    <button type="button" class="c-modal-backdrop" data-fc-deliberation-notice-close aria-label="닫기"></button>
+    <div class="c-modal-panel">
+        <div class="c-modal-head">
+            <h2 class="c-modal-title" id="fc-deliberation-registration-title">심의필 절차 안내</h2>
+            <button type="button" class="c-modal-close" data-fc-deliberation-notice-close aria-label="닫기"></button>
+        </div>
+        <div class="c-modal-body"><ul class="dash-list"><li>아래 버튼을 클릭하여 미리보기 화면을 확인해주세요. 해당 화면을 PDF로 저장하거나 캡쳐하여 근무 중인 보험사에 심의 요청을 진행해주세요.</li><li>보험사에서 발급완료한 심의필 회신문을 [마이페이지] &gt; [심의필 정보 관리] 페이지에 등록해주세요.</li><li>MyFC 관리자가 확인 후 이상 없을 시 최종 승인이 완료되며, 승인결과는 [마이페이지] &gt; [심의필 정보 관리] 페이지에서 확인 가능합니다. 또한 승인처리여부를 카카오톡 메시지로 보내드립니다.</li><li>심의필 승인처리 완료 후 <span class="warn">유료회원 멤버십</span>에 가입하셔야 최종적으로 사이트에 노출 됩니다.</li></ul></div>
+        <div class="c-modal-foot"><button type="button" class="btn btn-primary" data-fc-deliberation-preview>심의 요청용 화면 미리보기</button></div>
+    </div>
+</div>
+
+<?php include APPPATH . 'Views/modal/fc_deliberation_preview_modal.php'; ?>
+
 <style>
 .thumb-preview {
     width: 100px;
@@ -75,9 +89,16 @@
     const thumbInput = document.getElementById('fc-story-thumb-file');
     const thumbWrap = document.getElementById('fc-story-thumbs');
     const mainThumb = document.querySelector('.fc-story-thumb-main');
+    const deliberationNotice = document.getElementById('fc-deliberation-registration-notice');
 
     // 신규 파일
     let fileStore = [];
+
+    function closeDeliberationNotice() {
+        deliberationNotice.classList.remove('is-open');
+        deliberationNotice.hidden = true;
+        document.body.classList.remove('popup-open');
+    }
 
     function uid() {
         return Date.now().toString(36) + Math.random().toString(36).substring(2);
@@ -335,6 +356,12 @@
             const result=await res.json();
 
             if(result.status==='success'){
+                if (result.show_deliberation_registration_notice) {
+                    deliberationNotice.hidden = false;
+                    deliberationNotice.classList.add('is-open');
+                    document.body.classList.add('popup-open');
+                    return;
+                }
 
                 location.href=result.redirect_url || '/fc/view?uid=<?= rawurlencode((string) session()->get('member_uid')) ?>';
                 //alert("활동 스토리가 저장 되었습니다.")
@@ -353,6 +380,10 @@
 
         }
 
+    });
+
+    deliberationNotice.querySelectorAll('[data-fc-deliberation-notice-close]').forEach(function (button) {
+        button.addEventListener('click', closeDeliberationNotice);
     });
 
 })();

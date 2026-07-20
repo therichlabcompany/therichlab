@@ -33,7 +33,7 @@ class Auth extends BaseController
                 ->where('username', $username)
                 ->first();
 
-            if (! $user || ($user['status'] ?? '') !== 'Y') {
+            if (! $user || strtoupper(trim((string) ($user['status'] ?? ''))) !== 'Y') {
                 return redirect()->back()
                     ->withInput()
                     ->with('error', '아이디 또는 비밀번호가 올바르지 않습니다.');

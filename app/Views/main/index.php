@@ -959,12 +959,12 @@
                           </div>
                         </div>
                       </a>
-                      <a href="mailto:myfc.helpdesk@google.com" class="language-card language-promo" aria-label="광고·고객센터 문의">
+                      <a href="mailto:help@myfc.co.kr" class="language-card language-promo" aria-label="광고·고객센터 문의">
                         <img src="../assets/images/ic-megaphone.svg" alt="" class="language-promo-ico" aria-hidden="true" />
                         <div class="language-body">
                           <p>언어별 상담이 가능하신 FC님!</p>
                           <p>광고문의 주세요</p>
-                          <p>E-mail : myfc.helpdesk@google.com</p>
+                          <p>E-mail : help@myfc.co.kr</p>
                         </div>
                       </a>
                     </div>

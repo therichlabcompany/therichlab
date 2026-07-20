@@ -17,6 +17,8 @@ $queryBase = array_filter([
 .insurance-admin-toolbar { display:flex; align-items:center; gap:10px; margin:18px 0 10px; }
 .insurance-admin-card { border:1px solid #e5e7eb; border-radius:8px; background:#fff; overflow:hidden; }
 .insurance-admin-card-head { display:flex; justify-content:space-between; padding:14px 16px; border-bottom:1px solid #e5e7eb; font-weight:800; }
+.insurance-admin .table th, .insurance-admin .table td { padding:15px 16px; vertical-align:middle; }
+.insurance-admin .table th { white-space:nowrap; }
 .insurance-admin .question-title { display:block; max-width:420px; color:#0d6efd; font-weight:700; text-decoration:none; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 .insurance-admin .question-excerpt { display:block; max-width:420px; margin-top:4px; color:#64748b; font-size:12px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 .insurance-admin .pagination { margin:16px 0 0; justify-content:flex-end; }

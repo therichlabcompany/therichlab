@@ -975,6 +975,24 @@ class MypageController extends BaseController
         return $this->renderView('mypage/fcreviewed', $data);
     }
 
+    public function fcDeliberationPreview()
+    {
+        helper(['region', 'insurance', 'language']);
+        $uid = (string) session()->get('member_uid');
+        $db = \Config\Database::connect();
+        $member = $db->table('my_fc_member')->where('member_uid', $uid)->where('member_type', 'FC')->where('deleted_at', null)->get()->getRowArray();
+        $review = $db->table('my_fc_reviewed')->where('member_uid', $uid)->get()->getRowArray();
+        if (!$member || trim((string) ($review['deliberation_no'] ?? '')) === '') return $this->response->setJSON(['status' => 'required']);
+        $profile = $db->table('my_fc_profile')->where('member_uid', $uid)->get()->getRowArray() ?? [];
+        $activity = $db->table('my_fc_profile_activity')->where('member_uid', $uid)->get()->getRowArray() ?? [];
+        $story = $db->table('my_fc_profile_story')->where('member_uid', $uid)->get()->getRowArray() ?? [];
+        $storyImages = $db->table('my_fc_profile_story_image')->where('member_uid', $uid)->orderBy('sort_order', 'ASC')->get()->getResultArray();
+        $activityItems = $db->table('my_fc_profile_activity_item')->where('member_uid', $uid)->where('is_visible', 1)->orderBy('sort_order', 'ASC')->get()->getResultArray();
+        $regions = array_filter(array_map('trim', explode(',', (string) ($activity['region'] ?? ''))));
+        $insurance = array_filter(array_map('trim', explode(',', (string) ($activity['insurance_types'] ?? ''))));
+        return $this->response->setJSON(['status' => 'success', 'html' => view('modal/fc_deliberation_preview_content', ['member'=>$member,'profile'=>$profile,'activity'=>$activity,'review'=>$review,'story'=>$story,'storyImages'=>$storyImages,'activityItems'=>$activityItems,'profileImage'=>profile_image_url($profile['profile_image'] ?? ''),'company'=>implode(' · ',array_filter([$profile['company']??'', $profile['company_sub']??'', $profile['ga']??''])),'regions'=>implode(', ',array_map('fc_region_label',$regions)),'insuranceTypes'=>implode(', ',array_map('fc_insurance_label',$insurance))])]);
+    }
+
     public function ajax_save_reviewed()
     {
         $this->response->setContentType('application/json');
@@ -2240,7 +2258,7 @@ class MypageController extends BaseController
         }
 
         $plan = $this->request->getPost('ad_plan');
-        $language = $this->request->getPost('ad_language');
+        $language = fc_language_normalize((string) $this->request->getPost('ad_language'));
 
         if (!$plan || !$language) {
             return $this->response->setJSON([

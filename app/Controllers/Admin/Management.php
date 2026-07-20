@@ -190,10 +190,13 @@ class Management extends BaseController
         $csv = stream_get_contents($handle);
         fclose($handle);
 
+        $fileName = 'counsels_' . date('Ymd_His') . '.csv';
+
         return $this->response
+            ->download($fileName, $csv)
             ->setHeader('Content-Type', 'text/csv; charset=UTF-8')
-            ->setHeader('Content-Disposition', 'attachment; filename="counsels_' . date('Ymd_His') . '.csv"')
-            ->setBody($csv);
+            ->setHeader('Content-Transfer-Encoding', 'binary')
+            ->setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
     }
 
     public function counselDetail($id)
@@ -252,6 +255,8 @@ class Management extends BaseController
             'count' => $total,
             'searchPlaceholder' => 'FC회원명, FC회원 이메일주소, 심의필 번호로 검색',
             'searchValue' => $filters['q'],
+            'dateFrom' => $filters['start_date'],
+            'dateTo' => $filters['end_date'],
             'searchHidden' => ['status' => $filters['status']],
             'tabs' => $this->deliberationTabs($filters),
             'actions' => [['label' => 'EXCEL', 'url' => $this->deliberationsExportUrl($filters)]],
@@ -270,6 +275,8 @@ class Management extends BaseController
             'pageQuery' => array_filter([
                 'status' => $filters['status'],
                 'q' => $filters['q'],
+                'start_date' => $filters['start_date'],
+                'end_date' => $filters['end_date'],
             ], static fn ($value) => (string) $value !== ''),
         ]);
     }
@@ -292,10 +299,13 @@ class Management extends BaseController
             $csv .= $this->csvLine($this->deliberationExportRow($row));
         }
 
+        $fileName = 'deliberations_' . date('Ymd_His') . '.csv';
+
         return $this->response
+            ->download($fileName, $csv)
             ->setHeader('Content-Type', 'text/csv; charset=UTF-8')
-            ->setHeader('Content-Disposition', 'attachment; filename="deliberations_' . date('Ymd_His') . '.csv"')
-            ->setBody($csv);
+            ->setHeader('Content-Transfer-Encoding', 'binary')
+            ->setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
     }
 
     public function deliberationDetail($id)
@@ -453,6 +463,7 @@ class Management extends BaseController
 
         return $this->page([
             'title' => '후기 관리',
+            'pageClass' => 'review-management-page',
             'breadcrumb' => 'Main > 대시보드 > 컨텐츠 관리 > 후기 관리',
             'countLabel' => '후기 관리',
             'count' => $total,
@@ -506,10 +517,13 @@ class Management extends BaseController
             $csv .= $this->csvLine($this->reviewExportRow($row));
         }
 
+        $fileName = 'reviews_' . date('Ymd_His') . '.csv';
+
         return $this->response
+            ->download($fileName, $csv)
             ->setHeader('Content-Type', 'text/csv; charset=UTF-8')
-            ->setHeader('Content-Disposition', 'attachment; filename="reviews_' . date('Ymd_His') . '.csv"')
-            ->setBody($csv);
+            ->setHeader('Content-Transfer-Encoding', 'binary')
+            ->setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
     }
 
     public function reviewDetail($id)
@@ -608,8 +622,8 @@ class Management extends BaseController
         }
 
         $answers = $this->db->table('my_fc_insurance_in_answer a')
-            ->select('a.*, m.member_id, m.name, m.email, m.profile_image, p.company, p.company_sub, p.ga, p.license_date,
-                pa.region, pa.insurance_types, IFNULL(rv.rating, 0) rating, IFNULL(rv.rating_count, 0) rating_count', false)
+            ->select("a.*, m.member_id, m.name, m.email, COALESCE(NULLIF(p.profile_image, ''), NULLIF(m.profile_image, '')) AS profile_image, p.company, p.company_sub, p.ga, p.license_date,
+                pa.region, pa.insurance_types, IFNULL(rv.rating, 0) rating, IFNULL(rv.rating_count, 0) rating_count", false)
             ->join('my_fc_member m', 'm.member_uid = a.fc_member_uid', 'left')
             ->join('my_fc_profile p', 'p.member_uid = a.fc_member_uid', 'left')
             ->join('my_fc_profile_activity pa', 'pa.member_uid = a.fc_member_uid', 'left')
@@ -722,22 +736,26 @@ class Management extends BaseController
 
     public function securities()
     {
-        $rows = $this->db->table('my_fc_member_security s')
+        $keyword = trim((string) $this->request->getGet('q'));
+        $builder = $this->db->table('my_fc_member_security s')
             ->select('s.member_uid, COUNT(*) AS file_count, MAX(s.created_at) AS last_created_at, m.member_id, m.name, m.email')
             ->join('my_fc_member m', 'm.member_uid = s.member_uid', 'left')
-            ->where('s.deleted_at', null)
-            ->groupBy('s.member_uid, m.member_id, m.name, m.email')
-            ->orderBy('last_created_at', 'DESC')
-            ->limit(20)
-            ->get()
-            ->getResultArray();
+            ->where('s.deleted_at', null);
+
+        if ($keyword !== '') {
+            $builder->groupStart()->like('m.name', $keyword)->orLike('m.email', $keyword)->groupEnd();
+        }
+
+        $rows = $builder->groupBy('s.member_uid, m.member_id, m.name, m.email')->orderBy('last_created_at', 'DESC')->limit(20)->get()->getResultArray();
 
         return $this->page([
             'title' => '증권 관리',
             'breadcrumb' => 'Main > 대시보드 > 컨텐츠 관리 > 증권 관리',
             'countLabel' => '증권 관리',
             'count' => count($rows),
+            'searchAction' => base_url('admin/contents/securities'),
             'searchPlaceholder' => '등록자명, 등록자 이메일로 검색',
+            'searchValue' => $keyword,
             'headers' => ['등록자', '파일갯수', '등록일자'],
             'rows' => array_map(function ($row) {
                 return [
@@ -911,10 +929,13 @@ class Management extends BaseController
         $csv = stream_get_contents($handle);
         fclose($handle);
 
+        $fileName = 'ads_' . $kind . '_' . date('Ymd_His') . '.csv';
+
         return $this->response
+            ->download($fileName, $csv)
             ->setHeader('Content-Type', 'text/csv; charset=UTF-8')
-            ->setHeader('Content-Disposition', 'attachment; filename="ads_' . $kind . '_' . date('Ymd_His') . '.csv"')
-            ->setBody($csv);
+            ->setHeader('Content-Transfer-Encoding', 'binary')
+            ->setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
     }
 
     public function adsBulkEnd($kind = 'normal')
@@ -1211,7 +1232,13 @@ class Management extends BaseController
                 fputcsv($handle, [(int) $row['ad_id'], $this->adTypeLabel((string) $row['ad_type'], (string) ($row['banner_position'] ?? '')), $row['click_date'], $row['daily_click_count'], $row['click_count'], $row['name'], ($row['start_date'] ?? '-') . ' ~ ' . ($row['end_date'] ?? '-')]);
             }
             rewind($handle); $csv = stream_get_contents($handle); fclose($handle);
-            return $this->response->setHeader('Content-Type', 'text/csv; charset=UTF-8')->setHeader('Content-Disposition', 'attachment; filename="ad_clicks_' . date('Ymd_His') . '.csv"')->setBody($csv);
+            $fileName = 'ad_clicks_' . date('Ymd_His') . '.csv';
+
+            return $this->response
+                ->download($fileName, $csv)
+                ->setHeader('Content-Type', 'text/csv; charset=UTF-8')
+                ->setHeader('Content-Transfer-Encoding', 'binary')
+                ->setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
         }
 
         $perPage = 20;
@@ -1322,6 +1349,7 @@ class Management extends BaseController
 
     public function accounts()
     {
+        $canManageAccounts = $this->canManageAdminAccounts();
         $rows = $this->db->table('admin_users')
             ->select('id, username, name, email, phone, role, status, created_at, last_login_at')
             ->orderBy('id', 'DESC')
@@ -1334,19 +1362,24 @@ class Management extends BaseController
             'breadcrumb' => 'Main > 계정관리',
             'countLabel' => '관리자 계정',
             'count' => count($rows),
-            'actions' => [['label' => '계정추가', 'url' => base_url('admin/accounts/create')]],
+            'actions' => $canManageAccounts ? [['label' => '계정추가', 'url' => base_url('admin/accounts/create')]] : [],
             'headers' => ['ID', '이름', '이메일', '휴대폰번호', '권한', '가입 상태', '계정 생성일', '최근 로그인', '관리'],
-            'rows' => array_map(function ($row) {
+            'rows' => array_map(function ($row) use ($canManageAccounts) {
                 $id = (int) ($row['id'] ?? 0);
                 $status = (string) ($row['status'] ?? 'N');
                 $nextStatus = $status === 'Y' ? 'N' : 'Y';
                 $statusLabel = $status === 'Y' ? '정상' : '중지';
                 $statusButton = $status === 'Y' ? '중지' : '정상전환';
                 $statusClass = $status === 'Y' ? 'btn-outline-danger' : 'btn-outline-success';
-                $statusForm = '<form action="' . base_url('admin/accounts/' . $id . '/status') . '" method="post" onsubmit="return confirm(\'계정 상태를 변경하시겠습니까?\');" style="display:inline-block;margin-left:6px;">'
-                    . csrf_field()
-                    . '<input type="hidden" name="status" value="' . esc($nextStatus) . '">'
-                    . '<button type="submit" class="btn ' . $statusClass . ' btn-sm">' . $statusButton . '</button></form>';
+                $statusForm = $canManageAccounts && ($row['username'] ?? '') !== 'admin'
+                    ? '<form action="' . base_url('admin/accounts/' . $id . '/status') . '" method="post" onsubmit="return confirm(\'계정 상태를 변경하시겠습니까?\');" style="display:inline-block;margin-left:6px;">'
+                        . csrf_field()
+                        . '<input type="hidden" name="status" value="' . esc($nextStatus) . '">'
+                        . '<button type="submit" class="btn ' . $statusClass . ' btn-sm">' . $statusButton . '</button></form>'
+                    : '';
+                $editButton = $canManageAccounts
+                    ? '<a href="' . base_url('admin/accounts/' . $id . '/edit') . '" class="btn btn-outline-primary btn-sm">수정</a>'
+                    : '<span class="text-muted">변경 권한 없음</span>';
 
                 return [
                     esc($row['username'] ?? '-'),
@@ -1357,7 +1390,7 @@ class Management extends BaseController
                     $statusLabel,
                     esc($row['created_at'] ?? '-'),
                     esc($row['last_login_at'] ?? '-'),
-                    '<a href="' . base_url('admin/accounts/' . $id . '/edit') . '" class="btn btn-outline-primary btn-sm">수정</a>' . $statusForm,
+                    $editButton . $statusForm,
                 ];
             }, $rows),
         ]);
@@ -1365,6 +1398,10 @@ class Management extends BaseController
 
     public function accountCreate()
     {
+        if (!$this->canManageAdminAccounts()) {
+            return redirect()->to(base_url('admin/accounts'))->with('error', '최고 관리자 admin 계정만 관리자 계정을 변경할 수 있습니다.');
+        }
+
         return view('admin/account/form', [
             'title' => '관리자 계정 등록',
             'breadcrumb' => 'Main > 계정관리 > 등록',
@@ -1379,6 +1416,10 @@ class Management extends BaseController
 
     public function accountStore()
     {
+        if (!$this->canManageAdminAccounts()) {
+            return redirect()->to(base_url('admin/accounts'))->with('error', '최고 관리자 admin 계정만 관리자 계정을 변경할 수 있습니다.');
+        }
+
         $data = $this->accountPostData(null);
 
         if ($data instanceof \CodeIgniter\HTTP\RedirectResponse) {
@@ -1392,6 +1433,10 @@ class Management extends BaseController
 
     public function accountEdit($id)
     {
+        if (!$this->canManageAdminAccounts()) {
+            return redirect()->to(base_url('admin/accounts'))->with('error', '최고 관리자 admin 계정만 관리자 계정을 변경할 수 있습니다.');
+        }
+
         $account = $this->db->table('admin_users')
             ->where('id', (int) $id)
             ->get()
@@ -1415,6 +1460,10 @@ class Management extends BaseController
 
     public function accountUpdate($id)
     {
+        if (!$this->canManageAdminAccounts()) {
+            return redirect()->to(base_url('admin/accounts'))->with('error', '최고 관리자 admin 계정만 관리자 계정을 변경할 수 있습니다.');
+        }
+
         $account = $this->db->table('admin_users')
             ->where('id', (int) $id)
             ->get()
@@ -1439,6 +1488,10 @@ class Management extends BaseController
 
     public function accountStatus($id)
     {
+        if (!$this->canManageAdminAccounts()) {
+            return redirect()->to(base_url('admin/accounts'))->with('error', '최고 관리자 admin 계정만 관리자 계정을 변경할 수 있습니다.');
+        }
+
         $account = $this->db->table('admin_users')
             ->where('id', (int) $id)
             ->get()
@@ -1451,6 +1504,10 @@ class Management extends BaseController
         $status = strtoupper(trim((string) $this->request->getPost('status')));
         if (!in_array($status, ['Y', 'N'], true)) {
             return redirect()->back()->with('error', '변경할 상태값이 올바르지 않습니다.');
+        }
+
+        if (($account['username'] ?? '') === 'admin' && $status === 'N') {
+            return redirect()->back()->with('error', '최고 관리자 admin 계정은 중지할 수 없습니다.');
         }
 
         if ((int) session()->get('admin_id') === (int) $id && $status === 'N') {
@@ -1852,8 +1909,6 @@ class Management extends BaseController
 
     public function popupStore()
     {
-        helper('fileupload_helper');
-
         try {
             $data = $this->popupPostData(null, false);
         } catch (\Throwable $e) {
@@ -1864,7 +1919,11 @@ class Management extends BaseController
             return $data;
         }
 
-        $this->db->table('my_fc_popup')->insert($data);
+        try {
+            $this->db->table('my_fc_popup')->insert($data);
+        } catch (\Throwable $e) {
+            return redirect()->back()->withInput()->with('error', '팝업을 등록하지 못했습니다. 잠시 후 다시 시도해주세요.');
+        }
 
         return redirect()->to(base_url('admin/popups'))->with('success', '팝업이 등록되었습니다.');
     }
@@ -1901,8 +1960,6 @@ class Management extends BaseController
         if (!$popup) {
             return redirect()->to(base_url('admin/popups'))->with('error', '팝업 정보를 찾을 수 없습니다.');
         }
-
-        helper('fileupload_helper');
 
         try {
             $data = $this->popupPostData($popup, true);
@@ -2390,7 +2447,6 @@ class Management extends BaseController
         $tabs = [
             '' => '전체',
             'REQUEST' => '상담 대기',
-            'PROGRESS' => '상담 진행',
             'COMPLETE' => '상담완료',
             'CANCEL' => '상담거부',
         ];
@@ -2535,7 +2591,7 @@ class Management extends BaseController
         $file = $this->request->getFile('popup_image');
 
         if ($file && $file->isValid() && ! $file->hasMoved()) {
-            $savedName = upload_file($file, 'uploads/popup', ['jpg', 'jpeg', 'png', 'webp', 'gif']);
+            $savedName = $this->storePopupImage($file);
             $this->deletePublicFile($imagePath);
             $imagePath = '/uploads/popup/' . $savedName;
         } elseif ($imagePath === '') {
@@ -2559,6 +2615,24 @@ class Management extends BaseController
         }
 
         return $data;
+    }
+
+    private function storePopupImage($file): string
+    {
+        $extension = strtolower((string) $file->getClientExtension());
+        if (!in_array($extension, ['jpg', 'jpeg', 'png', 'webp', 'gif'], true)) {
+            throw new \RuntimeException('팝업 이미지는 JPG, PNG, WEBP, GIF 파일만 등록할 수 있습니다.');
+        }
+
+        $targetPath = FCPATH . 'uploads/popup';
+        if (!is_dir($targetPath) && !mkdir($targetPath, 0775, true) && !is_dir($targetPath)) {
+            throw new \RuntimeException('팝업 이미지 저장 경로를 준비하지 못했습니다.');
+        }
+
+        $savedName = $file->getRandomName();
+        $file->move($targetPath, $savedName);
+
+        return $savedName;
     }
 
     private function pushListBuilder()
@@ -2824,6 +2898,10 @@ class Management extends BaseController
             return redirect()->back()->withInput()->with('error', '비밀번호는 8자 이상 입력해주세요.');
         }
 
+        if ($existingAccount !== null && ($existingAccount['username'] ?? '') === 'admin' && $status === 'N') {
+            return redirect()->back()->withInput()->with('error', '최고 관리자 admin 계정은 중지할 수 없습니다.');
+        }
+
         if ($existingAccount !== null && (int) session()->get('admin_id') === (int) $existingAccount['id'] && $status === 'N') {
             return redirect()->back()->withInput()->with('error', '현재 로그인한 본인 계정은 중지할 수 없습니다.');
         }
@@ -2848,6 +2926,11 @@ class Management extends BaseController
         }
 
         return $data;
+    }
+
+    private function canManageAdminAccounts(): bool
+    {
+        return (string) session()->get('admin_username') === 'admin';
     }
 
     private function adminRoleOptions(): array
@@ -3468,11 +3551,22 @@ class Management extends BaseController
             $status = 'ALL';
         }
 
+        $startDate = trim((string) $this->request->getGet('start_date'));
+        $endDate = trim((string) $this->request->getGet('end_date'));
+
+        if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $startDate)) {
+            $startDate = '';
+        }
+
+        if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $endDate)) {
+            $endDate = '';
+        }
+
         return [
             'status' => $status,
             'q' => trim((string) $this->request->getGet('q')),
-            'start_date' => trim((string) $this->request->getGet('start_date')),
-            'end_date' => trim((string) $this->request->getGet('end_date')),
+            'start_date' => $startDate,
+            'end_date' => $endDate,
         ];
     }
 
@@ -3489,6 +3583,14 @@ class Management extends BaseController
                 ->orLike('m.email', $q)
                 ->orLike('r.deliberation_no', $q)
                 ->groupEnd();
+        }
+
+        if (($filters['start_date'] ?? '') !== '') {
+            $builder->where('r.created_at >=', $filters['start_date'] . ' 00:00:00');
+        }
+
+        if (($filters['end_date'] ?? '') !== '') {
+            $builder->where('r.created_at <=', $filters['end_date'] . ' 23:59:59');
         }
     }
 
@@ -3626,6 +3728,8 @@ class Management extends BaseController
         $query = array_filter([
             'status' => $filters['status'],
             'q' => $filters['q'],
+            'start_date' => $filters['start_date'],
+            'end_date' => $filters['end_date'],
         ], static fn ($value) => (string) $value !== '');
 
         $url = base_url('admin/contents/deliberations/export');

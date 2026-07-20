@@ -33,6 +33,12 @@ $companies = array_filter([
 $isHomepageVisible = (($m['status'] ?? '') === 'ACTIVE')
     && (($m['fc_review_status'] ?? '') === 'APPROVE')
     && !empty($profile);
+$mainExposureAreas = [
+    'region' => ['label' => '지역별 추천', 'exposed' => (($profile['main_region_exposure'] ?? 'N') === 'Y')],
+    'product' => ['label' => '상황별 추천', 'exposed' => (($profile['main_product_exposure'] ?? 'N') === 'Y')],
+    'language' => ['label' => '언어별 추천', 'exposed' => (($profile['main_language_exposure'] ?? 'N') === 'Y')],
+];
+$activeMainAdAreas = $activeMainAdAreas ?? ['region' => false, 'product' => false, 'language' => false];
 
 $activityItemGroups = [];
 foreach ($activityItems ?? [] as $item) {
@@ -206,10 +212,60 @@ foreach ($activityItems ?? [] as $item) {
         display: block;
     }
 
-    .profile-main-action {
+    .main-exposure-panel {
         display: flex;
-        justify-content: flex-end;
-        margin-bottom: 12px;
+        flex-wrap: wrap;
+        align-items: stretch;
+        gap: 10px;
+        margin: 16px 0;
+        padding: 14px 16px;
+        border: 1px solid #bfdbfe;
+        border-radius: 10px;
+        background: #f8fbff;
+    }
+
+    .main-exposure-title {
+        display: flex;
+        align-items: center;
+        margin-right: 4px;
+        color: #1e3a5f;
+        font-weight: 800;
+    }
+
+    .main-exposure-input {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+    }
+
+    .main-exposure-toggle {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        min-height: 38px;
+        padding: 8px 11px;
+        border: 1px solid #cbd5e1;
+        border-radius: 7px;
+        background: #fff;
+        color: #64748b;
+        cursor: pointer;
+        font-size: 13px;
+        font-weight: 800;
+    }
+
+    .main-exposure-input:checked + .main-exposure-toggle {
+        border-color: #2563eb;
+        background: #2563eb;
+        color: #fff;
+    }
+
+    .main-exposure-toggle .state-on { display: none; }
+    .main-exposure-input:checked + .main-exposure-toggle .state-on { display: inline; }
+    .main-exposure-input:checked + .main-exposure-toggle .state-off { display: none; }
+    .main-exposure-toggle.is-locked { border-color: #f59e0b; background: #fffbeb; color: #92400e; cursor: not-allowed; }
+    .main-exposure-save { align-self: center; }
     }
 
     .activity-cert-list {
@@ -475,10 +531,33 @@ foreach ($activityItems ?? [] as $item) {
                                 <button type="button" class="btn btn-primary btn-sm" onclick="saveFcMemo(<?= (int) $m['member_id'] ?>)">메모 저장</button>
                             </div>
                         </div>
-                    </div>
-                </div>
+            </div>
+            </div>
 
-                <div class="wire-card">
+            <div class="wire-card">
+                <div class="wire-head">메인 FC 노출 설정</div>
+                <div class="wire-body">
+                    <form method="post" action="<?= base_url('admin/fc-members/profile-main-exposure') ?>" class="main-exposure-panel" onsubmit="return confirm('선택한 메인 추천 광고 영역의 노출 설정을 저장하시겠습니까?');">
+                        <?= csrf_field() ?>
+                        <input type="hidden" name="member_id" value="<?= (int) $m['member_id'] ?>">
+                        <span class="main-exposure-title">노출 영역 선택</span>
+                        <?php foreach ($mainExposureAreas as $area => $areaInfo): ?>
+                            <?php if (!empty($activeMainAdAreas[$area])): ?>
+                                <span class="main-exposure-toggle is-locked"><?= esc($areaInfo['label']) ?> <strong>광고 진행중</strong></span>
+                            <?php else: ?>
+                                <input class="main-exposure-input" id="mainExposure<?= esc(ucfirst($area)) ?>" type="checkbox" name="exposure_areas[]" value="<?= esc($area) ?>" <?= $areaInfo['exposed'] ? 'checked' : '' ?>>
+                                <label class="main-exposure-toggle" for="mainExposure<?= esc(ucfirst($area)) ?>">
+                                    <span><?= esc($areaInfo['label']) ?></span>
+                                    <strong class="state-off">비활성</strong><strong class="state-on">활성</strong>
+                                </label>
+                            <?php endif; ?>
+                        <?php endforeach; ?>
+                        <button type="submit" class="btn btn-primary btn-sm main-exposure-save">메인 노출 설정 저장</button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="wire-card">
                     <div class="wire-head">활동 정보</div>
                     <div class="wire-body">
                         <div class="activity-list">
@@ -781,10 +860,10 @@ function resetFcPassword(memberId) {
         .then(function (response) { return response.json(); })
         .then(function (json) {
             if (json.status !== 'success') {
-                alert('비밀번호 재설정에 실패했습니다.');
+                alert(json.message || '비밀번호 재설정 메일 발송에 실패했습니다.');
                 return;
             }
-            alert('메일발송 완료되었습니다.\n메일 설정이 없는 경우 임시 비밀번호: ' + json.temporary_password);
+            alert(json.message || '비밀번호 재설정 안내 메일을 발송했습니다.');
         })
         .catch(function () { alert('비밀번호 재설정에 실패했습니다.'); });
 }

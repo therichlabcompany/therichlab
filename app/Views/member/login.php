@@ -51,6 +51,26 @@
     </div>
 </main>
 
+<div class="c-modal notice-link" id="fc-profile-registration-notice" role="dialog" aria-modal="true" aria-labelledby="fc-profile-registration-title" hidden>
+    <button type="button" class="c-modal-backdrop" data-fc-profile-notice-close aria-label="닫기"></button>
+    <div class="c-modal-panel">
+        <div class="c-modal-head">
+            <h2 class="c-modal-title" id="fc-profile-registration-title">프로필 미등록 안내</h2>
+            <button type="button" class="c-modal-close" data-fc-profile-notice-close aria-label="닫기"></button>
+        </div>
+        <div class="c-modal-body">
+            <p class="modal-text">
+                프로필 및 심의필 정보를 등록하셔야<br />
+                FC 회원으로 가입이 완료되며<br />
+                홈페이지에 노출됩니다.
+            </p>
+        </div>
+        <div class="c-modal-foot">
+            <a href="<?= base_url('mypage/fcprofile') ?>" class="btn btn-primary">프로필 정보 관리 바로가기</a>
+        </div>
+    </div>
+</div>
+
 <script>
 document.addEventListener('DOMContentLoaded', function () {
 
@@ -58,6 +78,14 @@ document.addEventListener('DOMContentLoaded', function () {
     const email = document.getElementById('login-email');
     const password = document.getElementById('login-password');
     const submitBtn = document.querySelector('.form-actions button[type="submit"]');
+    const profileNotice = document.getElementById('fc-profile-registration-notice');
+
+    function closeProfileNotice() {
+        profileNotice.classList.remove('is-open');
+        profileNotice.hidden = true;
+        document.body.classList.remove('popup-open');
+        location.href = '<?= base_url('/') ?>';
+    }
 
     // =========================
     // 버튼 활성화
@@ -95,8 +123,14 @@ document.addEventListener('DOMContentLoaded', function () {
         .then(res => {
 
             if (res.status === 'success') {
-                alert('로그인 성공');
-                location.href = '/'; // or /mypage
+                if (res.show_profile_registration_notice) {
+                    profileNotice.hidden = false;
+                    profileNotice.classList.add('is-open');
+                    document.body.classList.add('popup-open');
+                    return;
+                }
+
+                location.href = '<?= base_url('/') ?>';
             } else {
                 alert(res.message || '로그인 실패');
             }
@@ -106,6 +140,10 @@ document.addEventListener('DOMContentLoaded', function () {
             alert('서버 오류');
         });
 
+    });
+
+    profileNotice.querySelectorAll('[data-fc-profile-notice-close]').forEach(function (button) {
+        button.addEventListener('click', closeProfileNotice);
     });
 
 });

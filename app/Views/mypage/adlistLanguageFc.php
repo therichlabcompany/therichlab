@@ -64,43 +64,9 @@
         </div>
         <div class="c-modal-body">
             <ul class="c-modal-list">
-                <li>
-                    <button type="button" class="c-modal-option" data-value="한국어">
-                        <span class="c-modal-option-label">한국어</span><span class="c-modal-option-ico" aria-hidden="true"></span>
-                    </button>
-                </li>
-                <li>
-                    <button type="button" class="c-modal-option" data-value="영어">
-                        <span class="c-modal-option-label">영어</span><span class="c-modal-option-ico" aria-hidden="true"></span>
-                    </button>
-                </li>
-                
-                <li>
-                    <button type="button" class="c-modal-option" data-value="중국어">
-                        <span class="c-modal-option-label">중국어</span><span class="c-modal-option-ico" aria-hidden="true"></span>
-                    </button>
-                </li>
-                <li>
-                    <button type="button" class="c-modal-option" data-value="일본어">
-                        <span class="c-modal-option-label">일본어</span><span class="c-modal-option-ico" aria-hidden="true"></span>
-                    </button>
-                </li>
-                <li>
-                    <button type="button" class="c-modal-option" data-value="베트남어">
-                        <span class="c-modal-option-label">베트남어</span><span class="c-modal-option-ico" aria-hidden="true"></span>
-                    </button>
-                </li>
-                <li>
-                    <button type="button" class="c-modal-option" data-value="태국어">
-                        <span class="c-modal-option-label">태국어</span><span class="c-modal-option-ico" aria-hidden="true"></span>
-                    </button>
-                </li>
-                
-                <li>
-                    <button type="button" class="c-modal-option" data-value="필리핀어">
-                        <span class="c-modal-option-label">필리핀어</span><span class="c-modal-option-ico" aria-hidden="true"></span>
-                    </button>
-                </li>
+                <?php foreach (fc_language_options() as $option): ?>
+                    <li><button type="button" class="c-modal-option" data-value="<?= esc($option['value']) ?>"><span class="c-modal-option-label"><?= esc($option['label']) ?></span><span class="c-modal-option-ico" aria-hidden="true"></span></button></li>
+                <?php endforeach; ?>
                
             </ul>
         </div>

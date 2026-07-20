@@ -13,14 +13,23 @@ $dateValue = static function ($key) use ($m) {
         return '-';
     }
 
-    $value = (string) $m[$key];
+    $value = trim((string) $m[$key]);
+
+    // MySQL DATETIME은 시간대 정보가 없는 값이므로 strtotime()으로 재해석하지 않는다.
+    // 저장된 가입/로그인 시각을 그대로 표시해 서버 실행 시간대에 따른 차이를 방지한다.
+    if (preg_match('/^\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2}$/', $value)) {
+        return esc($value);
+    }
+
     $timestamp = strtotime($value);
 
     if ($timestamp === false) {
         return esc($value);
     }
 
-    return esc(date('Y-m-d H:i:s', $timestamp));
+    return esc((new DateTimeImmutable('@' . $timestamp))
+        ->setTimezone(new DateTimeZone('Asia/Seoul'))
+        ->format('Y-m-d H:i:s'));
 };
 
 $genderLabel = match ($m['gender'] ?? '') {
@@ -914,7 +923,7 @@ function saveMemo(memberId) {
 }
 
 function resetPassword(memberId) {
-    if (!confirm('임시 비밀번호를 발급하시겠습니까?')) {
+    if (!confirm('해당 회원 이메일로 비밀번호 재설정 안내 메일을 발송하시겠습니까?')) {
         return;
     }
 
@@ -932,16 +941,11 @@ function resetPassword(memberId) {
         })
         .then(function (json) {
             if (json.status !== 'success') {
-                alert('비밀번호 재설정에 실패했습니다.');
+                alert(json.message || '비밀번호 재설정 메일 발송에 실패했습니다.');
                 return;
             }
 
-            if (json.mail_sent) {
-                alert('임시 비밀번호 메일을 발송했습니다.');
-                return;
-            }
-
-            alert('메일 설정이 없어 임시 비밀번호를 화면에 표시합니다.\n임시 비밀번호: ' + json.temporary_password);
+            alert(json.message || '비밀번호 재설정 안내 메일을 발송했습니다.');
         })
         .catch(function () {
             alert('비밀번호 재설정에 실패했습니다.');

@@ -76,24 +76,15 @@ $mainInsuranceFilterValues = static function (array $row) use ($mainFilterCsv): 
 };
 
 $mainLanguageFilterValues = static function (array $row) use ($mainFilterCsv): string {
-    $map = [
-        'ko' => '한국어',
-        'kr' => '한국어',
-        'en' => '영어',
-        'zh' => '중국어',
-        'cn' => '중국어',
-        'ja' => '일본어',
-        'jp' => '일본어',
-        'vn' => '베트남어',
-        'vi' => '베트남어',
-        'th' => '태국어',
-        'ph' => '필리핀어',
-        'sign' => '수어',
-    ];
     $values = [];
-    foreach (array_filter(array_map('trim', explode(',', (string) ($row['language_code'] ?? $row['language'] ?? '')))) as $item) {
-        $values[] = $item;
-        $values[] = $map[strtolower($item)] ?? $item;
+    // 언어별 광고의 단일 언어와 FC 프로필의 복수 상담 언어를 모두 필터에 반영한다.
+    foreach ([(string) ($row['language_code'] ?? ''), (string) ($row['language'] ?? '')] as $languageValues) {
+        foreach (array_filter(array_map('trim', explode(',', $languageValues))) as $item) {
+            $code = fc_language_normalize($item);
+            $values[] = $item;
+            $values[] = $code !== '' ? $code : $item;
+            $values[] = $code !== '' ? fc_language_label($code) : $item;
+        }
     }
     return $mainFilterCsv($values);
 };
@@ -332,7 +323,7 @@ $mainChunks = static function (array $rows, int $size): array {
                         <span class="review-head-spacer"></span>
                         <h3 class="section-title">믿고 선택한 고객들의 생생한 후기 <span class="ad-mark" aria-hidden="true">AD</span></h3>
                         <div class="section-head-right">
-                            <a href="#reviewSwiper" class="section-more">전체보기</a>
+                            <a href="<?= base_url('fc/list') ?>" class="section-more">전체보기</a>
                             <div class="control-box">
                                 <button type="button" class="control-btn swiper-nav-prev" aria-label="이전"></button>
                                 <button type="button" class="control-btn swiper-nav-next" aria-label="다음"></button>
@@ -478,12 +469,12 @@ $mainChunks = static function (array $rows, int $size): array {
                                         </a>
                                     <?php endforeach; ?>
                                     <?php if (count($languageFcList) <= 1): ?>
-                                        <a href="mailto:myfc.care@gmail.com" class="language-card language-promo" aria-label="광고·고객센터 문의">
+                                        <a href="mailto:help@myfc.co.kr" class="language-card language-promo" aria-label="광고·고객센터 문의">
                                             <img src="<?= SITE_IMG_URL ?>images/ic-megaphone.svg" alt="" class="language-promo-ico" aria-hidden="true" />
                                             <div class="language-body">
                                                 <p>언어별 상담이 가능하신 FC님!</p>
                                                 <p>광고문의 주세요</p>
-                                                <p>E-mail : myfc.care@gmail.com</p>
+                                                <p>E-mail : help@myfc.co.kr</p>
                                             </div>
                                         </a>
                                     <?php endif; ?>

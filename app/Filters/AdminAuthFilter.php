@@ -27,7 +27,7 @@ class AdminAuthFilter implements FilterInterface
             ->get()
             ->getRowArray();
 
-        if (!$admin || ($admin['status'] ?? '') !== 'Y') {
+        if (!$admin || strtoupper(trim((string) ($admin['status'] ?? ''))) !== 'Y') {
             session()->remove(['admin_logged_in', 'admin_id', 'admin_username', 'admin_name', 'admin_role']);
             return redirect()->to('/admin/login')->with('error', '중지된 관리자 계정입니다.');
         }

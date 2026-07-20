@@ -28,6 +28,8 @@
         </div>
       </main>
 
+<?php include APPPATH . 'Views/modal/fc_profile_update_modal.php'; ?>
+
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
@@ -108,6 +110,8 @@ document.addEventListener('DOMContentLoaded', () => {
         formData.append('time_to', timeToVal);
         formData.append('language', languageVal);
 
+        if (!(await window.MyFCProfileUpdateModal.confirm())) return;
+
         try {
             const res = await fetch('/member/fc/profile/update', {
                 method: 'POST',
@@ -117,7 +121,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const result = await res.json();
 
             if (result.status === 'success') {
-                alert('프로필 정보가 수정되었습니다.');
+                window.MyFCProfileUpdateModal.showComplete();
             } else {
                 alert(result.message || '저장 실패');
             }

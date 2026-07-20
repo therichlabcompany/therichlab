@@ -126,6 +126,10 @@ class FcController extends BaseController
                 $builder->orWhere("FIND_IN_SET(" . $db->escape($code) . ", a.insurance_types) >", 0, false);
             }
 
+            foreach (fc_language_search_codes($keyword) as $code) {
+                $builder->orWhere("FIND_IN_SET(" . $db->escape($code) . ", p.language) >", 0, false);
+            }
+
             $builder->groupEnd();
         }
 
@@ -201,11 +205,24 @@ class FcController extends BaseController
             $recentSearches = [];
         }
 
+        $keyword = trim((string) $this->request->getGet('q'));
+        $results = [];
+        if ($keyword !== '' && mb_strlen($keyword) >= 2) {
+            $this->rememberSearchKeyword($keyword);
+            $db = \Config\Database::connect();
+            $results = $db->table('my_fc_member m')->select('m.member_uid, m.name, p.company, p.company_sub, p.ga, p.profile_image, a.region, a.hero_line, IFNULL(AVG(r.rating),0) AS rating, COUNT(r.review_id) AS rating_count', false)
+                ->join('my_fc_profile p', 'p.member_uid = m.member_uid', 'inner')->join('my_fc_profile_activity a', 'a.member_uid = m.member_uid', 'left')->join('my_fc_counsel_review r', 'r.fc_member_uid = m.member_uid AND r.deleted_at IS NULL', 'left', false)
+                ->groupStart()->like('m.name', $keyword)->orLike('p.company', $keyword)->orLike('p.ga', $keyword)->orLike('a.hero_line', $keyword)->groupEnd()
+                ->where('m.member_type', 'FC')->where('m.status', 'ACTIVE')->where('m.fc_review_status', 'APPROVE')->where('m.deleted_at IS NULL', null, false)->groupBy('m.member_uid')->orderBy('m.member_id', 'DESC')->limit(20)->get()->getResultArray();
+        }
+
         return $this->renderView('fc/search', [
             "header_class" => $header_class,
             "popup_page" => $popup_page,
             "modal_page" => $modal_page,
             "recent_searches" => $recentSearches,
+            "q" => $keyword,
+            "results" => $results,
         ]);
     }
 
@@ -376,6 +393,7 @@ class FcController extends BaseController
             "rating_count"  => $reviewStats['rating_count'] ?? 0,
             "bookmark_status" => $isBookmarked,
             "is_owner_preview" => $isOwner && !$isPublic,
+            "is_owner" => $isOwner,
 
         ];
 

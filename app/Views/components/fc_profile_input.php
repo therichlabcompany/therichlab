@@ -93,7 +93,7 @@
 <div class="form-field">
     <label class="form-label" for="fc-language-value">상담 가능한 언어</label>
     <button type="button" class="directory-select" data-popup-target="#popup-language" data-popup-sync="#fc-language-value">
-        <span><?= !empty($profile['language']) ? esc($profile['language']) : '상담가능한 언어를 선택 해주세요.' ?></span>
+        <span<?= empty($profile['language']) ? ' class="is-placeholder"' : '' ?>><?= !empty($profile['language']) ? esc(fc_language_labels($profile['language'])) : '상담가능한 언어를 선택 해주세요.' ?></span>
     </button>
-    <input id="fc-language-value" type="hidden" name="language" value="<?= esc($profile['language'] ?? '') ?>" />
+    <input id="fc-language-value" type="hidden" name="language" value="<?= esc(fc_language_normalize($profile['language'] ?? '')) ?>" />
 </div>

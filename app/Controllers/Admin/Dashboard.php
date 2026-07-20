@@ -102,9 +102,10 @@ class Dashboard extends BaseController
         $fileName = 'dashboard-' . $range['start_date'] . '-' . $range['end_date'] . '.xlsx';
 
         return $this->response
+            ->download($fileName, $xlsx)
             ->setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-            ->setHeader('Content-Disposition', 'attachment; filename="' . $fileName . '"')
-            ->setBody($xlsx);
+            ->setHeader('Content-Transfer-Encoding', 'binary')
+            ->setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
     }
 
     private function dashboardRange(): array

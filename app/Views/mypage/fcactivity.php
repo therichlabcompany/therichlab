@@ -27,6 +27,8 @@
         </div>
       </main>
 
+<?php include APPPATH . 'Views/modal/fc_profile_update_modal.php'; ?>
+
 
 <script>
         (function () {
@@ -338,6 +340,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
         });
 
+        if (!(await window.MyFCProfileUpdateModal.confirm())) return;
+
         try {
 
             const res = await fetch('/member/fc/activity/save', {
@@ -348,7 +352,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const result = await res.json();
 
             if (result.status === 'success') {
-                alert('활동 정보가 변경되었습니다.');
+                window.MyFCProfileUpdateModal.showComplete();
             } else {
                 alert(result.message || '저장 실패');
             }

@@ -3,6 +3,7 @@
 namespace App\Controllers\Admin;
 
 use App\Controllers\BaseController;
+use App\Libraries\PasswordResetMailer;
 use CodeIgniter\Exceptions\PageNotFoundException;
 
 class Member extends BaseController
@@ -178,10 +179,13 @@ class Member extends BaseController
             $csv .= $this->csvLine($this->memberExportRow($row));
         }
 
+        $fileName = 'members_' . date('YmdHis') . '.csv';
+
         return $this->response
+            ->download($fileName, $csv)
             ->setHeader('Content-Type', 'text/csv; charset=UTF-8')
-            ->setHeader('Content-Disposition', 'attachment; filename="members_' . date('YmdHis') . '.csv"')
-            ->setBody($csv);
+            ->setHeader('Content-Transfer-Encoding', 'binary')
+            ->setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
     }
 
     // =========================
@@ -218,7 +222,7 @@ class Member extends BaseController
             ->select("
                 r.*,
                 fc.name AS fc_name,
-                fp.profile_image,
+                COALESCE(NULLIF(fp.profile_image, ''), NULLIF(fc.profile_image, '')) AS profile_image,
                 fp.company,
                 fpa.region,
                 fpa.intro,
@@ -272,8 +276,9 @@ class Member extends BaseController
         $builder = $this->db->table('my_fc_counsel c')
             ->select("
                 c.*,
+                c.reserve_datetime AS requested_datetime,
                 fc.name AS fc_name,
-                fp.profile_image,
+                COALESCE(NULLIF(fp.profile_image, ''), NULLIF(fc.profile_image, '')) AS profile_image,
                 fp.company,
                 fp.company_sub,
                 fpa.region,
@@ -315,8 +320,9 @@ class Member extends BaseController
             $selectedCounsel = $this->db->table('my_fc_counsel c')
                 ->select("
                     c.*,
+                    c.reserve_datetime AS requested_datetime,
                     fc.name AS fc_name,
-                    fp.profile_image,
+                    COALESCE(NULLIF(fp.profile_image, ''), NULLIF(fc.profile_image, '')) AS profile_image,
                     fp.company,
                     fp.company_sub,
                     fpa.region,
@@ -387,7 +393,7 @@ class Member extends BaseController
                 r.*,
                 c.created_at AS counsel_created_at,
                 fc.name AS fc_name,
-                fp.profile_image,
+                COALESCE(NULLIF(fp.profile_image, ''), NULLIF(fc.profile_image, '')) AS profile_image,
                 fp.company,
                 fpa.region
             ")
@@ -644,22 +650,16 @@ class Member extends BaseController
     {
         $memberId = (int) $this->request->getPost('member_id');
         $member = $this->getMember($memberId);
-        $temporaryPassword = $this->makeTemporaryPassword();
 
-        $this->db->table('my_fc_member')
-            ->where('member_id', $memberId)
-            ->update([
-                'password' => password_hash($temporaryPassword, PASSWORD_DEFAULT),
-                'password_reset_at' => date('Y-m-d H:i:s'),
-                'updated_at' => date('Y-m-d H:i:s'),
-            ]);
+        if (($member['status'] ?? '') !== 'ACTIVE') {
+            return $this->response->setJSON(['status' => 'fail', 'message' => '활성 회원에게만 재설정 메일을 발송할 수 있습니다.']);
+        }
 
-        $sent = $this->sendTemporaryPasswordMail($member, $temporaryPassword);
+        $result = (new PasswordResetMailer())->send($member);
 
         return $this->response->setJSON([
-            'status' => 'success',
-            'mail_sent' => $sent,
-            'temporary_password' => $sent ? null : $temporaryPassword,
+            'status' => $result['success'] ? 'success' : 'fail',
+            'message' => $result['message'],
         ]);
     }
 
@@ -956,30 +956,6 @@ class Member extends BaseController
         }
 
         return $writePath;
-    }
-
-    private function makeTemporaryPassword(): string
-    {
-        return 'MyFC!' . bin2hex(random_bytes(4));
-    }
-
-    private function sendTemporaryPasswordMail(array $member, string $temporaryPassword): bool
-    {
-        $config = config('Email');
-        if (empty($config->fromEmail)) {
-            return false;
-        }
-
-        $email = \Config\Services::email();
-        $email->setFrom($config->fromEmail, $config->fromName ?: 'MyFC');
-        $email->setTo($member['email']);
-        $email->setSubject('[MyFC] 임시 비밀번호 안내');
-        $email->setMessage(
-            "안녕하세요.\n\n관리자 요청으로 임시 비밀번호가 발급되었습니다.\n"
-            . "임시 비밀번호: {$temporaryPassword}\n\n로그인 후 비밀번호를 변경해주세요."
-        );
-
-        return $email->send(false);
     }
 
     private function csvLine(array $columns): string

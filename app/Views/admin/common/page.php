@@ -128,6 +128,11 @@ $perPage = max(1, (int) ($perPage ?? 20));
         vertical-align: middle;
     }
 
+    .review-management-page .table th,
+    .review-management-page .table td {
+        padding: 15px 16px;
+    }
+
     @media (max-width: 768px) {
         .detail-row {
             grid-template-columns: 1fr;

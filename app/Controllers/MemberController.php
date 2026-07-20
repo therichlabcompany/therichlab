@@ -1412,6 +1412,11 @@ HTML);
 
         $session = session();
 
+        // FC 가입 단계 1은 기본정보만 등록된 프로필 미등록 상태다.
+        // 로그인 처리 중 별도 프로필 테이블을 조회하지 않아 로그인 실패와 분리한다.
+        $showProfileRegistrationNotice = $user['member_type'] === 'FC'
+            && (int) ($user['fc_step'] ?? 0) === 1;
+
         // =========================
         // 4. session 저장
         // =========================
@@ -1448,7 +1453,8 @@ HTML);
         // =========================
         return $this->response->setJSON([
             'status' => 'success',
-            'member_id' => $user['member_id']
+            'member_id' => $user['member_id'],
+            'show_profile_registration_notice' => $showProfileRegistrationNotice,
         ]);
     }
 
@@ -1495,7 +1501,7 @@ HTML);
             $licenseNo = preg_replace('/[^0-9]/', '', (string) $this->request->getPost('license_no'));
             $timeFrom = $this->request->getPost('time_from');
             $timeTo = $this->request->getPost('time_to');
-            $language = trim((string) $this->request->getPost('language'));
+            $language = fc_language_normalize((string) $this->request->getPost('language'));
 
             if ($company === '' && $ga === '') {
                 throw new \Exception('소속 원수사 또는 소속 GA 중 하나는 반드시 입력해주세요.');
@@ -2195,12 +2201,21 @@ HTML);
                 'fc_onboarding'=>true,
             ]);
 
+            // 프로필·활동·스토리 입력이 모두 완료됐지만 심의필 번호가 없을 때만 안내한다.
+            $hasProfile = $db->table('my_fc_profile')->where('member_uid', $memberUid)->countAllResults() > 0;
+            $hasActivity = $db->table('my_fc_profile_activity')->where('member_uid', $memberUid)->countAllResults() > 0;
+            $hasStoryImage = $db->table('my_fc_profile_story_image')->where('member_uid', $memberUid)->countAllResults() > 0;
+            $review = $db->table('my_fc_reviewed')->select('deliberation_no')->where('member_uid', $memberUid)->get()->getRowArray();
+            $showDeliberationRegistrationNotice = $hasProfile && $hasActivity && $hasStoryImage
+                && trim((string) ($review['deliberation_no'] ?? '')) === '';
+
             $db->transCommit();
 
             return $this->response->setJSON([
 
                 'status'=>'success',
                 'redirect_url' => base_url('fc/view') . '?uid=' . rawurlencode((string) $memberUid),
+                'show_deliberation_registration_notice' => $showDeliberationRegistrationNotice,
 
             ]);
 

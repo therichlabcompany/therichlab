@@ -13,7 +13,7 @@
                     </p>
                     <p class="footer-info-split">
                         <span>서울특별시 강남구 테헤란로 507, 8층 131호</span>
-                        <span>E-mail : <a href="mailto:myfc.helpdesk@gmail.com">myfc.helpdesk@gmail.com</a></span>
+                        <span>E-mail : <a href="mailto:help@myfc.co.kr">help@myfc.co.kr</a></span>
                     </p>
                     <p class="footer-info-split">
                         <span>사업자등록번호 : 762-88-02797</span>

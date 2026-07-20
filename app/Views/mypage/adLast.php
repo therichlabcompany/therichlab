@@ -16,7 +16,7 @@
             </p>
             <p class="flow-result-inquiry">
               문의사항 :<br />
-              <a href="mailto:myfc.helpdesk@gmail.com">myfc.helpdesk@gmail.com</a>
+              <a href="mailto:help@myfc.co.kr">help@myfc.co.kr</a>
             </p>
           </div>
           <a href="/mypage/adlist">광고 리스트로 돌아가기</a>

@@ -103,53 +103,65 @@ class Home extends BaseController
     private function mainRecommendFcList(): array
     {
         $adRows = $this->activeAdFcList();
-        $generalRows = $this->fcRows(null, 20);
-
-        if (empty($adRows)) {
-            return $generalRows;
-        }
+        $manualRows = $this->manualMainFcList('main_region_exposure');
 
         $merged = [];
         $seen = [];
 
-        foreach ($adRows as $row) {
+        foreach (array_merge($adRows, $manualRows) as $row) {
             $memberUid = (string) ($row['member_uid'] ?? '');
-            if ($memberUid === '') {
+            if ($memberUid === '' || isset($seen[$memberUid])) {
                 continue;
             }
             $seen[$memberUid] = true;
             $merged[] = $row;
         }
 
-        foreach ($generalRows as $row) {
-            $memberUid = (string) ($row['member_uid'] ?? '');
-            if ($memberUid === '' || isset($seen[$memberUid])) {
-                continue;
-            }
-            $merged[] = $row;
+        return $merged;
+    }
+
+    private function manualMainFcList(string $exposureColumn): array
+    {
+        if (!in_array($exposureColumn, ['main_region_exposure', 'main_product_exposure', 'main_language_exposure'], true)
+            || !$this->db->fieldExists($exposureColumn, 'my_fc_profile')) {
+            return [];
         }
 
-        return $merged;
+        $reviewAggregate = $this->reviewAggregateSql($this->db);
+
+        return $this->db->table('my_fc_member m')
+            ->select('NULL AS ad_id, NULL AS ad_type, NULL AS region_code, NULL AS insurance_type, NULL AS language_code, NULL AS start_date, NULL AS end_date,
+                m.member_id, m.member_uid, m.name,
+                COALESCE(NULLIF(p.profile_image, ""), NULLIF(m.profile_image, "")) AS profile_image,
+                p.company, p.company_sub, p.ga, p.language, a.region, a.insurance_types, a.intro, a.hero_line,
+                IFNULL(rv.rating, 0) AS rating, IFNULL(rv.rating_count, 0) AS rating_count', false)
+            ->join('my_fc_profile p', 'p.member_uid = m.member_uid', 'inner')
+            ->join('my_fc_profile_activity a', 'a.member_uid = m.member_uid', 'left')
+            ->join('(' . $reviewAggregate . ') rv', 'rv.fc_member_uid = m.member_uid', 'left', false)
+            ->where('m.deleted_at IS NULL', null, false)
+            ->where('m.member_type', 'FC')
+            ->where('m.status', 'ACTIVE')
+            ->where('m.fc_review_status', 'APPROVE')
+            ->where('p.' . $exposureColumn, 'Y')
+            ->orderBy('p.updated_at', 'DESC')
+            ->get()
+            ->getResultArray();
     }
 
     private function activeProductFcList(): array
     {
-        $rows = $this->uniqueFcRows($this->fcRows(['product_fc'], 12));
-        if (!empty($rows)) {
-            return $rows;
-        }
-
-        return $this->uniqueFcRows($this->fcRows(null, 12));
+        return $this->uniqueFcRows(array_merge(
+            $this->fcRows(['product_fc'], 12),
+            $this->manualMainFcList('main_product_exposure')
+        ));
     }
 
     private function activeLanguageFcList(): array
     {
-        $rows = $this->uniqueFcRows($this->fcRows(['language_fc'], 12));
-        if (!empty($rows)) {
-            return $rows;
-        }
-
-        return $this->uniqueFcRows($this->fcRows(null, 12));
+        return $this->uniqueFcRows(array_merge(
+            $this->fcRows(['language_fc'], 12),
+            $this->manualMainFcList('main_language_exposure')
+        ));
     }
 
     /** 같은 FC의 광고 상품이 여러 건이어도 메인에는 한 번만 노출한다. */
@@ -423,16 +435,16 @@ class Home extends BaseController
                 'label' => '전체',
                 'icon' => '',
             ]],
-            $this->modalOptions('fc_lang_modal.php', false)
+            fc_language_options()
         );
         $iconMap = [
-            '영어' => 'ic-flag-us.png',
-            '중국어' => 'ic-flag-cn.png',
-            '베트남어' => 'ic-flag-vn.png',
-            '태국어' => 'ic-flag-th.png',
-            '필리핀어' => 'ic-flag-ph.png',
-            '일본어' => 'ic-flag-jp.png',
-            '수어' => 'ic-hand.png',
+            'en' => 'ic-flag-us.png',
+            'zh' => 'ic-flag-cn.png',
+            'vi' => 'ic-flag-vn.png',
+            'th' => 'ic-flag-th.png',
+            'fil' => 'ic-flag-ph.png',
+            'ja' => 'ic-flag-jp.png',
+            'sign' => 'ic-hand.png',
         ];
 
         foreach ($options as &$option) {

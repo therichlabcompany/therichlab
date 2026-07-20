@@ -335,7 +335,7 @@ $currentPage = min($page, $totalPages);
                                                 <span class="badge bg-<?= esc($counselStatusClass) ?>"><?= esc($counselStatusLabel) ?></span>
                                             </div>
                                             <div class="counsel-meta">
-                                                희망 상담요청일자 <?= esc($formatDateTime($counsel['reserve_datetime'] ?? '')) ?>
+                                                희망 상담요청일자 <?= esc($formatDateTime($counsel['requested_datetime'] ?? $counsel['reserve_datetime'] ?? '')) ?>
                                                 ·
                                                 별점 <?= number_format((float) ($counsel['avg_rating'] ?? 0), 1) ?>
                                                 · <?= esc($counsel['company'] ?: '-') ?>
@@ -352,39 +352,9 @@ $currentPage = min($page, $totalPages);
                             <?php endif; ?>
                         </div>
                     </div>
-                </div>
-
-                <div class="counsel-card">
-                    <div class="counsel-card-head">
-                        <span>상담요청 상세내용</span>
-                        <?php if ($selectedCounsel): ?>
-                            <?php [$selectedStatusLabel, $selectedStatusClass] = $statusLabel($selectedCounsel['status'] ?? ''); ?>
-                            <span class="badge bg-<?= esc($selectedStatusClass) ?>"><?= esc($selectedStatusLabel) ?></span>
-                        <?php endif; ?>
-                    </div>
-                    <div class="counsel-card-body">
-                        <?php if ($selectedCounsel): ?>
-                            <div class="detail-grid">
-                                <div class="detail-label">상담 요청 일자</div>
-                                <div class="detail-value"><?= esc($formatDateTime($selectedCounsel['created_at'] ?? '')) ?></div>
-                                <div class="detail-label">희망 상담요청일자</div>
-                                <div class="detail-value"><?= esc($formatDateTime($selectedCounsel['reserve_datetime'] ?? '')) ?></div>
-                                <div class="detail-label">신청자</div>
-                                <div class="detail-value"><?= esc($selectedCounsel['name'] ?? '-') ?></div>
-                                <div class="detail-label">연락처</div>
-                                <div class="detail-value"><?= esc($selectedCounsel['phone'] ?? '-') ?></div>
-                                <div class="detail-label">이메일</div>
-                                <div class="detail-value"><?= esc($selectedCounsel['email'] ?? '-') ?></div>
-                                <div class="detail-label">상담 요청 내용</div>
-                                <div class="detail-value content"><?= esc($selectedCounsel['content'] ?: '등록된 내용이 없습니다.') ?></div>
-                            </div>
-                        <?php else: ?>
-                            <div class="text-center text-muted py-5">선택된 상담 요청이 없습니다.</div>
-                        <?php endif; ?>
-                    </div>
                     <?php if ($totalPages > 1): ?>
                         <div class="counsel-card-body pt-0">
-                            <nav aria-label="상담 요청 페이지">
+                            <nav aria-label="상담 요청 목록 페이지">
                                 <ul class="pagination pagination-sm justify-content-center mb-0">
                                     <li class="page-item <?= $currentPage <= 1 ? 'disabled' : '' ?>">
                                         <a class="page-link" href="<?= base_url('admin/members/' . (int) $m['member_id'] . '/counsels?status=' . urlencode($status) . '&page=' . max(1, $currentPage - 1)) ?>">이전</a>
@@ -401,6 +371,36 @@ $currentPage = min($page, $totalPages);
                             </nav>
                         </div>
                     <?php endif; ?>
+                </div>
+
+                <div class="counsel-card">
+                    <div class="counsel-card-head">
+                        <span>상담요청 상세내용</span>
+                        <?php if ($selectedCounsel): ?>
+                            <?php [$selectedStatusLabel, $selectedStatusClass] = $statusLabel($selectedCounsel['status'] ?? ''); ?>
+                            <span class="badge bg-<?= esc($selectedStatusClass) ?>"><?= esc($selectedStatusLabel) ?></span>
+                        <?php endif; ?>
+                    </div>
+                    <div class="counsel-card-body">
+                        <?php if ($selectedCounsel): ?>
+                            <div class="detail-grid">
+                                <div class="detail-label">상담 요청 일자</div>
+                                <div class="detail-value"><?= esc($formatDateTime($selectedCounsel['created_at'] ?? '')) ?></div>
+                                <div class="detail-label">희망 상담요청일자</div>
+                                <div class="detail-value"><?= esc($formatDateTime($selectedCounsel['requested_datetime'] ?? $selectedCounsel['reserve_datetime'] ?? '')) ?></div>
+                                <div class="detail-label">신청자</div>
+                                <div class="detail-value"><?= esc($selectedCounsel['name'] ?? '-') ?></div>
+                                <div class="detail-label">연락처</div>
+                                <div class="detail-value"><?= esc($selectedCounsel['phone'] ?? '-') ?></div>
+                                <div class="detail-label">이메일</div>
+                                <div class="detail-value"><?= esc($selectedCounsel['email'] ?? '-') ?></div>
+                                <div class="detail-label">상담 요청 내용</div>
+                                <div class="detail-value content"><?= esc($selectedCounsel['content'] ?: '등록된 내용이 없습니다.') ?></div>
+                            </div>
+                        <?php else: ?>
+                            <div class="text-center text-muted py-5">선택된 상담 요청이 없습니다.</div>
+                        <?php endif; ?>
+                    </div>
                 </div>
             </div>
 

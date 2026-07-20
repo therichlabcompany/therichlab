@@ -6,7 +6,7 @@ $recentSearches = $recent_searches ?? [];
     <div class="page-inner-narrow">
         <h1 class="search-page-title">찾으시는 정보를 검색해보세요.</h1>
 
-        <form class="search-page-form" action="/fc/list" method="get" id="fc-search-page-form">
+        <form class="search-page-form" action="/fc/search" method="get" id="fc-search-page-form">
             <div class="search-field">
                 <label class="search-field-label">
                     <input
@@ -39,6 +39,16 @@ $recentSearches = $recent_searches ?? [];
                 </div>
             <?php endif; ?>
         </section>
+
+        <?php if (!empty($q)): ?>
+            <section class="section search-results"><div class="search-results-list-wrap"><div class="search-results-head"><p class="search-results-title">“<span><?= esc($q) ?></span>”에 대한 결과</p></div><div class="list-grid">
+            <?php foreach ($results as $row): ?>
+                <?php $company = implode(' · ', array_filter([$row['company'] ?? '', $row['company_sub'] ?? '', $row['ga'] ?? ''])); $region = fc_region_label(trim(explode(',', (string) ($row['region'] ?? ''))[0] ?? '')); ?>
+                <a href="<?= base_url('fc/view?uid=' . rawurlencode($row['member_uid'])) ?>" class="list-item"><div class="list-left"><?php $image = profile_image_url($row['profile_image'] ?? ''); ?><?php if ($image): ?><img src="<?= esc($image) ?>" alt="" class="list-avatar"><?php else: ?><span class="list-avatar is-empty"></span><?php endif; ?><div class="list-text"><p class="list-title"><?= esc($row['name']) ?></p><p class="c-rate"><span class="c-rate-star">★</span> <?= number_format((float) $row['rating'], 1) ?> <span class="c-rate-count">(<?= number_format((int) $row['rating_count']) ?>)</span></p><p class="c-dot-line"><span><?= esc($company ?: '-') ?></span><span class="location"><span><?= esc($region) ?></span></span></p><p class="list-desc"><?= esc($row['hero_line'] ?? '') ?></p></div></div></a>
+            <?php endforeach; ?>
+            <?php if (empty($results)): ?><p class="search-recent-empty">검색 결과가 없습니다.</p><?php endif; ?>
+            </div></div></section>
+        <?php endif; ?>
     </div>
 </main>
 

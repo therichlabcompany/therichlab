@@ -141,7 +141,7 @@
                     <div class="fc-detail-item">
                         <h3>상담 가능한 언어</h3>
                         <p>
-                            <?= esc($profile['language']) ?>
+                            <?= esc(fc_language_labels($profile['language'])) ?>
                         </p>
                     </div>
                 <?php endif; ?>
@@ -319,7 +319,7 @@
                             <p class="empty-title">작성된 후기가 없습니다</p>
                             <p class="empty-sub">상담을 완료하면 후기를 작성할 수 있어요</p>
 
-                            <a href="/mypage/counselList" class="empty-btn">
+                            <a href="<?= !empty($is_owner) ? '/mypage/fccounsel' : '/mypage/counselList' ?>" class="empty-btn">
                                 상담 내역 보기
                             </a>
                         </div>

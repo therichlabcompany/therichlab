@@ -3,6 +3,7 @@
 namespace App\Controllers\Admin;
 
 use App\Controllers\BaseController;
+use App\Libraries\PasswordResetMailer;
 
 class FcMember extends BaseController
 {
@@ -211,10 +212,13 @@ class FcMember extends BaseController
             ]);
         }
 
+        $fileName = 'fc_members_' . date('YmdHis') . '.csv';
+
         return $this->response
+            ->download($fileName, $csv)
             ->setHeader('Content-Type', 'text/csv; charset=UTF-8')
-            ->setHeader('Content-Disposition', 'attachment; filename="fc_members_' . date('YmdHis') . '.csv"')
-            ->setBody($csv);
+            ->setHeader('Content-Transfer-Encoding', 'binary')
+            ->setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
     }
 
     // =========================
@@ -244,6 +248,12 @@ class FcMember extends BaseController
             ->where('member_uid', $memberUid)
             ->get()
             ->getRowArray();
+
+        $profile = $profile ?: [];
+        if (empty($profile['profile_image']) && !empty($member['profile_image'])) {
+            $profile['profile_image'] = $member['profile_image'];
+        }
+        $activeMainAdAreas = $this->activeMainAdAreas((string) $memberUid, (int) $member['member_id']);
 
         // 활동
         $activity = $db->table('my_fc_profile_activity')
@@ -290,6 +300,7 @@ class FcMember extends BaseController
         return view('admin/fc_member/detail',[
             'm'             => $member,
             'profile'       => $profile,
+            'activeMainAdAreas' => $activeMainAdAreas,
             'activity'      => $activity,
             'activityItems' => $activityItems,
             'story'         => $story,
@@ -716,20 +727,108 @@ class FcMember extends BaseController
             return $this->response->setJSON(['status' => 'fail']);
         }
 
-        $temporaryPassword = 'MyFC!' . bin2hex(random_bytes(4));
+        if (($member['status'] ?? '') !== 'ACTIVE') {
+            return $this->response->setJSON(['status' => 'fail', 'message' => '활성 회원에게만 재설정 메일을 발송할 수 있습니다.']);
+        }
 
-        $this->db->table('my_fc_member')
-            ->where('member_id', $memberId)
-            ->update([
-                'password' => password_hash($temporaryPassword, PASSWORD_DEFAULT),
-                'password_reset_at' => date('Y-m-d H:i:s'),
-                'updated_at' => date('Y-m-d H:i:s'),
-            ]);
+        $result = (new PasswordResetMailer())->send($member);
 
         return $this->response->setJSON([
-            'status' => 'success',
-            'temporary_password' => $temporaryPassword,
+            'status' => $result['success'] ? 'success' : 'fail',
+            'message' => $result['message'],
         ]);
+    }
+
+    public function updateMainExposure()
+    {
+        $memberId = (int) $this->request->getPost('member_id');
+        $areaColumns = [
+            'region' => ['column' => 'main_region_exposure', 'label' => '지역별 추천'],
+            'product' => ['column' => 'main_product_exposure', 'label' => '상황별 추천'],
+            'language' => ['column' => 'main_language_exposure', 'label' => '언어별 추천'],
+        ];
+        $selectedAreas = array_values(array_intersect(
+            array_map('strval', (array) $this->request->getPost('exposure_areas')),
+            array_keys($areaColumns)
+        ));
+
+        foreach ($areaColumns as $areaInfo) {
+            if (!$this->db->fieldExists($areaInfo['column'], 'my_fc_profile')) {
+                return redirect()->back()->with('error', '메인 노출 기능 DB 반영이 필요합니다. public/sql/20260720_fc_profile_main_exposure.sql을 적용해주세요.');
+            }
+        }
+
+        $member = $this->db->table('my_fc_member')
+            ->select('member_uid, status, fc_review_status')
+            ->where('member_id', $memberId)
+            ->where('member_type', 'FC')
+            ->where('deleted_at', null)
+            ->get()
+            ->getRowArray();
+
+        if (!$member) {
+            return redirect()->back()->with('error', 'FC 회원 정보를 찾을 수 없습니다.');
+        }
+
+        if (!empty($selectedAreas) && (($member['status'] ?? '') !== 'ACTIVE' || ($member['fc_review_status'] ?? '') !== 'APPROVE')) {
+            return redirect()->back()->with('error', '활성 및 승인 완료된 FC만 메인 추천 영역에 노출할 수 있습니다.');
+        }
+
+        $profile = $this->db->table('my_fc_profile')
+            ->select('main_region_exposure, main_product_exposure, main_language_exposure')
+            ->where('member_uid', $member['member_uid'])
+            ->get()
+            ->getRowArray();
+        if (!$profile) {
+            return redirect()->back()->with('error', 'FC 프로필 정보가 없어 메인 노출 상태를 변경할 수 없습니다.');
+        }
+
+        $activeAdAreas = $this->activeMainAdAreas((string) $member['member_uid'], $memberId);
+        $updateData = ['updated_at' => date('Y-m-d H:i:s')];
+        foreach ($areaColumns as $area => $areaInfo) {
+            if (!empty($activeAdAreas[$area])) {
+                $updateData[$areaInfo['column']] = $profile[$areaInfo['column']] ?? 'N';
+                continue;
+            }
+
+            $updateData[$areaInfo['column']] = in_array($area, $selectedAreas, true) ? 'Y' : 'N';
+        }
+
+        $this->db->table('my_fc_profile')
+            ->where('member_uid', $member['member_uid'])
+            ->update($updateData);
+
+        return redirect()->back()->with('success', '메인 추천 FC 노출 영역이 저장되었습니다.');
+    }
+
+    private function activeMainAdAreas(string $memberUid, int $memberId): array
+    {
+        $areas = ['region' => false, 'product' => false, 'language' => false];
+        $rows = $this->db->table('ad_master')
+            ->select('ad_type')
+            ->where('status', 'approved')
+            ->where('start_date <=', date('Y-m-d'))
+            ->where('end_date >=', date('Y-m-d'))
+            ->groupStart()
+                ->where('fc_member_id', $memberUid)
+                ->orWhere('fc_member_id', (string) $memberId)
+            ->groupEnd()
+            ->whereIn('ad_type', ['region_fc', 'product_fc', 'language_fc'])
+            ->get()
+            ->getResultArray();
+
+        foreach ($rows as $row) {
+            $area = [
+                'region_fc' => 'region',
+                'product_fc' => 'product',
+                'language_fc' => 'language',
+            ][(string) ($row['ad_type'] ?? '')] ?? null;
+            if ($area !== null) {
+                $areas[$area] = true;
+            }
+        }
+
+        return $areas;
     }
 
     public function changeStatus()
