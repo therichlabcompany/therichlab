@@ -997,10 +997,16 @@ class MemberController extends BaseController
             ]);
         }
 
-        $exists = $db->table('my_fc_member')
+        $duplicateQuery = $db->table('my_fc_member')
             ->where('phone', $phone)
-            ->where('deleted_at', null)
-            ->countAllResults();
+            ->where('deleted_at', null);
+
+        $currentMemberId = (int) $session->get('member_id');
+        if ($currentMemberId > 0) {
+            $duplicateQuery->where('member_id !=', $currentMemberId);
+        }
+
+        $exists = $duplicateQuery->countAllResults();
 
         if ($exists > 0) {
             return $this->response->setJSON([
@@ -2016,6 +2022,18 @@ class MemberController extends BaseController
             ]);
         }
 
+        $currentPhone = preg_replace('/[^0-9]/', '', (string) ($member['phone'] ?? ''));
+        $phoneChanged = $phone !== $currentPhone;
+        if ($phoneChanged) {
+            $authPhone = preg_replace('/[^0-9]/', '', (string) $session->get('phone_auth_phone'));
+            if (!(bool) $session->get('phone_auth_verified') || $authPhone !== $phone) {
+                return $this->response->setJSON([
+                    'status' => 'error',
+                    'message' => '변경할 휴대폰 번호를 본인인증해주세요.'
+                ]);
+            }
+        }
+
         // 휴대폰 중복 체크
         $exists = $db->table('my_fc_member')
             ->where('phone', $phone)
@@ -2035,6 +2053,7 @@ class MemberController extends BaseController
             ->update([
                 'name' => $name,
                 'phone' => $phone,
+                'phone_verified' => $phoneChanged ? 'Y' : ($member['phone_verified'] ?? 'N'),
                 'agree_marketing' => $agreeMarketing,
                 'fc_review_status' => 'WAIT',
                 'updated_at' => date('Y-m-d H:i:s')
