@@ -313,6 +313,10 @@ if (!empty($profile['ga'])) {
 
                 alert(result.message);
 
+                if (result.redirect) {
+                    location.href = result.redirect;
+                }
+
                 return;
 
             }

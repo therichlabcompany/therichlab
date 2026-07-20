@@ -3,6 +3,9 @@
     <div class="page-inner-narrow">
         <h1 class="page-main-title">FC 회원정보</h1>
 
+        <?php if (session('message')): ?><p class="insurance-in-alert"><?= esc(session('message')) ?></p><?php endif; ?>
+        <?php if (session('error')): ?><p class="insurance-in-alert warn"><?= esc(session('error')) ?></p><?php endif; ?>
+
         <p class="page-main-lead">
             입력하신 정보는 관리자가 확인 후<br class="br-mo" />
             승인 절차를 거쳐 고객에게 노출됩니다.<br />

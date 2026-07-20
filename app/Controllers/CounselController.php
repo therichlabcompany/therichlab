@@ -78,14 +78,19 @@ class CounselController extends BaseController
         $myMember = $db->table('my_fc_member')
             ->where('member_uid',$memberUid)
             ->where('deleted_at',null)
+            ->where('member_type', 'USER')
+            ->where('status', 'ACTIVE')
             ->get()
             ->getRowArray();
 
         if(!$myMember){
 
+            $session->remove(['logged_in', 'member_uid', 'member_id', 'member_type']);
+
             return $this->response->setJSON([
                 'result'=>'fail',
-                'message'=>'회원정보가 없습니다.'
+                'message'=>'탈퇴했거나 사용할 수 없는 회원입니다. 다시 로그인해주세요.',
+                'redirect' => base_url('member/login'),
             ]);
         }
 

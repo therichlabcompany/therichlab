@@ -51,7 +51,7 @@
                 value="********"
                 readonly
             />
-            <button type="button" id="btnPasswordReset">
+            <button type="button" id="btnPasswordReset" onclick="location.href='<?= base_url('mypage/password-reset') ?>'">
                 비밀번호 재설정
             </button>
         </div>

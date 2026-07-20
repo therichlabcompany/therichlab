@@ -2,6 +2,9 @@
     <div class="page-inner-narrow">
         <h1 class="page-main-title">내 정보</h1>
 
+        <?php if (session('message')): ?><p class="insurance-in-alert"><?= esc(session('message')) ?></p><?php endif; ?>
+        <?php if (session('error')): ?><p class="insurance-in-alert warn"><?= esc(session('error')) ?></p><?php endif; ?>
+
         <?php $profileImage = profile_image_url($user['profile_image'] ?? ''); ?>
 
         <form class="form-box" method="post">

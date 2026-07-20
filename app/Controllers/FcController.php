@@ -418,8 +418,17 @@ class FcController extends BaseController
         $my_member = $db->table('my_fc_member')
             ->where('member_uid', $session->get('member_uid'))
             ->where('deleted_at IS NULL', null, false)
+            ->where('member_type', 'USER')
+            ->where('status', 'ACTIVE')
             ->get()
             ->getRowArray();
+
+        // 탈퇴 처리 후 남은 브라우저 세션으로 접근한 경우에는 뷰를 렌더링하지 않는다.
+        // $my_member가 비어 있는 상태에서 상담 화면이 회원 정보를 참조하면 오류 페이지가 발생한다.
+        if (!$my_member) {
+            $session->remove(['logged_in', 'member_uid', 'member_id', 'member_type']);
+            return redirect()->to('/member/login')->with('error', '탈퇴했거나 사용할 수 없는 회원입니다. 다시 로그인해주세요.');
+        }
 
 
         // =========================

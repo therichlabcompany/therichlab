@@ -41,7 +41,7 @@
                 <span>또는</span>
             </div>
             <div class="form-actions">
-                <button type="button" class="login-secondary">계정찾기</button>
+                <button type="button" class="login-secondary" onclick="location.href='<?= base_url('member/find') ?>'">계정찾기</button>
             </div>
 
             <p class="login-reset">

@@ -41,6 +41,8 @@ $routes->group('fc', function ($routes) {
 
 
 $routes->group('mypage', function ($routes) {
+    $routes->get('password-reset', 'MemberController::passwordResetRequest');
+    $routes->post('password-reset/request', 'MemberController::sendPasswordResetMail');
     $routes->get('info', 'MypageController::info');         // 내정보-개인
     $routes->get('withdrawal', 'MypageController::withdrawal');  // 회원탈퇴 - 개인
     $routes->get('withdrawalLast', 'MypageController::withdrawalLast');  // 회원탈퇴 완료- 개인
@@ -124,9 +126,14 @@ $routes->group('member', function ($routes) {
     $routes->get('login', 'MemberController::login');         // 회원 - 로그인
     $routes->get('find', 'MemberController::find');         // 회원 - 계정찾기
     $routes->get('findResult', 'MemberController::findResult');         // 회원 - 계정찾기 결과
+    $routes->post('find/auth-start', 'MemberController::accountFindAuthStart');
+    $routes->post('find/result', 'MemberController::accountFindResult');
     $routes->get('passEmail', 'MemberController::passEmail');         // 회원 - 비밀번호 리셋 메일 보내게
     $routes->get('passreSet', 'MemberController::passReset');         // 회원 - 비밀번호 재설정하기
     $routes->get('passResult', 'MemberController::passResult');         // 회원 - 비밀번호 재설정 완료
+    $routes->get('password-reset', 'MemberController::passwordReset');
+    $routes->post('password-reset', 'MemberController::updatePasswordReset');
+    $routes->get('password-reset/complete', 'MemberController::passwordResetComplete');
 
     $routes->get('join', 'MemberController::join');         // 회원 - 개인회원가입
     $routes->get('joinComplete', 'MemberController::joinComplete');         // 회원 - 개인회원가입완료

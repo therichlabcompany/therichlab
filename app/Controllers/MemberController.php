@@ -32,10 +32,15 @@ class MemberController extends BaseController
         $modal_page = [];
 
 
+        $mobileOk = service('mobileOk');
         $data = [
             "header_class" => $header_class,
             "popup_page" => $popup_page,
-            "modal_page" => $modal_page
+            "modal_page" => $modal_page,
+            'mobileOkEnabled' => $mobileOk->isConfigured(),
+            'mobileOkJsUrl' => $mobileOk->requestJsUrl(),
+            'mobileOkRequestUrl' => base_url('member/phone-auth/request'),
+            'mobileOkResultUrl' => $mobileOk->returnUrl(),
         ];
 
 
@@ -51,14 +56,50 @@ class MemberController extends BaseController
         $modal_page = [];
 
 
+        $session = session();
+        $email = (string) $session->get('account_find_email');
+        $expiresAt = (int) $session->get('account_find_expires_at');
+        if ($email === '' || $expiresAt < time()) {
+            $session->remove(['account_find_email', 'account_find_expires_at']);
+            return redirect()->to('/member/find')->with('error', '휴대폰 본인인증 후 계정을 확인해주세요.');
+        }
+
         $data = [
             "header_class" => $header_class,
             "popup_page" => $popup_page,
-            "modal_page" => $modal_page
+            "modal_page" => $modal_page,
+            'email' => $email,
         ];
 
 
         return $this->renderView('member/findResult', $data);
+    }
+
+    public function accountFindAuthStart()
+    {
+        session()->set('phone_auth_purpose_pending', 'account_find');
+        return $this->response->setJSON(['status' => 'success']);
+    }
+
+    public function accountFindResult()
+    {
+        $session = session();
+        $phone = preg_replace('/\D/', '', (string) $session->get('phone_auth_phone'));
+        $verifiedAt = strtotime((string) $session->get('phone_auth_verified_at'));
+        if (!(bool) $session->get('phone_auth_verified') || $phone === '' || !$verifiedAt || $verifiedAt < time() - 600) {
+            return $this->response->setJSON(['status' => 'error', 'message' => '휴대폰 본인인증을 먼저 완료해주세요.']);
+        }
+
+        $member = \Config\Database::connect()->table('my_fc_member')->select('email')
+            ->where('phone', $phone)->where('status', 'ACTIVE')->where('deleted_at IS NULL', null, false)
+            ->orderBy('member_id', 'DESC')->get()->getRowArray();
+        if (!$member) {
+            return $this->response->setJSON(['status' => 'error', 'message' => '인증한 휴대폰 번호로 가입된 계정을 찾을 수 없습니다.']);
+        }
+
+        $session->set(['account_find_email' => $member['email'], 'account_find_expires_at' => time() + 600]);
+        $session->remove('phone_auth_purpose');
+        return $this->response->setJSON(['status' => 'success', 'redirect' => base_url('member/findResult')]);
     }
 
     public function passEmail(): string
@@ -116,6 +157,137 @@ class MemberController extends BaseController
 
 
         return $this->renderView('member/passResult', $data);
+    }
+
+    public function passwordResetRequest()
+    {
+        $session = session();
+        $memberUid = (string) $session->get('member_uid');
+        if (!$session->get('logged_in') || $memberUid === '') {
+            return redirect()->to('/member/login')->with('error', '로그인 후 이용해주세요.');
+        }
+
+        $member = \Config\Database::connect()->table('my_fc_member')->select('email, member_type')
+            ->where('member_uid', $memberUid)->whereIn('member_type', ['USER', 'FC'])->where('status', 'ACTIVE')
+            ->where('deleted_at IS NULL', null, false)->get()->getRowArray();
+        if (!$member) return redirect()->to('/member/login')->with('error', '사용할 수 없는 회원입니다. 다시 로그인해주세요.');
+
+        return $this->renderView('member/password_reset_request', [
+            'header_class' => 'form-page password-reset-page',
+            'email' => (string) $member['email'],
+        ]);
+    }
+
+    public function sendPasswordResetMail()
+    {
+        $session = session();
+        $memberUid = (string) $session->get('member_uid');
+        $emailAddress = trim((string) $this->request->getPost('email'));
+        if (!$session->get('logged_in') || $memberUid === '') {
+            return redirect()->to('/member/login')->with('error', '로그인이 필요합니다.');
+        }
+
+        $db = \Config\Database::connect();
+        if (!$db->tableExists('my_fc_password_reset_token')) {
+            return redirect()->back()->withInput()->with('error', '비밀번호 재설정 기능 준비가 필요합니다. 관리자에게 문의해주세요.');
+        }
+        $member = $db->table('my_fc_member')->where('member_uid', $memberUid)
+            ->whereIn('member_type', ['USER', 'FC'])->where('status', 'ACTIVE')
+            ->where('deleted_at IS NULL', null, false)->get()->getRowArray();
+        if (!$member || !hash_equals((string) $member['email'], $emailAddress)) {
+            return redirect()->back()->withInput()->with('error', '현재 로그인한 회원의 이메일 주소를 정확히 입력해주세요.');
+        }
+
+        $config = config('Email');
+        if (empty($config->fromEmail)) {
+            return redirect()->back()->withInput()->with('error', '메일 발송 설정이 완료되지 않았습니다. 관리자에게 문의해주세요.');
+        }
+
+        $token = bin2hex(random_bytes(32));
+        $db->table('my_fc_password_reset_token')->where('member_uid', $memberUid)->delete();
+        $db->table('my_fc_password_reset_token')->insert([
+            'member_uid' => $memberUid,
+            'token_hash' => hash('sha256', $token),
+            'expires_at' => date('Y-m-d H:i:s', time() + 3600),
+            'created_at' => date('Y-m-d H:i:s'),
+        ]);
+
+        $resetUrl = base_url('member/password-reset?token=' . rawurlencode($token));
+        $mail = \Config\Services::email();
+        $mail->setFrom($config->fromEmail, $config->fromName ?: 'MyFC');
+        $mail->setTo($member['email']);
+        $mail->setSubject('[MyFC] 비밀번호 재설정 안내');
+        $mail->setMailType('html');
+        $memberName = htmlspecialchars((string) ($member['name'] ?? ''), ENT_QUOTES, 'UTF-8');
+        $memberEmail = htmlspecialchars((string) $member['email'], ENT_QUOTES, 'UTF-8');
+        $logoUrl = base_url('assets/images/logo.png');
+        $mail->setMessage(<<<HTML
+<!doctype html>
+<html lang="ko"><body style="margin:0;padding:0;background:#f3f4f6;font-family:Arial,'Noto Sans KR',sans-serif;color:#172033;">
+<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background:#f3f4f6;"><tr><td align="center" style="padding:40px 16px;">
+<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="max-width:680px;background:#ffffff;border-radius:16px;overflow:hidden;">
+<tr><td style="padding:32px 40px 0;"><img src="{$logoUrl}" alt="MyFC" style="display:block;width:auto;height:30px;border:0;"></td></tr>
+<tr><td style="padding:32px 40px 80px;"><h1 style="margin:0 0 28px;font-size:28px;line-height:1.35;font-weight:800;color:#111827;">[MyFC] 비밀번호 재설정 안내</h1>
+<div style="padding:80px;background:#f3f4f6;border-radius:12px;font-size:16px;line-height:1.8;color:#374151;">
+<p style="margin:0 0 24px;">안녕하세요, {$memberName}님, MyFC입니다.</p>
+<p style="margin:0 0 32px;"><strong style="font-weight:700;color:#111827;">{$memberEmail}</strong> 계정의 비밀번호를 재설정하시려면,<br>아래 버튼을 클릭해주세요.</p>
+<p style="margin:0 0 32px;">문의사항이 있으시면 고객센터로 연락해 주세요.</p>
+<p style="margin:0;"><a href="{$resetUrl}" style="display:inline-block;box-sizing:border-box;min-width:190px;padding:15px 24px;border-radius:8px;background:#111827;color:#ffffff;font-size:16px;font-weight:700;line-height:1.4;text-align:center;text-decoration:none;">비밀번호 재설정</a></p>
+</div></td></tr>
+</table></td></tr></table></body></html>
+HTML);
+        if (!$mail->send(false)) {
+            $db->table('my_fc_password_reset_token')->where('member_uid', $memberUid)->delete();
+            return redirect()->back()->withInput()->with('error', '메일을 발송하지 못했습니다. 잠시 후 다시 시도해주세요.');
+        }
+
+        return redirect()->to('/mypage/password-reset')->with('message', '비밀번호 재설정 안내 메일을 발송했습니다. 이메일을 확인한 후 비밀번호를 재설정해주세요.');
+    }
+
+    public function passwordReset()
+    {
+        $token = trim((string) $this->request->getGet('token'));
+        if (!$this->passwordResetToken($token)) {
+            return redirect()->to('/member/login')->with('error', '유효하지 않거나 만료된 비밀번호 재설정 링크입니다.');
+        }
+        return $this->renderView('member/password_reset', ['header_class' => 'form-page password-reset-page', 'token' => $token]);
+    }
+
+    public function updatePasswordReset()
+    {
+        $token = trim((string) $this->request->getPost('token'));
+        $reset = $this->passwordResetToken($token);
+        $password = (string) $this->request->getPost('password');
+        $confirm = (string) $this->request->getPost('password_confirm');
+        if (!$reset || !$this->isValidSignupPassword($password) || !hash_equals($password, $confirm)) {
+            return redirect()->back()->withInput()->with('error', '비밀번호 규칙을 확인하고 동일하게 입력해주세요.');
+        }
+        $db = \Config\Database::connect();
+        $db->transStart();
+        $db->table('my_fc_member')->where('member_uid', $reset['member_uid'])
+            ->whereIn('member_type', ['USER', 'FC'])->where('status', 'ACTIVE')->where('deleted_at IS NULL', null, false)->update([
+            'password' => password_hash($password, PASSWORD_DEFAULT),
+            'password_reset_at' => date('Y-m-d H:i:s'),
+            'updated_at' => date('Y-m-d H:i:s'),
+        ]);
+        $db->table('my_fc_password_reset_token')->where('token_id', $reset['token_id'])->delete();
+        $db->transComplete();
+        return redirect()->to('/member/password-reset/complete');
+    }
+
+    public function passwordResetComplete(): string
+    {
+        return $this->renderView('member/password_reset_result', ['header_class' => 'password-reset-page flow-result']);
+    }
+
+    private function passwordResetToken(string $token): ?array
+    {
+        if (!preg_match('/^[a-f0-9]{64}$/', $token)) return null;
+        $db = \Config\Database::connect();
+        if (!$db->tableExists('my_fc_password_reset_token')) return null;
+        return $db->table('my_fc_password_reset_token')
+            ->where('token_hash', hash('sha256', $token))->where('expires_at >', date('Y-m-d H:i:s'))
+            ->get()->getRowArray() ?: null;
     }
 
     public function join(): string
@@ -693,6 +865,8 @@ class MemberController extends BaseController
 
         try {
             $clientTxId = $mobileOk->makeClientTxId();
+            $purpose = $session->get('phone_auth_purpose_pending') === 'account_find' ? 'account_find' : null;
+            $session->remove(['phone_auth_purpose_pending', 'phone_auth_purpose']);
             $session->set([
                 'phone_auth_tx_id' => $clientTxId,
                 'phone_auth_requested_at' => date('Y-m-d H:i:s'),
@@ -703,6 +877,7 @@ class MemberController extends BaseController
                 'phone_auth_gender' => null,
                 'phone_auth_issue_date' => null,
                 'phone_auth_result_code' => null,
+                'phone_auth_purpose' => $purpose,
             ]);
 
             $manager = $mobileOk->createSdkManager();
@@ -1002,6 +1177,7 @@ class MemberController extends BaseController
             ]);
         }
 
+        $isAccountFind = $session->get('phone_auth_purpose') === 'account_find';
         $duplicateQuery = $db->table('my_fc_member')
             ->where('phone', $phone)
             ->where('deleted_at', null);
@@ -1013,7 +1189,7 @@ class MemberController extends BaseController
 
         $exists = $duplicateQuery->countAllResults();
 
-        if ($exists > 0) {
+        if (!$isAccountFind && $exists > 0) {
             return $this->response->setJSON([
                 'status' => 'error',
                 'duplicate' => true,
