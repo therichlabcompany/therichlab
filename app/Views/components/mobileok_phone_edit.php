@@ -7,6 +7,7 @@
     const enabled = <?= json_encode((bool) ($mobileOkEnabled ?? false)) ?>;
     const requestUrl = <?= json_encode($mobileOkRequestUrl ?? '') ?>;
     const resultUrl = <?= json_encode($mobileOkResultUrl ?? '') ?>;
+    const applyUrl = <?= json_encode($phoneAuthApplyUrl ?? '') ?>;
     const phoneInput = document.getElementById('phone');
     const phoneButton = document.getElementById('btnPhoneCheck');
     const nameInput = document.getElementById('name');
@@ -57,6 +58,7 @@
                     return;
                 }
 
+                const previousPhone = digitsOnly(phoneInput.value);
                 phoneInput.value = phone;
                 phoneInput.readOnly = true;
 
@@ -87,6 +89,27 @@
 
                 phoneVerified = true;
                 setButtonLabel('인증완료');
+
+                if (!applyUrl) {
+                    return;
+                }
+
+                fetch(applyUrl, {
+                    method: 'POST',
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                })
+                    .then((applyResponse) => applyResponse.json())
+                    .then((applyResponse) => {
+                        if (applyResponse.status !== 'success') {
+                            alert(applyResponse.message || '인증 정보를 반영하지 못했습니다.');
+                            return;
+                        }
+
+                        if (applyResponse.phoneChanged || previousPhone !== phone) {
+                            alert('휴대폰 번호가 변경되었습니다.');
+                        }
+                    })
+                    .catch(() => alert('인증 정보를 반영하는 중 오류가 발생했습니다.'));
             })
             .catch(() => alert('서버 통신 실패'));
     };

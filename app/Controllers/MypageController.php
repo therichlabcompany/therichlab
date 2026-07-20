@@ -73,6 +73,7 @@ class MypageController extends BaseController
         $data['mobileOkJsUrl'] = $mobileOk->requestJsUrl();
         $data['mobileOkRequestUrl'] = base_url('member/phone-auth/request');
         $data['mobileOkResultUrl'] = $mobileOk->returnUrl();
+        $data['phoneAuthApplyUrl'] = base_url('mypage/apply-phone-auth-info');
         $data['mode'] = 'edit';
 
 
@@ -1589,6 +1590,100 @@ class MypageController extends BaseController
         return $this->response->setJSON([
             'status' => 'success',
             'message' => '회원 정보가 수정되었습니다.'
+        ]);
+    }
+
+    /**
+     * 본인인증 직후 인증기관에서 확인한 정보를 회원 정보에 즉시 반영한다.
+     */
+    public function applyPhoneAuthInfo()
+    {
+        $session = session();
+        $memberUid = (string) $session->get('member_uid');
+
+        if (!$session->get('logged_in') || $memberUid === '') {
+            return $this->response->setStatusCode(401)->setJSON([
+                'status' => 'error',
+                'message' => '로그인이 필요합니다.',
+            ]);
+        }
+
+        if (!(bool) $session->get('phone_auth_verified')) {
+            return $this->response->setStatusCode(400)->setJSON([
+                'status' => 'error',
+                'message' => '본인인증을 먼저 완료해주세요.',
+            ]);
+        }
+
+        $phone = preg_replace('/[^0-9]/', '', (string) $session->get('phone_auth_phone'));
+        if (strlen($phone) < 10 || strlen($phone) > 11) {
+            return $this->response->setStatusCode(400)->setJSON([
+                'status' => 'error',
+                'message' => '인증된 휴대폰 번호를 확인할 수 없습니다.',
+            ]);
+        }
+
+        $memberModel = new \App\Models\MemberModel();
+        $member = $memberModel
+            ->where('member_uid', $memberUid)
+            ->where('deleted_at', null)
+            ->first();
+
+        if (!$member) {
+            return $this->response->setStatusCode(404)->setJSON([
+                'status' => 'error',
+                'message' => '회원 정보를 찾을 수 없습니다.',
+            ]);
+        }
+
+        $currentPhone = preg_replace('/[^0-9]/', '', (string) ($member['phone'] ?? ''));
+        $phoneChanged = $phone !== $currentPhone;
+
+        if ($phoneChanged) {
+            $duplicate = $memberModel
+                ->where('phone', $phone)
+                ->where('member_uid !=', $memberUid)
+                ->where('deleted_at', null)
+                ->countAllResults();
+
+            if ($duplicate > 0) {
+                return $this->response->setStatusCode(409)->setJSON([
+                    'status' => 'error',
+                    'message' => '이미 사용 중인 휴대폰 번호입니다.',
+                ]);
+            }
+        }
+
+        $data = [
+            'phone' => $phone,
+            'phone_verified' => 'Y',
+            'updated_at' => date('Y-m-d H:i:s'),
+        ];
+
+        $name = trim((string) $session->get('phone_auth_name'));
+        $birth = preg_replace('/[^0-9]/', '', (string) $session->get('phone_auth_birth'));
+        $gender = strtoupper(trim((string) $session->get('phone_auth_gender')));
+        if ($name !== '') {
+            $data['name'] = $name;
+        }
+        if ($birth !== '') {
+            $data['birth'] = $birth;
+        }
+        if (in_array($gender, ['M', 'F'], true)) {
+            $data['gender'] = $gender;
+        }
+
+        if (!$memberModel->where('member_uid', $memberUid)->set($data)->update()) {
+            return $this->response->setStatusCode(500)->setJSON([
+                'status' => 'error',
+                'message' => '인증 정보를 반영하지 못했습니다.',
+            ]);
+        }
+
+        return $this->response->setJSON([
+            'status' => 'success',
+            'phoneChanged' => $phoneChanged,
+            'message' => $phoneChanged ? '휴대폰 번호가 변경되었습니다.' : '본인인증 정보가 반영되었습니다.',
         ]);
     }
 

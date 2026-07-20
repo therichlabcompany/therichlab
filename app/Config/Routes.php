@@ -81,6 +81,7 @@ $routes->group('mypage', function ($routes) {
     $routes->get('security/download/(:num)', 'MemberSecurityController::download/$1');
 
     $routes->post('updateInfo', 'MypageController::updateInfo');
+    $routes->post('apply-phone-auth-info', 'MypageController::applyPhoneAuthInfo');
 
     $routes->get('adlist', 'MypageController::adlist');
     $routes->get('adlistRegionFc', 'MypageController::adlistRegionFc');
