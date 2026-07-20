@@ -45,7 +45,7 @@
             </div>
 
             <p class="login-reset">
-                <a href="MFC006_01_02.html">비밀번호 재설정</a>
+                <a href="<?= base_url('member/password-reset-request') ?>">비밀번호 재설정</a>
             </p>
         </form>
     </div>

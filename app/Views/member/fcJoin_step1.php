@@ -295,7 +295,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const result = await res.json();
 
             if (result.status === 'success') {
-                location.href = '/member/fcJoin2';
+                location.href = '/member/fcComplete';
             } else {
                 alert(result.message || '처리 실패');
             }

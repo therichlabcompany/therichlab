@@ -1,7 +1,7 @@
 <main>
     <div class="signup-done-inner">
         <div class="signup-done-ico" aria-hidden="true">
-            <img src="../assets/images/ic-success-circle.svg" alt="" />
+            <img src="<?= SITE_IMG_URL ?>images/ic-success-circle.svg" alt="" />
         </div>
         <h1>FC 회원가입이 완료되었습니다.</h1>
         <p>기본정보 등록이 완료되어 로그인이 가능합니다.</p>

@@ -244,6 +244,59 @@ HTML);
         return redirect()->to('/mypage/password-reset')->with('message', '비밀번호 재설정 안내 메일을 발송했습니다. 이메일을 확인한 후 비밀번호를 재설정해주세요.');
     }
 
+    public function passwordResetGuestRequest(): string
+    {
+        return $this->renderView('member/password_reset_request', [
+            'header_class' => 'form-page password-reset-page',
+            'guestMode' => true,
+            'resetRequestAction' => base_url('member/password-reset-request'),
+        ]);
+    }
+
+    public function sendGuestPasswordResetMail()
+    {
+        $emailAddress = trim((string) $this->request->getPost('email'));
+        if (!filter_var($emailAddress, FILTER_VALIDATE_EMAIL)) {
+            return redirect()->back()->withInput()->with('error', '올바른 이메일 주소를 입력해주세요.');
+        }
+
+        $db = \Config\Database::connect();
+        if (!$db->tableExists('my_fc_password_reset_token')) {
+            return redirect()->back()->withInput()->with('error', '비밀번호 재설정 기능 준비가 필요합니다. 관리자에게 문의해주세요.');
+        }
+        $member = $db->table('my_fc_member')->where('email', $emailAddress)
+            ->whereIn('member_type', ['USER', 'FC'])->where('status', 'ACTIVE')
+            ->where('deleted_at IS NULL', null, false)->get()->getRowArray();
+        $config = config('Email');
+        if (empty($config->fromEmail)) {
+            return redirect()->back()->withInput()->with('error', '메일 발송 설정이 완료되지 않았습니다. 관리자에게 문의해주세요.');
+        }
+
+        if ($member) {
+            $token = bin2hex(random_bytes(32));
+            $db->table('my_fc_password_reset_token')->where('member_uid', $member['member_uid'])->delete();
+            $db->table('my_fc_password_reset_token')->insert([
+                'member_uid' => $member['member_uid'], 'token_hash' => hash('sha256', $token),
+                'expires_at' => date('Y-m-d H:i:s', time() + 3600), 'created_at' => date('Y-m-d H:i:s'),
+            ]);
+            $resetUrl = base_url('member/password-reset?token=' . rawurlencode($token));
+            $mail = \Config\Services::email();
+            $mail->setFrom($config->fromEmail, $config->fromName ?: 'MyFC');
+            $mail->setTo($member['email']);
+            $mail->setSubject('[MyFC] 비밀번호 재설정 안내');
+            $mail->setMailType('html');
+            $memberName = htmlspecialchars((string) ($member['name'] ?? ''), ENT_QUOTES, 'UTF-8');
+            $memberEmail = htmlspecialchars((string) $member['email'], ENT_QUOTES, 'UTF-8');
+            $mail->setMessage('<div style="max-width:680px;margin:0 auto;padding:40px;font-family:Arial,\'Noto Sans KR\',sans-serif;color:#172033"><img src="' . base_url('assets/images/logo.png') . '" alt="MyFC" style="height:30px"><h1 style="font-size:28px">[MyFC] 비밀번호 재설정 안내</h1><div style="padding:80px;background:#f3f4f6;border-radius:12px;font-size:16px;line-height:1.8"><p>안녕하세요, ' . $memberName . '님, MyFC입니다.</p><p><strong>' . $memberEmail . '</strong> 계정의 비밀번호를 재설정하시려면,<br>아래 버튼을 클릭해주세요.</p><p>문의사항이 있으시면 고객센터로 연락해 주세요.</p><a href="' . $resetUrl . '" style="display:inline-block;padding:15px 24px;background:#111827;color:#fff;border-radius:8px;font-weight:700;text-decoration:none">비밀번호 재설정</a></div></div>');
+            if (!$mail->send(false)) {
+                $db->table('my_fc_password_reset_token')->where('member_uid', $member['member_uid'])->delete();
+                return redirect()->back()->withInput()->with('error', '메일을 발송하지 못했습니다. 잠시 후 다시 시도해주세요.');
+            }
+        }
+
+        return redirect()->to('/member/password-reset-request')->with('message', '입력한 이메일을 확인해주세요. 비밀번호 재설정 안내 메일을 발송했습니다.');
+    }
+
     public function passwordReset()
     {
         $token = trim((string) $this->request->getGet('token'));

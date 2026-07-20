@@ -134,6 +134,8 @@ $routes->group('member', function ($routes) {
     $routes->get('password-reset', 'MemberController::passwordReset');
     $routes->post('password-reset', 'MemberController::updatePasswordReset');
     $routes->get('password-reset/complete', 'MemberController::passwordResetComplete');
+    $routes->get('password-reset-request', 'MemberController::passwordResetGuestRequest');
+    $routes->post('password-reset-request', 'MemberController::sendGuestPasswordResetMail');
 
     $routes->get('join', 'MemberController::join');         // 회원 - 개인회원가입
     $routes->get('joinComplete', 'MemberController::joinComplete');         // 회원 - 개인회원가입완료
