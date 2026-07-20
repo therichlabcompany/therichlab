@@ -318,6 +318,7 @@ class FcController extends BaseController
             ->join('my_fc_counsel c', 'c.counsel_uid = r.counsel_uid', 'left')
             ->join('my_fc_member m', 'm.member_uid = r.member_uid', 'left')
             ->where('c.fc_member_uid', $uid)
+            ->where('r.deleted_at IS NULL', null, false)
             ->orderBy('r.created_at', 'DESC');
 
         if ($db->fieldExists('display_status', 'my_fc_counsel_review')) {

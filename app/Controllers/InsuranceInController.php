@@ -89,8 +89,8 @@ class InsuranceInController extends BaseController
         $this->requireMember('USER');
         $title = trim((string) $this->request->getPost('title'));
         $body = trim((string) $this->request->getPost('body'));
-        if (mb_strlen($title) < 10 || mb_strlen($body) < 100 || !$this->request->getPost('agree_notice')) {
-            return redirect()->back()->withInput()->with('error', '제목 10자, 내용 100자 이상 입력하고 주의사항에 동의해주세요.');
+        if (mb_strlen($title) < 10 || mb_strlen($title) > 50 || mb_strlen($body) < 10 || !$this->request->getPost('agree_notice')) {
+            return redirect()->back()->withInput()->with('error', '제목은 10자 이상 50자 이하, 내용은 10자 이상 입력하고 주의사항에 동의해주세요.');
         }
 
         $forbiddenWord = $this->forbiddenWordViolation($title . "\n" . $body, ['ALL']);
@@ -192,8 +192,31 @@ class InsuranceInController extends BaseController
     public function download(int $fileId)
     {
         $row = $this->db->table('my_fc_insurance_in_file')->where('file_id', $fileId)->get()->getRowArray();
-        if (!$row || !is_file(ROOTPATH . $row['file_path'])) throw PageNotFoundException::forPageNotFound();
-        return $this->response->download(ROOTPATH . $row['file_path'], null)->setFileName($row['original_name']);
+        if (!$row) {
+            throw PageNotFoundException::forPageNotFound();
+        }
+
+        // 기존 저장값(writable/uploads/...)과 파일명만 저장된 데이터 모두 지원한다.
+        $storedPath = ltrim(str_replace('\\', '/', (string) ($row['file_path'] ?? '')), '/');
+        $fileName = basename((string) ($row['saved_name'] ?? $storedPath));
+        $candidates = [
+            ROOTPATH . $storedPath,
+            WRITEPATH . 'uploads/insurance_in/' . $fileName,
+        ];
+
+        $filePath = null;
+        foreach ($candidates as $candidate) {
+            if (is_file($candidate)) {
+                $filePath = $candidate;
+                break;
+            }
+        }
+
+        if ($filePath === null) {
+            throw PageNotFoundException::forPageNotFound();
+        }
+
+        return $this->response->download($filePath, null)->setFileName($row['original_name']);
     }
 
     private function listBuilder(string $keyword = '')
@@ -235,7 +258,7 @@ class InsuranceInController extends BaseController
             redirect()->to('/member/login')->with('error', '로그인이 필요합니다.')->send(); exit;
         }
         if ($type && session()->get('member_type') !== $type) {
-            redirect()->to('/insurance-in')->with('error', $type === 'FC' ? 'FC 회원만 답변할 수 있습니다.' : '개인 회원만 질문할 수 있습니다.')->send(); exit;
+            redirect()->to('/insurance-in')->with('error', $type === 'FC' ? 'FC 회원만 답변할 수 있습니다.' : '개인회원만 글작성이 가능합니다.')->send(); exit;
         }
     }
 

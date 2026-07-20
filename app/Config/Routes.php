@@ -60,6 +60,7 @@ $routes->group('mypage', function ($routes) {
     $routes->get('fcinfo', 'MypageController::fcinfo');  // 후기 리스트 - 개인
     $routes->get('fcprofile', 'MypageController::fcprofile');  // 후기 리스트 - 개인
     $routes->post('updateProfileImage', 'MypageController::updateProfileImage');  // 후기 리스트 - 개인
+    $routes->post('removeProfileImage', 'MypageController::deleteProfileImage');
     $routes->get('fcactivity', 'MypageController::fcactivity');  // 후기 리스트 - 개인
     $routes->get('fcstory', 'MypageController::fcstory');  // 후기 리스트 - 개인
     $routes->get('fcreviewed', 'MypageController::fcreviewed');  // 후기 리스트 - 개인

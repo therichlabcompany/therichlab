@@ -523,6 +523,12 @@ class MypageController extends BaseController
             ]);
         }
 
+        // 목록과 동일한 서버 기준(Asia/Seoul)으로 날짜를 확정해 전달한다.
+        // 브라우저에서 날짜 문자열을 해석할 때 발생할 수 있는 일자 차이를 막는다.
+        $row['created_date'] = !empty($row['created_at'])
+            ? date('Y.m.d', strtotime((string) $row['created_at']))
+            : '';
+
         return $this->response->setJSON([
             'result' => 'success',
             'data' => $row
@@ -585,8 +591,9 @@ class MypageController extends BaseController
 
         $session = session();
         $memberUid = $session->get('member_uid');
+        $memberType = strtoupper((string) $session->get('member_type'));
 
-        if (!$memberUid) {
+        if (!$memberUid || !in_array($memberType, ['USER', 'FC'], true)) {
             return $this->response->setJSON([
                 'status' => 'error',
                 'message' => '로그인이 필요합니다.'
@@ -616,8 +623,9 @@ class MypageController extends BaseController
             ]);
         }
 
-        $profileTable = $db->table('my_fc_profile');
-
+        $profileTable = $memberType === 'FC'
+            ? $db->table('my_fc_profile')
+            : $db->table('my_fc_member');
         $profile = $profileTable
             ->where('member_uid', $memberUid)
             ->get()
@@ -643,14 +651,14 @@ class MypageController extends BaseController
         // =========================
         // 4. UPSERT
         // =========================
-        if ($profile) {
+        if ($memberType === 'FC' && $profile) {
 
             $profileTable->where('member_uid', $memberUid)
                 ->update([
                     'profile_image' => $saveFile,
                     'updated_at' => date('Y-m-d H:i:s')
                 ]);
-        } else {
+        } elseif ($memberType === 'FC') {
 
             $profileTable->insert([
                 'member_uid' => $memberUid,
@@ -658,6 +666,13 @@ class MypageController extends BaseController
                 'step' => 1,
                 'created_at' => date('Y-m-d H:i:s')
             ]);
+        } else {
+            $profileTable->where('member_uid', $memberUid)
+                ->where('member_type', 'USER')
+                ->update([
+                    'profile_image' => $saveFile,
+                    'updated_at' => date('Y-m-d H:i:s'),
+                ]);
         }
 
         return $this->response->setJSON([
@@ -668,6 +683,48 @@ class MypageController extends BaseController
                 'url' => base_url('uploads/profile/' . $saveFile)
             ]
         ]);
+    }
+
+    /** 개인/FC 프로필 사진 삭제 */
+    public function deleteProfileImage()
+    {
+        $session = session();
+        $memberUid = (string) $session->get('member_uid');
+        $memberType = strtoupper((string) $session->get('member_type'));
+        if ($memberUid === '' || !in_array($memberType, ['USER', 'FC'], true)) {
+            return $this->response->setJSON([
+                'status' => 'error',
+                'message' => '로그인이 필요합니다.',
+            ]);
+        }
+
+        $db = \Config\Database::connect();
+        $profileTable = $memberType === 'FC'
+            ? $db->table('my_fc_profile')
+            : $db->table('my_fc_member');
+        $profile = $profileTable
+            ->where('member_uid', $memberUid)
+            ->get()
+            ->getRowArray();
+
+        $fileName = basename((string) ($profile['profile_image'] ?? ''));
+        if ($fileName === '') {
+            return $this->response->setJSON(['status' => 'success']);
+        }
+
+        $profileTable
+            ->where('member_uid', $memberUid)
+            ->update([
+                'profile_image' => null,
+                'updated_at' => date('Y-m-d H:i:s'),
+            ]);
+
+        $filePath = WRITEPATH . 'uploads/profile/' . $fileName;
+        if (is_file($filePath)) {
+            @unlink($filePath);
+        }
+
+        return $this->response->setJSON(['status' => 'success']);
     }
 
     public function fcprofile(): string
@@ -1322,6 +1379,14 @@ class MypageController extends BaseController
             ]);
         }
 
+        $titleLength = mb_strlen($title);
+        if ($titleLength < 2 || $titleLength > 40) {
+            return $this->response->setJSON([
+                'result' => 'error',
+                'message' => '제목은 2자 이상 40자 이하로 입력해주세요.'
+            ]);
+        }
+
         // ===========================
         // 상담 존재 확인
         // ===========================
@@ -1693,16 +1758,28 @@ class MypageController extends BaseController
         $header_class = "form-page ad-mgmt-page";
 
         $fc_member_id = session()->get('member_uid');
+        $legacyMemberId = session()->get('member_id');
 
         $page = (int) ($this->request->getGet('page') ?? 1);
         $perPage = 10;
 
         $adModel = new \App\Models\AdMasterModel();
 
-        $result = $adModel->getAdListByMemberPaging($fc_member_id, $page, $perPage);
+        $result = $adModel->getAdListByMemberPaging($fc_member_id, $page, $perPage, $legacyMemberId);
 
         $adList = $result['list'];
         $total  = $result['total'];
+
+        $lastUpdatedRow = \Config\Database::connect()
+            ->table('ad_master')
+            ->select('MAX(COALESCE(updated_at, created_at)) AS last_updated_at', false)
+            ->groupStart()
+                ->where('fc_member_id', $fc_member_id)
+                ->orWhere('fc_member_id', (string) $legacyMemberId)
+            ->groupEnd()
+            ->get()
+            ->getRowArray();
+        $lastUpdatedAt = $lastUpdatedRow['last_updated_at'] ?? null;
 
         $totalPages = ceil($total / $perPage);
 
@@ -1778,7 +1855,8 @@ class MypageController extends BaseController
             "adList" => $adList,
             "page" => $page,
             "totalPages" => $totalPages,
-            "perPage" => $perPage
+            "perPage" => $perPage,
+            "lastUpdatedAt" => $lastUpdatedAt,
         ]);
     }
 

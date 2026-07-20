@@ -46,6 +46,16 @@ function digitsOnly(value) {
     return (value || '').replace(/[^0-9]/g, '');
 }
 
+function isValidSignupPassword(value) {
+    const password = String(value || '');
+    const letterCount = (password.match(/[A-Za-z]/g) || []).length;
+    const numberCount = (password.match(/\d/g) || []).length;
+    const specialCount = (password.match(/[^A-Za-z0-9\s]/g) || []).length;
+
+    return password.length >= 8 && password.length <= 16 && !/\s/.test(password)
+        && letterCount >= 3 && numberCount >= 3 && specialCount >= 3;
+}
+
 function updateSubmitState() {
     const btnSubmit = document.getElementById('btnSubmit');
     const emailInput = document.getElementById('email');
@@ -60,8 +70,8 @@ function updateSubmitState() {
 
     const valid =
         emailInput.value.trim() &&
-        password.value &&
-        passwordConfirm.value &&
+        isValidSignupPassword(password.value) &&
+        password.value === passwordConfirm.value &&
         phoneInput.value.trim() &&
         nameInput.value.trim();
 
@@ -110,9 +120,15 @@ function setPhoneAuthValues(payload) {
 document.addEventListener('DOMContentLoaded', () => {
     const emailInput = document.getElementById('email');
     const phoneInput = document.getElementById('phone');
+    const passwordInput = document.getElementById('password');
+    const passwordConfirmInput = document.getElementById('password-confirm');
     const btnEmailCheck = document.getElementById('btnEmailCheck');
     const btnPhoneCheck = document.getElementById('btnPhoneCheck');
     const btnSubmit = document.getElementById('btnSubmit');
+
+    // 회원가입 화면에는 이전 수정 화면 값이나 브라우저 저장 비밀번호를 사용하지 않는다.
+    if (passwordInput) passwordInput.value = '';
+    if (passwordConfirmInput) passwordConfirmInput.value = '';
 
     document.querySelectorAll('#fcSignupForm input').forEach(el => {
         el.addEventListener('input', updateSubmitState);
@@ -245,11 +261,22 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
+        const password = document.getElementById('password').value;
+        const passwordConfirm = document.getElementById('password-confirm').value;
+        if (!isValidSignupPassword(password)) {
+            alert('비밀번호는 영문 대소문자, 숫자, 특수문자를 각각 3개 이상 포함하여 8자~16자 내로 입력해주세요.');
+            return;
+        }
+        if (password !== passwordConfirm) {
+            alert('비밀번호가 일치하지 않습니다.');
+            return;
+        }
+
         const data = {
             member_type: 'FC',
             email: emailInput.value.trim(),
-            password: document.getElementById('password').value,
-            password_confirm: document.getElementById('password-confirm').value,
+            password: password,
+            password_confirm: passwordConfirm,
             phone: phoneInput.value.replace(/[^0-9]/g, ''),
             name: document.getElementById('name').value.trim(),
             phone_verified: 'Y'

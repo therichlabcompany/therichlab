@@ -241,6 +241,7 @@ class MemberController extends BaseController
             "mobileOkJsUrl" => $mobileOk->requestJsUrl(),
             "mobileOkRequestUrl" => base_url('member/phone-auth/request'),
             "mobileOkResultUrl" => $mobileOk->returnUrl(),
+            "mode" => "create",
         ];
 
 
@@ -477,6 +478,10 @@ class MemberController extends BaseController
 
             if ($password !== $passwordConfirm) {
                 throw new \Exception('비밀번호 불일치');
+            }
+
+            if (!$this->isValidSignupPassword($password)) {
+                throw new \Exception('비밀번호는 영문 대소문자, 숫자, 특수문자를 각각 3개 이상 포함하여 8자~16자 내로 입력해주세요.');
             }
 
             if ($authVerified) {
@@ -1111,6 +1116,22 @@ class MemberController extends BaseController
         return $uid;
     }
 
+    /**
+     * 회원가입 비밀번호는 영문, 숫자, 특수문자를 각각 3개 이상 포함해야 한다.
+     */
+    private function isValidSignupPassword(string $password): bool
+    {
+        if (strlen($password) < 8 || strlen($password) > 16 || preg_match('/\s/', $password)) {
+            return false;
+        }
+
+        $letterCount = preg_match_all('/[A-Za-z]/', $password);
+        $numberCount = preg_match_all('/\d/', $password);
+        $specialCount = preg_match_all('/[^A-Za-z0-9\s]/', $password);
+
+        return $letterCount >= 3 && $numberCount >= 3 && $specialCount >= 3;
+    }
+
     public function loginProc()
     {
         $this->response->setContentType('application/json');
@@ -1277,6 +1298,7 @@ class MemberController extends BaseController
                 ->where('member_uid', $memberUid)
                 ->get()
                 ->getRowArray();
+            $oldProfileImage = basename((string) ($profile['profile_image'] ?? ''));
 
             // =========================
             // 2. 파일 업로드 처리 (있을 때만)
@@ -1333,13 +1355,17 @@ class MemberController extends BaseController
             // =========================
             // 6. member fc_step 업데이트
             // =========================
+            $memberUpdate = [
+                'updated_at' => date('Y-m-d H:i:s'),
+            ];
+            if (($member['fc_review_status'] ?? '') !== 'APPROVE') {
+                $memberUpdate['fc_step'] = 2;
+                $memberUpdate['fc_review_status'] = 'WAIT';
+            }
+
             $db->table('my_fc_member')
                 ->where('member_uid', $memberUid)
-                ->update([
-                    'fc_step' => 2,
-                    'fc_review_status' => 'WAIT',
-                    'updated_at' => date('Y-m-d H:i:s')
-                ]);
+                ->update($memberUpdate);
 
             // =========================
             // 7. session sync
@@ -1350,8 +1376,21 @@ class MemberController extends BaseController
 
             $db->transCommit();
 
+            // 새 이미지 저장이 완료된 뒤에만 이전 파일을 정리한다.
+            if ($fileName && $oldProfileImage !== '' && $oldProfileImage !== $fileName) {
+                $oldProfilePath = WRITEPATH . 'uploads/profile/' . $oldProfileImage;
+                if (is_file($oldProfilePath)) {
+                    @unlink($oldProfilePath);
+                }
+            }
+
             return $this->response->setJSON([
                 'status' => 'success',
+                'data' => [
+                    'profile_image_url' => $fileName
+                        ? profile_image_url($fileName)
+                        : profile_image_url($profile['profile_image'] ?? ''),
+                ],
             ]);
         } catch (\Throwable $e) {
 
@@ -1399,10 +1438,6 @@ class MemberController extends BaseController
             $intro = trim((string) $this->request->getPost('intro'));
             $career = trim((string) $this->request->getPost('career'));
 
-            if ($region === '' || $heroLine === '' || $intro === '' || $career === '') {
-                throw new \Exception('활동 정보 필수값을 입력해주세요.');
-            }
-
             // ===========================
             // Activity 저장
             // ===========================
@@ -1411,15 +1446,15 @@ class MemberController extends BaseController
 
                 'member_uid'      => $memberUid,
 
-                'region'          => $region,
+                'region'          => $region !== '' ? $region : null,
 
                 'insurance_types' => $insuranceTypes !== '' ? $insuranceTypes : null,
 
-                'hero_line'       => $heroLine,
+                'hero_line'       => $heroLine !== '' ? $heroLine : null,
 
-                'intro'           => $intro,
+                'intro'           => $intro !== '' ? $intro : null,
 
-                'career'          => $career,
+                'career'          => $career !== '' ? $career : null,
 
                 'updated_at'      => date('Y-m-d H:i:s'),
 
@@ -1494,12 +1529,7 @@ class MemberController extends BaseController
                 $items = [];
             }
 
-            if (empty($items)) {
-                throw new \Exception('이력 및 인증을 최소 1개 이상 입력해주세요.');
-            }
-
             $keepIds = [];
-            $savedItemCount = 0;
 
             // ===========================
             // items 저장
@@ -1595,16 +1625,16 @@ class MemberController extends BaseController
                     }
 
                     if (empty($data['file_path'])) {
-                        throw new \Exception('첨부 파일을 선택해주세요.');
+                        continue;
                     }
                 }
 
                 if ($type === 'link' && empty($data['url'])) {
-                    throw new \Exception('링크 주소를 입력해주세요.');
+                    continue;
                 }
 
                 if ($type === 'text' && empty($data['content'])) {
-                    throw new \Exception('기타 정보를 입력해주세요.');
+                    continue;
                 }
 
                 // ==========================
@@ -1619,7 +1649,6 @@ class MemberController extends BaseController
                         ->update($data);
 
                     $keepIds[] = $itemId;
-                    $savedItemCount++;
                 }
 
                 // ==========================
@@ -1634,28 +1663,27 @@ class MemberController extends BaseController
                         ->insert($data);
 
                     $keepIds[] = $db->insertID();
-                    $savedItemCount++;
                 }
-            }
-
-            if ($savedItemCount < 1) {
-                throw new \Exception('이력 및 인증을 최소 1개 이상 입력해주세요.');
             }
 
             // ===========================
             // 회원 단계 업데이트
             // ===========================
 
+            $memberUpdate = [
+                'updated_at' => date('Y-m-d H:i:s'),
+            ];
+
+            // 승인된 FC가 활동정보를 보완해도 공개 승인 상태를 해제하지 않는다.
+            // 가입 진행 중이거나 미승인인 경우에만 기존 심사 대기 흐름을 적용한다.
+            if (($member['fc_review_status'] ?? '') !== 'APPROVE') {
+                $memberUpdate['fc_step'] = 3;
+                $memberUpdate['fc_review_status'] = 'WAIT';
+            }
+
             $db->table('my_fc_member')
                 ->where('member_uid', $memberUid)
-                ->update([
-
-                    'fc_step'    => 3,
-                    'fc_review_status' => 'WAIT',
-
-                    'updated_at' => date('Y-m-d H:i:s')
-
-                ]);
+                ->update($memberUpdate);
 
             // ===========================
             // Commit
@@ -1921,16 +1949,17 @@ class MemberController extends BaseController
             // Step
             //---------------------------------------------------
 
+            $memberUpdate = [
+                'updated_at' => date('Y-m-d H:i:s'),
+            ];
+            if (($member['fc_review_status'] ?? '') !== 'APPROVE') {
+                $memberUpdate['fc_step'] = 4;
+                $memberUpdate['fc_review_status'] = 'WAIT';
+            }
+
             $db->table('my_fc_member')
-                ->where('member_uid',$memberUid)
-                ->update([
-
-                    'fc_step'=>4,
-                    'fc_review_status'=>'WAIT',
-
-                    'updated_at'=>date('Y-m-d H:i:s')
-
-                ]);
+                ->where('member_uid', $memberUid)
+                ->update($memberUpdate);
 
             $session->set([
                 'fc_step'=>4,
@@ -2055,7 +2084,6 @@ class MemberController extends BaseController
                 'phone' => $phone,
                 'phone_verified' => $phoneChanged ? 'Y' : ($member['phone_verified'] ?? 'N'),
                 'agree_marketing' => $agreeMarketing,
-                'fc_review_status' => 'WAIT',
                 'updated_at' => date('Y-m-d H:i:s')
             ]);
 

@@ -134,22 +134,40 @@ class Home extends BaseController
 
     private function activeProductFcList(): array
     {
-        $rows = $this->fcRows(['product_fc'], 12);
+        $rows = $this->uniqueFcRows($this->fcRows(['product_fc'], 12));
         if (!empty($rows)) {
             return $rows;
         }
 
-        return $this->fcRows(null, 12);
+        return $this->uniqueFcRows($this->fcRows(null, 12));
     }
 
     private function activeLanguageFcList(): array
     {
-        $rows = $this->fcRows(['language_fc'], 12);
+        $rows = $this->uniqueFcRows($this->fcRows(['language_fc'], 12));
         if (!empty($rows)) {
             return $rows;
         }
 
-        return $this->fcRows(null, 12);
+        return $this->uniqueFcRows($this->fcRows(null, 12));
+    }
+
+    /** 같은 FC의 광고 상품이 여러 건이어도 메인에는 한 번만 노출한다. */
+    private function uniqueFcRows(array $rows): array
+    {
+        $uniqueRows = [];
+        $seen = [];
+
+        foreach ($rows as $row) {
+            $memberUid = trim((string) ($row['member_uid'] ?? ''));
+            if ($memberUid === '' || isset($seen[$memberUid])) {
+                continue;
+            }
+            $seen[$memberUid] = true;
+            $uniqueRows[] = $row;
+        }
+
+        return $uniqueRows;
     }
 
     private function fcRows(?array $adTypes, int $limit): array
@@ -247,6 +265,7 @@ class Home extends BaseController
 
         $builder = $db->table('my_fc_counsel_review r')
             ->select('
+                ad.id AS ad_id,
                 r.review_id,
                 r.title,
                 r.body,
@@ -317,20 +336,35 @@ class Home extends BaseController
         $position = $position === 'bottom' ? 'bottom' : 'top';
         $today = date('Y-m-d');
 
-        return $this->db
+        $builder = $this->db
             ->table('ad_master')
             ->select('id, banner_image_url, banner_link_url, start_date, end_date, banner_position')
             ->where('ad_type', 'banner')
             ->where('status', 'approved')
-            ->where('banner_position', $position)
-            ->where('start_date <=', $today)
-            ->where('end_date >=', $today)
+            ->groupStart()
+                ->where('start_date IS NULL', null, false)
+                ->orWhere('start_date <=', $today)
+            ->groupEnd()
+            ->groupStart()
+                ->where('end_date IS NULL', null, false)
+                ->orWhere('end_date >=', $today)
+            ->groupEnd()
             ->where('banner_image_url IS NOT NULL', null, false)
             ->where('banner_image_url !=', '')
             ->orderBy('RAND()', '', false)
-            ->limit(10)
-            ->get()
-            ->getResultArray();
+            ->limit(10);
+
+        if ($position === 'top') {
+            // 배너 위치가 없던 기존 데이터는 메인 중간 배너로 노출한다.
+            $builder->groupStart()
+                ->where('banner_position', 'top')
+                ->orWhere('banner_position IS NULL', null, false)
+                ->groupEnd();
+        } else {
+            $builder->where('banner_position', 'bottom');
+        }
+
+        return $builder->get()->getResultArray();
     }
 
     private function reviewAggregateSql($db): string

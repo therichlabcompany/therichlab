@@ -45,6 +45,8 @@ $profileReadonly = $isEdit || $mobileOkEnabled;
         id="password"
         name="password"
         type="password"
+        minlength="8"
+        maxlength="16"
         autocomplete="new-password"
         placeholder="비밀번호를 입력해주세요."
     />
@@ -57,6 +59,8 @@ $profileReadonly = $isEdit || $mobileOkEnabled;
         id="password_confirm"
         name="password_confirm"
         type="password"
+        minlength="8"
+        maxlength="16"
         autocomplete="new-password"
         placeholder="비밀번호를 다시한번 입력해주세요."
     />

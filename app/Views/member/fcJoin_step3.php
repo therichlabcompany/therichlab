@@ -215,52 +215,28 @@ document.addEventListener('DOMContentLoaded', function () {
     if (!form || !proofBlock) return;
 
     // =========================
-    // validation
+    // 완성된 이력/인증 행만 저장한다. 미완성 행은 중간 저장을 막지 않는다.
     // =========================
-    function validate() {
-
-        if (!region.value.trim()) {
-            alert('활동 지역을 선택해주세요.');
-            return false;
-        }
-
-        if (!history.value.trim()) {
-            alert('한 줄 히어로를 입력해주세요.');
-            return false;
-        }
-
-        if (!intro.value.trim()) {
-            alert('자기소개를 입력해주세요.');
-            return false;
-        }
-
-        if (!career.value.trim()) {
-            alert('경력사항을 입력해주세요.');
-            return false;
-        }
-
-        return true;
-    }
-
-    // =========================
-    // "실제 입력된 row만" 추출
-    // =========================
-    function getValidRows() {
+    function getCompleteRows() {
 
         const allRows = proofBlock.querySelectorAll('[data-proof-row]');
 
         return [...allRows].filter(row => {
+            const type = getRowType(row);
+            const itemId = row.querySelector('input[name="proof_item_id"]')?.value || '';
 
-            const inputs = row.querySelectorAll('input');
+            if (type === 'file') {
+                const title = row.querySelector('input[name="proof_name"]')?.value.trim() || '';
+                const file = row.querySelector('input[name="proof_file"]');
+                return title !== '' && (itemId !== '' || (file?.files?.length ?? 0) > 0);
+            }
+            if (type === 'link') {
+                return (row.querySelector('input[name="proof_link_name"]')?.value.trim() || '') !== ''
+                    && (row.querySelector('input[name="proof_link_url"]')?.value.trim() || '') !== '';
+            }
 
-            return [...inputs].some(input => {
-
-                if (input.type === 'file') {
-                    return input.files && input.files.length > 0;
-                }
-
-                return input.value && input.value.trim() !== '';
-            });
+            return (row.querySelector('input[name="proof_other_name"]')?.value.trim() || '') !== ''
+                && (row.querySelector('input[name="proof_other_text"]')?.value.trim() || '') !== '';
         });
     }
 
@@ -282,8 +258,6 @@ document.addEventListener('DOMContentLoaded', function () {
     form.addEventListener('submit', async function (e) {
         e.preventDefault();
 
-        if (!validate()) return;
-
         const formData = new FormData();
 
             
@@ -299,13 +273,7 @@ document.addEventListener('DOMContentLoaded', function () {
         formData.append('intro', intro.value.trim());
         formData.append('career', career.value.trim());
 
-        // 🔥 핵심: 실제 입력된 row만
-        const rows = getValidRows();
-
-        if (rows.length === 0) {
-            alert('이력 및 인증을 최소 1개 이상 입력해주세요.');
-            return;
-        }
+        const rows = getCompleteRows();
 
         rows.forEach((row, index) => {
 
@@ -324,11 +292,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 const title =
                     row.querySelector('input[name="proof_name"]')?.value.trim() || '';
-
-                if (!title) {
-                    alert('이력명을 입력해주세요.');
-                    throw new Error();
-                }
 
                 formData.append(`items[${index}][title]`, title);
 
@@ -354,14 +317,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 const url =
                     row.querySelector('input[name="proof_link_url"]').value.trim();
 
-                if (!title || !url) {
-
-                    alert('이력명과 링크를 입력해주세요.');
-
-                    throw new Error();
-
-                }
-
                 formData.append(`items[${index}][title]`, title);
                 formData.append(`items[${index}][url]`, url);
 
@@ -374,14 +329,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 const content =
                     row.querySelector('input[name="proof_other_text"]').value.trim();
-
-                if (!title || !content) {
-
-                    alert('이력명과 내용을 입력해주세요.');
-
-                    throw new Error();
-
-                }
 
                 formData.append(`items[${index}][title]`, title);
                 formData.append(`items[${index}][content]`, content);
@@ -413,4 +360,4 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
 });
-</script>      
+</script>

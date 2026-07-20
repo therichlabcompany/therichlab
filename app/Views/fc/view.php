@@ -184,7 +184,7 @@
                             <!-- FILE -->
                             <?php if ($row['type'] === 'file' && !empty($row['file_path'])): ?>
                                 <a
-                                    href="/uploads/profile/<?= esc($row['file_path']) ?>"
+                                    href="<?= esc(base_url('uploads/activity/' . rawurlencode(basename((string) $row['file_path'])))) ?>"
                                     download
                                     class="fc-detail-cert-dl"
                                     aria-label="<?= esc($row['title']) ?> 파일 다운로드">
@@ -249,6 +249,7 @@
                     <?php
                     $chunkSize = 5;
                     $chunks = array_chunk($reviewList, $chunkSize);
+                    $reviewIndex = 0;
                     ?>
 
                     <div class="swiper detail-reviews-swiper">
@@ -273,7 +274,7 @@
                                                 : '';
                                             ?>
 
-                                            <a href="#" class="review-card">
+                                            <a href="#" class="review-card js-fc-review-open" data-review-index="<?= $reviewIndex++ ?>">
 
                                                 <div class="review-card-meta">
                                                     <p class="c-rate">
@@ -340,8 +341,8 @@
                     <?php if (!empty($story['story_image'])): ?>
                         <img src="/uploads/story/main/<?= esc($story['story_image']) ?>" alt="스토리 이미지">
                     <?php elseif (!empty($story['story_video'])): ?>
-                        <video controls style="width:100%;">
-                            <source src="/uploads/story/video/<?= esc($story['story_video']) ?>" type="video/mp4">
+                        <video controls preload="metadata" style="width:100%;">
+                            <source src="/uploads/story/video/<?= esc($story['story_video']) ?>">
                         </video>
                     <?php endif; ?>
                 </div>
@@ -366,15 +367,19 @@
                 <div class="swiper fc-detail-story-swiper js-story-list-swiper">
                     <div class="swiper-wrapper">
 
-                        <?php foreach ($storyImages as $idx => $img): ?>
+                        <?php foreach (array_chunk($storyImages, 9, true) as $imageChunk): ?>
                             <div class="swiper-slide">
-                                <a href="#"
-                                    class="fc-story-trigger"
-                                    data-index="<?= $idx ?>"
-                                    aria-label="활동 이미지 상세 보기 <?= $idx + 1 ?>">
-                                    <img src="/uploads/story/images/<?= esc($img['image_path']) ?>"
-                                        alt="활동 이미지 <?= $idx + 1 ?>">
-                                </a>
+                                <div class="fc-detail-story-grid">
+                                    <?php foreach ($imageChunk as $idx => $img): ?>
+                                        <a href="#"
+                                            class="fc-story-trigger"
+                                            data-index="<?= $idx ?>"
+                                            aria-label="활동 이미지 상세 보기 <?= $idx + 1 ?>">
+                                            <img src="/uploads/story/images/<?= esc($img['image_path']) ?>"
+                                                alt="활동 이미지 <?= $idx + 1 ?>">
+                                        </a>
+                                    <?php endforeach; ?>
+                                </div>
                             </div>
                         <?php endforeach; ?>
 
@@ -392,6 +397,48 @@
         </aside>
     </div>
 </main>
+<?php if (!empty($reviewList)): ?>
+    <div class="c-modal md" id="fcReviewModal" aria-hidden="true">
+        <button type="button" class="c-modal-backdrop" data-fc-review-close aria-label="닫기"></button>
+        <div class="c-modal-panel" role="dialog" aria-modal="true" aria-labelledby="fcReviewModalTitle">
+            <div class="c-modal-head">
+                <h2 class="c-modal-title" id="fcReviewModalTitle">후기 상세</h2>
+                <button type="button" class="c-modal-close" data-fc-review-close aria-label="닫기"></button>
+            </div>
+            <div class="c-modal-body">
+                <div class="story-detail-wrap">
+                    <button type="button" class="control-btn swiper-nav-prev" aria-label="이전 후기"></button>
+                    <div class="swiper fc-review-detail-swiper">
+                        <div class="swiper-wrapper">
+                            <?php foreach ($reviewList as $reviewRow): ?>
+                                <?php
+                                $reviewerName = $reviewRow['reviewer_name'] ?? '익명';
+                                $reviewerMaskedName = mb_substr($reviewerName, 0, 1) . '**';
+                                $reviewDate = !empty($reviewRow['created_at'])
+                                    ? date('Y.m.d', strtotime($reviewRow['created_at']))
+                                    : '';
+                                ?>
+                                <div class="swiper-slide">
+                                    <article class="story-detail-card">
+                                        <h3><?= esc($reviewRow['title'] ?? '') ?></h3>
+                                        <div class="story-detail-meta">
+                                            <p class="c-rate"><span class="c-rate-star">★</span> <?= number_format((float) ($reviewRow['rating'] ?? 0), 1) ?></p>
+                                            <p><?= esc($reviewerMaskedName) ?></p>
+                                            <time><?= esc($reviewDate) ?></time>
+                                        </div>
+                                        <div class="story-detail-body"><p><?= nl2br(esc($reviewRow['body'] ?? '')) ?></p></div>
+                                    </article>
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
+                    <button type="button" class="control-btn swiper-nav-next" aria-label="다음 후기"></button>
+                </div>
+            </div>
+            <div class="c-modal-foot"><button type="button" class="btn btn-line" data-fc-review-close>닫기</button></div>
+        </div>
+    </div>
+<?php endif; ?>
 <?php if (!empty($storyImages)): ?>
 
     <div class="c-modal md" id="storyModal">
@@ -599,30 +646,93 @@
     (function() {
         'use strict';
 
-        if (typeof MyFC === 'undefined' || typeof Swiper === 'undefined') return;
+        const reviewScope = document.querySelector('section.detail-reviews');
+        const reviewList = reviewScope && reviewScope.querySelector('.detail-reviews-swiper');
+        if (!reviewScope || !reviewList || typeof Swiper === 'undefined') return;
 
-        var storyScope = document.querySelector('section.fc-detail-story-images');
-        var storyEl = storyScope && storyScope.querySelector('.js-story-list-swiper');
+        new Swiper(reviewList, {
+            slidesPerView: 1,
+            loop: false,
+            speed: 450,
+            watchOverflow: true,
+            navigation: {
+                nextEl: reviewScope.querySelector('.swiper-nav-next'),
+                prevEl: reviewScope.querySelector('.swiper-nav-prev'),
+            },
+        });
+    })();
 
-        if (storyEl && storyScope) {
-            MyFC.initSwiper(storyEl, storyScope, {
-                speed: 450,
-                slidesPerView: 3,
-                spaceBetween: 8,
-                grabCursor: true,
-                watchOverflow: true,
-                breakpoints: {
-                    0: {
-                        slidesPerView: 2,
-                        spaceBetween: 6
-                    },
-                    641: {
-                        slidesPerView: 3,
-                        spaceBetween: 8
-                    }
-                }
+    (function() {
+        'use strict';
+
+        const storyScope = document.querySelector('section.fc-detail-story-images');
+        const storyElement = storyScope && storyScope.querySelector('.js-story-list-swiper');
+        if (!storyScope || !storyElement || typeof Swiper === 'undefined') return;
+
+        new Swiper(storyElement, {
+            slidesPerView: 1,
+            spaceBetween: 0,
+            speed: 450,
+            watchOverflow: true,
+            navigation: {
+                nextEl: storyScope.querySelector('.swiper-nav-next'),
+                prevEl: storyScope.querySelector('.swiper-nav-prev'),
+            },
+        });
+    })();
+
+    (function() {
+        'use strict';
+
+        const modal = document.getElementById('fcReviewModal');
+        const triggers = document.querySelectorAll('.js-fc-review-open');
+        if (!modal || !triggers.length || typeof Swiper === 'undefined') return;
+
+        const swiperElement = modal.querySelector('.fc-review-detail-swiper');
+        const detailScope = modal.querySelector('.story-detail-wrap');
+        let reviewSwiper = null;
+
+        const initReviewSwiper = function() {
+            if (reviewSwiper) return;
+
+            reviewSwiper = new Swiper(swiperElement, {
+                slidesPerView: 1,
+                loop: false,
+                autoHeight: true,
             });
-        }
+
+            detailScope.querySelector('.swiper-nav-prev').addEventListener('click', function(event) {
+                event.preventDefault();
+                reviewSwiper.slidePrev();
+            });
+            detailScope.querySelector('.swiper-nav-next').addEventListener('click', function(event) {
+                event.preventDefault();
+                reviewSwiper.slideNext();
+            });
+        };
+
+        triggers.forEach(function(trigger) {
+            trigger.addEventListener('click', function(event) {
+                event.preventDefault();
+                const index = Number(this.dataset.reviewIndex || 0);
+                modal.classList.add('is-open');
+                modal.setAttribute('aria-hidden', 'false');
+                document.body.classList.add('modal-open');
+                requestAnimationFrame(function() {
+                    initReviewSwiper();
+                    reviewSwiper.slideTo(index, 0);
+                    reviewSwiper.update();
+                });
+            });
+        });
+
+        modal.querySelectorAll('[data-fc-review-close]').forEach(function(button) {
+            button.addEventListener('click', function() {
+                modal.classList.remove('is-open');
+                modal.setAttribute('aria-hidden', 'true');
+                document.body.classList.remove('modal-open');
+            });
+        });
     })();
 </script>
 
@@ -632,7 +742,7 @@
 
         <?php if (!session()->get('logged_in')): ?>
             alert('로그인 후 이용 가능합니다.');
-            location.href = '/login';
+            location.href = '<?= esc(base_url('member/login')) ?>';
             return;
         <?php endif; ?>
 

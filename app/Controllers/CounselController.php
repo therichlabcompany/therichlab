@@ -53,6 +53,15 @@ class CounselController extends BaseController
             ]);
         }
 
+        if (!$this->isValidReserveDate($reserveDate)) {
+            return $this->response->setJSON([
+                'result' => 'fail',
+                'message' => '상담 요청 일시를 선택해주세요.',
+            ]);
+        }
+
+        $reserveDateTime = $reserveDate . ' 00:00:00';
+
         $forbiddenWord = $this->forbiddenWordViolation($content, ['COUNSEL']);
         if ($forbiddenWord !== null) {
             return $this->response->setJSON([
@@ -126,7 +135,7 @@ class CounselController extends BaseController
 
                 'phone'            => $myMember['phone'],
 
-                'reserve_datetime' => $reserveDate ?: null,
+                'reserve_datetime' => $reserveDateTime,
 
                 'content'          => $content,
 
@@ -261,6 +270,17 @@ class CounselController extends BaseController
 
         }
 
+    }
+
+    private function isValidReserveDate(string $reserveDate): bool
+    {
+        if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $reserveDate)) {
+            return false;
+        }
+
+        $timestamp = strtotime($reserveDate);
+
+        return $timestamp !== false && date('Y-m-d', $timestamp) === $reserveDate;
     }
 
 }

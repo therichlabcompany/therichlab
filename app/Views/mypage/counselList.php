@@ -251,7 +251,7 @@ $statusMap = [
 
                     <div class="empty-consult">
 
-                        <img src="<?= SITE_IMG_URL ?>images/icon/empty.svg" alt="">
+                        <span class="empty-consult-icon" aria-hidden="true"></span>
 
                         <h3>상담 내역이 없습니다.</h3>
 
@@ -291,10 +291,14 @@ $statusMap = [
         padding: 40px 20px;
     }
 
-    .empty-consult img {
+    .empty-consult-icon {
+        display: block;
         width: 72px;
+        height: 72px;
         margin-bottom: 20px;
-        opacity: .5;
+        border-radius: 50%;
+        background: #eef2f7 url('<?= SITE_IMG_URL ?>images/ic-success-circle.svg') no-repeat center / 34px 34px;
+        opacity: .6;
     }
 
     .empty-consult h3 {

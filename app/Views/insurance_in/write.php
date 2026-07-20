@@ -6,11 +6,11 @@
         <?php if (session('error')): ?><p class="insurance-in-alert warn"><?= esc(session('error')) ?></p><?php endif; ?>
         <form class="form-box" method="post" enctype="multipart/form-data" action="<?= $editing ? base_url('insurance-in/' . (int) $question['question_id'] . '/edit') : base_url('insurance-in/write') ?>">
             <?= csrf_field() ?>
-            <div class="form-field"><label class="form-label" for="insurance-in-title">제목 (10자 이상)</label>
-                <input class="form-input" id="insurance-in-title" name="title" value="<?= esc(old('title', $question['title'] ?? '')) ?>" minlength="10" maxlength="255" required placeholder="질문 제목을 입력해 주세요.">
+            <div class="form-field"><label class="form-label" for="insurance-in-title">제목 (10자 이상 50자 이하)</label>
+                <input class="form-input" id="insurance-in-title" name="title" value="<?= esc(old('title', $question['title'] ?? '')) ?>" minlength="10" maxlength="50" required placeholder="질문 제목을 입력해 주세요.">
             </div>
-            <div class="form-field"><label class="form-label" for="insurance-in-body">내용 (100자 이상)</label>
-                <textarea class="form-textarea" id="insurance-in-body" name="body" minlength="100" required placeholder="궁금한 내용을 자세히 입력해 주세요."><?= esc(old('body', $question['body'] ?? '')) ?></textarea>
+            <div class="form-field"><label class="form-label" for="insurance-in-body">내용 (10자 이상)</label>
+                <textarea class="form-textarea" id="insurance-in-body" name="body" minlength="10" required placeholder="궁금한 내용을 자세히 입력해 주세요."><?= esc(old('body', $question['body'] ?? '')) ?></textarea>
             </div>
             <div class="form-field"><label class="form-label" for="insurance-in-file">첨부파일</label>
                 <div class="file-upload" data-insurance-upload>

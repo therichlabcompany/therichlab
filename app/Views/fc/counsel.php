@@ -64,7 +64,8 @@ if (!empty($profile['ga'])) {
 
             <div class="consult-date">
                 <label class="form-label" for="consult-date">상담 요청 일시 <b>*</b></label>
-                <input class="form-input" type="text" id="consult-date" name="reserve_datetime" autocomplete="off" />
+                <input class="form-input" type="text" id="consult-date" placeholder="상담 요청 일시를 선택해주세요." autocomplete="off" readonly required />
+                <input type="hidden" id="consult-date-value" name="reserve_datetime" value="">
                 <div class="consult-date-picker" id="consult-date-picker" hidden>
                     <div class="consult-date-picker-head">
                         <button type="button" class="consult-date-picker-nav prev" data-date-nav="prev" aria-label="이전 달"></button>
@@ -276,6 +277,14 @@ if (!empty($profile['ga'])) {
 
         e.preventDefault();
 
+        const reserveDateInput = document.getElementById('consult-date');
+        const reserveDateValue = document.getElementById('consult-date-value');
+        if (!reserveDateValue.value) {
+            alert('상담 요청 일시를 선택해주세요.');
+            reserveDateInput.focus();
+            return;
+        }
+
         const btn = this.querySelector('[type=submit]');
 
         btn.disabled = true;
@@ -321,6 +330,10 @@ if (!empty($profile['ga'])) {
 
         });
 
+    });
+
+    document.getElementById('consult-date').addEventListener('change', function () {
+        document.getElementById('consult-date-value').value = this.dataset.dateValue || '';
     });
 
     // ======================================

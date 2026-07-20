@@ -53,6 +53,7 @@ endforeach;
 
 
 ?>
+<p class="form-text">모든 항목은 선택 입력입니다. 작성 중인 내용은 중간 저장할 수 있습니다.</p>
 <div class="form-field">
     <label class="form-label" for="fc-region-value">본인 활동 지역</label>
     <button type="button" class="directory-select" data-popup-target="#popup-fc-region" data-popup-sync="#fc-region-value">
@@ -213,7 +214,7 @@ foreach ($activityItems as $item) {
                                 <div class="proof-preview">
 
                                     <img
-                                        src="/uploads/profile/<?= esc($row['file_path']) ?>"
+                                        src="<?= esc(base_url('uploads/activity/' . rawurlencode(basename((string) $row['file_path'])))) ?>"
                                         style="max-width:180px">
 
                                 </div>

@@ -38,9 +38,16 @@ class AdMasterModel extends Model
         'language_code',
     ];
 
-    public function getAdListByMemberPaging($memberId, $page, $perPage)
+    public function getAdListByMemberPaging($memberId, $page, $perPage, $legacyMemberId = null)
     {
-        $builder = $this->where('fc_member_id', $memberId);
+        $builder = $this->groupStart()
+            ->where('fc_member_id', (string) $memberId);
+
+        if ($legacyMemberId !== null && $legacyMemberId !== '') {
+            $builder->orWhere('fc_member_id', (string) $legacyMemberId);
+        }
+
+        $builder->groupEnd();
 
         $total = $builder->countAllResults(false);
 

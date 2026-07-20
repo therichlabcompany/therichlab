@@ -3,10 +3,19 @@
 
 <div class="fc-profile-thumb">
     <button type="button" id="profile-btn" aria-label="프로필 이미지 등록">
-        <img id="profile-preview" <?= $profileImage !== '' ? 'src="' . esc($profileImage) . '"' : '' ?> class="<?= $profileImage === '' ? 'is-empty' : '' ?>" alt="" onerror="this.removeAttribute('src'); this.classList.add('is-empty');" />
+        <?php if ($profileImage !== ''): ?>
+            <img id="profile-preview" src="<?= esc($profileImage) ?>" alt="" onerror="this.replaceWith(Object.assign(document.createElement('span'), { id: 'profile-preview', className: 'profile-image-placeholder' }));" />
+        <?php else: ?>
+            <span id="profile-preview" class="profile-image-placeholder" aria-hidden="true"></span>
+        <?php endif; ?>
         <input type="file" id="profile-file" name="profile_image" accept="image/*" hidden />
     </button>
 </div>
+<?php if ($profileImage !== ''): ?>
+    <div class="profile-image-actions">
+        <button type="button" id="profile-remove-btn" class="btn btn-line">사진 삭제</button>
+    </div>
+<?php endif; ?>
 
 <div class="form-field">
     <label class="form-label" for="fc-company">소속 원수사</label>

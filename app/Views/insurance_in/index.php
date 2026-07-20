@@ -19,7 +19,7 @@
                     <a href="<?= base_url('insurance-in') . '?sort=' . $key . '&q=' . rawurlencode($keyword) ?>" aria-current="<?= $sort === $key ? 'page' : 'false' ?>"><?= $label ?></a>
                 <?php endforeach; ?>
             </div>
-            <a href="<?= base_url('insurance-in/write') ?>" class="btn btn-line">질문 등록</a>
+            <a href="<?= base_url('insurance-in/write') ?>" class="btn btn-line" id="insurance-in-write">질문 등록</a>
         </div>
         <ul class="insurance-in-list">
             <?php if (!$questions): ?><li class="insurance-in-empty">등록된 질문이 없습니다.</li><?php endif; ?>
@@ -35,8 +35,23 @@
                 </a></li>
             <?php endforeach; ?>
         </ul>
-        <?php if ($total_pages > 1): ?><nav class="c-paging" aria-label="페이지"><ul>
-            <?php for ($i = 1; $i <= $total_pages; $i++): ?><li><a href="<?= base_url('insurance-in') . '?page=' . $i . '&sort=' . $sort . '&q=' . rawurlencode($keyword) ?>"<?= $i === $page ? ' aria-current="page"' : '' ?>><?= $i ?></a></li><?php endfor; ?>
-        </ul></nav><?php endif; ?>
+        <?php if ($total_pages > 1): ?>
+            <?php $pageUrl = static fn (int $number): string => base_url('insurance-in') . '?page=' . $number . '&sort=' . rawurlencode($sort) . '&q=' . rawurlencode($keyword); ?>
+            <nav class="c-paging" aria-label="페이지"><ul>
+                <li><?= $page > 1 ? '<a href="' . esc($pageUrl($page - 1)) . '" rel="prev"><span class="visually-hidden">이전 페이지</span></a>' : '<span class="disabled"><span class="visually-hidden">이전 페이지</span></span>' ?></li>
+                <?php for ($i = 1; $i <= $total_pages; $i++): ?><li><a href="<?= esc($pageUrl($i)) ?>"<?= $i === $page ? ' aria-current="page"' : '' ?>><?= $i ?></a></li><?php endfor; ?>
+                <li><?= $page < $total_pages ? '<a href="' . esc($pageUrl($page + 1)) . '" rel="next"><span class="visually-hidden">다음 페이지</span></a>' : '<span class="disabled"><span class="visually-hidden">다음 페이지</span></span>' ?></li>
+            </ul>
+            <?php if ($page < $total_pages): ?><div><a href="<?= esc($pageUrl($page + 1)) ?>">다음 질문 더보기</a></div><?php endif; ?>
+            </nav>
+        <?php endif; ?>
     </div>
 </main>
+<?php if (session('member_type') === 'FC'): ?>
+<script>
+document.getElementById('insurance-in-write')?.addEventListener('click', function (event) {
+    event.preventDefault();
+    alert('개인회원만 글작성이 가능합니다.');
+});
+</script>
+<?php endif; ?>

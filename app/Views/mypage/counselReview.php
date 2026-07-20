@@ -97,8 +97,8 @@ if (!empty($counsel['region'])) {
             </div>
             <div class="form-field">
                 <label class="form-label" for="compose-title">제목 <b>*</b></label>
-                <p class="form-text">한줄로 요약해 주세요.</p>
-                <input class="form-input" id="compose-title" name="title" type="text" placeholder="예: 꼼꼼한 상담으로 신뢰가 갔어요" />
+                <p class="form-text">팝업에 최대 2줄로 표시됩니다. (2~40자)</p>
+                <input class="form-input" id="compose-title" name="title" type="text" maxlength="40" placeholder="예: 꼼꼼한 상담으로 신뢰가 갔어요" />
             </div>
 
             <div class="form-field">
@@ -146,6 +146,12 @@ document.getElementById('reviewForm').addEventListener('submit', function (e) {
 
     if (title.value.trim().length < 2) {
         alert('제목은 2자 이상 입력해주세요.');
+        title.focus();
+        return;
+    }
+
+    if (title.value.trim().length > 40) {
+        alert('제목은 40자 이하로 입력해주세요.');
         title.focus();
         return;
     }

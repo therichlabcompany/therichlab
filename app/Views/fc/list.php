@@ -68,6 +68,15 @@ if (empty($insuranceText)) $insuranceText = "전체";
 
                     <?php foreach ($list as $row): ?>
 
+                        <?php
+                        $companyItems = array_filter(array_map('trim', [
+                            (string) ($row['company'] ?? ''),
+                            (string) ($row['company_sub'] ?? ''),
+                            (string) ($row['ga'] ?? ''),
+                        ]));
+                        $companyItems = array_values(array_unique($companyItems));
+                        ?>
+
                         <article class="card">
                             <div class="card-body">
                                 <a class="card-link" href="/fc/view/?uid=<?= esc($row['member_uid']) ?>">
@@ -99,7 +108,7 @@ if (empty($insuranceText)) $insuranceText = "전체";
 
                                             <!-- company + region -->
                                             <p class="c-dot-line">
-                                                <span><?= esc($row['company']) ?></span>
+                                                <span><?= esc($companyItems ? implode(' · ', array_slice($companyItems, 0, 2)) : '-') ?></span>
 
                                                 <span class="location">
                                                     <?php
@@ -113,15 +122,11 @@ if (empty($insuranceText)) $insuranceText = "전체";
                                             <!-- tags -->
                                             <div class="list-tags">
                                                 <?php
-                                                $items = array_slice(
-                                                    explode(',', $row['insurance_types'] ?? ''),
-                                                    0,
-                                                    4
-                                                );
+                                                $items = array_slice(array_values(array_unique(array_filter(array_map('trim', explode(',', $row['insurance_types'] ?? ''))))), 0, 4);
                                                 ?>
 
                                                 <?php foreach ($items as $item): ?>
-                                                    <span><?= fc_insurance_label(trim($item)) ?></span>
+                                                    <span><?= fc_insurance_label($item) ?></span>
                                                 <?php endforeach; ?>
                                             </div>
 

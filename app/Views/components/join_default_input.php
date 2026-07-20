@@ -35,6 +35,10 @@
             id="password"
             name="password"
             type="password"
+            minlength="8"
+            maxlength="16"
+            value=""
+            autocomplete="new-password"
             placeholder="비밀번호를 입력해주세요."
         />
 
@@ -62,8 +66,13 @@
         id="password-confirm"
         name="password_confirm"
         type="password"
+        minlength="8"
+        maxlength="16"
+        value=""
+        autocomplete="new-password"
         placeholder="비밀번호를 다시한번 입력해주세요."
     />
+    <p class="form-text">영문 대소문자, 숫자, 특수문자를 각각 3개 이상 포함해 8자~16자 내로 입력해주세요.</p>
 </div>
 <?php endif; ?>
 

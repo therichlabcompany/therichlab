@@ -104,11 +104,18 @@ $mainFcCompanies = static function (array $row): string {
         (string) ($row['company_sub'] ?? ''),
         (string) ($row['ga'] ?? ''),
     ]));
-    return $items ? implode(' · ', array_slice(array_unique($items), 0, 2)) : '-';
+    $uniqueItems = [];
+    foreach ($items as $item) {
+        if (!in_array($item, $uniqueItems, true)) {
+            $uniqueItems[] = $item;
+        }
+    }
+    return $uniqueItems ? implode(' · ', array_slice($uniqueItems, 0, 2)) : '-';
 };
 
 $mainFcInsuranceTags = static function (array $row): array {
     $items = array_filter(array_map('trim', explode(',', (string) ($row['insurance_types'] ?? ''))));
+    $items = array_values(array_unique($items));
     return array_map(static fn ($item) => fc_insurance_label($item), array_slice($items, 0, 6));
 };
 
@@ -166,7 +173,7 @@ $mainChunks = static function (array $rows, int $size): array {
             <div class="section-head">
                 <h3 class="section-title">MyFC가 엄선한 보험설계사 추천 <span class="ad-mark" aria-hidden="true">AD</span></h3>
                 <div class="section-head-right">
-                    <a href="#" class="section-more">전체보기</a>
+                    <a href="<?= base_url('fc/list') ?>" class="section-more">전체보기</a>
                     <div class="control-box">
                         <button type="button" class="control-btn swiper-nav-prev" aria-label="이전"></button>
                         <button type="button" class="control-btn swiper-nav-next" aria-label="다음"></button>
@@ -263,7 +270,7 @@ $mainChunks = static function (array $rows, int $size): array {
                 <div class="section-head">
                     <h3 class="section-title">내 상황에 맞는 보험설계사 추천 <span class="ad-mark" aria-hidden="true">AD</span></h3>
                     <div class="section-head-right">
-                        <a href="#" class="section-more">전체보기</a>
+                        <a href="<?= base_url('fc/list') ?>" class="section-more">전체보기</a>
                         <div class="control-box">
                             <button type="button" class="control-btn swiper-nav-prev" aria-label="이전"></button>
                             <button type="button" class="control-btn swiper-nav-next" aria-label="다음"></button>
@@ -325,7 +332,7 @@ $mainChunks = static function (array $rows, int $size): array {
                         <span class="review-head-spacer"></span>
                         <h3 class="section-title">믿고 선택한 고객들의 생생한 후기 <span class="ad-mark" aria-hidden="true">AD</span></h3>
                         <div class="section-head-right">
-                            <a href="#" class="section-more">전체보기</a>
+                            <a href="#reviewSwiper" class="section-more">전체보기</a>
                             <div class="control-box">
                                 <button type="button" class="control-btn swiper-nav-prev" aria-label="이전"></button>
                                 <button type="button" class="control-btn swiper-nav-next" aria-label="다음"></button>
@@ -337,9 +344,12 @@ $mainChunks = static function (array $rows, int $size): array {
 
                 <div id="reviewSwiper" class="swiper review-swiper">
                     <div class="swiper-wrapper review-track">
+                        <?php $mainReviewIndex = 0; ?>
                         <?php foreach ($reviewList as $review): ?>
                             <div class="swiper-slide">
-                                <a href="#" class="review-card" data-review-id="<?= (int) ($review['review_id'] ?? 0) ?>">
+                                <a href="#" class="review-card js-main-review-open"
+                                    data-review-index="<?= $mainReviewIndex++ ?>"
+                                    <?= !empty($review['ad_id']) ? 'data-ad-click-url="' . esc(base_url('ad/click/' . (int) $review['ad_id'])) . '"' : '' ?>>
                                     <p class="review-author"><?= esc($mainMaskName($review['reviewer_name'] ?? '')) ?></p>
                                     <div class="review-card-meta">
                                         <p class="c-rate"><span class="c-rate-star">★</span> <?= number_format((float) ($review['rating'] ?? 0), 1) ?></p>
@@ -431,7 +441,7 @@ $mainChunks = static function (array $rows, int $size): array {
                                 <?php if (!empty($option['icon'])): ?>
                                     <img class="language-filter-flag <?= $option['icon'] === 'ic-flag-jp.png' ? 'language-filter-flag--ring' : '' ?>" src="<?= SITE_IMG_URL ?>images/<?= esc($option['icon']) ?>" alt="" />
                                 <?php endif; ?>
-                                <?= esc(str_replace('어', '', (string) $option['label'])) ?>
+                                <?= esc((string) $option['label']) ?>
                             </button>
                         <?php endforeach; ?>
                     </div>
@@ -516,6 +526,37 @@ $mainChunks = static function (array $rows, int $size): array {
         <?php endif; ?>
     </div>
 </main>
+<?php if (!empty($reviewList)): ?>
+    <div class="c-modal md" id="mainReviewModal" aria-hidden="true">
+        <button type="button" class="c-modal-backdrop" data-main-review-close aria-label="닫기"></button>
+        <div class="c-modal-panel" role="dialog" aria-modal="true" aria-labelledby="mainReviewModalTitle">
+            <div class="c-modal-head">
+                <h2 class="c-modal-title" id="mainReviewModalTitle">후기 상세</h2>
+                <button type="button" class="c-modal-close" data-main-review-close aria-label="닫기"></button>
+            </div>
+            <div class="c-modal-body">
+                <div class="story-detail-wrap">
+                    <button type="button" class="control-btn swiper-nav-prev" aria-label="이전 후기"></button>
+                    <div class="swiper main-review-detail-swiper"><div class="swiper-wrapper">
+                        <?php foreach ($reviewList as $review): ?>
+                            <div class="swiper-slide"><article class="story-detail-card">
+                                <h3><?= esc($review['title'] ?? '') ?></h3>
+                                <div class="story-detail-meta">
+                                    <p class="c-rate"><span class="c-rate-star">★</span> <?= number_format((float) ($review['rating'] ?? 0), 1) ?></p>
+                                    <p><?= esc($mainMaskName($review['reviewer_name'] ?? '')) ?></p>
+                                    <time><?= !empty($review['created_at']) ? esc(date('Y.m.d', strtotime($review['created_at']))) : '-' ?></time>
+                                </div>
+                                <div class="story-detail-body"><p><?= nl2br(esc($review['body'] ?? '')) ?></p></div>
+                            </article></div>
+                        <?php endforeach; ?>
+                    </div></div>
+                    <button type="button" class="control-btn swiper-nav-next" aria-label="다음 후기"></button>
+                </div>
+            </div>
+            <div class="c-modal-foot"><button type="button" class="btn btn-line" data-main-review-close>닫기</button></div>
+        </div>
+    </div>
+<?php endif; ?>
 <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
 <style>
     .main-filter-empty[hidden] {
@@ -632,7 +673,7 @@ $mainChunks = static function (array $rows, int $size): array {
             var active = group.querySelector('[data-toggle-item].is-active') || items[0];
             var initialized = false;
             if (active) {
-                applyMainFilter(itemSelector, active.getAttribute('data-value') || 'all', emptySelector, swiperSelector, false);
+                applyMainFilter(itemSelector, active.getAttribute('data-value') || 'all', emptySelector, swiperSelector, true);
                 initialized = true;
             }
 
@@ -649,13 +690,6 @@ $mainChunks = static function (array $rows, int $size): array {
                 btn.classList.add('is-active');
             });
 
-            if (initialized) {
-                var emptyEl = emptySelector ? document.querySelector(emptySelector) : null;
-                if (emptyEl) {
-                    emptyEl.hidden = true;
-                    emptyEl.setAttribute('aria-hidden', 'true');
-                }
-            }
         }
 
         bindMainFilter('filter-location', '#fcSwiper .swiper-slide[data-filter-values]', '.main-filter-empty[data-filter-empty="filter-location"]', '#fcSwiper');
@@ -843,6 +877,42 @@ $mainChunks = static function (array $rows, int $size): array {
                     swiper.slideNext();
                 });
             }
+        })();
+
+        (function initMainReviewModal() {
+            var modal = document.getElementById('mainReviewModal');
+            var triggers = document.querySelectorAll('.js-main-review-open');
+            if (!modal || !triggers.length) return;
+
+            var swiper = null;
+            var scope = modal.querySelector('.story-detail-wrap');
+            var element = modal.querySelector('.main-review-detail-swiper');
+            triggers.forEach(function(trigger) {
+                trigger.addEventListener('click', function(event) {
+                    event.preventDefault();
+                    var adClickUrl = this.getAttribute('data-ad-click-url');
+                    if (adClickUrl && window.fetch) {
+                        window.fetch(adClickUrl, { credentials: 'same-origin', redirect: 'manual' }).catch(function() {});
+                    }
+                    modal.classList.add('is-open');
+                    modal.setAttribute('aria-hidden', 'false');
+                    document.body.classList.add('modal-open');
+                    if (!swiper) {
+                        swiper = MyFC.initSwiper(element, scope, { slidesPerView: 1, loop: false, autoHeight: true });
+                    }
+                    if (swiper) {
+                        swiper.slideTo(Number(this.getAttribute('data-review-index') || 0), 0);
+                        swiper.update();
+                    }
+                });
+            });
+            modal.querySelectorAll('[data-main-review-close]').forEach(function(button) {
+                button.addEventListener('click', function() {
+                    modal.classList.remove('is-open');
+                    modal.setAttribute('aria-hidden', 'true');
+                    document.body.classList.remove('modal-open');
+                });
+            });
         })();
     })();
 </script>

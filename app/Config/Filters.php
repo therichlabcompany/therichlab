@@ -116,6 +116,8 @@ class Filters extends BaseFilters
                 'mypage/withdrawal',
                 'mypage/withdrawalLast',
                 'mypage/withdrawAjax',
+                'mypage/updateProfileImage',
+                'mypage/removeProfileImage',
             ],
         ],
         'memberUser:USER' => [
@@ -139,7 +141,6 @@ class Filters extends BaseFilters
             'before' => [
                 'mypage/fcinfo',
                 'mypage/fcprofile',
-                'mypage/updateProfileImage',
                 'mypage/fcactivity',
                 'mypage/fcstory',
                 'mypage/fcreviewed',

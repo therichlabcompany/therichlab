@@ -75,6 +75,16 @@ function digitsOnly(value) {
     return (value || '').replace(/[^0-9]/g, '');
 }
 
+function isValidSignupPassword(value) {
+    const password = String(value || '');
+    const letterCount = (password.match(/[A-Za-z]/g) || []).length;
+    const numberCount = (password.match(/\d/g) || []).length;
+    const specialCount = (password.match(/[^A-Za-z0-9\s]/g) || []).length;
+
+    return password.length >= 8 && password.length <= 16 && !/\s/.test(password)
+        && letterCount >= 3 && numberCount >= 3 && specialCount >= 3;
+}
+
 function setPhoneVerified(verified) {
     const phoneVerifiedInput = document.getElementById('phone_verified');
     if (phoneVerifiedInput) {
@@ -383,6 +393,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
             if (password !== passwordConfirm) {
                 alert('비밀번호가 일치하지 않습니다.');
+                return;
+            }
+
+            if (!isValidSignupPassword(password)) {
+                alert('비밀번호는 영문 대소문자, 숫자, 특수문자를 각각 3개 이상 포함하여 8자~16자 내로 입력해주세요.');
                 return;
             }
 

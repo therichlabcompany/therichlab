@@ -50,7 +50,8 @@ document.addEventListener('DOMContentLoaded', () => {
     
     const fileInput = document.getElementById('profile-file');
     const btn = document.getElementById('profile-btn');
-    const preview = document.getElementById('profile-preview');
+    let preview = document.getElementById('profile-preview');
+    const removeBtn = document.getElementById('profile-remove-btn');
 
 
     let  selectedFile = null;
@@ -171,12 +172,41 @@ document.addEventListener('DOMContentLoaded', () => {
         const reader = new FileReader();
 
         reader.onload = (e) => {
+            if (preview.tagName !== 'IMG') {
+                const image = document.createElement('img');
+                image.id = 'profile-preview';
+                image.alt = '';
+                preview.replaceWith(image);
+                preview = image;
+            }
             preview.src = e.target.result;
-            preview.classList.remove('is-empty');
         };
 
         reader.readAsDataURL(file);
     });
+
+    if (removeBtn) {
+        removeBtn.addEventListener('click', async () => {
+            if (!confirm('프로필 사진을 삭제하시겠습니까?')) return;
+
+            const response = await fetch('/mypage/removeProfileImage', { method: 'POST' });
+            const result = await response.json();
+            if (result.status !== 'success') {
+                alert(result.message || '프로필 사진을 삭제하지 못했습니다.');
+                return;
+            }
+
+            selectedFile = null;
+            fileInput.value = '';
+            const placeholder = document.createElement('span');
+            placeholder.id = 'profile-preview';
+            placeholder.className = 'profile-image-placeholder';
+            placeholder.setAttribute('aria-hidden', 'true');
+            preview.replaceWith(placeholder);
+            preview = placeholder;
+            removeBtn.remove();
+        });
+    }
 
 });
 

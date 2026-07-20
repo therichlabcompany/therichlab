@@ -17,7 +17,12 @@
                         </svg>
                     </span>
                 </button>
-                마지막 업데이트 <time datetime="2025-10-01T15:00">25.10.01 15:00</time>
+                마지막 업데이트
+                <?php if (!empty($lastUpdatedAt)): ?>
+                    <time datetime="<?= esc(date('c', strtotime($lastUpdatedAt))) ?>"><?= esc(date('y.m.d H:i', strtotime($lastUpdatedAt))) ?></time>
+                <?php else: ?>
+                    <time>-</time>
+                <?php endif; ?>
             </p>
             <div class="ad-mgmt-head-actions">
                 <a href="/mypage/adlistRegionFc" class="btn btn-sm btn-primary">광고 신청하기</a>

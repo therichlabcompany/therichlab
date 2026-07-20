@@ -23,11 +23,19 @@
         <form class="form-box" method="post" id="fc-member-basic-form"  enctype="multipart/form-data">
             <div class="fc-profile-thumb">
                 <button type="button" aria-label="프로필 이미지 등록" id="btnProfileUpload">
-                    <img <?= $profileImage !== '' ? 'src="' . esc($profileImage) . '"' : '' ?> class="<?= $profileImage === '' ? 'is-empty' : '' ?>" alt="프로필 이미지" onerror="this.removeAttribute('src'); this.classList.add('is-empty');">
+                    <?php if ($profileImage !== ''): ?>
+                        <img id="profilePreview" src="<?= esc($profileImage) ?>" alt="프로필 이미지" onerror="this.replaceWith(Object.assign(document.createElement('span'), { id: 'profilePreview', className: 'profile-image-placeholder' }));">
+                    <?php else: ?>
+                        <span id="profilePreview" class="profile-image-placeholder" aria-hidden="true"></span>
+                    <?php endif; ?>
                 </button>
-
                 <input type="file" name="profile_image" id="profile_image" hidden />
             </div>
+            <?php if ($profileImage !== ''): ?>
+                <div class="profile-image-actions">
+                    <button type="button" id="btnProfileRemove" class="btn btn-line">사진 삭제</button>
+                </div>
+            <?php endif; ?>
 
             <?php include_once (COMPONENT_PATH . '/join_default_input.php');  ?>
 
@@ -84,14 +92,43 @@ document.getElementById('profile_image').addEventListener('change', async functi
 
     if (result.status === 'success') {
 
-        const profilePreview = document.querySelector('.fc-profile-thumb img');
+        let profilePreview = document.getElementById('profilePreview');
+        if (profilePreview.tagName !== 'IMG') {
+            const image = document.createElement('img');
+            image.id = 'profilePreview';
+            image.alt = '프로필 이미지';
+            profilePreview.replaceWith(image);
+            profilePreview = image;
+        }
         profilePreview.src = result.data.url;
-        profilePreview.classList.remove('is-empty');
 
     } else {
         alert(result.message);
     }
 });
+
+const profileRemoveButton = document.getElementById('btnProfileRemove');
+if (profileRemoveButton) {
+    profileRemoveButton.addEventListener('click', async function () {
+        if (!confirm('프로필 사진을 삭제하시겠습니까?')) return;
+
+        const res = await fetch('/mypage/removeProfileImage', { method: 'POST' });
+        const result = await res.json();
+        if (result.status !== 'success') {
+            alert(result.message || '프로필 사진을 삭제하지 못했습니다.');
+            return;
+        }
+
+        const profilePreview = document.getElementById('profilePreview');
+        const placeholder = document.createElement('span');
+        placeholder.id = 'profilePreview';
+        placeholder.className = 'profile-image-placeholder';
+        placeholder.setAttribute('aria-hidden', 'true');
+        profilePreview.replaceWith(placeholder);
+        document.getElementById('profile_image').value = '';
+        profileRemoveButton.remove();
+    });
+}
 
 document.getElementById('fc-member-basic-form').addEventListener('submit', async (e) => {
 
