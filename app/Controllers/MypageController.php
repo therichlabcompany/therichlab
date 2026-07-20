@@ -573,6 +573,7 @@ class MypageController extends BaseController
         $data['mobileOkJsUrl'] = $mobileOk->requestJsUrl();
         $data['mobileOkRequestUrl'] = base_url('member/phone-auth/request');
         $data['mobileOkResultUrl'] = $mobileOk->returnUrl();
+        $data['phoneAuthApplyUrl'] = base_url('mypage/apply-phone-auth-info');
         $data['mode'] = 'edit';
 
         return $this->renderView('mypage/fcinfo', $data);
