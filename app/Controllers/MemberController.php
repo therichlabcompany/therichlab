@@ -759,9 +759,44 @@ class MemberController extends BaseController
         $db = \Config\Database::connect();
         $request = $this->request;
 
-        $payload = $this->request->getJSON(true);
-        if (!$payload) {
-            $payload = $this->request->getPost();
+        $payload = [];
+        $contentType = strtolower($request->getHeaderLine('Content-Type'));
+
+        if (str_contains($contentType, 'application/json')) {
+            try {
+                $payload = $request->getJSON(true) ?? [];
+            } catch (\Throwable $e) {
+                $this->writeMobileOkLog($this->formatMobileOkFailureLog('result', 'invalid-json', [
+                    'message' => $e->getMessage(),
+                    'contentType' => $contentType,
+                    'requestMethod' => $request->getMethod(),
+                    'requestUri' => (string) current_url(true),
+                ]));
+            }
+        } else {
+            $payload = $request->getPost();
+        }
+
+        if (isset($payload['data']) && is_string($payload['data'])) {
+            try {
+                $tokenPayload = json_decode(urldecode($payload['data']), true, 512, JSON_THROW_ON_ERROR);
+                $payload = $mobileOk->resolveResultToken((string) ($tokenPayload['encryptMOKKeyToken'] ?? ''));
+            } catch (\Throwable $e) {
+                $this->writeMobileOkLog($this->formatMobileOkFailureLog('result', 'token-processing-failed', [
+                    'message' => $e->getMessage(),
+                    'exceptionClass' => get_class($e),
+                    'mode' => $mobileOk->mode(),
+                    'serviceId' => $mobileOk->serviceId(),
+                    'contentType' => $contentType,
+                    'requestMethod' => $request->getMethod(),
+                    'requestUri' => (string) current_url(true),
+                ]));
+
+                return $this->response->setStatusCode(500)->setJSON([
+                    'status' => 'error',
+                    'message' => '휴대폰 본인인증 결과를 처리하지 못했습니다.',
+                ]);
+            }
         }
 
         if (!$payload) {

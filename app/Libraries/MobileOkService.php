@@ -280,4 +280,51 @@ class MobileOkService
             'returnUrl' => $resultReturnUrl,
         ];
     }
+
+    /**
+     * MobileOK가 returnUrl로 전달한 MOKToken을 결과 API로 조회하고 복호화한다.
+     *
+     * @return array<string, mixed>
+     */
+    public function resolveResultToken(string $encryptMOKKeyToken): array
+    {
+        if ($encryptMOKKeyToken === '') {
+            throw new RuntimeException('MobileOK 결과 토큰이 없습니다.');
+        }
+
+        $response = service('curlrequest')->post($this->resultRequestUrl(), [
+            'headers' => ['Content-Type' => 'application/json'],
+            'json' => ['encryptMOKKeyToken' => $encryptMOKKeyToken],
+            'http_errors' => false,
+        ]);
+
+        if ($response->getStatusCode() < 200 || $response->getStatusCode() >= 300) {
+            throw new RuntimeException('MobileOK 결과 조회에 실패했습니다. HTTP ' . $response->getStatusCode());
+        }
+
+        try {
+            $responseData = json_decode($response->getBody(), true, 512, JSON_THROW_ON_ERROR);
+        } catch (\JsonException $e) {
+            throw new RuntimeException('MobileOK 결과 조회 응답 형식이 올바르지 않습니다.', 0, $e);
+        }
+
+        $encryptMOKResult = (string) ($responseData['encryptMOKResult'] ?? '');
+        if ($encryptMOKResult === '') {
+            throw new RuntimeException('MobileOK 결과 암호문이 없습니다.');
+        }
+
+        try {
+            $resultData = json_decode($this->createSdkManager()->get_result($encryptMOKResult), true, 512, JSON_THROW_ON_ERROR);
+        } catch (\JsonException $e) {
+            throw new RuntimeException('MobileOK 결과 복호화 응답 형식이 올바르지 않습니다.', 0, $e);
+        } catch (\Throwable $e) {
+            throw new RuntimeException('MobileOK 결과 복호화에 실패했습니다.', 0, $e);
+        }
+
+        if (!is_array($resultData)) {
+            throw new RuntimeException('MobileOK 결과 데이터가 올바르지 않습니다.');
+        }
+
+        return $resultData;
+    }
 }
