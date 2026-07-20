@@ -64,26 +64,13 @@
     };
 
     phoneButton?.addEventListener('click', () => {
-        if (phoneInput.readOnly) {
-            phoneInput.readOnly = false;
-            phoneInput.focus();
-            phoneVerified = false;
-            setButtonLabel('인증');
-            return;
-        }
-
-        const phone = digitsOnly(phoneInput.value);
-        if (phone.length < 10 || phone.length > 11) {
-            alert('휴대폰 번호를 확인해주세요.');
-            phoneInput.focus();
-            return;
-        }
-
         if (!enabled || !window.MOBILEOK || typeof window.MOBILEOK.process !== 'function' || !requestUrl) {
             alert('휴대폰 본인인증 설정이 완료되지 않았습니다.');
             return;
         }
 
+        // 인증 결과의 휴대폰 번호를 사용하므로, 기존 번호를 먼저 수정할 필요가 없습니다.
+        phoneVerified = false;
         window.MOBILEOK.process(requestUrl, 'WB', 'mypagePhoneAuthResult');
     });
 
