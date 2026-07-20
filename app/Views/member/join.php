@@ -243,7 +243,7 @@ window.memberPhoneAuthResult = function (result) {
     }
 
     if (!payload || (payload.resultCode && payload.resultCode !== '2000')) {
-        alert(payload?.resultMsg || '휴대폰 인증에 실패했습니다.');
+        alert(payload?.resultMsg || '휴대폰 인증에 실패했습니다.1');
         return;
     }
 
