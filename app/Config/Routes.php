@@ -10,6 +10,7 @@ $routes->get('/index_pro', 'Home::index_pro');
 
 $routes->get('/fc/recommend', 'Home::recommend');
 
+$routes->get('ad/banner/(:num)', 'AdController::bannerImage/$1');
 $routes->get('ad/click/(:num)', 'AdController::click/$1');
 
 $routes->group('insurance-in', function ($routes) {
@@ -33,6 +34,7 @@ $routes->group('fc', function ($routes) {
     $routes->get('search', 'FcController::search');            // fc 검색
     $routes->get('list', 'FcController::index');                // fc 리스트
     $routes->get('view', 'FcController::view');                 // fc 상세
+    $routes->get('story/video/(:segment)', 'FcController::storyVideo/$1');
     $routes->get('counsel', 'FcController::counsel');           // 상담신청하기
     $routes->get('counselLast', 'FcController::counselLast');   // 상담신청하기 완료
     $routes->post('counsel/save','CounselController::save');
@@ -285,6 +287,7 @@ $routes->group('admin', [
     $routes->post('pushes/(:num)/cancel', 'Management::pushCancel/$1');
 
     $routes->get('ads', 'Management::ads/normal');
+    $routes->get('ads/fc-search', 'Management::adFcSearch');
     $routes->get('ads/normal', 'Management::ads/normal');
     $routes->get('ads/normal/create', 'Management::adCreate/normal');
     $routes->post('ads/normal/create', 'Management::adStore/normal');

@@ -95,7 +95,7 @@ class Management extends BaseController
     {
         $filters = $this->counselFilters();
         $page = max(1, (int) ($this->request->getGet('page') ?? 1));
-        $perPage = 5;
+        $perPage = 10;
         $builder = $this->counselListBuilder();
         $this->applyCounselFilters($builder, $filters);
 
@@ -438,7 +438,7 @@ class Management extends BaseController
             return redirect()->back()->with('error', '승인 처리 실패');
         }
 
-        return redirect()->back()->with('success', $decision === 'APPROVE' ? '승인 처리 완료' : '거부 처리 완료');
+        return redirect()->back()->with('success', $decision === 'APPROVE' ? '승인처리 되었습니다.' : '승인거부처리 되었습니다.');
     }
 
     public function reviews()
@@ -845,9 +845,10 @@ class Management extends BaseController
 
         $query = array_filter($filters, static fn($value, $key) => (string) $value !== '' && !($key === 'member_id' && (int) $value === 0), ARRAY_FILTER_USE_BOTH);
         $exportUrl = base_url('admin/ads/' . $kind . '/export') . ($query ? '?' . http_build_query($query) : '');
-        $summaryBuilder = $this->adListBuilder($kind);
-        $this->applyAdListFilters($summaryBuilder, $filters);
-        $summaryRows = $summaryBuilder->get()->getResultArray();
+        $summaryRows = $this->adListBuilder($kind)
+            ->whereIn('a.status', ['approved', 'end', 'rejected'])
+            ->get()
+            ->getResultArray();
 
         return $this->page([
             'title' => $titleMap[$kind] ?? $titleMap['normal'],
@@ -867,7 +868,7 @@ class Management extends BaseController
             ],
             'summary' => [
                 '이번달 총 광고 결제 금액' => number_format(array_sum(array_map(static fn ($row) => !empty($row['created_at']) && date('Ym', strtotime($row['created_at'])) === date('Ym') ? (int) ($row['amount'] ?? 0) : 0, $summaryRows))) . '원',
-                '총 광고 진행 건수' => count($summaryRows) . '건',
+                '총 광고 신청 건수' => count($summaryRows) . '건',
                 '현재 진행중인 광고' => count(array_filter($summaryRows, fn ($row) => $this->isAdActive($row))) . '건',
             ],
             'headers' => ['선택', '광고 상품 명', '클릭 수', '광고 기간', '광고 금액', '광고 진행 상태', '광고 신청 FC', '광고신청일', '관리'],
@@ -976,21 +977,35 @@ class Management extends BaseController
     {
         $kind = $this->normalizeAdKind($kind);
 
-        $members = $this->db->table('my_fc_member')
-            ->select('member_id, name, email')
-            ->where('member_type', 'FC')
-            ->where('deleted_at', null)
-            ->orderBy('member_id', 'DESC')
-            ->limit(200)
-            ->get()
-            ->getResultArray();
-
         return view('admin/ad/create', [
             'kind' => $kind,
             'title' => $this->adKindTitle($kind) . ' 등록',
-            'members' => $members,
             'error' => session()->getFlashdata('error'),
         ]);
+    }
+
+    public function adFcSearch()
+    {
+        $keyword = trim((string) $this->request->getGet('q'));
+        if ($keyword === '') {
+            return $this->response->setJSON(['items' => []]);
+        }
+
+        $rows = $this->db->table('my_fc_member')
+            ->select('member_id, name, email, phone')
+            ->where('member_type', 'FC')
+            ->where('deleted_at', null)
+            ->groupStart()
+                ->like('name', $keyword)
+                ->orLike('email', $keyword)
+                ->orLike('phone', $keyword)
+            ->groupEnd()
+            ->orderBy('member_id', 'DESC')
+            ->limit(20)
+            ->get()
+            ->getResultArray();
+
+        return $this->response->setJSON(['items' => $rows]);
     }
 
     public function adStore($kind = 'normal')
@@ -1071,11 +1086,7 @@ class Management extends BaseController
 
             $file = $this->request->getFile('banner_image');
             if ($file && $file->isValid() && ! $file->hasMoved()) {
-                $data['banner_image_url'] = '/uploads/banner/' . upload_file(
-                    $file,
-                    'uploads/banner',
-                    ['jpg', 'jpeg', 'png', 'webp', 'gif']
-                );
+                $data['banner_image_url'] = '/uploads/banner/' . $this->storePublicBannerImage($file);
             } elseif (empty($data['banner_need_design'])) {
                 return redirect()->back()->withInput()->with('error', '배너 이미지를 업로드하거나 제작 요청을 선택해주세요.');
             }
@@ -1217,12 +1228,16 @@ class Management extends BaseController
         if ($startDate !== '') $builder->where('l.click_date >=', $startDate);
         if ($endDate !== '') $builder->where('l.click_date <=', $endDate);
 
-        $allRows = $builder
-            ->groupBy('l.ad_id, l.click_date, a.ad_type, a.banner_position, a.amount, a.start_date, a.end_date, a.click_count, m.member_id, m.name, m.email')
-            ->orderBy('l.click_date', 'DESC')
-            ->orderBy('l.ad_id', 'DESC')
-            ->get()
-            ->getResultArray();
+        try {
+            $allRows = $builder
+                ->groupBy('l.ad_id, l.click_date, a.ad_type, a.banner_position, a.amount, a.start_date, a.end_date, a.click_count, m.member_id, m.name, m.email')
+                ->orderBy('l.click_date', 'DESC')
+                ->orderBy('l.ad_id', 'DESC')
+                ->get()
+                ->getResultArray();
+        } catch (\Throwable $e) {
+            $allRows = $this->adClickFallbackRows($kind, $adId, $keyword);
+        }
 
         if ((string) $this->request->getGet('download') === 'csv') {
             $handle = fopen('php://temp', 'r+');
@@ -1677,16 +1692,20 @@ class Management extends BaseController
     public function forbiddenWords()
     {
         $filters = $this->forbiddenWordFilters();
+        $page = max(1, (int) ($this->request->getGet('page') ?? 1));
+        $perPage = 20;
         $builder = $this->forbiddenWordListBuilder();
         $this->applyForbiddenWordFilters($builder, $filters);
 
         $countBuilder = $this->forbiddenWordListBuilder();
         $this->applyForbiddenWordFilters($countBuilder, $filters);
         $total = $countBuilder->countAllResults();
+        $totalPages = max(1, (int) ceil($total / $perPage));
+        $page = min($page, $totalPages);
 
         $rows = $builder
             ->orderBy('word_id', 'DESC')
-            ->limit(20)
+            ->limit($perPage, ($page - 1) * $perPage)
             ->get()
             ->getResultArray();
 
@@ -1703,6 +1722,7 @@ class Management extends BaseController
             ],
             'tabs' => $this->forbiddenWordTabs($filters),
             'actions' => [['label' => '금칙어 등록', 'url' => base_url('admin/forbidden-words/create')]],
+            'perPage' => $perPage,
             'headers' => ['금칙어', '매칭', '적용 범위', '상태', '등록자', '등록일', '관리'],
             'rows' => array_map(function ($row) {
                 $id = (int) ($row['word_id'] ?? 0);
@@ -1720,6 +1740,13 @@ class Management extends BaseController
                     '<a href="' . base_url('admin/forbidden-words/' . $id . '/edit') . '" class="btn btn-outline-primary btn-sm">수정</a>' . $deleteForm,
                 ];
             }, $rows),
+            'page' => $page,
+            'totalPages' => $totalPages,
+            'pageQuery' => array_filter([
+                'display_status' => $filters['display_status'],
+                'apply_scope' => $filters['apply_scope'],
+                'q' => $filters['q'],
+            ], static fn ($value) => (string) $value !== ''),
         ]);
     }
 
@@ -2632,6 +2659,23 @@ class Management extends BaseController
         $savedName = $file->getRandomName();
         $file->move($targetPath, $savedName);
 
+        return $savedName;
+    }
+
+    private function storePublicBannerImage($file): string
+    {
+        $extension = strtolower((string) $file->getClientExtension());
+        if (!in_array($extension, ['jpg', 'jpeg', 'png', 'webp', 'gif'], true)) {
+            throw new \RuntimeException('배너 이미지는 JPG, PNG, WEBP, GIF 파일만 등록할 수 있습니다.');
+        }
+
+        $targetPath = FCPATH . 'uploads/banner';
+        if (!is_dir($targetPath) && !mkdir($targetPath, 0775, true) && !is_dir($targetPath)) {
+            throw new \RuntimeException('배너 이미지 저장 경로를 준비하지 못했습니다.');
+        }
+
+        $savedName = $file->getRandomName();
+        $file->move($targetPath, $savedName);
         return $savedName;
     }
 
@@ -3956,6 +4000,7 @@ class Management extends BaseController
         $status = (string) ($row['status'] ?? '');
         $actionUrl = base_url('admin/ads/' . $kind . '/' . $id . '/decision');
         $defaultEndDate = date('Y-m-d', strtotime('+1 month'));
+        $period = esc(($row['start_date'] ?? '-') . ' ~ ' . ($row['end_date'] ?? '-'));
 
         if (in_array($status, ['apply', 'pending', 'rejected'], true)) {
             return '
@@ -3975,7 +4020,7 @@ class Management extends BaseController
                 </div>';
         }
 
-        if ($status === 'approved') {
+        if ($status === 'approved' && $this->isAdActive($row)) {
             return '
                 <div class="ad-manage-box is-running"><span class="ad-manage-caption">현재 광고 진행중</span><form action="' . $actionUrl . '" method="post">
                     ' . csrf_field() . '
@@ -3984,7 +4029,30 @@ class Management extends BaseController
                 </form></div>';
         }
 
+        if ($status === 'end' || ($status === 'approved' && !$this->isAdActive($row))) {
+            return '<div class="ad-manage-box is-ended"><span class="ad-manage-caption">광고 진행기간</span><strong>' . $period . '</strong></div>';
+        }
+
         return '-';
+    }
+
+    private function adClickFallbackRows(string $kind, int $adId, string $keyword): array
+    {
+        $builder = $this->adListBuilder($kind)
+            ->select('a.id AS ad_id, NULL AS click_date, a.ad_type, a.banner_position, a.amount, a.start_date, a.end_date, a.click_count, m.member_id, m.name, m.email', false);
+
+        if ($adId > 0) {
+            $builder->where('a.id', $adId);
+        }
+
+        if ($keyword !== '') {
+            $builder->groupStart()->like('m.name', $keyword)->orLike('m.email', $keyword)->groupEnd();
+        }
+
+        return array_map(static function (array $row): array {
+            $row['daily_click_count'] = (int) ($row['click_count'] ?? 0);
+            return $row;
+        }, $builder->orderBy('a.created_at', 'DESC')->get()->getResultArray());
     }
 
     private function adStatusLabelForRow(array $row): string

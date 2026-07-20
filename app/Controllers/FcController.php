@@ -4,6 +4,29 @@ namespace App\Controllers;
 
 class FcController extends BaseController
 {
+    public function storyVideo(string $fileName)
+    {
+        $fileName = basename(rawurldecode($fileName));
+        if ($fileName === '') {
+            throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound();
+        }
+
+        $publicPath = FCPATH . 'uploads/story/video/' . $fileName;
+        $legacyPath = WRITEPATH . 'uploads/story/video/' . $fileName;
+        $filePath = is_file($publicPath) ? $publicPath : $legacyPath;
+        if (!is_file($filePath)) {
+            throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound();
+        }
+
+        $mime = (new \finfo(FILEINFO_MIME_TYPE))->file($filePath) ?: 'video/mp4';
+        return $this->response
+            ->setHeader('Content-Type', $mime)
+            ->setHeader('Content-Length', (string) filesize($filePath))
+            ->setHeader('Accept-Ranges', 'bytes')
+            ->setHeader('Cache-Control', 'public, max-age=3600')
+            ->setBody((string) file_get_contents($filePath));
+    }
+
     public function index(): string
     {
         helper(['region', 'insurance']);

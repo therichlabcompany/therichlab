@@ -19,6 +19,13 @@ $status = old('status', 'apply');
     .edit-field.full { grid-column: 1 / -1; }
     .edit-field label { display: block; margin-bottom: 6px; color: #4b586b; font-size: 13px; font-weight: 800; }
     .edit-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px; }
+    .fc-search-wrap { position: relative; }
+    .fc-search-result { display: none; position: absolute; z-index: 10; top: calc(100% + 4px); right: 0; left: 0; max-height: 220px; overflow-y: auto; border: 1px solid #cbd5e1; border-radius: 6px; background: #fff; box-shadow: 0 8px 18px rgba(15, 23, 42, .12); }
+    .fc-search-result.is-open { display: block; }
+    .fc-search-item { display: block; width: 100%; padding: 10px 12px; border: 0; border-bottom: 1px solid #eef2f7; background: #fff; color: #172033; text-align: left; }
+    .fc-search-item:hover { background: #f8fafc; }
+    .fc-search-item strong, .fc-search-item small { display: block; }
+    .fc-search-item small, .fc-selected { color: #64748b; font-size: 12px; }
     @media (max-width: 768px) {
         .edit-grid { grid-template-columns: 1fr; }
         .edit-field.full { grid-column: auto; }
@@ -46,14 +53,12 @@ $status = old('status', 'apply');
                     <div class="edit-grid">
                         <div class="edit-field">
                             <label for="fc_member_id">광고 신청 FC</label>
-                            <select id="fc_member_id" name="fc_member_id" class="form-select" required>
-                                <option value="">선택</option>
-                                <?php foreach ($members as $member): ?>
-                                    <option value="<?= (int) $member['member_id'] ?>" <?= (string) old('fc_member_id') === (string) $member['member_id'] ? 'selected' : '' ?>>
-                                        <?= esc(($member['name'] ?? '-') . ' / ' . ($member['email'] ?? '-')) ?>
-                                    </option>
-                                <?php endforeach; ?>
-                            </select>
+                            <div class="fc-search-wrap">
+                                <input id="fc_member_search" type="search" class="form-control" autocomplete="off" placeholder="FC 이름, 이메일 또는 휴대폰번호로 검색" aria-describedby="fc_selected">
+                                <input id="fc_member_id" name="fc_member_id" type="hidden" value="<?= esc(old('fc_member_id')) ?>" required>
+                                <div id="fc_search_result" class="fc-search-result" role="listbox"></div>
+                            </div>
+                            <small id="fc_selected" class="fc-selected d-block mt-1"><?= old('fc_member_id') ? '선택된 FC 회원번호: ' . esc(old('fc_member_id')) : '검색 결과에서 광고 신청 FC를 선택해주세요.' ?></small>
                         </div>
                         <div class="edit-field">
                             <label for="status">광고 상태</label>
@@ -139,3 +144,62 @@ $status = old('status', 'apply');
 </div>
 
 <?= $this->include('admin/layout/footer') ?>
+
+<script>
+(() => {
+    const input = document.getElementById('fc_member_search');
+    const valueInput = document.getElementById('fc_member_id');
+    const results = document.getElementById('fc_search_result');
+    const selected = document.getElementById('fc_selected');
+    const endpoint = <?= json_encode(base_url('admin/ads/fc-search')) ?>;
+    let timer;
+
+    const closeResults = () => results.classList.remove('is-open');
+    const selectMember = (member) => {
+        valueInput.value = member.member_id;
+        input.value = member.name + ' / ' + member.email;
+        selected.textContent = '선택됨: ' + member.name + ' (' + member.email + ')';
+        closeResults();
+    };
+
+    input.addEventListener('input', () => {
+        valueInput.value = '';
+        selected.textContent = '검색 결과에서 광고 신청 FC를 선택해주세요.';
+        clearTimeout(timer);
+        const keyword = input.value.trim();
+        if (!keyword) {
+            results.innerHTML = '';
+            closeResults();
+            return;
+        }
+        timer = setTimeout(async () => {
+            try {
+                const response = await fetch(endpoint + '?q=' + encodeURIComponent(keyword), { headers: { Accept: 'application/json' } });
+                const data = await response.json();
+                results.innerHTML = '';
+                (data.items || []).forEach((member) => {
+                    const button = document.createElement('button');
+                    button.type = 'button';
+                    button.className = 'fc-search-item';
+                    button.innerHTML = '<strong></strong><small></small>';
+                    button.querySelector('strong').textContent = member.name || '-';
+                    button.querySelector('small').textContent = (member.email || '-') + ' / ' + (member.phone || '-');
+                    button.addEventListener('click', () => selectMember(member));
+                    results.appendChild(button);
+                });
+                if (!results.children.length) {
+                    results.innerHTML = '<div class="p-2 text-muted small">검색 결과가 없습니다.</div>';
+                }
+                results.classList.add('is-open');
+            } catch (error) {
+                results.innerHTML = '<div class="p-2 text-danger small">FC 검색 중 오류가 발생했습니다.</div>';
+                results.classList.add('is-open');
+            }
+        }, 250);
+    });
+
+    document.addEventListener('click', (event) => {
+        if (!event.target.closest('.fc-search-wrap')) closeResults();
+    });
+})();
+</script>

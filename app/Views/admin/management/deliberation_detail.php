@@ -7,6 +7,7 @@ $history = $history ?? [];
 $statusLabel = $statusLabel ?? '승인 대기';
 $decisionUrl = $decisionUrl ?? '#';
 $adminName = $adminName ?? 'admin';
+$successMessage = (string) session()->getFlashdata('success');
 ?>
 
 <style>
@@ -305,6 +306,10 @@ $adminName = $adminName ?? 'admin';
 </div>
 
 <script>
+<?php if ($successMessage !== ''): ?>
+alert(<?= json_encode($successMessage, JSON_UNESCAPED_UNICODE) ?>);
+<?php endif; ?>
+
 const decisionModal = document.getElementById('decisionModal');
 const rejectBox = document.getElementById('rejectBox');
 const decisionForm = document.getElementById('decisionForm');

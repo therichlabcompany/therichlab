@@ -4,6 +4,32 @@ namespace App\Controllers;
 
 class AdController extends BaseController
 {
+    public function bannerImage($id)
+    {
+        $db = \Config\Database::connect();
+        $ad = $db->table('ad_master')
+            ->select('id, ad_type, banner_image_url')
+            ->where('id', (int) $id)
+            ->where('ad_type', 'banner')
+            ->get()
+            ->getRowArray();
+
+        $storedPath = ltrim((string) ($ad['banner_image_url'] ?? ''), '/');
+        if (!$ad || !str_starts_with($storedPath, 'uploads/banner/')) {
+            throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound();
+        }
+
+        $fileName = basename($storedPath);
+        $publicPath = FCPATH . 'uploads/banner/' . $fileName;
+        $legacyPath = WRITEPATH . 'uploads/banner/' . $fileName;
+        $filePath = is_file($publicPath) ? $publicPath : $legacyPath;
+        if (!is_file($filePath)) {
+            throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound();
+        }
+
+        return $this->fileResponse($filePath);
+    }
+
     public function click($id)
     {
         $db = \Config\Database::connect();
@@ -72,5 +98,16 @@ class AdController extends BaseController
         }
 
         return redirect()->to('/');
+    }
+
+    private function fileResponse(string $filePath)
+    {
+        $mime = (new \finfo(FILEINFO_MIME_TYPE))->file($filePath) ?: 'application/octet-stream';
+
+        return $this->response
+            ->setHeader('Content-Type', $mime)
+            ->setHeader('Content-Length', (string) filesize($filePath))
+            ->setHeader('Cache-Control', 'public, max-age=3600')
+            ->setBody((string) file_get_contents($filePath));
     }
 }

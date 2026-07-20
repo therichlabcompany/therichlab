@@ -242,7 +242,7 @@ $mainChunks = static function (array $rows, int $size): array {
                     <div id="sitAdSwiper" class="swiper situation-banner-list">
                         <div class="swiper-wrapper">
                             <?php foreach ($topBannerAds as $bannerAd): ?>
-                                <?php $bannerImage = $mainImageUrl($bannerAd['banner_image_url'] ?? '', ''); ?>
+                                <?php $bannerImage = !empty($bannerAd['id']) ? base_url('ad/banner/' . (int) $bannerAd['id']) : $mainImageUrl($bannerAd['banner_image_url'] ?? '', ''); ?>
                                 <div class="swiper-slide">
                                     <a href="<?= base_url('ad/click/' . (int) ($bannerAd['id'] ?? 0)) ?>" class="situation-banner-slide">
                                         <img src="<?= esc($bannerImage) ?>" alt="" class="situation-banner-img" />
@@ -503,7 +503,7 @@ $mainChunks = static function (array $rows, int $size): array {
                     <div id="sitAdSwiperBelowLang" class="swiper situation-banner-list">
                         <div class="swiper-wrapper">
                             <?php foreach ($bottomBannerAds as $bannerAd): ?>
-                                <?php $bannerImage = $mainImageUrl($bannerAd['banner_image_url'] ?? '', ''); ?>
+                                <?php $bannerImage = !empty($bannerAd['id']) ? base_url('ad/banner/' . (int) $bannerAd['id']) : $mainImageUrl($bannerAd['banner_image_url'] ?? '', ''); ?>
                                 <div class="swiper-slide">
                                     <a href="<?= base_url('ad/click/' . (int) ($bannerAd['id'] ?? 0)) ?>" class="situation-banner-slide">
                                         <img src="<?= esc($bannerImage) ?>" alt="" class="situation-banner-img" />

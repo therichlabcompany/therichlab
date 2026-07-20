@@ -338,12 +338,12 @@
                 </header>
 
                 <div>
-                    <?php if (!empty($story['story_image'])): ?>
-                        <img src="/uploads/story/main/<?= esc($story['story_image']) ?>" alt="스토리 이미지">
-                    <?php elseif (!empty($story['story_video'])): ?>
-                        <video controls preload="metadata" style="width:100%;">
-                            <source src="/uploads/story/video/<?= esc($story['story_video']) ?>">
+                    <?php if (!empty($story['story_video'])): ?>
+                        <video controls preload="metadata" playsinline style="width:100%;" <?= !empty($story['story_image']) ? 'poster="' . esc(base_url('uploads/story/main/' . rawurlencode(basename((string) $story['story_image'])))) . '"' : '' ?>>
+                            <source src="<?= esc(base_url('fc/story/video/' . rawurlencode(basename((string) $story['story_video'])))) ?>">
                         </video>
+                    <?php elseif (!empty($story['story_image'])): ?>
+                        <img src="/uploads/story/main/<?= esc($story['story_image']) ?>" alt="스토리 이미지">
                     <?php endif; ?>
                 </div>
             </section>
