@@ -33,9 +33,11 @@
                                 <a class="card-link" href="/fc/view?uid=<?= esc($row['fc_member_uid']) ?>">
 
                                     <div class="profile">
-
-                                        <img src="<?= esc($row['profile_image']) ?>"
-                                             class="avatar" alt="">
+                                        <?php if (!empty($row['profile_image'])): ?>
+                                            <img src="<?= esc($row['profile_image']) ?>" class="avatar" alt="" onerror="this.removeAttribute('src'); this.classList.add('is-empty');">
+                                        <?php else: ?>
+                                            <span class="avatar is-empty" aria-hidden="true"></span>
+                                        <?php endif; ?>
 
                                         <div>
 

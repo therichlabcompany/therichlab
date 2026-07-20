@@ -9,7 +9,7 @@
         </p>
 
         <article class="consult-request-fc">
-            <img src="<?= SITE_IMG_URL ?>images/temp/@profile-w.png" alt="한지윤 FC 프로필 사진" />
+            <span class="consult-request-fc-profile-empty" aria-label="FC 프로필 사진 없음"></span>
             <div>
                 <h2>한지윤</h2>
                 <p>

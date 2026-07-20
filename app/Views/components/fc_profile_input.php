@@ -1,14 +1,10 @@
-<?php
-$profileImage = !empty($profile['profile_image'])
-    ? "/uploads/profile/" . $profile['profile_image']   // 실제 업로드 경로로 변경
-    : "../assets/images/temp/@profile-m.png";
-?>
+<?php $profileImage = profile_image_url($profile['profile_image'] ?? ''); ?>
 
 
 <div class="fc-profile-thumb">
     <button type="button" id="profile-btn" aria-label="프로필 이미지 등록">
-        <img id="profile-preview" src="<?= esc($profileImage) ?>" alt="" /> 
-            <input type="file" id="profile-file" name="profile_image" accept="image/*" hidden />
+        <img id="profile-preview" <?= $profileImage !== '' ? 'src="' . esc($profileImage) . '"' : '' ?> class="<?= $profileImage === '' ? 'is-empty' : '' ?>" alt="" onerror="this.removeAttribute('src'); this.classList.add('is-empty');" />
+        <input type="file" id="profile-file" name="profile_image" accept="image/*" hidden />
     </button>
 </div>
 

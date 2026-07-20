@@ -110,9 +110,7 @@ $statusMap = [
                             if (!empty($row['company_sub'])) $companyLine[] = $row['company_sub'];
                         }
 
-                        $profileImage = !empty($row['profile_image'])
-                            ? '/uploads/profile/' . $row['profile_image']
-                            : SITE_IMG_URL . 'images/temp/@profile-m.png';
+                        $profileImage = profile_image_url($row['profile_image'] ?? '');
 
                         $region = '';
 
@@ -151,7 +149,11 @@ $statusMap = [
 
                                     <div class="profile">
 
-                                        <img src="<?= $profileImage ?>" class="avatar" alt="">
+                                        <?php if ($profileImage !== ''): ?>
+                                            <img src="<?= esc($profileImage) ?>" class="avatar" alt="" onerror="this.removeAttribute('src'); this.classList.add('is-empty');">
+                                        <?php else: ?>
+                                            <span class="avatar is-empty" aria-hidden="true"></span>
+                                        <?php endif; ?>
 
                                         <div>
 

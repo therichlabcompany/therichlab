@@ -174,6 +174,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         reader.onload = (e) => {
             preview.src = e.target.result;
+            preview.classList.remove('is-empty');
         };
 
         reader.readAsDataURL(file);

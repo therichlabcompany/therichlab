@@ -111,10 +111,6 @@ function chunk4($list)
                                     <?php foreach ($page as $row): ?>
 
                                         <?php
-                                        $profileImg = !empty($row['profile_image'])
-                                            ? '/uploads/profile/' . $row['profile_image']
-                                            : SITE_IMG_URL . 'images/temp/@profile-m.png';
-
                                         $region = '';
                                         if (!empty($row['region'])) {
                                             $tmp = explode(',', $row['region']);

@@ -107,6 +107,22 @@ if (!empty($popupList)) {
 
 include_once (POPUP_PATH . '/popup_logout.php'); 
 ?>
+<script>
+// 프로필 이미지 요청이 실패하면 깨진 이미지 대신 회색 placeholder를 표시한다.
+document.addEventListener('error', function (event) {
+    const image = event.target;
+    if (!(image instanceof HTMLImageElement)) {
+        return;
+    }
+
+    if (!image.matches('.avatar, .list-avatar, .gnb-avatar-img, .fc-profile-thumb img, .consult-request-fc > img, .fc-detail-head > img')) {
+        return;
+    }
+
+    image.removeAttribute('src');
+    image.classList.add('is-empty');
+}, true);
+</script>
 </body>
 
 </html>

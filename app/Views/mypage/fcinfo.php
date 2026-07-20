@@ -1,8 +1,4 @@
-<?php
-$profileImage = !empty($profile['profile_image'])
-    ? '/uploads/profile/' . $profile['profile_image']
-    : '/assets/images/temp/@profile-w.png';
-?>
+<?php $profileImage = profile_image_url($profile['profile_image'] ?? ''); ?>
 <main>
     <div class="page-inner-narrow">
         <h1 class="page-main-title">FC 회원정보</h1>
@@ -27,7 +23,7 @@ $profileImage = !empty($profile['profile_image'])
         <form class="form-box" method="post" id="fc-member-basic-form"  enctype="multipart/form-data">
             <div class="fc-profile-thumb">
                 <button type="button" aria-label="프로필 이미지 등록" id="btnProfileUpload">
-                    <img src="<?= esc($profileImage) ?>" alt="프로필 이미지">
+                    <img <?= $profileImage !== '' ? 'src="' . esc($profileImage) . '"' : '' ?> class="<?= $profileImage === '' ? 'is-empty' : '' ?>" alt="프로필 이미지" onerror="this.removeAttribute('src'); this.classList.add('is-empty');">
                 </button>
 
                 <input type="file" name="profile_image" id="profile_image" hidden />
@@ -88,8 +84,9 @@ document.getElementById('profile_image').addEventListener('change', async functi
 
     if (result.status === 'success') {
 
-        document.querySelector('.fc-profile-thumb img').src =
-            '/uploads/profile/' + result.data.profile_image;
+        const profilePreview = document.querySelector('.fc-profile-thumb img');
+        profilePreview.src = result.data.url;
+        profilePreview.classList.remove('is-empty');
 
     } else {
         alert(result.message);

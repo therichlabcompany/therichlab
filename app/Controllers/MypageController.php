@@ -263,10 +263,8 @@ class MypageController extends BaseController
 
             $row['company_line'] = array_slice($companyLine, 0, 2);
 
-            // 프로필 이미지
-            $row['profile_image'] = !empty($row['profile_image'])
-                ? '/uploads/profile/' . $row['profile_image']
-                : SITE_IMG_URL . 'images/temp/@profile-m.png';
+            // 공개 경로에 실제 파일이 있는 경우에만 이미지 URL을 전달한다.
+            $row['profile_image'] = profile_image_url($row['profile_image'] ?? '');
 
             // 지역
             $row['region_label'] = '';

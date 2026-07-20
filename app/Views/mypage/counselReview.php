@@ -33,7 +33,7 @@ if (!empty($counsel['region'])) {
             <?php if ($profileImage !== ''): ?>
                 <img src="<?= esc($profileImage) ?>" alt="FC 프로필 사진" onerror="this.removeAttribute('src'); this.classList.add('is-empty');" />
             <?php else: ?>
-                <span class="avatar is-empty" aria-hidden="true"></span>
+                <span class="consult-request-fc-profile-empty" aria-label="FC 프로필 사진 없음"></span>
             <?php endif; ?>
 
             <div>

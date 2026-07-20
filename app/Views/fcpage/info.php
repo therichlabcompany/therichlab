@@ -23,7 +23,7 @@
         <form class="form-box" method="post" id="fc-member-basic-form">
             <div class="fc-profile-thumb">
                 <button type="button" aria-label="프로필 이미지 등록">
-                    <img src="../assets/images/temp/@profile-w.png" alt="" />
+                    <img class="is-empty" alt="" />
                 </button>
             </div>
 

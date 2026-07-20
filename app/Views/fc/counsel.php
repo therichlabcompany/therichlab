@@ -2,6 +2,7 @@
 <link rel="stylesheet" href="<?= base_url('assets/css/content.css?v=3') ?>" />
 <?php
 $companyLine = [];
+$fcProfileImageUrl = profile_image_url($profile['profile_image'] ?? '');
 
 if (!empty($profile['ga'])) {
     $companyLine[] = $profile['ga'];
@@ -20,7 +21,11 @@ if (!empty($profile['ga'])) {
         </p>
 
         <article class="consult-request-fc">
-            <img src="<?= !empty($profile['profile_image']) ? '/uploads/profile/' . $profile['profile_image'] : SITE_IMG_URL . 'images/temp/@profile-m.png' ?>" alt="FC 프로필 사진" />
+            <?php if ($fcProfileImageUrl !== ''): ?>
+                <img src="<?= esc($fcProfileImageUrl) ?>" alt="FC 프로필 사진" onerror="this.removeAttribute('src'); this.classList.add('is-empty');" />
+            <?php else: ?>
+                <span class="consult-request-fc-profile-empty" aria-label="FC 프로필 사진 없음"></span>
+            <?php endif; ?>
             <div>
                 <h2><?= $member["name"] ?></h2>
                 <p>
@@ -55,7 +60,7 @@ if (!empty($profile['ga'])) {
                 <p><span>휴대폰</span><strong><?= $my_member["phone"] ?></strong></p>
             </div>
 
-            <button type="button" class="consult-request-edit">이름/휴대폰번호 수정</button>
+            <a href="<?= base_url('mypage/info') ?>" class="consult-request-edit">이름/휴대폰번호 수정</a>
 
             <div class="consult-date">
                 <label class="form-label" for="consult-date">상담 요청 일시 <b>*</b></label>
