@@ -195,11 +195,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     updateSubmitState();
                     alert(res.message || '휴대폰 인증 처리 중 오류가 발생했습니다.');
                     return;
-                }
+            }
 
-                setPhoneAuthValues(res);
-                alert('휴대폰 인증이 완료되었습니다.');
-            })
+            setPhoneAuthValues(res);
+        })
             .catch(() => {
                 alert('서버 통신 실패');
             });

@@ -274,7 +274,6 @@ window.memberPhoneAuthResult = function (result) {
 
             setPhoneAuthValues(res);
             setPhoneButtonLabel('complete');
-            alert('휴대폰 인증이 완료되었습니다.');
         })
         .catch(() => {
             alert('서버 통신 실패');
