@@ -242,14 +242,14 @@ window.memberPhoneAuthResult = function (result) {
         }
     }
 
-    if (!payload || (payload.resultCode && payload.resultCode !== '2000')) {
+    if (!payload || payload.status === 'error' || (payload.resultCode && payload.resultCode !== '2000')) {
         console.error('[MobileOK] 인증 결과 실패', {
             originalResult: result,
             payload: payload,
             resultCode: payload?.resultCode,
             resultMsg: payload?.resultMsg
         });
-        alert(payload?.resultMsg || '휴대폰 인증에 실패했습니다.1');
+        alert(payload?.message || payload?.resultMsg || '휴대폰 인증에 실패했습니다.');
         return;
     }
 

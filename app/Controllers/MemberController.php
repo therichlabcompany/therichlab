@@ -799,6 +799,12 @@ class MemberController extends BaseController
             }
         }
 
+        // MobileOK 콜백이 이미 처리된 오류 응답을 다시 전달할 수 있다.
+        // 이 경우 인증 데이터로 해석하지 않고 원래 오류를 그대로 반환한다.
+        if (($payload['status'] ?? '') === 'error') {
+            return $this->response->setJSON($payload);
+        }
+
         if (!$payload) {
             $this->writeMobileOkLog($this->formatMobileOkFailureLog('result', 'payload-missing', [
                 'message' => '본인인증 결과가 없습니다.',
@@ -928,6 +934,18 @@ class MemberController extends BaseController
         }
 
         if ($phone === '') {
+            $phoneFieldSummary = [
+                'userPhone' => isset($resultData['userPhone']) ? strlen((string) $resultData['userPhone']) : 0,
+                'phone' => isset($resultData['phone']) ? strlen((string) $resultData['phone']) : 0,
+                'mobile' => isset($resultData['mobile']) ? strlen((string) $resultData['mobile']) : 0,
+                'mobileNo' => isset($resultData['mobileNo']) ? strlen((string) $resultData['mobileNo']) : 0,
+            ];
+
+            log_message('error', '[MobileOK] 인증 결과에 휴대폰 번호가 없습니다. payloadKeys: {payloadKeys}, phoneFieldLengths: {phoneFieldLengths}', [
+                'payloadKeys' => implode(', ', array_keys($resultData)),
+                'phoneFieldLengths' => json_encode($phoneFieldSummary),
+            ]);
+
             $this->writeMobileOkLog($this->formatMobileOkFailureLog('result', 'phone-missing', [
                 'message' => '휴대폰 번호를 확인할 수 없습니다.',
                 'mode' => $mobileOk->mode(),
@@ -944,7 +962,7 @@ class MemberController extends BaseController
                 'resultTxId' => $resultTxId,
                 'issueDate' => $issueDate,
                 'payloadKeys' => array_keys($resultData),
-                'resultData' => $resultData,
+                'phoneFieldLengths' => $phoneFieldSummary,
             ]));
 
             return $this->response->setJSON([

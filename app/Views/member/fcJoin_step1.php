@@ -173,8 +173,8 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-        if (!payload || (payload.resultCode && payload.resultCode !== '2000')) {
-            alert(payload?.resultMsg || '휴대폰 인증에 실패했습니다.');
+        if (!payload || payload.status === 'error' || (payload.resultCode && payload.resultCode !== '2000')) {
+            alert(payload?.message || payload?.resultMsg || '휴대폰 인증에 실패했습니다.');
             return;
         }
 
