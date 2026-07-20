@@ -39,7 +39,7 @@ class MobileOk extends BaseConfig
     /**
      * 개발용 키파일 경로.
      */
-    public string $keyPathDevelopment = ROOTPATH . 'public/auth/mok_keyInfo.dat';
+    public string $keyPathDevelopment = ROOTPATH . 'writable/private/mok-development/mok_keyInfo.dat';
 
     /**
      * 운영용 키파일 경로.
