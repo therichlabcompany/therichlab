@@ -20,7 +20,7 @@
                         <span>통신판매번호 : 제 2025-서울강남-06308호</span>
                     </p>
                     <p class="footer-info-split">
-                        <span>이용문의 : 010-9941-2899</span>
+                        <span>이용문의 : 010-8296-1053</span>
                     </p>
                 </div>
 
