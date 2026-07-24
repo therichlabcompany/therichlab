@@ -11,14 +11,18 @@
                     name="password"
                     type="password"
                     autocomplete="new-password"
+                    minlength="8"
+                    maxlength="20"
                     placeholder="새 비밀번호를 입력해주세요." />
                 <input
                     class="form-input"
                     name="password_confirm"
                     type="password"
                     autocomplete="new-password"
+                    minlength="8"
+                    maxlength="20"
                     placeholder="새 비밀번호를 다시 한번 입력해주세요." />
-                <p class="form-text">영문 대소문자, 숫자, 특수문자를 3개씩 이상으로 조합해 8자 이상 16자 이내로 입력해주세요.</p>
+                <p class="form-text">8자~20자 내로 영문 대문자, 영문 소문자, 숫자, 특수문자를 각각 1개 이상 포함해주세요.</p>
             </div>
 
             <!-- 계속 버튼: 비밀번호 조건 충족 시 활성화 등은 개발에서 처리. -->

@@ -49,12 +49,11 @@ function digitsOnly(value) {
 
 function isValidSignupPassword(value) {
     const password = String(value || '');
-    const letterCount = (password.match(/[A-Za-z]/g) || []).length;
-    const numberCount = (password.match(/\d/g) || []).length;
-    const specialCount = (password.match(/[^A-Za-z0-9\s]/g) || []).length;
-
-    return password.length >= 8 && password.length <= 16 && !/\s/.test(password)
-        && letterCount >= 3 && numberCount >= 3 && specialCount >= 3;
+    return password.length >= 8 && password.length <= 20 && !/\s/.test(password)
+        && /[A-Z]/.test(password)
+        && /[a-z]/.test(password)
+        && /\d/.test(password)
+        && /[^A-Za-z0-9\s]/.test(password);
 }
 
 function updateSubmitState() {
@@ -289,7 +288,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const password = document.getElementById('password').value;
         const passwordConfirm = document.getElementById('password-confirm').value;
         if (!isValidSignupPassword(password)) {
-            alert('비밀번호는 영문 대소문자, 숫자, 특수문자를 각각 3개 이상 포함하여 8자~16자 내로 입력해주세요.');
+            alert('비밀번호는 8자~20자이며 영문 대문자, 영문 소문자, 숫자, 특수문자를 각각 1개 이상 포함해야 합니다.');
             return;
         }
         if (password !== passwordConfirm) {

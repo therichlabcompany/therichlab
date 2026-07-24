@@ -706,7 +706,7 @@ HTML);
             }
 
             if (!$this->isValidSignupPassword($password)) {
-                throw new \Exception('비밀번호는 영문 대소문자, 숫자, 특수문자를 각각 3개 이상 포함하여 8자~16자 내로 입력해주세요.');
+                throw new \Exception('비밀번호는 8자~20자이며 영문 대문자, 영문 소문자, 숫자, 특수문자를 각각 1개 이상 포함해야 합니다.');
             }
 
             if ($authVerified) {
@@ -1346,19 +1346,18 @@ HTML);
     }
 
     /**
-     * 회원가입 비밀번호는 영문, 숫자, 특수문자를 각각 3개 이상 포함해야 한다.
+     * 비밀번호는 영문 대문자·소문자, 숫자, 특수문자를 각각 1개 이상 포함해야 한다.
      */
     private function isValidSignupPassword(string $password): bool
     {
-        if (strlen($password) < 8 || strlen($password) > 16 || preg_match('/\s/', $password)) {
+        if (strlen($password) < 8 || strlen($password) > 20 || preg_match('/\s/', $password)) {
             return false;
         }
 
-        $letterCount = preg_match_all('/[A-Za-z]/', $password);
-        $numberCount = preg_match_all('/\d/', $password);
-        $specialCount = preg_match_all('/[^A-Za-z0-9\s]/', $password);
-
-        return $letterCount >= 3 && $numberCount >= 3 && $specialCount >= 3;
+        return preg_match('/[A-Z]/', $password)
+            && preg_match('/[a-z]/', $password)
+            && preg_match('/\d/', $password)
+            && preg_match('/[^A-Za-z0-9\s]/', $password);
     }
 
     public function loginProc()
