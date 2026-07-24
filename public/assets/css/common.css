@@ -2095,7 +2095,7 @@ body.popup-open {
 }
 
 
-/* íŒŒì¼ ì²¨ë¶€ â€” .form-box ê³µí†µ (ìƒë‹´ ìš”ì²­Â·ì‹¬ì˜í•„Â·ê´‘ê³  ì‹ ì²­ ë“±, .file-upload-rows í–‰ ì‚¬ìš© ì‹œ) */
+/* 파일 첨부: 상담 요청·심의필·광고 신청 공통 */
 .form-box .file-upload > .file-upload-head {
   display: flex;
   align-items: flex-end;

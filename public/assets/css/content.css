@@ -981,6 +981,11 @@ a.fc-detail-cta {
 .detail-page .fc-detail-story-images .swiper-slide {
   height: auto;
 }
+.detail-page .fc-detail-story-images .fc-detail-story-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
 .detail-page .fc-detail-story-images .swiper-slide .fc-story-trigger {
   display: block;
   position: relative;
@@ -1000,6 +1005,38 @@ a.fc-detail-cta {
 }
 
 /* MFC008_L05_L01 · 심의요청용 화면 미리보기 (공통 c-modal.lg 사용) */
+.fc-profile-update-complete .c-modal-btns {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.fc-profile-update-complete .c-modal-btns .btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  min-height: 52px;
+  padding: 10px 8px;
+  box-sizing: border-box;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: keep-all;
+  text-align: center;
+  line-height: 1.35;
+  font-size: 14px;
+}
+
+@media (max-width: 640px) {
+  .fc-profile-update-complete .c-modal-btns {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .fc-profile-update-complete .c-modal-btns .btn-sub {
+    display: flex;
+  }
+}
+
 .fc-delib-preview-inner {
   padding: 20px 18px 28px;
   box-sizing: border-box;
@@ -1008,6 +1045,9 @@ a.fc-detail-cta {
 .fc-delib-preview-popup .fc-delib-preview-inner :is(.fc-detail-bio, .fc-detail-certs-section, .fc-detail-about) .section-title {
   font-size: 20px;
 }
+.fc-delib-preview-popup .fc-detail-about > :is(img, video) { width: 100%; max-height: 360px; margin-top: 12px; object-fit: cover; }
+.fc-delib-story-images { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-top: 12px; }
+.fc-delib-story-images img { width: 100%; aspect-ratio: 1; object-fit: cover; }
 
 /* FC 상세 · 최근 후기 · 활동 스토리 */
 .detail-page .control-box {
@@ -1412,6 +1452,10 @@ a.fc-detail-cta {
   letter-spacing: -0.01em;
   background: var(--bg-sub);
   border-bottom: 1px solid var(--border);
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
 }
 
 .c-modal:has(.story-detail-wrap) .story-detail-meta {
@@ -1968,7 +2012,21 @@ a.fc-detail-cta {
 .signup-page .fc-profile-thumb {
   display: flex;
   justify-content: center;
-  margin: 36px 0;
+  margin: 36px 0 10px;
+}
+
+.signup-page .profile-image-actions {
+  display: flex;
+  justify-content: center;
+  margin: 0 0 36px;
+}
+
+.signup-page .profile-image-actions .btn {
+  width: auto;
+  min-width: 88px;
+  height: auto;
+  padding: 8px 14px;
+  border-radius: 6px;
 }
 
 .signup-page .fc-profile-thumb > button {
@@ -1990,6 +2048,18 @@ a.fc-detail-cta {
   border-radius: 50%;
   object-fit: cover;
   pointer-events: none;
+}
+
+.signup-page .fc-profile-thumb > button > .profile-image-placeholder {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: #e5e7eb;
+}
+
+.signup-page .fc-profile-thumb > button > img.is-empty {
+  background: #e5e7eb;
 }
 
 .signup-page .fc-profile-thumb > button::after {
@@ -2388,6 +2458,16 @@ a.fc-detail-cta {
   object-fit: cover;
 }
 
+.consult-request-fc-profile-empty,
+.consult-request-fc > img.is-empty {
+  display: block;
+  width: 90px;
+  height: 90px;
+  flex: 0 0 90px;
+  border-radius: 8px;
+  background: #e5e7eb;
+}
+
 .consult-request-fc > div > h2 {
   margin: 0 0 4px;
   font-size: 16px;
@@ -2674,6 +2754,13 @@ a.fc-detail-cta {
     width: 72px;
     height: 72px;
     border-radius: 8px;
+  }
+
+  .consult-request-fc-profile-empty,
+  .consult-request-fc > img.is-empty {
+    width: 72px;
+    height: 72px;
+    flex-basis: 72px;
   }
 
   .consult-request-fc > div > h2 {
@@ -3093,6 +3180,10 @@ a.fc-detail-cta {
 .consult-status-page.fc-consult-mgmt .recommend-list .profile-name {
   margin-top: 10px;
   margin-bottom: 6px;
+}
+
+.consult-status-page.fc-consult-mgmt .recommend-list .card-body {
+  padding-top: 46px;
 }
 
 .consult-status-page.fc-consult-mgmt .recommend-list .consult-contact + .consult-contact {
@@ -4098,9 +4189,9 @@ a.fc-detail-cta {
 .insurance-in-detail .insurance-in-question > .insurance-in-foot { flex-direction: row; align-items: center; justify-content: space-between; gap: 12px 16px; margin-top: 0; padding: 12px 18px 14px; }
 .insurance-in-detail .insurance-in-question > .insurance-in-foot .insurance-in-author { align-self: auto; text-align: left; }
 .insurance-in-detail-box .insurance-in-question-actions,
-.insurance-in-detail-box .insurance-in-answer-actions { display: flex; flex-shrink: 0; gap: 10px; }
+.insurance-in-detail-box .insurance-in-answer-actions { display: flex; flex-shrink: 0; justify-content: flex-end; gap: 10px; }
 .insurance-in-detail-box .insurance-in-question-actions form,
-.insurance-in-detail-box .insurance-in-answer-actions form { display: flex; margin: 0; }
+.insurance-in-detail-box .insurance-in-answer-actions form { display: block; margin: 0; }
 .insurance-in-detail-box .insurance-in-question-actions a,
 .insurance-in-detail-box .insurance-in-question-actions button,
 .insurance-in-detail-box .insurance-in-answer-actions a,
@@ -4232,4 +4323,10 @@ a.fc-detail-cta {
   color: var(--text-sub);
   font-size: 13px;
   font-weight: 500;
+}
+
+#signupValidationHint {
+  margin: 12px 0 0;
+  text-align: center;
+  color: #dc2626;
 }
