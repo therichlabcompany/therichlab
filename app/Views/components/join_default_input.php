@@ -90,7 +90,12 @@
             <?= $isEdit ? 'readonly' : '' ?>
         />
 
-        <button type="button" id="btnPhoneCheck">
+        <button
+            type="button"
+            id="btnPhoneCheck"
+            data-default-label="<?= $isEdit ? '변경/재인증' : '인증' ?>"
+            data-complete-label="인증완료"
+        >
             <?= $isEdit ? '변경/재인증' : '인증' ?>
         </button>
 

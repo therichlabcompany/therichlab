@@ -25,6 +25,7 @@
             <div class="form-actions">
                 <button type="button" id="btnSubmit" disabled class="btn-primary">완료</button>
             </div>
+            <p id="signupValidationHint" class="form-text" aria-live="polite"></p>
         </form>
     </div>
 </main>
@@ -68,14 +69,38 @@ function updateSubmitState() {
         return;
     }
 
-    const valid =
-        emailInput.value.trim() &&
-        isValidSignupPassword(password.value) &&
-        password.value === passwordConfirm.value &&
-        phoneInput.value.trim() &&
-        nameInput.value.trim();
+    const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailInput.value.trim());
+    const passwordValid = isValidSignupPassword(password.value);
+    const phoneValid = digitsOnly(phoneInput.value).length >= 10;
+    const nameValid = nameInput.value.trim() !== '';
+
+    const valid = emailValid && passwordValid && password.value === passwordConfirm.value
+        && phoneValid && nameValid;
 
     btnSubmit.disabled = !valid || !fcEmailChecked || !fcPhoneChecked;
+
+    const hint = document.getElementById('signupValidationHint');
+    if (!hint) {
+        return;
+    }
+
+    if (!emailValid || !passwordValid || !phoneValid || !nameValid || password.value !== passwordConfirm.value) {
+        const missing = [];
+
+        if (!emailValid) missing.push('올바른 이메일 입력');
+        if (!passwordValid) missing.push('비밀번호 조건 충족');
+        if (password.value && password.value !== passwordConfirm.value) missing.push('비밀번호 확인 일치');
+        if (!phoneValid) missing.push('휴대폰 번호 입력');
+        if (!nameValid) missing.push('이름 입력');
+
+        hint.textContent = missing.join(', ') + '이 필요합니다.';
+    } else if (!fcEmailChecked) {
+        hint.textContent = '이메일 중복확인을 완료해주세요.';
+    } else if (!fcPhoneChecked) {
+        hint.textContent = '휴대폰 본인인증을 완료해주세요.';
+    } else {
+        hint.textContent = '';
+    }
 }
 
 function setPhoneVerified(verified) {

@@ -152,9 +152,18 @@ function updateSubmitState() {
     const submitBtn = document.getElementById('btnSubmit');
     const requiredChecks = document.querySelectorAll('.required-agree');
     const agreeReady = Array.from(requiredChecks).every(item => item.checked);
+    const password = document.getElementById('password')?.value ?? '';
+    const passwordConfirm = document.getElementById('password_confirm')?.value ?? '';
+    const name = document.getElementById('name')?.value.trim() ?? '';
+    const birth = digitsOnly(document.getElementById('birth')?.value ?? '');
+    const gender = (document.getElementById('gender')?.value
+        || document.querySelector('input[name="gender"]:checked')?.value
+        || '').trim();
+    const profileReady = name !== '' && /^\d{8}$/.test(birth) && ['M', 'F'].includes(gender);
+    const passwordReady = isValidSignupPassword(password) && password === passwordConfirm;
 
     if (submitBtn) {
-        submitBtn.disabled = !(emailChecked && phoneChecked && agreeReady);
+        submitBtn.disabled = !(emailChecked && phoneChecked && agreeReady && passwordReady && profileReady);
     }
 }
 
@@ -305,8 +314,14 @@ document.addEventListener('DOMContentLoaded', function () {
     if (emailInput) {
         emailInput.addEventListener('input', function () {
             emailChecked = false;
+            updateSubmitState();
         });
     }
+
+    document.querySelectorAll('#signupForm input').forEach(input => {
+        input.addEventListener('input', updateSubmitState);
+        input.addEventListener('change', updateSubmitState);
+    });
 
     if (btnPhoneCheck) {
         btnPhoneCheck.addEventListener('click', function () {
