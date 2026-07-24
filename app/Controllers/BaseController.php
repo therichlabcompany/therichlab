@@ -89,7 +89,8 @@ abstract class BaseController extends Controller
 
         $popupList = [];
 
-        if ($db->tableExists('my_fc_popup')) {
+        // 관리자 등록 팝업은 메인 화면에서만 노출한다.
+        if ($view === 'main/index_pro' && $db->tableExists('my_fc_popup')) {
             $now = date('Y-m-d H:i:s');
             $popupList = $db->table('my_fc_popup')
                 ->select('popup_id, title, image_path, link_url, link_target, display_status, start_at, end_at, sort_order')
