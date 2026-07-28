@@ -40,7 +40,7 @@
                 </div>
             <?php endif; ?>
 
-            <?php include_once (COMPONENT_PATH . '/join_default_input.php');  ?>
+            <?php $phoneLocked = true; $phoneButtonLabel = '다시 인증'; include_once (COMPONENT_PATH . '/join_default_input.php');  ?>
 
             <?php $agreeMarketing = $user['agree_marketing'] ?? 0; ?>
 

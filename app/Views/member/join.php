@@ -91,6 +91,13 @@ function setPhoneVerified(verified) {
     }
 }
 
+function setPhoneInputLocked(locked) {
+    const phoneInput = document.getElementById('phone');
+    if (phoneInput) {
+        phoneInput.readOnly = locked;
+    }
+}
+
 function setPhoneButtonLabel(state) {
     const button = document.getElementById('btnPhoneCheck');
     if (!button) {
@@ -98,7 +105,7 @@ function setPhoneButtonLabel(state) {
     }
 
     const defaultLabel = button.dataset.defaultLabel || '변경/인증';
-    const completeLabel = button.dataset.completeLabel || '인증완료';
+    const completeLabel = button.dataset.completeLabel || '다시 인증';
     button.textContent = state === 'complete' ? completeLabel : defaultLabel;
 }
 
@@ -143,6 +150,7 @@ function setPhoneAuthValues(payload) {
 
     phoneChecked = true;
     setPhoneVerified(true);
+    setPhoneInputLocked(true);
     setPhoneButtonLabel('complete');
     updateSubmitState();
 }
@@ -233,6 +241,7 @@ function checkPhoneDuplicate() {
                 alert('이미 사용 중인 휴대폰 번호입니다.');
                 phoneChecked = false;
                 setPhoneVerified(false);
+                setPhoneInputLocked(false);
                 setPhoneButtonLabel('default');
                 updateSubmitState();
                 return;
@@ -241,6 +250,7 @@ function checkPhoneDuplicate() {
             alert('사용 가능한 휴대폰 번호입니다.');
             phoneChecked = true;
             setPhoneVerified(true);
+            setPhoneInputLocked(true);
             setPhoneButtonLabel('complete');
             updateSubmitState();
         })
@@ -284,6 +294,7 @@ window.memberPhoneAuthResult = function (result) {
             if (res.status !== 'success') {
                 phoneChecked = false;
                 setPhoneVerified(false);
+                setPhoneInputLocked(false);
                 setPhoneButtonLabel('default');
                 updateSubmitState();
                 alert(res.message || '휴대폰 인증 처리 중 오류가 발생했습니다.');
@@ -324,6 +335,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (btnPhoneCheck) {
         btnPhoneCheck.addEventListener('click', function () {
+            // 인증 완료 후에는 번호 입력칸을 직접 수정하지 않는다. 다시 인증하면
+            // MobileOK에서 확인한 번호로만 값을 교체해 인증 상태와 입력값이 어긋나지 않게 한다.
+            if (phoneChecked) {
+                phoneChecked = false;
+                setPhoneVerified(false);
+                setPhoneButtonLabel('default');
+                updateSubmitState();
+            }
+
             if (mobileOkEnabled && window.MOBILEOK && typeof window.MOBILEOK.process === 'function' && mobileOkRequestUrl) {
                 window.MOBILEOK.process(mobileOkRequestUrl, 'WB', mobileOkResultCallback);
                 return;
@@ -339,6 +359,7 @@ document.addEventListener('DOMContentLoaded', function () {
             this.value = value;
             phoneChecked = false;
             setPhoneVerified(false);
+            setPhoneInputLocked(false);
             setPhoneButtonLabel('default');
             updateSubmitState();
         });
@@ -441,6 +462,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 agree_marketing: document.querySelector('[name="agree_marketing"]').checked
             };
 
+            submitBtn.disabled = true;
+
             try {
                 const res = await fetch('/member/register', {
                     method: 'POST',
@@ -460,6 +483,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
             } catch (err) {
                 alert('서버 통신 실패');
+            } finally {
+                updateSubmitState();
             }
         });
     }

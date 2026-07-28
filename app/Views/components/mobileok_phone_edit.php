@@ -21,6 +21,8 @@
         }
     };
 
+    const defaultButtonLabel = phoneButton?.dataset.defaultLabel || '다시 인증';
+
     window.mypagePhoneAuthResult = function (result) {
         let payload = result;
 
@@ -88,7 +90,7 @@
                 }
 
                 phoneVerified = true;
-                setButtonLabel('인증완료');
+                setButtonLabel('다시 인증');
 
                 if (!applyUrl) {
                     return;
@@ -120,14 +122,14 @@
             return;
         }
 
-        // 인증 결과의 휴대폰 번호를 사용하므로, 기존 번호를 먼저 수정할 필요가 없습니다.
+        // 인증 결과의 휴대폰 번호를 사용하므로, 기존 번호를 직접 수정하지 않는다.
         phoneVerified = false;
         window.MOBILEOK.process(requestUrl, 'WB', 'mypagePhoneAuthResult');
     });
 
-    phoneInput?.addEventListener('input', () => {
-        phoneVerified = false;
-        setButtonLabel('인증');
-    });
+    if (phoneInput) {
+        phoneInput.readOnly = true;
+    }
+    setButtonLabel(defaultButtonLabel);
 })();
 </script>

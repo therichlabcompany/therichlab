@@ -85,7 +85,7 @@ $profileReadonly = $isEdit || $mobileOkEnabled;
             type="button"
             id="btnPhoneCheck"
             data-default-label="<?= esc($phoneButtonLabel) ?>"
-            data-complete-label="인증완료"
+            data-complete-label="다시 인증"
         ><?= esc($phoneButtonLabel) ?></button>
     </div>
     <p class="form-text">본인인증 후 이름, 생년월일, 성별이 자동 입력됩니다.</p>

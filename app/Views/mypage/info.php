@@ -25,7 +25,7 @@
                 </div>
             <?php endif; ?>
 
-            <?php include_once (COMPONENT_PATH . '/join_default_input.php');  ?>
+            <?php $phoneLocked = true; $phoneButtonLabel = '다시 인증'; include_once (COMPONENT_PATH . '/join_default_input.php');  ?>
             <!-- <div class="form-field">
                 <label class="form-label" for="my-email">이메일</label>
                 <input class="form-input" id="my-email" name="email" type="email" value="therich@google.com" readonly />

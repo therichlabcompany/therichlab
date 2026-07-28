@@ -109,6 +109,13 @@ function setPhoneVerified(verified) {
     }
 }
 
+function setPhoneInputLocked(locked) {
+    const phoneInput = document.getElementById('phone');
+    if (phoneInput) {
+        phoneInput.readOnly = locked;
+    }
+}
+
 function setPhoneButtonLabel(state) {
     const button = document.getElementById('btnPhoneCheck');
     if (!button) {
@@ -116,7 +123,7 @@ function setPhoneButtonLabel(state) {
     }
 
     const defaultLabel = button.dataset.defaultLabel || '변경/인증';
-    const completeLabel = button.dataset.completeLabel || '인증완료';
+    const completeLabel = button.dataset.completeLabel || '다시 인증';
     button.textContent = state === 'complete' ? completeLabel : defaultLabel;
 }
 
@@ -137,6 +144,7 @@ function setPhoneAuthValues(payload) {
 
     fcPhoneChecked = true;
     setPhoneVerified(true);
+    setPhoneInputLocked(true);
     setPhoneButtonLabel('complete');
     updateSubmitState();
 }
@@ -231,6 +239,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (res.status !== 'success') {
                     fcPhoneChecked = false;
                     setPhoneVerified(false);
+                    setPhoneInputLocked(false);
                     setPhoneButtonLabel('default');
                     updateSubmitState();
                     alert(res.message || '휴대폰 인증 처리 중 오류가 발생했습니다.');
@@ -245,6 +254,13 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     btnPhoneCheck.addEventListener('click', () => {
+        if (fcPhoneChecked) {
+            fcPhoneChecked = false;
+            setPhoneVerified(false);
+            setPhoneButtonLabel('default');
+            updateSubmitState();
+        }
+
         if (mobileOkEnabled && window.MOBILEOK && typeof window.MOBILEOK.process === 'function' && mobileOkRequestUrl) {
             window.MOBILEOK.process(mobileOkRequestUrl, 'WB', mobileOkResultCallback);
             return;
@@ -256,6 +272,7 @@ document.addEventListener('DOMContentLoaded', () => {
     phoneInput.addEventListener('input', function () {
         fcPhoneChecked = false;
         setPhoneVerified(false);
+        setPhoneInputLocked(false);
         setPhoneButtonLabel('default');
 
         let value = digitsOnly(this.value);
@@ -306,6 +323,8 @@ document.addEventListener('DOMContentLoaded', () => {
             phone_verified: 'Y'
         };
 
+        btnSubmit.disabled = true;
+
         try {
             const res = await fetch('/member/register', {
                 method: 'POST',
@@ -325,6 +344,8 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         } catch (e) {
             alert('서버 통신 실패');
+        } finally {
+            updateSubmitState();
         }
     });
 

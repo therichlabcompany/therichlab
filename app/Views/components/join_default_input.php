@@ -2,6 +2,8 @@
     $mode = $mode ?? 'create'; // create | edit
 
     $isEdit = ($mode === 'edit');
+    $phoneLocked = (bool) ($phoneLocked ?? $isEdit);
+    $phoneButtonLabel = $phoneButtonLabel ?? ($isEdit ? '다시 인증' : '인증');
 ?>
 <div class="form-field">
     <label class="form-label" for="email">이메일 <b>*</b></label>
@@ -14,7 +16,7 @@
             type="email"
             placeholder="이메일을 입력해주세요."
             value="<?= esc($user['email'] ?? '') ?>"
-            <?= $isEdit ? 'readonly' : '' ?>
+            <?= $phoneLocked ? 'readonly' : '' ?>
         />
 
         <button type="button" id="btnEmailCheck"
@@ -93,10 +95,10 @@
         <button
             type="button"
             id="btnPhoneCheck"
-            data-default-label="<?= $isEdit ? '변경/재인증' : '인증' ?>"
-            data-complete-label="인증완료"
+            data-default-label="<?= esc($phoneButtonLabel) ?>"
+            data-complete-label="다시 인증"
         >
-            <?= $isEdit ? '변경/재인증' : '인증' ?>
+            <?= esc($phoneButtonLabel) ?>
         </button>
 
     </div>
