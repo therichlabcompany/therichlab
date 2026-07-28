@@ -326,6 +326,8 @@
       );
       render(state, els);
       els.input.value = formatDate(state.selectedDate);
+      els.input.dataset.dateValue = raw;
+      els.input.dispatchEvent(new Event('change', { bubbles: true }));
       els.panel.hidden = true;
     }
 

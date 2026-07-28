@@ -611,6 +611,53 @@ body.admin-shell .activity-cert-title {
   overflow-wrap: anywhere;
 }
 
+/* 후기 관리 목록: 긴 제목과 이름이 다른 열을 밀어내지 않도록 열 너비를 고정한다. */
+body.admin-shell .review-management-page .review-management-table {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  table-layout: fixed;
+}
+
+body.admin-shell .review-management-page .page-card-body.table-responsive {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+body.admin-shell .review-management-page .review-management-table th,
+body.admin-shell .review-management-page .review-management-table td {
+  min-width: 0;
+  overflow: hidden;
+}
+
+body.admin-shell .review-management-page .review-list-title {
+  display: block !important;
+  box-sizing: border-box;
+  width: 100% !important;
+  max-width: none !important;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+body.admin-shell .review-management-page .review-list-name {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+body.admin-shell .ad-banner-missing {
+  display: block;
+  margin-top: 6px;
+  color: #dc2626;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.35;
+  white-space: nowrap;
+}
+
 @media (max-width: 767px) {
   body.admin-shell .detail-label {
     justify-content: flex-start;
