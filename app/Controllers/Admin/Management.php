@@ -3,6 +3,7 @@
 namespace App\Controllers\Admin;
 
 use App\Controllers\BaseController;
+use App\Libraries\AdminExcelExporter;
 use Config\Database;
 
 class Management extends BaseController
@@ -168,12 +169,9 @@ class Management extends BaseController
             ->get()
             ->getResultArray();
 
-        $handle = fopen('php://temp', 'r+');
-        fwrite($handle, "\xEF\xBB\xBF");
-        fputcsv($handle, ['상담 신청자', '신청자 이메일', '신청자 휴대폰', '상담 FC', 'FC 이메일', '상담상태', '상담신청일', '상담요청일', '상담거부 사유']);
-
+        $exportRows = [];
         foreach ($rows as $row) {
-            fputcsv($handle, [
+            $exportRows[] = [
                 $row['name'] ?? '',
                 $row['email'] ?? '',
                 $row['phone'] ?? '',
@@ -183,20 +181,10 @@ class Management extends BaseController
                 $row['created_at'] ?? '',
                 $row['reserve_datetime'] ?? '',
                 $row['reject_reason'] ?? '',
-            ]);
+            ];
         }
 
-        rewind($handle);
-        $csv = stream_get_contents($handle);
-        fclose($handle);
-
-        $fileName = 'counsels_' . date('Ymd_His') . '.csv';
-
-        return $this->response
-            ->download($fileName, $csv)
-            ->setHeader('Content-Type', 'text/csv; charset=UTF-8')
-            ->setHeader('Content-Transfer-Encoding', 'binary')
-            ->setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
+        return $this->excelDownload('counsels_' . date('Ymd_His'), '상담', ['상담 신청자', '신청자 이메일', '신청자 휴대폰', '상담 FC', 'FC 이메일', '상담상태', '상담신청일', '상담요청일', '상담거부 사유'], $exportRows);
     }
 
     public function counselDetail($id)
@@ -292,20 +280,7 @@ class Management extends BaseController
             ->get()
             ->getResultArray();
 
-        $csv = "\xEF\xBB\xBF";
-        $csv .= $this->csvLine($this->deliberationExportHeaders());
-
-        foreach ($rows as $row) {
-            $csv .= $this->csvLine($this->deliberationExportRow($row));
-        }
-
-        $fileName = 'deliberations_' . date('Ymd_His') . '.csv';
-
-        return $this->response
-            ->download($fileName, $csv)
-            ->setHeader('Content-Type', 'text/csv; charset=UTF-8')
-            ->setHeader('Content-Transfer-Encoding', 'binary')
-            ->setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
+        return $this->excelDownload('deliberations_' . date('Ymd_His'), '심의필', $this->deliberationExportHeaders(), array_map([$this, 'deliberationExportRow'], $rows));
     }
 
     public function deliberationDetail($id)
@@ -510,20 +485,7 @@ class Management extends BaseController
             ->get()
             ->getResultArray();
 
-        $csv = "\xEF\xBB\xBF";
-        $csv .= $this->csvLine($this->reviewExportHeaders());
-
-        foreach ($rows as $row) {
-            $csv .= $this->csvLine($this->reviewExportRow($row));
-        }
-
-        $fileName = 'reviews_' . date('Ymd_His') . '.csv';
-
-        return $this->response
-            ->download($fileName, $csv)
-            ->setHeader('Content-Type', 'text/csv; charset=UTF-8')
-            ->setHeader('Content-Transfer-Encoding', 'binary')
-            ->setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
+        return $this->excelDownload('reviews_' . date('Ymd_His'), '후기', $this->reviewExportHeaders(), array_map([$this, 'reviewExportRow'], $rows));
     }
 
     public function reviewDetail($id)
@@ -909,11 +871,9 @@ class Management extends BaseController
         $this->applyAdListFilters($builder, $filters);
         $rows = $builder->orderBy('a.created_at', 'DESC')->get()->getResultArray();
 
-        $handle = fopen('php://temp', 'r+');
-        fwrite($handle, "\xEF\xBB\xBF");
-        fputcsv($handle, ['광고번호', '광고 상품명', '클릭 수', '광고 시작일', '광고 종료일', '광고 금액', '진행 상태', '신청 FC', 'FC 이메일', '신청일']);
+        $exportRows = [];
         foreach ($rows as $row) {
-            fputcsv($handle, [
+            $exportRows[] = [
                 $row['id'] ?? '',
                 $this->adTypeLabel((string) ($row['ad_type'] ?? ''), (string) ($row['banner_position'] ?? '')),
                 $row['click_count'] ?? 0,
@@ -924,19 +884,10 @@ class Management extends BaseController
                 $row['name'] ?? '',
                 $row['email'] ?? '',
                 $row['created_at'] ?? '',
-            ]);
+            ];
         }
-        rewind($handle);
-        $csv = stream_get_contents($handle);
-        fclose($handle);
 
-        $fileName = 'ads_' . $kind . '_' . date('Ymd_His') . '.csv';
-
-        return $this->response
-            ->download($fileName, $csv)
-            ->setHeader('Content-Type', 'text/csv; charset=UTF-8')
-            ->setHeader('Content-Transfer-Encoding', 'binary')
-            ->setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
+        return $this->excelDownload('ads_' . $kind . '_' . date('Ymd_His'), '광고', ['광고번호', '광고 상품명', '클릭 수', '광고 시작일', '광고 종료일', '광고 금액', '진행 상태', '신청 FC', 'FC 이메일', '신청일'], $exportRows);
     }
 
     public function adsBulkEnd($kind = 'normal')
@@ -1239,21 +1190,13 @@ class Management extends BaseController
             $allRows = $this->adClickFallbackRows($kind, $adId, $keyword);
         }
 
-        if ((string) $this->request->getGet('download') === 'csv') {
-            $handle = fopen('php://temp', 'r+');
-            fwrite($handle, "\xEF\xBB\xBF");
-            fputcsv($handle, ['광고 ID', '광고 상품명', '클릭 일자', '일자별 클릭 수', '누적 클릭 수', '광고 신청 FC', '광고 기간']);
+        if ((string) $this->request->getGet('download') === 'xlsx') {
+            $exportRows = [];
             foreach ($allRows as $row) {
-                fputcsv($handle, [(int) $row['ad_id'], $this->adTypeLabel((string) $row['ad_type'], (string) ($row['banner_position'] ?? '')), $row['click_date'], $row['daily_click_count'], $row['click_count'], $row['name'], ($row['start_date'] ?? '-') . ' ~ ' . ($row['end_date'] ?? '-')]);
+                $exportRows[] = [(int) $row['ad_id'], $this->adTypeLabel((string) $row['ad_type'], (string) ($row['banner_position'] ?? '')), $row['click_date'], $row['daily_click_count'], $row['click_count'], $row['name'], ($row['start_date'] ?? '-') . ' ~ ' . ($row['end_date'] ?? '-')];
             }
-            rewind($handle); $csv = stream_get_contents($handle); fclose($handle);
-            $fileName = 'ad_clicks_' . date('Ymd_His') . '.csv';
 
-            return $this->response
-                ->download($fileName, $csv)
-                ->setHeader('Content-Type', 'text/csv; charset=UTF-8')
-                ->setHeader('Content-Transfer-Encoding', 'binary')
-                ->setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
+            return $this->excelDownload('ad_clicks_' . date('Ymd_His'), '광고 클릭', ['광고 ID', '광고 상품명', '클릭 일자', '일자별 클릭 수', '누적 클릭 수', '광고 신청 FC', '광고 기간'], $exportRows);
         }
 
         $perPage = 20;
@@ -1272,7 +1215,7 @@ class Management extends BaseController
             'searchHidden' => ['ad_id' => $adId],
             'actions' => [[
                 'label' => 'EXCEL',
-                'url' => current_url() . '?' . http_build_query(array_filter(['ad_id' => $adId, 'q' => $keyword, 'start_date' => $startDate, 'end_date' => $endDate, 'download' => 'csv'], static fn($v) => (string) $v !== '')),
+                'url' => current_url() . '?' . http_build_query(array_filter(['ad_id' => $adId, 'q' => $keyword, 'start_date' => $startDate, 'end_date' => $endDate, 'download' => 'xlsx'], static fn($v) => (string) $v !== '')),
             ]],
             'page' => $page,
             'totalPages' => max(1, (int) ceil(count($allRows) / $perPage)),
@@ -3864,11 +3807,19 @@ class Management extends BaseController
         ];
     }
 
-    private function csvLine(array $columns): string
+    private function excelDownload(string $fileName, string $sheetName, array $headers, array $rows)
     {
-        return implode(',', array_map(static function ($value) {
-            return '"' . str_replace('"', '""', (string) $value) . '"';
-        }, $columns)) . "\n";
+        $content = (new AdminExcelExporter())->build([[
+            'name' => $sheetName,
+            'headers' => $headers,
+            'rows' => $rows,
+        ]]);
+
+        return $this->response
+            ->download($fileName . '.xlsx', $content)
+            ->setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+            ->setHeader('Content-Transfer-Encoding', 'binary')
+            ->setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
     }
 
     private function formatBytes($bytes): string

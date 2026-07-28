@@ -60,6 +60,10 @@ class FirebasePush
 
     protected function getAccessToken(): string
     {
+        if (!is_readable($this->serviceAccountPath)) {
+            throw new \RuntimeException('Firebase 서비스 계정 키 파일을 찾을 수 없습니다.');
+        }
+
         $client = new Client();
         $client->setAuthConfig($this->serviceAccountPath);
         $client->addScope('https://www.googleapis.com/auth/firebase.messaging');

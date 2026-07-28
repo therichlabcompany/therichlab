@@ -3,6 +3,7 @@
 namespace App\Controllers\Admin;
 
 use App\Controllers\BaseController;
+use App\Libraries\AdminExcelExporter;
 use Config\Database;
 
 class Dashboard extends BaseController
@@ -740,6 +741,8 @@ class Dashboard extends BaseController
 
     private function buildXlsx(array $sheets): string
     {
+        return (new AdminExcelExporter())->build($sheets);
+
         $tempFile = tempnam(sys_get_temp_dir(), 'dashboard_xlsx_');
         if ($tempFile === false) {
             throw new \RuntimeException('엑셀 파일 임시 경로를 생성할 수 없습니다.');

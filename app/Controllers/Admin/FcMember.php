@@ -3,6 +3,7 @@
 namespace App\Controllers\Admin;
 
 use App\Controllers\BaseController;
+use App\Libraries\AdminExcelExporter;
 use App\Libraries\PasswordResetMailer;
 
 class FcMember extends BaseController
@@ -195,12 +196,10 @@ class FcMember extends BaseController
             ->get()
             ->getResultArray();
 
-        $csv = "\xEF\xBB\xBF";
-        $csv .= "이름,이메일주소,휴대폰번호,보험모집종사자 등록번호,소속 보험사,조회수,상태값,가입일시\n";
-
+        $exportRows = [];
         foreach ($rows as $row) {
             $status = $this->fcListStatusLabel($row);
-            $csv .= $this->csvLine([
+            $exportRows[] = [
                 $row['name'] ?? '',
                 $row['email'] ?? '',
                 $row['phone'] ?? '',
@@ -209,16 +208,10 @@ class FcMember extends BaseController
                 (string) ((int) ($row['view_count'] ?? 0)),
                 $status,
                 !empty($row['created_at']) ? date('Ymd H:i:s', strtotime($row['created_at'])) : '',
-            ]);
+            ];
         }
 
-        $fileName = 'fc_members_' . date('YmdHis') . '.csv';
-
-        return $this->response
-            ->download($fileName, $csv)
-            ->setHeader('Content-Type', 'text/csv; charset=UTF-8')
-            ->setHeader('Content-Transfer-Encoding', 'binary')
-            ->setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
+        return $this->excelDownload('fc_members_' . date('YmdHis'), ['이름', '이메일주소', '휴대폰번호', '보험모집종사자 등록번호', '소속 보험사', '조회수', '상태값', '가입일시'], $exportRows);
     }
 
     // =========================
@@ -1064,11 +1057,19 @@ class FcMember extends BaseController
         return '심의필 승인 요청';
     }
 
-    private function csvLine(array $columns): string
+    private function excelDownload(string $fileName, array $headers, array $rows)
     {
-        return implode(',', array_map(static function ($value) {
-            return '"' . str_replace('"', '""', (string) $value) . '"';
-        }, $columns)) . "\n";
+        $content = (new AdminExcelExporter())->build([[
+            'name' => 'FC 회원',
+            'headers' => $headers,
+            'rows' => $rows,
+        ]]);
+
+        return $this->response
+            ->download($fileName . '.xlsx', $content)
+            ->setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+            ->setHeader('Content-Transfer-Encoding', 'binary')
+            ->setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
     }
 
     private function generateMemberUid(): string

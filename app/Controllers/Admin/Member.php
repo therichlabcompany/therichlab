@@ -3,6 +3,7 @@
 namespace App\Controllers\Admin;
 
 use App\Controllers\BaseController;
+use App\Libraries\AdminExcelExporter;
 use App\Libraries\PasswordResetMailer;
 use CodeIgniter\Exceptions\PageNotFoundException;
 
@@ -172,20 +173,7 @@ class Member extends BaseController
         }
 
         $rows = $builder->orderBy('m.' . $sortField, $sortOrder)->get()->getResultArray();
-        $csv = "\xEF\xBB\xBF";
-        $csv .= $this->csvLine($this->memberExportHeaders());
-
-        foreach ($rows as $row) {
-            $csv .= $this->csvLine($this->memberExportRow($row));
-        }
-
-        $fileName = 'members_' . date('YmdHis') . '.csv';
-
-        return $this->response
-            ->download($fileName, $csv)
-            ->setHeader('Content-Type', 'text/csv; charset=UTF-8')
-            ->setHeader('Content-Transfer-Encoding', 'binary')
-            ->setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
+        return $this->excelDownload('members_' . date('YmdHis'), $this->memberExportHeaders(), array_map([$this, 'memberExportRow'], $rows));
     }
 
     // =========================
@@ -958,11 +946,19 @@ class Member extends BaseController
         return $writePath;
     }
 
-    private function csvLine(array $columns): string
+    private function excelDownload(string $fileName, array $headers, array $rows)
     {
-        return implode(',', array_map(static function ($value) {
-            return '"' . str_replace('"', '""', (string) $value) . '"';
-        }, $columns)) . "\n";
+        $content = (new AdminExcelExporter())->build([[
+            'name' => '회원',
+            'headers' => $headers,
+            'rows' => $rows,
+        ]]);
+
+        return $this->response
+            ->download($fileName . '.xlsx', $content)
+            ->setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+            ->setHeader('Content-Transfer-Encoding', 'binary')
+            ->setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
     }
 
     private function memberExportHeaders(): array
