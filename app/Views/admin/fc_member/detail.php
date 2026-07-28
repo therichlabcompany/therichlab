@@ -708,7 +708,7 @@ foreach ($activityItems ?? [] as $item) {
                                         <?php $videoUrl = base_url('fc/story/video/' . rawurlencode(basename((string) $story['story_video']))); ?>
                                         <div class="story-grid">
                                             <div class="story-thumb">
-                                                <button type="button" class="preview" onclick="openMediaModal('video', <?= json_encode($videoUrl) ?>)">
+                                                <button type="button" class="preview" data-media-type="video" data-media-url="<?= esc($videoUrl, 'attr') ?>">
                                                     <span class="story-play">▶</span>
                                                 </button>
                                                 <button type="button" class="btn btn-outline-danger btn-sm story-delete" onclick="deleteStoryFile('video')">삭제</button>
@@ -727,7 +727,7 @@ foreach ($activityItems ?? [] as $item) {
                                             <?php if (!empty($story['story_image'])): ?>
                                                 <?php $mainImageUrl = base_url('uploads/story/main/' . ltrim($story['story_image'], '/')); ?>
                                                 <div class="story-thumb">
-                                                    <button type="button" class="preview" onclick="openMediaModal('image', <?= json_encode($mainImageUrl) ?>)">
+                                                    <button type="button" class="preview" data-media-type="image" data-media-url="<?= esc($mainImageUrl, 'attr') ?>">
                                                         <img src="<?= esc($mainImageUrl) ?>" alt="">
                                                     </button>
                                                     <span class="story-badge">대표</span>
@@ -737,7 +737,7 @@ foreach ($activityItems ?? [] as $item) {
                                             <?php foreach ($storyImages as $img): ?>
                                                 <?php $imageUrl = base_url('uploads/story/images/' . ltrim($img['image_path'], '/')); ?>
                                                 <div class="story-thumb">
-                                                    <button type="button" class="preview" onclick="openMediaModal('image', <?= json_encode($imageUrl) ?>)">
+                                                    <button type="button" class="preview" data-media-type="image" data-media-url="<?= esc($imageUrl, 'attr') ?>">
                                                         <img src="<?= esc($imageUrl) ?>" alt="">
                                                     </button>
                                                     <button type="button" class="btn btn-outline-danger btn-sm story-delete" onclick="deleteStoryFile('image', <?= (int) $img['id'] ?>)">삭제</button>
@@ -916,6 +916,12 @@ function openMediaModal(type, url) {
     document.getElementById('mediaModal').classList.add('is-open');
     document.body.style.overflow = 'hidden';
 }
+
+document.querySelectorAll('.preview[data-media-url]').forEach(function (button) {
+    button.addEventListener('click', function () {
+        openMediaModal(button.dataset.mediaType, button.dataset.mediaUrl);
+    });
+});
 
 function closeMediaModal() {
     document.getElementById('mediaModal').classList.remove('is-open');
