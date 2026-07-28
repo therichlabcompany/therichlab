@@ -1567,10 +1567,7 @@ class MypageController extends BaseController
         // =========================
         $email   = $this->request->getPost('email');
         $phone   = $this->request->getPost('phone');
-        $name    = $this->request->getPost('name');
-        $birth   = $this->request->getPost('birth');
         $agreeMk = $this->request->getPost('agree_marketing');
-        $gender = $this->request->getPost('gender');
 
         $currentMember = $memberModel
             ->where('member_uid', $memberUid)
@@ -1583,6 +1580,10 @@ class MypageController extends BaseController
                 'message' => '회원 정보를 찾을 수 없습니다.'
             ]);
         }
+
+        $name = (string) ($currentMember['name'] ?? '');
+        $birth = (string) ($currentMember['birth'] ?? '');
+        $gender = (string) ($currentMember['gender'] ?? '');
 
         $phone = preg_replace('/[^0-9]/', '', (string) $phone);
         $currentPhone = preg_replace('/[^0-9]/', '', (string) ($currentMember['phone'] ?? ''));

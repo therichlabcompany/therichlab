@@ -170,12 +170,28 @@ $isReject     = !empty($review) && $review['status'] === 'REJECT';
                     <?= empty($review) ? '승인요청하기' : '수정하기' ?>
 
                 </button>
-
-                </button>
             </div>
         </form>
     </div>
 </main>
+
+<div class="c-modal sm" id="reviewed-confirm-modal" role="dialog" aria-modal="true" aria-label="심의필 정보 등록 확인" hidden>
+    <button type="button" class="c-modal-backdrop" data-reviewed-confirm-close aria-label="닫기"></button>
+    <div class="c-modal-panel">
+        <button type="button" class="c-modal-close" data-reviewed-confirm-close aria-label="닫기"></button>
+        <div class="c-modal-body">
+            <p class="modal-text">
+                등록된 프로필 및 소개 자료와 제출한 심의필 번호 및 보험계약 체결 전 주의사항이 사실과 다를 경우 등의 모든 법적 책임(민원, 분쟁, 준법 위반 등)은 전적으로 FC 본인에게 있습니다.
+            </p>
+        </div>
+        <div class="c-modal-foot">
+            <div class="c-modal-btns">
+                <button type="button" class="btn btn-primary" data-reviewed-confirm>승인 요청 완료</button>
+                <button type="button" class="btn btn-sub" data-reviewed-confirm-close>닫기</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <?php if ($isReject): ?>
 <div class="c-modal sm is-open" role="dialog" aria-modal="true" id="reject-modal">
@@ -207,64 +223,6 @@ $isReject     = !empty($review) && $review['status'] === 'REJECT';
 </div>
 <?php endif; ?>
 
-
-<script>
-    (function() {
-
-        const form = document.querySelector('.form-box');
-        if (!form) return;
-
-        // ==========================
-        // 파일 선택 표시
-        // ==========================
-        const fileInput = form.querySelector('input[name="deliberation_file"]');
-        const fileDisplay = form.querySelector('[data-upload-row] input[readonly]');
-        const fileButton = form.querySelector('.file-upload-file-trigger');
-
-        if (fileButton) {
-            fileButton.addEventListener('click', function() {
-                fileInput.click();
-            });
-        }
-
-        if (fileInput) {
-
-            fileInput.addEventListener('change', function() {
-
-                const file = this.files[0];
-
-                fileDisplay.value = file ? file.name : '';
-
-                if (!file) return;
-
-                const ext = file.name.split('.').pop().toLowerCase();
-
-                const allow = [
-                    'doc',
-                    'docx',
-                    'xls',
-                    'xlsx',
-                    'hwp'
-                ];
-
-                if (!allow.includes(ext)) {
-
-                    alert('업로드 가능한 파일 형식이 아닙니다.');
-
-                    this.value = '';
-                    fileDisplay.value = '';
-
-                    return;
-                }
-
-            });
-
-        }
-
-
-
-    })();
-</script>
 
 <script>
     
@@ -331,6 +289,21 @@ $isReject     = !empty($review) && $review['status'] === 'REJECT';
         const fileInput = form.querySelector('input[name="deliberation_file"]');
         const fileDisplay = form.querySelector('[data-upload-row] input[readonly]');
         const fileButton = form.querySelector('.file-upload-file-trigger');
+        const confirmModal = document.getElementById('reviewed-confirm-modal');
+        const confirmButton = confirmModal.querySelector('[data-reviewed-confirm]');
+        let pendingFormData = null;
+
+        function openConfirmModal() {
+            confirmModal.hidden = false;
+            confirmModal.classList.add('is-open');
+            document.body.classList.add('popup-open');
+        }
+
+        function closeConfirmModal() {
+            confirmModal.classList.remove('is-open');
+            confirmModal.hidden = true;
+            document.body.classList.remove('popup-open');
+        }
 
         // =========================
         // 파일 선택
@@ -376,7 +349,7 @@ $isReject     = !empty($review) && $review['status'] === 'REJECT';
         // submit validation
         // =========================
 
-        form.addEventListener('submit', async (e) => {
+        form.addEventListener('submit', (e) => {
 
             e.preventDefault();
 
@@ -444,35 +417,43 @@ $isReject     = !empty($review) && $review['status'] === 'REJECT';
                 formData.append('deliberation_file', selectedFile);
             }
 
+            pendingFormData = formData;
+            openConfirmModal();
+        });
+
+        confirmModal.querySelectorAll('[data-reviewed-confirm-close]').forEach((button) => {
+            button.addEventListener('click', closeConfirmModal);
+        });
+
+        confirmButton.addEventListener('click', async () => {
+            if (!pendingFormData) {
+                return;
+            }
+
+            confirmButton.disabled = true;
+
             try {
 
                 const res = await fetch('/mypage/ajax_save_reviewed', {
 
                     method: 'POST',
-                    body: formData
+                    body: pendingFormData
 
                 });
 
                 const result = await res.json();
 
                 if (result.result === 'success') {
-                    
                     location.reload();
-
                 } else {
-
                     alert(result.msg || '저장 실패');
-
                 }
-
             } catch (err) {
-
                 console.error(err);
-
                 alert('서버 오류');
-
+            } finally {
+                confirmButton.disabled = false;
             }
-
         });
 
     })();

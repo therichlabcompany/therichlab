@@ -13,8 +13,8 @@ $profileImage = static fn($row) => profile_image_url($row['profile_image'] ?? ''
             <article class="insurance-in-question">
                 <div class="insurance-in-question-head">
                     <div class="insurance-in-question-bar">
-                        <p class="insurance-in-question-label">질문</p><?php if ($owner && !(int) $question['answer_count']): ?><div class="insurance-in-question-actions"><a href="<?= base_url('insurance-in/' . $question['question_id'] . '/edit') ?>">수정</a>
-                                <form method="post" action="<?= base_url('insurance-in/' . $question['question_id'] . '/delete') ?>" onsubmit="return confirm('질문을 삭제하시겠습니까?')"><?= csrf_field() ?><button>삭제</button></form>
+                        <p class="insurance-in-question-label">질문</p><?php if ($owner && !(int) $question['answer_count']): ?><div class="insurance-in-question-actions"><a href="<?= base_url('insurance-in/' . $question['question_id'] . '/edit') ?>" class="insurance-in-action-button">수정</a>
+                                <form method="post" action="<?= base_url('insurance-in/' . $question['question_id'] . '/delete') ?>" onsubmit="return confirm('질문을 삭제하시겠습니까?')"><?= csrf_field() ?><button type="submit" class="insurance-in-action-button is-danger">삭제</button></form>
                             </div><?php endif; ?>
                     </div>
                     <h2><?= esc($question['title']) ?></h2>
@@ -29,8 +29,8 @@ $profileImage = static fn($row) => profile_image_url($row['profile_image'] ?? ''
             <section class="insurance-in-answers">
                 <h2 class="insurance-in-answers-title">FC 답변 <span><?= count($answers) ?>건</span></h2>
                 <?php foreach ($answers as $answer): ?><article class="insurance-in-answer">
-                        <?php if ($uid === $answer['fc_member_uid']): ?><div class="insurance-in-answer-actions"><a href="<?= base_url('insurance-in/' . $question['question_id'] . '/answer/' . $answer['answer_id']) ?>">수정</a>
-                                <form method="post" action="<?= base_url('insurance-in/' . $question['question_id'] . '/answer/' . $answer['answer_id'] . '/delete') ?>" onsubmit="return confirm('답변을 삭제하시겠습니까?')"><?= csrf_field() ?><button>삭제</button></form>
+                        <?php if ($uid === $answer['fc_member_uid']): ?><div class="insurance-in-answer-actions"><a href="<?= base_url('insurance-in/' . $question['question_id'] . '/answer/' . $answer['answer_id']) ?>" class="insurance-in-action-button">수정</a>
+                                <form method="post" action="<?= base_url('insurance-in/' . $question['question_id'] . '/answer/' . $answer['answer_id'] . '/delete') ?>" onsubmit="return confirm('답변을 삭제하시겠습니까?')"><?= csrf_field() ?><button type="submit" class="insurance-in-action-button is-danger">삭제</button></form>
                             </div><?php endif; ?>
                         <article class="card">
                             <div class="card-body">

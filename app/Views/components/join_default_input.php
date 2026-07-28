@@ -111,8 +111,26 @@
         id="name"
         name="name"
         type="text"
-        placeholder="이름을 입력해주세요."
+        placeholder="휴대폰 본인인증 후 자동 입력됩니다."
         value="<?= esc($user['name'] ?? '') ?>"
-        <?= $isEdit ? 'readonly' : '' ?>
+        readonly
     />
+    <p class="form-text">이름은 휴대폰 본인인증 결과로만 등록·변경됩니다.</p>
+</div>
+
+<?php
+$birthValue = preg_replace('/[^0-9]/', '', (string) ($user['birth'] ?? ''));
+$genderValue = strtoupper(trim((string) ($user['gender'] ?? '')));
+$genderLabel = $genderValue === 'M' ? '남성' : ($genderValue === 'F' ? '여성' : '');
+?>
+<div class="form-field">
+    <label class="form-label" for="birth">생년월일 <b>*</b></label>
+    <input class="form-input" id="birth" name="birth" type="text" value="<?= esc($birthValue) ?>" placeholder="휴대폰 본인인증 후 자동 입력됩니다." readonly />
+</div>
+
+<div class="form-field">
+    <label class="form-label" for="gender-display">성별 <b>*</b></label>
+    <input class="form-input" id="gender-display" type="text" value="<?= esc($genderLabel) ?>" placeholder="휴대폰 본인인증 후 자동 입력됩니다." readonly />
+    <input type="hidden" id="gender" name="gender" value="<?= esc($genderValue) ?>" />
+    <p class="form-text">이름, 생년월일, 성별은 휴대폰 본인인증 결과로만 등록·변경됩니다.</p>
 </div>

@@ -4268,6 +4268,63 @@ a.fc-detail-cta {
 .insurance-in-detail-box .insurance-in-answer-actions > button:focus-visible,
 .insurance-in-share:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; border-radius: 4px; }
 
+/* 보험IN 상세 작성자 수정·삭제 액션 */
+.insurance-in-detail-box .insurance-in-question-actions,
+.insurance-in-detail-box .insurance-in-answer-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+}
+.insurance-in-detail-box .insurance-in-question-actions form,
+.insurance-in-detail-box .insurance-in-answer-actions form {
+  display: flex;
+  align-items: center;
+  margin: 0 !important;
+  line-height: 0;
+}
+.insurance-in-detail-box .insurance-in-question-actions .insurance-in-action-button,
+.insurance-in-detail-box .insurance-in-answer-actions .insurance-in-action-button {
+  display: inline-flex;
+  min-height: 30px;
+  align-items: center;
+  justify-content: center;
+  padding: 5px 10px;
+  border: 1px solid var(--border-strong);
+  border-radius: 6px;
+  background: var(--bg);
+  color: var(--text-sub);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 18px;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  box-sizing: border-box;
+  transition: border-color .15s ease, background-color .15s ease, color .15s ease;
+}
+.insurance-in-detail-box .insurance-in-question-actions .insurance-in-action-button:hover,
+.insurance-in-detail-box .insurance-in-answer-actions .insurance-in-action-button:hover {
+  border-color: var(--primary);
+  background: #f3f7ff;
+  color: var(--primary);
+  text-decoration: none;
+}
+.insurance-in-detail-box .insurance-in-question-actions .insurance-in-action-button.is-danger,
+.insurance-in-detail-box .insurance-in-answer-actions .insurance-in-action-button.is-danger { color: #c24141; }
+.insurance-in-detail-box .insurance-in-question-actions .insurance-in-action-button.is-danger:hover,
+.insurance-in-detail-box .insurance-in-answer-actions .insurance-in-action-button.is-danger:hover {
+  border-color: #c24141;
+  background: #fff5f5;
+  color: #a52b2b;
+}
+.insurance-in-detail-box .insurance-in-question-actions .insurance-in-action-button:focus-visible,
+.insurance-in-detail-box .insurance-in-answer-actions .insurance-in-action-button:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
 .insurance-in-detail-box .insurance-in-answer > .card,
 .insurance-in-answer-page .insurance-in-register > .card { margin: 0; min-height: 0; background-color: var(--bg); border: 1px solid var(--border); border-radius: 12px; box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06); overflow: hidden; }
 .insurance-in-detail-box .insurance-in-answer > .card .card-body,
@@ -4329,4 +4386,14 @@ a.fc-detail-cta {
   margin: 12px 0 0;
   text-align: center;
   color: #dc2626;
+}
+
+.form-box > .form-actions > button#btnSubmit.is-pending {
+  color: var(--text-muted);
+  background: var(--bg-sub);
+  cursor: pointer;
+}
+
+.form-box > .form-actions > button#btnSubmit.is-pending:hover {
+  background: var(--bg-sub);
 }

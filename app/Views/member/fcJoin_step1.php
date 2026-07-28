@@ -23,9 +23,9 @@
             <?php include_once (COMPONENT_PATH . '/join_default_input.php'); ?>
 
             <div class="form-actions">
-                <button type="button" id="btnSubmit" disabled class="btn-primary">완료</button>
+                <button type="button" id="btnSubmit" aria-disabled="true" class="btn-primary is-pending">완료</button>
             </div>
-            <p id="signupValidationHint" class="form-text" aria-live="polite"></p>
+            <p id="signupValidationHint" class="form-text" aria-live="polite">이메일 중복확인, 비밀번호 조건, 휴대폰 본인인증이 필요합니다.</p>
         </form>
     </div>
 </main>
@@ -56,6 +56,17 @@ function isValidSignupPassword(value) {
         && /[^A-Za-z0-9\s]/.test(password);
 }
 
+function signupPasswordIssue(value) {
+    const password = String(value || '');
+    if (password.length < 8 || password.length > 20) return '비밀번호는 8자 이상 20자 이하로 입력해주세요.';
+    if (/\s/.test(password)) return '비밀번호에는 공백을 사용할 수 없습니다.';
+    if (!/[A-Z]/.test(password)) return '비밀번호에 영문 대문자를 1자 이상 포함해주세요.';
+    if (!/[a-z]/.test(password)) return '비밀번호에 영문 소문자를 1자 이상 포함해주세요.';
+    if (!/\d/.test(password)) return '비밀번호에 숫자를 1자 이상 포함해주세요.';
+    if (!/[^A-Za-z0-9\s]/.test(password)) return '비밀번호에 특수문자를 1자 이상 포함해주세요.';
+    return '';
+}
+
 function updateSubmitState() {
     const btnSubmit = document.getElementById('btnSubmit');
     const emailInput = document.getElementById('email');
@@ -63,8 +74,10 @@ function updateSubmitState() {
     const password = document.getElementById('password');
     const passwordConfirm = document.getElementById('password-confirm');
     const nameInput = document.getElementById('name');
+    const birthInput = document.getElementById('birth');
+    const genderInput = document.getElementById('gender');
 
-    if (!btnSubmit || !emailInput || !phoneInput || !password || !passwordConfirm || !nameInput) {
+    if (!btnSubmit || !emailInput || !phoneInput || !password || !passwordConfirm || !nameInput || !birthInput || !genderInput) {
         return;
     }
 
@@ -72,25 +85,31 @@ function updateSubmitState() {
     const passwordValid = isValidSignupPassword(password.value);
     const phoneValid = digitsOnly(phoneInput.value).length >= 10;
     const nameValid = nameInput.value.trim() !== '';
+    const birthValid = /^\d{8}$/.test(digitsOnly(birthInput.value));
+    const genderValid = ['M', 'F'].includes(genderInput.value);
 
     const valid = emailValid && passwordValid && password.value === passwordConfirm.value
-        && phoneValid && nameValid;
+        && phoneValid && nameValid && birthValid && genderValid;
 
-    btnSubmit.disabled = !valid || !fcEmailChecked || !fcPhoneChecked;
+    const ready = valid && fcEmailChecked && fcPhoneChecked;
+    // 미완료 상태에서도 눌러 부족한 항목과 입력 위치를 즉시 안내한다.
+    btnSubmit.disabled = false;
+    btnSubmit.classList.toggle('is-pending', !ready);
+    btnSubmit.setAttribute('aria-disabled', ready ? 'false' : 'true');
 
     const hint = document.getElementById('signupValidationHint');
     if (!hint) {
         return;
     }
 
-    if (!emailValid || !passwordValid || !phoneValid || !nameValid || password.value !== passwordConfirm.value) {
+    if (!emailValid || !passwordValid || !phoneValid || !nameValid || !birthValid || !genderValid || password.value !== passwordConfirm.value) {
         const missing = [];
 
         if (!emailValid) missing.push('올바른 이메일 입력');
-        if (!passwordValid) missing.push('비밀번호 조건 충족');
+        if (!passwordValid) missing.push(signupPasswordIssue(password.value).replace('비밀번호에 ', '').replace('해주세요.', ''));
         if (password.value && password.value !== passwordConfirm.value) missing.push('비밀번호 확인 일치');
         if (!phoneValid) missing.push('휴대폰 번호 입력');
-        if (!nameValid) missing.push('이름 입력');
+        if (!nameValid || !birthValid || !genderValid) missing.push('휴대폰 본인인증');
 
         hint.textContent = missing.join(', ') + '이 필요합니다.';
     } else if (!fcEmailChecked) {
@@ -100,6 +119,27 @@ function updateSubmitState() {
     } else {
         hint.textContent = '';
     }
+}
+
+function focusSignupIssue() {
+    const email = document.getElementById('email');
+    const password = document.getElementById('password');
+    const passwordConfirm = document.getElementById('password-confirm');
+    const phoneButton = document.getElementById('btnPhoneCheck');
+    const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email?.value.trim() ?? '');
+    const passwordIssue = signupPasswordIssue(password?.value ?? '');
+
+    if (!emailValid) return { message: '올바른 이메일을 입력해주세요.', target: email };
+    if (!fcEmailChecked) return { message: '이메일 중복확인을 완료해주세요.', target: document.getElementById('btnEmailCheck') };
+    if (passwordIssue) return { message: passwordIssue, target: password };
+    if ((password?.value ?? '') !== (passwordConfirm?.value ?? '')) return { message: '비밀번호 확인이 일치하지 않습니다.', target: passwordConfirm };
+    const birth = digitsOnly(document.getElementById('birth')?.value ?? '');
+    const gender = document.getElementById('gender')?.value ?? '';
+    const name = document.getElementById('name')?.value.trim() ?? '';
+    if (!fcPhoneChecked || name === '' || !/^\d{8}$/.test(birth) || !['M', 'F'].includes(gender)) {
+        return { message: '휴대폰 본인인증을 완료해주세요.', target: phoneButton };
+    }
+    return null;
 }
 
 function setPhoneVerified(verified) {
@@ -130,9 +170,17 @@ function setPhoneButtonLabel(state) {
 function setPhoneAuthValues(payload) {
     const phoneInput = document.getElementById('phone');
     const nameInput = document.getElementById('name');
+    const birthInput = document.getElementById('birth');
+    const genderInput = document.getElementById('gender');
+    const genderDisplay = document.getElementById('gender-display');
 
     const phone = digitsOnly(payload.userPhone ?? payload.phone ?? '');
     const name = (payload.userName ?? payload.name ?? '').trim();
+    const birth = digitsOnly(payload.userBirthday ?? payload.birth ?? '');
+    const genderRaw = String(payload.userGender ?? payload.gender ?? '').trim().toUpperCase();
+    const gender = (genderRaw === '1' || genderRaw === 'M')
+        ? 'M'
+        : ((genderRaw === '2' || genderRaw === 'F') ? 'F' : '');
 
     if (phoneInput && phone) {
         phoneInput.value = phone;
@@ -141,6 +189,9 @@ function setPhoneAuthValues(payload) {
     if (nameInput && name) {
         nameInput.value = name;
     }
+    if (birthInput && birth) birthInput.value = birth;
+    if (genderInput && ['M', 'F'].includes(gender)) genderInput.value = gender;
+    if (genderDisplay) genderDisplay.value = gender === 'M' ? '남성' : (gender === 'F' ? '여성' : '');
 
     fcPhoneChecked = true;
     setPhoneVerified(true);
@@ -292,13 +343,10 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     btnSubmit.addEventListener('click', async () => {
-        if (!fcEmailChecked) {
-            alert('이메일 중복확인을 해주세요.');
-            return;
-        }
-
-        if (!fcPhoneChecked) {
-            alert('휴대폰 인증을 해주세요.');
+        const signupIssue = focusSignupIssue();
+        if (signupIssue) {
+            alert(signupIssue.message);
+            signupIssue.target?.focus();
             return;
         }
 
@@ -320,6 +368,8 @@ document.addEventListener('DOMContentLoaded', () => {
             password_confirm: passwordConfirm,
             phone: phoneInput.value.replace(/[^0-9]/g, ''),
             name: document.getElementById('name').value.trim(),
+            birth: document.getElementById('birth').value.trim(),
+            gender: document.getElementById('gender').value,
             phone_verified: 'Y'
         };
 

@@ -740,12 +740,13 @@ HTML);
                     throw new \Exception('필수 약관에 동의해주세요.');
                 }
             } elseif ($memberType === 'FC') {
-                if ($name === '' && $authName !== '') {
-                    $name = $authName;
-                }
+                // FC도 이름을 직접 입력받지 않고, 휴대폰 본인인증 결과만 사용한다.
+                $name = $authName;
+                $birth = $authBirth;
+                $gender = $authGender;
 
-                if ($name === '') {
-                    throw new \Exception('이름을 입력해주세요.');
+                if ($name === '' || !preg_match('/^\d{8}$/', $birth) || !in_array($gender, ['M', 'F'], true)) {
+                    throw new \Exception('휴대폰 인증 정보를 확인해주세요.');
                 }
             }
 
@@ -1149,7 +1150,10 @@ HTML);
         $phone = $mobileOk->normalizePhone((string) ($resultData['userPhone'] ?? $resultData['phone'] ?? ''));
         $name = trim((string) ($resultData['userName'] ?? $resultData['name'] ?? ''));
         $birth = preg_replace('/[^0-9]/', '', (string) ($resultData['userBirthday'] ?? $resultData['birth'] ?? ''));
-        $gender = strtoupper(trim((string) ($resultData['userGender'] ?? $resultData['gender'] ?? '')));
+        $genderRaw = strtoupper(trim((string) ($resultData['userGender'] ?? $resultData['gender'] ?? '')));
+        $gender = in_array($genderRaw, ['1', 'M'], true)
+            ? 'M'
+            : (in_array($genderRaw, ['2', 'F'], true) ? 'F' : '');
         $ci = trim((string) ($resultData['ci'] ?? ''));
         $di = trim((string) ($resultData['di'] ?? ''));
         $siteId = trim((string) ($resultData['siteID'] ?? ''));
@@ -2253,7 +2257,6 @@ HTML);
         $data = $this->request->getJSON(true);
 
         $phone = preg_replace('/[^0-9]/', '', $data['phone'] ?? '');
-        $name = trim($data['name'] ?? '');
         $agreeMarketing = (int)($data['agree_marketing'] ?? 0);
 
         if (!$phone) {
@@ -2267,13 +2270,6 @@ HTML);
             return $this->response->setJSON([
                 'status' => 'error',
                 'message' => '휴대폰 번호를 확인해주세요.'
-            ]);
-        }
-
-        if ($name === '') {
-            return $this->response->setJSON([
-                'status' => 'error',
-                'message' => '이름을 입력해주세요.'
             ]);
         }
 
@@ -2306,6 +2302,22 @@ HTML);
             }
         }
 
+        // 이름은 요청값이 아니라 기존 값 또는 휴대폰 본인인증 결과만 사용한다.
+        $name = (string) ($member['name'] ?? '');
+        $birth = (string) ($member['birth'] ?? '');
+        $gender = (string) ($member['gender'] ?? '');
+        $authPhone = preg_replace('/[^0-9]/', '', (string) $session->get('phone_auth_phone'));
+        if ((bool) $session->get('phone_auth_verified') && $authPhone === $phone) {
+            $authName = trim((string) $session->get('phone_auth_name'));
+            if ($authName !== '') {
+                $name = $authName;
+            }
+            $authBirth = preg_replace('/[^0-9]/', '', (string) $session->get('phone_auth_birth'));
+            $authGender = strtoupper(trim((string) $session->get('phone_auth_gender')));
+            if (preg_match('/^\d{8}$/', $authBirth)) $birth = $authBirth;
+            if (in_array($authGender, ['M', 'F'], true)) $gender = $authGender;
+        }
+
         // 휴대폰 중복 체크
         $exists = $db->table('my_fc_member')
             ->where('phone', $phone)
@@ -2324,6 +2336,8 @@ HTML);
             ->where('member_id', $memberId)
             ->update([
                 'name' => $name,
+                'birth' => $birth,
+                'gender' => $gender,
                 'phone' => $phone,
                 'phone_verified' => $phoneChanged ? 'Y' : ($member['phone_verified'] ?? 'N'),
                 'agree_marketing' => $agreeMarketing,

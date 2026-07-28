@@ -17,7 +17,7 @@ $genderLabel = match ($genderValue) {
 
 $phoneButtonLabel = $isEdit ? '변경/재인증' : '변경/인증';
 $phoneReadonly = $isEdit;
-$profileReadonly = $isEdit || $mobileOkEnabled;
+$profileReadonly = true;
 ?>
 
 <div class="form-field">
@@ -102,6 +102,7 @@ $profileReadonly = $isEdit || $mobileOkEnabled;
         placeholder="본인인증 후 자동 입력됩니다."
         <?= $profileReadonly ? 'readonly' : '' ?>
     />
+    <p class="form-text">이름은 휴대폰 본인인증 결과로만 등록·변경됩니다.</p>
 </div>
 
 <div class="form-field">
@@ -121,26 +122,7 @@ $profileReadonly = $isEdit || $mobileOkEnabled;
 
 <div class="form-field">
     <label class="form-label" for="gender-display">성별 <b>*</b></label>
-    <?php if ($mobileOkEnabled): ?>
-        <input
-            class="form-input"
-            id="gender-display"
-            type="text"
-            value="<?= esc($genderLabel) ?>"
-            placeholder="본인인증 후 자동 입력됩니다."
-            readonly
-        />
-        <input type="hidden" id="gender" name="gender" value="<?= esc($genderValue) ?>">
-    <?php else: ?>
-        <div class="form-inline-options">
-            <label class="c-radio">
-                <input type="radio" name="gender" value="M" <?= $genderValue === 'M' ? 'checked' : '' ?> />
-                <span>남성</span>
-            </label>
-            <label class="c-radio">
-                <input type="radio" name="gender" value="F" <?= $genderValue === 'F' ? 'checked' : '' ?> />
-                <span>여성</span>
-            </label>
-        </div>
-    <?php endif; ?>
+    <input class="form-input" id="gender-display" type="text" value="<?= esc($genderLabel) ?>" placeholder="본인인증 후 자동 입력됩니다." readonly />
+    <input type="hidden" id="gender" name="gender" value="<?= esc($genderValue) ?>">
+    <p class="form-text">이름, 생년월일, 성별은 휴대폰 본인인증 결과로만 등록·변경됩니다.</p>
 </div>

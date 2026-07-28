@@ -69,9 +69,10 @@ class AdController extends BaseController
         $db->table('ad_master')
             ->where('id', (int) $ad['id'])
             ->set('click_count', 'COALESCE(click_count, 0) + 1', false)
-            ->update([
-                'updated_at' => date('Y-m-d H:i:s'),
-            ]);
+            // 클릭 집계는 광고 정보 변경이 아니다. updated_at을 명시적으로 현재 값으로
+            // 유지해 MySQL의 ON UPDATE CURRENT_TIMESTAMP 자동 갱신도 막는다.
+            ->set('updated_at', 'updated_at', false)
+            ->update();
 
         // 클릭 수는 로그 테이블의 존재 여부와 관계없이 항상 집계한다.
         // 이전 배포 DB에 로그 테이블이 없으면 기존 트랜잭션이 전체 롤백되어

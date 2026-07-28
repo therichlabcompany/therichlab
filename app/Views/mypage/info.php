@@ -52,28 +52,6 @@
                 </div>
             </div> -->
 
-            <div class="form-field">
-                <label class="form-label" for="my-birth">생년월일</label>
-                <input class="form-input" id="my-birth" name="birth" type="text"
-                    value="<?= esc($user['birth'] ?? '') ?>"  />
-            </div>
-
-            <div class="form-field">
-                <label class="form-label">성별</label>
-
-                <label class="c-radio">
-                    <input type="radio" name="gender" value="M"
-                        <?= ($user['gender'] ?? '') === 'M' ? 'checked' : '' ?> />
-                    <span>남성</span>
-                </label>
-
-                <label class="c-radio">
-                    <input type="radio" name="gender" value="F"
-                        <?= ($user['gender'] ?? '') === 'F' ? 'checked' : '' ?> />
-                    <span>여성</span>
-                </label>
-            </div>
-
             <div class="form-field form-field--label-inline">
                 <span class="form-label">마케팅 목적의 개인정보 수집 및 이용 동의</span>
 
@@ -161,7 +139,6 @@ document.querySelector('.form-box').addEventListener('submit', function(e){
 
     const email = form.email.value.trim();
     const phone = form.phone.value.trim();
-    const name  = form.name.value.trim();
     const agreeMarketing = form.querySelector('input[name="agree_marketing"]:checked');
 
     // =========================
@@ -176,19 +153,6 @@ document.querySelector('.form-box').addEventListener('submit', function(e){
     if (!phone) {
         alert('휴대폰 번호를 입력해주세요.');
         form.phone.focus();
-        return;
-    }
-
-    if (!name) {
-        alert('이름을 입력해주세요.');
-        form.name.focus();
-        return;
-    }
-
-    const gender = form.querySelector('input[name="gender"]:checked');
-
-    if (!gender) {
-        alert('성별을 선택해주세요.');
         return;
     }
 
