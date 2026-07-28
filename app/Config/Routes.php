@@ -299,6 +299,8 @@ $routes->group('admin', [
     $routes->get('ads/top', 'Management::ads/top');
     $routes->get('ads/top/create', 'Management::adCreate/top');
     $routes->post('ads/top/create', 'Management::adStore/top');
+    $routes->get('ads/top/(:num)/edit', 'Management::adBannerEdit/top/$1');
+    $routes->post('ads/top/(:num)/edit', 'Management::adBannerUpdate/top/$1');
     $routes->get('ads/top/clicks', 'Management::adClicks/top');
     $routes->get('ads/top/status', 'Management::adStatus/top');
     $routes->get('ads/top/export', 'Management::adsExport/top');
@@ -307,6 +309,8 @@ $routes->group('admin', [
     $routes->get('ads/bottom', 'Management::ads/bottom');
     $routes->get('ads/bottom/create', 'Management::adCreate/bottom');
     $routes->post('ads/bottom/create', 'Management::adStore/bottom');
+    $routes->get('ads/bottom/(:num)/edit', 'Management::adBannerEdit/bottom/$1');
+    $routes->post('ads/bottom/(:num)/edit', 'Management::adBannerUpdate/bottom/$1');
     $routes->get('ads/bottom/clicks', 'Management::adClicks/bottom');
     $routes->get('ads/bottom/status', 'Management::adStatus/bottom');
     $routes->get('ads/bottom/export', 'Management::adsExport/bottom');

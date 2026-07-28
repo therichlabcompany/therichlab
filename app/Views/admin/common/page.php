@@ -23,6 +23,7 @@ $page = max(1, (int) ($page ?? 1));
 $totalPages = max(1, (int) ($totalPages ?? 1));
 $pageQuery = is_array($pageQuery ?? null) ? $pageQuery : [];
 $perPage = max(1, (int) ($perPage ?? 20));
+$isReviewManagementPage = $pageClass === 'review-management-page';
 ?>
 
 <style>
@@ -259,7 +260,10 @@ $perPage = max(1, (int) ($perPage ?? 20));
                             <button type="submit" class="btn btn-outline-danger btn-sm" data-confirm="<?= esc($bulkForm['confirm'] ?? '선택 항목을 처리하시겠습니까?') ?>"><?= esc($bulkForm['label'] ?? '선택 처리') ?></button>
                         </form>
                     <?php endif; ?>
-                    <table class="table table-hover align-middle">
+                    <table class="table table-hover align-middle<?= $isReviewManagementPage ? ' review-management-table' : '' ?>">
+                        <?php if ($isReviewManagementPage): ?><colgroup>
+                            <col style="width:34%"><col style="width:7%"><col style="width:15%"><col style="width:15%"><col style="width:10%"><col style="width:7%"><col style="width:12%">
+                        </colgroup><?php endif; ?>
                         <thead>
                             <tr>
                                 <?php foreach ($headers as $headerIndex => $header): ?>

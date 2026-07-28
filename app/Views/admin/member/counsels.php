@@ -312,7 +312,7 @@ $currentPage = min($page, $totalPages);
                                     $profileImageUrl = profile_image_url($counsel['profile_image'] ?? '');
                                     ?>
                                     <a
-                                        href="<?= base_url('admin/members/' . (int) $m['member_id'] . '/counsels?status=' . urlencode($status) . '&counsel_uid=' . urlencode($counsel['counsel_uid'])) ?>"
+                                        href="<?= base_url('admin/members/' . (int) $m['member_id'] . '/counsels?status=' . urlencode($status) . '&counsel_uid=' . urlencode($counsel['counsel_uid'])).'&page='.$page ?>"
                                         class="counsel-list-item <?= $selectedUid === $counsel['counsel_uid'] ? 'active' : '' ?>"
                                     >
                                         <div class="fc-avatar">

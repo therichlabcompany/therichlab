@@ -6,7 +6,7 @@
     <title><?= esc($title ?? '관리자 로그인') ?></title>
 
     <!-- AdminLTE 4 CSS -->
-    <link rel="stylesheet" href="<?= base_url('assets/adminlte/dist/css/adminlte.min.css') ?>">
+    <link rel="stylesheet" href="<?= asset_url('assets/adminlte/dist/css/adminlte.min.css') ?>">
 
     <style>
         body {
@@ -191,6 +191,6 @@
     </div>
 </div>
 
-<script src="<?= base_url('assets/adminlte/dist/js/adminlte.min.js') ?>"></script>
+<script src="<?= asset_url('assets/adminlte/dist/js/adminlte.min.js') ?>"></script>
 </body>
 </html>

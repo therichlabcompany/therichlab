@@ -19,8 +19,13 @@ $queryBase = array_filter([
 .insurance-admin-card-head { display:flex; justify-content:space-between; padding:14px 16px; border-bottom:1px solid #e5e7eb; font-weight:800; }
 .insurance-admin .table th, .insurance-admin .table td { padding:15px 16px; vertical-align:middle; }
 .insurance-admin .table th { white-space:nowrap; }
-.insurance-admin .question-title { display:block; max-width:420px; color:#0d6efd; font-weight:700; text-decoration:none; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-.insurance-admin .question-excerpt { display:block; max-width:420px; margin-top:4px; color:#64748b; font-size:12px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.insurance-admin .table-responsive { width:100%; max-width:100%; overflow-x:hidden !important; }
+.insurance-admin-table { width:100% !important; max-width:100% !important; min-width:0 !important; table-layout:fixed; }
+.insurance-admin-table th, .insurance-admin-table td { min-width:0; overflow:hidden; }
+.insurance-admin-table .question-title { display:block !important; box-sizing:border-box; width:100% !important; max-width:none !important; color:#0d6efd; font-weight:700; text-decoration:none; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.insurance-admin-table .question-excerpt { display:block; width:100%; max-width:none; margin-top:4px; color:#64748b; font-size:12px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.insurance-admin-table .writer-cell { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.insurance-admin-table .manage-cell > .d-flex { flex-wrap:wrap; }
 .insurance-admin .pagination { margin:16px 0 0; justify-content:flex-end; }
 </style>
 
@@ -36,15 +41,17 @@ $queryBase = array_filter([
     </form></div>
     <div class="insurance-admin-card">
         <div class="insurance-admin-card-head"><span>보험IN 게시물 목록</span><span>20개 노출</span></div>
-        <div class="table-responsive"><table class="table table-hover align-middle mb-0"><thead><tr>
+        <div class="table-responsive"><table class="table table-hover align-middle mb-0 insurance-admin-table"><colgroup>
+            <col style="width:6%"><col style="width:34%"><col style="width:18%"><col style="width:7%"><col style="width:7%"><col style="width:14%"><col style="width:14%">
+        </colgroup><thead><tr>
             <th>번호</th><th>게시물</th><th>작성자</th><th>답변</th><th>조회수</th><th>작성일</th><th>관리</th>
         </tr></thead><tbody>
         <?php foreach ($questions as $row): ?><tr>
             <td><?= (int) $row['question_id'] ?></td>
             <td><a class="question-title" href="<?= base_url('admin/contents/insurance-in/' . (int) $row['question_id']) ?>"><?= esc($row['title'] ?? '-') ?></a><span class="question-excerpt"><?= esc($row['body'] ?? '') ?></span></td>
-            <td><?= esc(($row['writer_name'] ?? '-') . ' (' . ($row['writer_email'] ?? '-') . ')') ?></td>
+            <td class="writer-cell"><?= esc(($row['writer_name'] ?? '-') . ' (' . ($row['writer_email'] ?? '-') . ')') ?></td>
             <td><?= number_format((int) ($row['answer_count'] ?? 0)) ?>건</td><td><?= number_format((int) ($row['view_count'] ?? 0)) ?></td><td><?= esc($row['created_at'] ?? '-') ?></td>
-            <td><div class="d-flex gap-1"><a class="btn btn-outline-primary btn-sm" href="<?= base_url('admin/contents/insurance-in/' . (int) $row['question_id']) ?>">상세</a><form method="post" action="<?= base_url('admin/contents/insurance-in/' . (int) $row['question_id'] . '/delete') ?>" onsubmit="return confirm('게시물과 연결된 답변이 사용자 페이지에서 모두 숨겨집니다. 삭제하시겠습니까?')"><?= csrf_field() ?><button class="btn btn-outline-danger btn-sm">삭제</button></form></div></td>
+            <td class="manage-cell"><div class="d-flex gap-1"><a class="btn btn-outline-primary btn-sm" href="<?= base_url('admin/contents/insurance-in/' . (int) $row['question_id']) ?>">상세</a><form method="post" action="<?= base_url('admin/contents/insurance-in/' . (int) $row['question_id'] . '/delete') ?>" onsubmit="return confirm('게시물과 연결된 답변이 사용자 페이지에서 모두 숨겨집니다. 삭제하시겠습니까?')"><?= csrf_field() ?><button class="btn btn-outline-danger btn-sm">삭제</button></form></div></td>
         </tr><?php endforeach; ?>
         <?php if (!$questions): ?><tr><td colspan="7" class="text-center text-muted py-5">표시할 보험IN 게시물이 없습니다.</td></tr><?php endif; ?>
         </tbody></table></div>

@@ -1,5 +1,5 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
-<link rel="stylesheet" href="<?= base_url('assets/css/content.css?v=3') ?>" />
+<link rel="stylesheet" href="<?= asset_url('assets/css/content.css') ?>" />
 <main>
     <div class="signup-done-inner">
         <div class="signup-done-ico" aria-hidden="true">

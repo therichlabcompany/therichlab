@@ -8,8 +8,8 @@
     <link rel="shortcut icon" type="image/svg+xml" href="<?= base_url('assets/images/myfc-favicon.svg') ?>">
 
     <!-- AdminLTE v4 CSS -->
-    <link rel="stylesheet" href="<?= base_url('assets/css/common.css?v=3') ?>">
-    <link rel="stylesheet" href="<?= base_url('assets/adminlte/dist/css/adminlte.min.css') ?>">
+    <link rel="stylesheet" href="<?= asset_url('assets/css/common.css') ?>">
+    <link rel="stylesheet" href="<?= asset_url('assets/adminlte/dist/css/adminlte.min.css') ?>">
 </head>
 <body class="layout-fixed sidebar-expand-lg bg-body-tertiary admin-shell">
 <div class="app-wrapper">

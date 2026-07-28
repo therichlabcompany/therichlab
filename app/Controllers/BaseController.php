@@ -20,7 +20,7 @@ use Psr\Log\LoggerInterface;
  */
 abstract class BaseController extends Controller
 {
-    protected $helpers = ['profile_image', 'language'];
+    protected $helpers = ['asset', 'profile_image', 'language'];
 
     /**
      * Be sure to declare properties for any property fetch you initialized.

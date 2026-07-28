@@ -18,7 +18,7 @@ endforeach;
 
 if (empty($insuranceText)) $insuranceText = "전체";
 ?>
-<link rel="stylesheet" href="<?= base_url('assets/css/content.css?v=3') ?>" />
+<link rel="stylesheet" href="<?= asset_url('assets/css/content.css') ?>" />
 <main>
     <div class="page-inner">
         <h1 class="visually-hidden">보험설계사 목록</h1>

@@ -454,10 +454,10 @@ class Management extends BaseController
             'headers' => ['제목', '별점', '작성자', '상담 FC', '노출상태', '조회수', '작성일'],
             'rows' => array_map(function ($row) {
                 return [
-                    '<a href="' . base_url('admin/contents/reviews/' . (int) $row['review_id']) . '">' . esc($row['title'] ?? '-') . '</a>',
+                    '<a class="review-list-title" href="' . base_url('admin/contents/reviews/' . (int) $row['review_id']) . '">' . esc($row['title'] ?? '-') . '</a>',
                     esc((string) ($row['rating'] ?? '-')),
-                    esc($row['user_name'] ?? '-'),
-                    esc($row['fc_name'] ?? '-'),
+                    '<span class="review-list-name">' . esc($row['user_name'] ?? '-') . '</span>',
+                    '<span class="review-list-name">' . esc($row['fc_name'] ?? '-') . '</span>',
                     $this->reviewDisplayStatusLabel((string) ($row['display_status'] ?? 'Y')),
                     number_format((int) ($row['view_count'] ?? 0)),
                     esc($row['created_at'] ?? '-'),
@@ -847,6 +847,7 @@ class Management extends BaseController
                 $typeLabel = $this->adTypeLabel((string) ($row['ad_type'] ?? ''), (string) ($row['banner_position'] ?? ''));
                 $statusLabel = $this->adStatusLabelForRow($row);
                 $statusKey = $this->isAdActive($row) ? 'active' : strtolower((string) ($row['status'] ?? 'apply'));
+                $isBannerImageMissing = $kind !== 'normal' && $this->isAdActive($row) && !$this->bannerImageExists($row);
                 $createdAt = !empty($row['created_at']) ? strtotime((string) $row['created_at']) : false;
                 return [
                     '<input type="checkbox" class="form-check-input ad-row-check" name="ad_ids[]" value="' . $adId . '" aria-label="광고 #' . $adId . ' 선택">',
@@ -854,7 +855,7 @@ class Management extends BaseController
                     '<a class="ad-metric-button" href="' . base_url('admin/ads/' . $kind . '/clicks?ad_id=' . $adId) . '"><strong>' . number_format((int) ($row['click_count'] ?? 0)) . '</strong><span>클릭 상세</span></a>',
                     '<div class="ad-period-cell"><span>' . esc($row['start_date'] ?? '-') . '</span><i>→</i><span>' . esc($row['end_date'] ?? '-') . '</span></div>',
                     '<strong class="ad-amount">' . number_format((int) ($row['amount'] ?? 0)) . '<small>원</small></strong>',
-                    '<a class="ad-status-badge is-' . esc($statusKey) . '" href="' . base_url('admin/ads/' . $kind . '/status?ad_id=' . $adId) . '"><span></span>' . esc($statusLabel) . '</a>',
+                    '<div><a class="ad-status-badge is-' . esc($statusKey) . '" href="' . base_url('admin/ads/' . $kind . '/status?ad_id=' . $adId) . '"><span></span>' . esc($statusLabel) . '</a>' . ($isBannerImageMissing ? '<small class="ad-banner-missing">배너 이미지 없음 · 메인 미노출</small>' : '') . '</div>',
                     !empty($row['member_id']) ? '<a class="ad-fc-button" href="' . base_url('admin/fc-members/' . (int) $row['member_id']) . '">' . esc($row['name'] ?? '-') . '<small>FC 상세</small></a>' : '<span class="text-muted">-</span>',
                     $createdAt ? '<div class="ad-created-cell"><strong>' . esc(date('Y.m.d', $createdAt)) . '</strong><small>' . esc(date('H:i', $createdAt)) . '</small></div>' : '-',
                     $this->adDecisionControls($kind, $row),
@@ -1064,6 +1065,59 @@ class Management extends BaseController
         return redirect()
             ->to(base_url('admin/ads/' . $kind))
             ->with('success', '광고가 등록되었습니다.');
+    }
+
+    public function adBannerEdit($kind = 'top', $id = null)
+    {
+        $kind = $this->normalizeAdKind((string) $kind);
+        $ad = $this->db->table('ad_master')->where('id', (int) $id)->get()->getRowArray();
+
+        if ($kind === 'normal' || !$ad || !$this->adBelongsToKind($ad, $kind)) {
+            return redirect()->to(base_url('admin/ads/' . $kind))->with('error', '배너 광고 정보를 찾을 수 없습니다.');
+        }
+
+        return view('admin/ad/edit_banner', [
+            'title' => $this->adKindTitle($kind) . ' 수정',
+            'kind' => $kind,
+            'ad' => $ad,
+            'hasBannerImage' => $this->bannerImageExists($ad),
+        ]);
+    }
+
+    public function adBannerUpdate($kind = 'top', $id = null)
+    {
+        $kind = $this->normalizeAdKind((string) $kind);
+        $adId = (int) $id;
+        $ad = $this->db->table('ad_master')->where('id', $adId)->get()->getRowArray();
+
+        if ($kind === 'normal' || !$ad || !$this->adBelongsToKind($ad, $kind)) {
+            return redirect()->to(base_url('admin/ads/' . $kind))->with('error', '배너 광고 정보를 찾을 수 없습니다.');
+        }
+
+        $file = $this->request->getFile('banner_image');
+        $update = [
+            'banner_link_url' => trim((string) $this->request->getPost('banner_link_url')) ?: null,
+            'updated_at' => date('Y-m-d H:i:s'),
+        ];
+
+        try {
+            if ($file && $file->isValid() && !$file->hasMoved()) {
+                $update['banner_image_url'] = '/uploads/banner/' . $this->storePublicBannerImage($file);
+                $update['banner_need_design'] = 0;
+            } elseif ($file && $file->getError() !== UPLOAD_ERR_NO_FILE) {
+                throw new \RuntimeException('배너 이미지 업로드에 실패했습니다.');
+            } elseif (!$this->bannerImageExists($ad)) {
+                throw new \RuntimeException('메인에 노출할 배너 이미지를 업로드해주세요.');
+            }
+        } catch (\Throwable $e) {
+            return redirect()->back()->withInput()->with('error', $e->getMessage());
+        }
+
+        $this->db->table('ad_master')->where('id', $adId)->update($update);
+
+        return redirect()
+            ->to(base_url('admin/ads/' . $kind))
+            ->with('success', '배너 이미지와 링크를 수정했습니다. 진행중이며 기간 내인 광고는 메인에 바로 노출됩니다.');
     }
 
     public function adDecision($kind = 'normal', $id = null)
@@ -3952,6 +4006,7 @@ class Management extends BaseController
         $actionUrl = base_url('admin/ads/' . $kind . '/' . $id . '/decision');
         $defaultEndDate = date('Y-m-d', strtotime('+1 month'));
         $period = esc(($row['start_date'] ?? '-') . ' ~ ' . ($row['end_date'] ?? '-'));
+        $bannerEditButton = $kind === 'normal' ? '' : '<a class="btn btn-outline-primary btn-sm" href="' . base_url('admin/ads/' . $kind . '/' . $id . '/edit') . '">배너 수정</a>';
 
         if (in_array($status, ['apply', 'pending', 'rejected'], true)) {
             return '
@@ -3967,7 +4022,7 @@ class Management extends BaseController
                         ' . csrf_field() . '
                         <input type="hidden" name="decision" value="rejected">
                         <button type="submit" class="btn btn-outline-danger btn-sm" onclick="return confirm(\'광고 신청을 거절하시겠습니까?\')">신청 거절</button>
-                    </form>
+                    </form>' . $bannerEditButton . '
                 </div>';
         }
 
@@ -3977,11 +4032,11 @@ class Management extends BaseController
                     ' . csrf_field() . '
                     <input type="hidden" name="decision" value="end">
                     <button type="submit" class="btn btn-outline-secondary btn-sm" onclick="return confirm(\'광고를 종료하시겠습니까?\')">광고 종료</button>
-                </form></div>';
+                </form>' . $bannerEditButton . '</div>';
         }
 
         if ($status === 'end' || ($status === 'approved' && !$this->isAdActive($row))) {
-            return '<div class="ad-manage-box is-ended"><span class="ad-manage-caption">광고 진행기간</span><strong>' . $period . '</strong></div>';
+            return '<div class="ad-manage-box is-ended"><span class="ad-manage-caption">광고 진행기간</span><strong>' . $period . '</strong>' . $bannerEditButton . '</div>';
         }
 
         return '-';
@@ -4044,6 +4099,19 @@ class Management extends BaseController
         }
 
         return $type === 'banner' && (string) ($ad['banner_position'] ?? '') === $kind;
+    }
+
+    private function bannerImageExists(array $ad): bool
+    {
+        $storedPath = ltrim((string) ($ad['banner_image_url'] ?? ''), '/');
+        if (!str_starts_with($storedPath, 'uploads/banner/')) {
+            return false;
+        }
+
+        $fileName = basename($storedPath);
+
+        return is_file(FCPATH . 'uploads/banner/' . $fileName)
+            || is_file(WRITEPATH . 'uploads/banner/' . $fileName);
     }
 
     private function adMemberJoinCondition(): string

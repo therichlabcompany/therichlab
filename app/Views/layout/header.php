@@ -10,16 +10,16 @@
     <link rel="shortcut icon" type="image/svg+xml" href="<?= base_url('assets/images/myfc-favicon.svg') ?>" />
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
-    <link rel="stylesheet" href="<?= base_url('assets/css/reset.css?v=3') ?>" />
-    <link rel="stylesheet" href="<?= base_url('assets/css/common.css?v=4') ?>" />
-    <link rel="stylesheet" href="<?= base_url('assets/css/layout.css?v=3') ?>" />
-    <link rel="stylesheet" href="<?= base_url('assets/css/main.css?v=3') ?>" />
-    <link rel="stylesheet" href="<?= base_url('assets/css/content.css?v=7') ?>" />
+    <link rel="stylesheet" href="<?= asset_url('assets/css/reset.css') ?>" />
+    <link rel="stylesheet" href="<?= asset_url('assets/css/common.css') ?>" />
+    <link rel="stylesheet" href="<?= asset_url('assets/css/layout.css') ?>" />
+    <link rel="stylesheet" href="<?= asset_url('assets/css/main.css') ?>" />
+    <link rel="stylesheet" href="<?= asset_url('assets/css/content.css') ?>" />
 
     <!-- 스크립트 · Swiper -->
-    <script src="<?= base_url('assets/js/ui.js?v=9') ?>"></script>
-    <script src="<?= base_url('assets/js/popup.js?v=8') ?>"></script>
-    <script src="<?= base_url('assets/js/common.js?v=8') ?>"></script>
+    <script src="<?= asset_url('assets/js/ui.js') ?>"></script>
+    <script src="<?= asset_url('assets/js/popup.js') ?>"></script>
+    <script src="<?= asset_url('assets/js/common.js') ?>"></script>
     <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
 
 
