@@ -705,7 +705,7 @@ foreach ($activityItems ?? [] as $item) {
                                 <div class="field-label">활동 영상</div>
                                 <div class="field-value">
                                     <?php if (!empty($story['story_video'])): ?>
-                                        <?php $videoUrl = base_url('uploads/story/video/' . ltrim($story['story_video'], '/')); ?>
+                                        <?php $videoUrl = base_url('fc/story/video/' . rawurlencode(basename((string) $story['story_video']))); ?>
                                         <div class="story-grid">
                                             <div class="story-thumb">
                                                 <button type="button" class="preview" onclick="openMediaModal('video', <?= json_encode($videoUrl) ?>)">
@@ -893,7 +893,22 @@ function deleteFcMember(memberId) {
 function openMediaModal(type, url) {
     var content = document.getElementById('mediaModalContent');
     if (type === 'video') {
-        content.innerHTML = '<video controls autoplay><source src="' + url + '"></video>';
+        content.innerHTML = '';
+        var video = document.createElement('video');
+        var source = document.createElement('source');
+        video.controls = true;
+        video.autoplay = true;
+        video.playsInline = true;
+        source.src = url;
+        video.appendChild(source);
+        content.appendChild(video);
+        video.addEventListener('error', function () {
+            content.innerHTML = '';
+            var message = document.createElement('p');
+            message.className = 'text-muted';
+            message.textContent = '영상을 재생할 수 없습니다. MP4(H.264/AAC) 형식의 파일인지 확인해주세요.';
+            content.appendChild(message);
+        });
     } else {
         content.innerHTML = '<img src="' + url + '" alt="">';
     }

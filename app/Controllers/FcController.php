@@ -18,13 +18,58 @@ class FcController extends BaseController
             throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound();
         }
 
-        $mime = (new \finfo(FILEINFO_MIME_TYPE))->file($filePath) ?: 'video/mp4';
-        return $this->response
+        $size = filesize($filePath);
+        if ($size === false || $size === 0) {
+            throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound();
+        }
+
+        $start = 0;
+        $end = $size - 1;
+        $statusCode = 200;
+        $range = trim($this->request->getHeaderLine('Range'));
+
+        if ($range !== '' && preg_match('/^bytes=(\d*)-(\d*)$/', $range, $matches) === 1) {
+            if ($matches[1] === '' && $matches[2] !== '') {
+                $start = max(0, $size - (int) $matches[2]);
+            } elseif ($matches[1] !== '') {
+                $start = (int) $matches[1];
+                $end = $matches[2] !== '' ? min((int) $matches[2], $end) : $end;
+            }
+
+            if ($start > $end || $start >= $size) {
+                return $this->response
+                    ->setStatusCode(416)
+                    ->setHeader('Content-Range', 'bytes */' . $size)
+                    ->setHeader('Accept-Ranges', 'bytes');
+            }
+
+            $statusCode = 206;
+        }
+
+        $length = $end - $start + 1;
+        $handle = fopen($filePath, 'rb');
+        if ($handle === false) {
+            throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound();
+        }
+
+        fseek($handle, $start);
+        $body = stream_get_contents($handle, $length);
+        fclose($handle);
+
+        $mime = (new \finfo(FILEINFO_MIME_TYPE))->file($filePath) ?: 'application/octet-stream';
+        $response = $this->response
+            ->setStatusCode($statusCode)
             ->setHeader('Content-Type', $mime)
-            ->setHeader('Content-Length', (string) filesize($filePath))
+            ->setHeader('Content-Length', (string) $length)
             ->setHeader('Accept-Ranges', 'bytes')
             ->setHeader('Cache-Control', 'public, max-age=3600')
-            ->setBody((string) file_get_contents($filePath));
+            ->setBody($body === false ? '' : $body);
+
+        if ($statusCode === 206) {
+            $response->setHeader('Content-Range', 'bytes ' . $start . '-' . $end . '/' . $size);
+        }
+
+        return $response;
     }
 
     public function index(): string
