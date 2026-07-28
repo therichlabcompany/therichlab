@@ -1,0 +1,193 @@
+.customer-support-page {
+  min-width: 320px;
+  min-height: 100%;
+  background: #f5f7fb;
+}
+
+.customer-support {
+  min-height: 100vh;
+  padding: 32px 24px 28px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.customer-support-brand {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.customer-support-brand:focus-visible,
+.support-mail-button:focus-visible,
+.support-mail-address:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 4px;
+}
+
+.customer-support-brand img {
+  width: auto;
+  height: 36px;
+}
+
+.customer-support-content {
+  width: min(100%, 760px);
+  margin: auto 0;
+  padding: 42px 0;
+  text-align: center;
+}
+
+.support-icon {
+  width: 76px;
+  height: 76px;
+  margin: 0 auto 24px;
+  display: grid;
+  place-items: center;
+  border-radius: 24px;
+  background: linear-gradient(135deg, #4f7cff, var(--primary));
+  box-shadow: 0 14px 30px rgba(37, 99, 235, 0.22);
+  color: #fff;
+  font-size: 44px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.customer-support h1,
+.customer-support h2,
+.customer-support p {
+  margin: 0;
+}
+
+.customer-support h1 {
+  color: var(--text);
+  font-size: clamp(32px, 4.3vw, 42px);
+  font-weight: 800;
+  line-height: 1.25;
+  letter-spacing: -0.05em;
+}
+
+.support-intro {
+  margin-top: 16px !important;
+  color: var(--text-sub);
+  font-size: 17px;
+  line-height: 1.6;
+  letter-spacing: -0.025em;
+}
+
+.support-card {
+  margin-top: 30px;
+  padding: 34px 36px 30px;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  background: var(--bg);
+  box-shadow: 0 16px 36px rgba(15, 23, 42, 0.07);
+  text-align: left;
+}
+
+.support-card h2 {
+  color: var(--text);
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1.4;
+  letter-spacing: -0.04em;
+}
+
+.support-card p {
+  margin-top: 12px;
+  color: var(--text-sub);
+  font-size: 16px;
+  line-height: 1.7;
+  letter-spacing: -0.025em;
+}
+
+.support-mail-button {
+  min-height: 52px;
+  margin-top: 22px;
+  padding: 0 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  background: var(--primary);
+  color: #fff;
+  font-size: 16px;
+  font-weight: 700;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.support-mail-button:hover {
+  background: var(--primary-hover);
+  transform: translateY(-1px);
+}
+
+.support-mail-address {
+  width: fit-content;
+  margin-top: 8px;
+  display: block;
+  color: var(--text-sub);
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+.support-mail-address:hover {
+  color: var(--primary);
+  text-decoration: underline;
+}
+
+.customer-support-footer {
+  color: #8491a7;
+  font-size: 14px;
+  line-height: 1.5;
+  text-align: center;
+}
+
+@media (max-width: 600px) {
+  .customer-support {
+    padding: 24px 16px 22px;
+  }
+
+  .customer-support-brand img {
+    height: 31px;
+  }
+
+  .customer-support-content {
+    padding: 38px 0;
+  }
+
+  .support-icon {
+    width: 66px;
+    height: 66px;
+    margin-bottom: 20px;
+    border-radius: 20px;
+    font-size: 38px;
+  }
+
+  .support-intro {
+    margin-top: 12px !important;
+    font-size: 15px;
+  }
+
+  .support-card {
+    margin-top: 26px;
+    padding: 28px 24px 25px;
+    border-radius: 16px;
+  }
+
+  .support-card h2 {
+    font-size: 20px;
+  }
+
+  .support-card p,
+  .support-mail-button,
+  .support-mail-address {
+    font-size: 15px;
+  }
+
+  .support-break {
+    display: none;
+  }
+
+  .customer-support-footer {
+    font-size: 12px;
+  }
+}

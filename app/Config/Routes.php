@@ -7,6 +7,7 @@ use CodeIgniter\Router\RouteCollection;
  */
 $routes->get('/', 'Home::index');
 $routes->get('/index_pro', 'Home::index_pro');
+$routes->get('customer-support', 'SupportController::customerSupport');
 
 $routes->get('/fc/recommend', 'Home::recommend');
 
