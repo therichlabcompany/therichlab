@@ -4183,8 +4183,8 @@ a.fc-detail-cta {
 .insurance-in-detail .insurance-in-question-head { padding: 18px 18px 14px; }
 .insurance-in-detail .insurance-in-question-bar { margin-bottom: 8px; }
 .insurance-in-detail .insurance-in-question-label { font-size: 13px; font-weight: 600; color: var(--text-muted); }
-.insurance-in-detail .insurance-in-question-head > h2 { margin: 0 0 10px; font-size: 18px; font-weight: 700; line-height: 1.38; letter-spacing: -.02em; color: var(--text); }
-.insurance-in-detail .insurance-in-question-head > p:not(.insurance-in-meta):not(.insurance-in-question-label) { margin: 0; font-size: 15px; line-height: 1.55; color: var(--text-sub); }
+.insurance-in-detail .insurance-in-question-head > h2 { margin: 0 0 10px; font-size: 18px; font-weight: 700; line-height: 1.38; letter-spacing: -.02em; color: var(--text); overflow-wrap: anywhere; word-break: break-word; white-space: normal; }
+.insurance-in-detail .insurance-in-question-head > p:not(.insurance-in-meta):not(.insurance-in-question-label) { margin: 0; font-size: 15px; line-height: 1.55; color: var(--text-sub); overflow-wrap: anywhere; word-break: break-word; white-space: normal; }
 .insurance-in-detail .insurance-in-question-head > .insurance-in-meta { margin-top: 14px; }
 .insurance-in-detail .insurance-in-question > .insurance-in-foot { flex-direction: row; align-items: center; justify-content: space-between; gap: 12px 16px; margin-top: 0; padding: 12px 18px 14px; }
 .insurance-in-detail .insurance-in-question > .insurance-in-foot .insurance-in-author { align-self: auto; text-align: left; }
@@ -4211,7 +4211,7 @@ a.fc-detail-cta {
 .insurance-in-detail-box .insurance-in-answers-title > span { font-size: 14px; font-weight: 600; }
 .insurance-in-detail-box .insurance-in-answer { display: flex; flex-direction: column; margin: 0; padding: 0; border: 0; }
 .insurance-in-detail-box .insurance-in-answer + .insurance-in-answer { margin-top: 0; padding-top: 16px; border-top: 1px dashed var(--border-strong); }
-.insurance-in-detail-box .insurance-in-answer-text { margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--border); font-size: 15px; line-height: 1.6; color: var(--text-sub); }
+.insurance-in-detail-box .insurance-in-answer-text { margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--border); font-size: 15px; line-height: 1.6; color: var(--text-sub); overflow-wrap: anywhere; word-break: break-word; }
 .insurance-in-detail-box .insurance-in-answer-text > p:last-child { margin: 0; }
 .insurance-in-detail-box .insurance-in-answer > .card { margin: 0; min-height: 0; border: 1px solid var(--border); border-radius: 12px; background: var(--bg); box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06); overflow: hidden; }
 .insurance-in-detail-box .insurance-in-answer > .card .card-body { padding: 16px 18px; }

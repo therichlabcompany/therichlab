@@ -1802,16 +1802,8 @@ class MypageController extends BaseController
         $adList = $result['list'];
         $total  = $result['total'];
 
-        $lastUpdatedRow = \Config\Database::connect()
-            ->table('ad_master')
-            ->select('MAX(COALESCE(updated_at, created_at)) AS last_updated_at', false)
-            ->groupStart()
-                ->where('fc_member_id', $fc_member_id)
-                ->orWhere('fc_member_id', (string) $legacyMemberId)
-            ->groupEnd()
-            ->get()
-            ->getRowArray();
-        $lastUpdatedAt = $lastUpdatedRow['last_updated_at'] ?? null;
+        // 광고관리 목록을 마지막으로 조회한 시각을 표시한다.
+        $lastUpdatedAt = date('Y-m-d H:i:s');
 
         $totalPages = ceil($total / $perPage);
 
