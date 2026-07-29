@@ -262,7 +262,7 @@ function checkEmailDuplicate() {
             }
 
             if (res.duplicate) {
-                alert('이미 사용 중인 이메일입니다.');
+                alert(res.message || '이미 사용 중인 이메일입니다.');
                 emailChecked = false;
             } else {
                 alert('사용 가능한 이메일입니다.');
@@ -300,7 +300,7 @@ function checkPhoneDuplicate() {
             }
 
             if (res.duplicate) {
-                alert('이미 사용 중인 휴대폰 번호입니다.');
+                alert(res.message || '이미 사용 중인 휴대폰 번호입니다.');
                 phoneChecked = false;
                 setPhoneVerified(false);
                 setPhoneInputLocked(false);

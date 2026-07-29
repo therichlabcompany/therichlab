@@ -240,7 +240,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (result.status === 'success') {
                 if (result.duplicate) {
-                    alert('이미 사용 중인 이메일입니다.');
+                    alert(result.message || '이미 사용 중인 이메일입니다.');
                     fcEmailChecked = false;
                 } else {
                     alert('사용 가능한 이메일입니다.');

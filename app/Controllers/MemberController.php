@@ -608,6 +608,14 @@ HTML);
         $db = \Config\Database::connect();
 
         $rejoinCutoff = date('Y-m-d H:i:s', strtotime('-7 days'));
+        $recentLeave = $db->table('my_fc_member')
+            ->select('deleted_at')
+            ->where('email', $email)
+            ->where('status', 'LEAVE')
+            ->where('deleted_at >', $rejoinCutoff)
+            ->orderBy('deleted_at', 'DESC')
+            ->get()
+            ->getRowArray();
         $exists = $db->table('my_fc_member')
             ->where('email', $email)
             ->groupStart()
@@ -621,7 +629,8 @@ HTML);
 
         return $this->response->setJSON([
             'status' => 'success',
-            'duplicate' => $exists > 0
+            'duplicate' => $exists > 0,
+            'message' => $recentLeave ? $this->rejoinRestrictionMessage($recentLeave['deleted_at'] ?? null) : '',
         ]);
     }
 
@@ -651,6 +660,14 @@ HTML);
         $db = \Config\Database::connect();
 
         $rejoinCutoff = date('Y-m-d H:i:s', strtotime('-7 days'));
+        $recentLeave = $db->table('my_fc_member')
+            ->select('deleted_at')
+            ->where('phone', $phone)
+            ->where('status', 'LEAVE')
+            ->where('deleted_at >', $rejoinCutoff)
+            ->orderBy('deleted_at', 'DESC')
+            ->get()
+            ->getRowArray();
         $exists = $db->table('my_fc_member')
             ->where('phone', $phone)
             ->groupStart()
@@ -664,7 +681,8 @@ HTML);
 
         return $this->response->setJSON([
             'status' => 'success',
-            'duplicate' => $exists > 0
+            'duplicate' => $exists > 0,
+            'message' => $recentLeave ? $this->rejoinRestrictionMessage($recentLeave['deleted_at'] ?? null) : '',
         ]);
     }
 
@@ -1323,10 +1341,21 @@ HTML);
         $exists = $duplicateQuery->countAllResults();
 
         if (!$isAccountFind && $exists > 0) {
+            $recentLeave = $db->table('my_fc_member')
+                ->select('deleted_at')
+                ->where('phone', $phone)
+                ->where('status', 'LEAVE')
+                ->where('deleted_at >', $rejoinCutoff)
+                ->orderBy('deleted_at', 'DESC')
+                ->get()
+                ->getRowArray();
+
             return $this->response->setJSON([
                 'status' => 'error',
                 'duplicate' => true,
-                'message' => '이미 사용 중인 휴대폰 번호입니다.',
+                'message' => $recentLeave
+                    ? $this->rejoinRestrictionMessage($recentLeave['deleted_at'] ?? null)
+                    : '이미 사용 중인 휴대폰 번호입니다.',
             ]);
         }
 
@@ -1440,6 +1469,16 @@ HTML);
             && preg_match('/[^A-Za-z0-9\s]/', $password);
     }
 
+    private function rejoinRestrictionMessage(?string $deletedAt): string
+    {
+        if ($deletedAt) {
+            $availableAt = date('Y-m-d H:i', strtotime($deletedAt . ' +7 days'));
+            return '기존 탈퇴 회원은 탈퇴 후 7일 후 가입 가능합니다. 재가입 가능 시점: ' . $availableAt;
+        }
+
+        return '기존 탈퇴 회원은 탈퇴 후 7일 후 가입 가능합니다.';
+    }
+
     public function loginProc()
     {
         $this->response->setContentType('application/json');
@@ -1472,9 +1511,21 @@ HTML);
             ->getRowArray();
 
         if (!$user) {
+            $rejoinCutoff = date('Y-m-d H:i:s', strtotime('-7 days'));
+            $recentLeave = $db->table('my_fc_member')
+                ->select('deleted_at')
+                ->where('email', $email)
+                ->where('status', 'LEAVE')
+                ->where('deleted_at >', $rejoinCutoff)
+                ->orderBy('deleted_at', 'DESC')
+                ->get()
+                ->getRowArray();
+
             return $this->response->setJSON([
                 'status' => 'error',
-                'message' => '존재하지 않는 계정입니다'
+                'message' => $recentLeave
+                    ? $this->rejoinRestrictionMessage($recentLeave['deleted_at'] ?? null)
+                    : '존재하지 않는 계정입니다'
             ]);
         }
 
