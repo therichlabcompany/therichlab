@@ -1555,6 +1555,14 @@ body.profile-open {
     min-width: 0;
   }
 
+  .recommend-section > .main-filter-empty {
+    grid-column: 1 / -1;
+    grid-row: 3;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+  }
+
   .recommend-section .section-more,
   .situation-list .section-more {
     grid-column: 1 / -1;
