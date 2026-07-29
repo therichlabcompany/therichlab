@@ -607,8 +607,16 @@ HTML);
 
         $db = \Config\Database::connect();
 
+        $rejoinCutoff = date('Y-m-d H:i:s', strtotime('-7 days'));
         $exists = $db->table('my_fc_member')
             ->where('email', $email)
+            ->groupStart()
+                ->where('deleted_at', null)
+                ->orGroupStart()
+                    ->where('status', 'LEAVE')
+                    ->where('deleted_at >', $rejoinCutoff)
+                ->groupEnd()
+            ->groupEnd()
             ->countAllResults();
 
         return $this->response->setJSON([
@@ -642,8 +650,16 @@ HTML);
 
         $db = \Config\Database::connect();
 
+        $rejoinCutoff = date('Y-m-d H:i:s', strtotime('-7 days'));
         $exists = $db->table('my_fc_member')
             ->where('phone', $phone)
+            ->groupStart()
+                ->where('deleted_at', null)
+                ->orGroupStart()
+                    ->where('status', 'LEAVE')
+                    ->where('deleted_at >', $rejoinCutoff)
+                ->groupEnd()
+            ->groupEnd()
             ->countAllResults();
 
         return $this->response->setJSON([
@@ -751,7 +767,60 @@ HTML);
             }
 
             // =========================
-            // 3. 중복 체크
+            // 3. 탈퇴 후 7일 재가입 제한 및 만료 식별값 해제
+            // =========================
+            $rejoinCutoff = date('Y-m-d H:i:s', strtotime('-7 days'));
+            $recentLeave = $db->table('my_fc_member')
+                ->select('member_id, deleted_at')
+                ->where('status', 'LEAVE')
+                ->where('deleted_at >', $rejoinCutoff)
+                ->groupStart()
+                    ->where('email', $email)
+                    ->orWhere('phone', $phone)
+                ->groupEnd()
+                ->orderBy('deleted_at', 'DESC')
+                ->get()
+                ->getRowArray();
+
+            if ($recentLeave) {
+                $availableAt = !empty($recentLeave['deleted_at'])
+                    ? date('Y-m-d H:i', strtotime((string) $recentLeave['deleted_at'] . ' +7 days'))
+                    : null;
+                throw new \Exception($availableAt
+                    ? '탈퇴한 계정은 7일 후(' . $availableAt . ')에 같은 이메일 또는 휴대폰 번호로 재가입할 수 있습니다.'
+                    : '탈퇴한 계정은 7일 후에 같은 이메일 또는 휴대폰 번호로 재가입할 수 있습니다.');
+            }
+
+            // 이메일·휴대폰은 단일 고유 인덱스다. 제한 기간이 지난 탈퇴 행의 값은
+            // 재가입 요청 시에만 폐기값으로 전환해 새 계정이 같은 값을 사용할 수 있게 한다.
+            $expiredLeaves = $db->table('my_fc_member')
+                ->select('member_id, email, phone')
+                ->where('status', 'LEAVE')
+                ->where('deleted_at <=', $rejoinCutoff)
+                ->groupStart()
+                    ->where('email', $email)
+                    ->orWhere('phone', $phone)
+                ->groupEnd()
+                ->get()
+                ->getResultArray();
+
+            foreach ($expiredLeaves as $expiredLeave) {
+                $memberId = (int) ($expiredLeave['member_id'] ?? 0);
+                if ($memberId < 1) {
+                    continue;
+                }
+
+                $db->table('my_fc_member')
+                    ->where('member_id', $memberId)
+                    ->update([
+                        'email' => 'withdrawn-' . $memberId . '-' . substr(hash('sha256', (string) ($expiredLeave['email'] ?? '') . '|' . $memberId), 0, 12) . '@deleted.invalid',
+                        'phone' => 'W' . substr(hash('sha256', (string) ($expiredLeave['phone'] ?? '') . '|' . $memberId), 0, 19),
+                        'updated_at' => date('Y-m-d H:i:s'),
+                    ]);
+            }
+
+            // =========================
+            // 4. 중복 체크
             // =========================
             $exists = $db->table('my_fc_member')
                 ->groupStart()
@@ -1235,9 +1304,16 @@ HTML);
         }
 
         $isAccountFind = $session->get('phone_auth_purpose') === 'account_find';
+        $rejoinCutoff = date('Y-m-d H:i:s', strtotime('-7 days'));
         $duplicateQuery = $db->table('my_fc_member')
             ->where('phone', $phone)
-            ->where('deleted_at', null);
+            ->groupStart()
+                ->where('deleted_at', null)
+                ->orGroupStart()
+                    ->where('status', 'LEAVE')
+                    ->where('deleted_at >', $rejoinCutoff)
+                ->groupEnd()
+            ->groupEnd();
 
         $currentMemberId = (int) $session->get('member_id');
         if ($currentMemberId > 0) {
@@ -1484,6 +1560,7 @@ HTML);
             $member = $db->table('my_fc_member')
                 ->where('member_uid', $memberUid)
                 ->where('member_type', 'FC')
+                ->where('status', 'ACTIVE')
                 ->where('deleted_at', null)
                 ->get()
                 ->getRowArray();
@@ -1660,6 +1737,7 @@ HTML);
             $member = $db->table('my_fc_member')
                 ->where('member_uid', $memberUid)
                 ->where('member_type', 'FC')
+                ->where('status', 'ACTIVE')
                 ->where('deleted_at', null)
                 ->get()
                 ->getRowArray();
@@ -1977,6 +2055,7 @@ HTML);
             $member = $db->table('my_fc_member')
                 ->where('member_uid', $memberUid)
                 ->where('member_type', 'FC')
+                ->where('status', 'ACTIVE')
                 ->where('deleted_at', null)
                 ->get()
                 ->getRowArray();
@@ -2279,6 +2358,7 @@ HTML);
             ->where('member_id', $memberId)
             ->where('member_uid', $memberUid)
             ->where('member_type', 'FC')
+            ->where('status', 'ACTIVE')
             ->where('deleted_at', null)
             ->get()
             ->getRowArray();
@@ -2286,7 +2366,7 @@ HTML);
         if (!$member) {
             return $this->response->setJSON([
                 'status' => 'error',
-                'message' => 'FC 회원만 수정할 수 있습니다.'
+                'message' => '활성 FC 회원만 수정할 수 있습니다.'
             ]);
         }
 
@@ -2334,6 +2414,9 @@ HTML);
 
         $db->table('my_fc_member')
             ->where('member_id', $memberId)
+            ->where('member_type', 'FC')
+            ->where('status', 'ACTIVE')
+            ->where('deleted_at', null)
             ->update([
                 'name' => $name,
                 'birth' => $birth,

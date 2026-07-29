@@ -223,11 +223,11 @@ abstract class BaseController extends Controller
 
 
 
-                // 30일 만료
+                // 7일 만료
                 $expireAt =
                     date(
                         'Y-m-d H:i:s',
-                        strtotime('+30 days')
+                        strtotime('+7 days')
                     );
 
 

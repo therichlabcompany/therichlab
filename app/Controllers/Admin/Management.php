@@ -124,6 +124,14 @@ class Management extends BaseController
             $exportUrl .= '?' . http_build_query($query);
         }
 
+        $listQuery = array_filter([
+            'page' => $page,
+            'status' => $filters['status'],
+            'q' => $filters['q'],
+            'start_date' => $filters['start_date'],
+            'end_date' => $filters['end_date'],
+        ], static fn ($value) => (string) $value !== '');
+
         return $this->page([
             'title' => '상담 관리',
             'breadcrumb' => 'Main > 대시보드 > 컨텐츠 관리 > 상담 관리',
@@ -138,9 +146,14 @@ class Management extends BaseController
             'actions' => [['label' => 'EXCEL', 'url' => $exportUrl]],
             'perPage' => $perPage,
             'headers' => ['상담 신청자', '상담 FC', '상담상태', '상담신청일', '희망 상담요청일자'],
-            'rows' => array_map(function ($row) {
+            'rows' => array_map(function ($row) use ($listQuery) {
+                $detailUrl = base_url('admin/contents/counsels/' . (int) $row['counsel_id']);
+                if (!empty($listQuery)) {
+                    $detailUrl .= '?' . http_build_query($listQuery);
+                }
+
                 return [
-                    '<a href="' . base_url('admin/contents/counsels/' . (int) $row['counsel_id']) . '">' . esc(($row['name'] ?? '-') . ' (' . ($row['email'] ?? '-') . ')') . '</a>',
+                    '<a href="' . $detailUrl . '">' . esc(($row['name'] ?? '-') . ' (' . ($row['email'] ?? '-') . ')') . '</a>',
                     esc(($row['fc_name'] ?? '-') . ' (' . ($row['fc_email'] ?? '-') . ')'),
                     $this->counselStatus((string) ($row['status'] ?? '')),
                     esc($row['created_at'] ?? '-'),
@@ -189,6 +202,20 @@ class Management extends BaseController
 
     public function counselDetail($id)
     {
+        $filters = $this->counselFilters();
+        $page = max(1, (int) ($this->request->getGet('page') ?? 1));
+        $backQuery = array_filter([
+            'page' => $page,
+            'status' => $filters['status'],
+            'q' => $filters['q'],
+            'start_date' => $filters['start_date'],
+            'end_date' => $filters['end_date'],
+        ], static fn ($value) => (string) $value !== '');
+        $backUrl = base_url('admin/contents/counsels');
+        if (!empty($backQuery)) {
+            $backUrl .= '?' . http_build_query($backQuery);
+        }
+
         $row = $this->db->table('my_fc_counsel c')
             ->select('c.*, fm.member_id AS fc_id, fm.name AS fc_name, fm.email AS fc_email, um.member_id AS user_id, um.name AS user_name, um.email AS user_email, um.phone AS user_phone, um.birth, um.gender')
             ->join('my_fc_member fm', 'fm.member_uid = c.fc_member_uid', 'left')
@@ -200,7 +227,7 @@ class Management extends BaseController
         return $this->page([
             'title' => '상담 상세',
             'breadcrumb' => 'Main > 대시보드 > 컨텐츠 관리 > 상담 관리 > 상담 상세',
-            'backUrl' => base_url('admin/contents/counsels'),
+            'backUrl' => $backUrl,
             'detail' => [
                 '상담 FC 정보' => '<a href="' . base_url('admin/fc-members/' . (int) ($row['fc_id'] ?? 0)) . '">' . esc(($row['fc_name'] ?? '-') . ' (' . ($row['fc_email'] ?? '-') . ')') . '</a>',
                 '상담 신청 회원 정보' => '<a href="' . base_url('admin/members/' . (int) ($row['user_id'] ?? 0)) . '">' . esc(($row['user_name'] ?? '-') . ' (' . ($row['user_email'] ?? '-') . ')') . '</a>',

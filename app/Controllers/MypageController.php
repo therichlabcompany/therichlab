@@ -48,6 +48,9 @@ class MypageController extends BaseController
 
         $user = $memberModel
             ->where('member_id', $memberId)
+            ->where('member_type', 'USER')
+            ->where('status', 'ACTIVE')
+            ->where('deleted_at', null)
             ->first();
 
         if (!$user) {
@@ -552,6 +555,9 @@ class MypageController extends BaseController
 
         $user = $memberModel
             ->where('member_id', $memberId)
+            ->where('member_type', 'FC')
+            ->where('status', 'ACTIVE')
+            ->where('deleted_at', null)
             ->first();
 
         if (!$user) {
@@ -1565,12 +1571,13 @@ class MypageController extends BaseController
         // =========================
         // 1. 데이터 수집
         // =========================
-        $email   = $this->request->getPost('email');
         $phone   = $this->request->getPost('phone');
         $agreeMk = $this->request->getPost('agree_marketing');
 
         $currentMember = $memberModel
             ->where('member_uid', $memberUid)
+            ->where('member_type', 'USER')
+            ->where('status', 'ACTIVE')
             ->where('deleted_at', null)
             ->first();
 
@@ -1650,16 +1657,14 @@ class MypageController extends BaseController
             'updated_at'       => date('Y-m-d H:i:s'),
         ];
 
-        // 이메일은 수정 불가 조건 아니면 허용
-        if ($email) {
-            $data['email'] = $email;
-        }
-
         // =========================
         // 3. 업데이트 실행
         // =========================
         $update = $memberModel
             ->where('member_uid', $memberUid)
+            ->where('member_type', 'USER')
+            ->where('status', 'ACTIVE')
+            ->where('deleted_at', null)
             ->set($data)
             ->update();
 
@@ -1709,6 +1714,8 @@ class MypageController extends BaseController
         $memberModel = new \App\Models\MemberModel();
         $member = $memberModel
             ->where('member_uid', $memberUid)
+            ->whereIn('member_type', ['USER', 'FC'])
+            ->where('status', 'ACTIVE')
             ->where('deleted_at', null)
             ->first();
 
@@ -1756,7 +1763,13 @@ class MypageController extends BaseController
             $data['gender'] = $gender;
         }
 
-        if (!$memberModel->where('member_uid', $memberUid)->set($data)->update()) {
+        if (!$memberModel
+            ->where('member_uid', $memberUid)
+            ->whereIn('member_type', ['USER', 'FC'])
+            ->where('status', 'ACTIVE')
+            ->where('deleted_at', null)
+            ->set($data)
+            ->update()) {
             return $this->response->setStatusCode(500)->setJSON([
                 'status' => 'error',
                 'message' => '인증 정보를 반영하지 못했습니다.',
