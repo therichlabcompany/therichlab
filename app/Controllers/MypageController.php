@@ -1247,6 +1247,7 @@ class MypageController extends BaseController
 
         $counselUid = $this->request->getPost('counsel_uid');
         $status     = $this->request->getPost('status'); // COMPLETE or CANCEL
+        $rejectReason = trim((string) $this->request->getPost('reject_reason'));
 
         if (!$counselUid || !$status) {
             return $this->response->setJSON([
@@ -1259,6 +1260,20 @@ class MypageController extends BaseController
             return $this->response->setJSON([
                 'result' => false,
                 'msg' => '허용되지 않은 상태값입니다.'
+            ]);
+        }
+
+        if ($status === 'CANCEL' && $rejectReason === '') {
+            return $this->response->setJSON([
+                'result' => false,
+                'msg' => '상담 거부 사유를 입력해주세요.'
+            ]);
+        }
+
+        if (mb_strlen($rejectReason) > 1000) {
+            return $this->response->setJSON([
+                'result' => false,
+                'msg' => '상담 거부 사유는 1,000자 이하로 입력해주세요.'
             ]);
         }
 
@@ -1287,12 +1302,17 @@ class MypageController extends BaseController
         }
 
         // 업데이트
+        $updateData = [
+            'status' => $status,
+            'updated_at' => date('Y-m-d H:i:s')
+        ];
+        if ($status === 'CANCEL') {
+            $updateData['reject_reason'] = $rejectReason;
+        }
+
         $db->table('my_fc_counsel')
             ->where('counsel_uid', $counselUid)
-            ->update([
-                'status' => $status,
-                'updated_at' => date('Y-m-d H:i:s')
-            ]);
+            ->update($updateData);
 
         return $this->response->setJSON([
             'result' => true,

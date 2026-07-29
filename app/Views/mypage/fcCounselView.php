@@ -77,10 +77,47 @@
         </form>
     </div>
 </main>
+<div class="c-modal sm" role="dialog" aria-modal="true" aria-labelledby="counsel-reject-reason-title" id="counsel-reject-reason-modal" hidden>
+    <button type="button" class="c-modal-backdrop" data-counsel-reject-close aria-label="닫기"></button>
+    <div class="c-modal-panel">
+        <div class="c-modal-head">
+            <h2 class="c-modal-title" id="counsel-reject-reason-title">상담 거부 사유</h2>
+            <button type="button" class="c-modal-close" data-counsel-reject-close aria-label="닫기"></button>
+        </div>
+        <div class="c-modal-body">
+            <textarea class="form-textarea" id="counsel-reject-reason-input" maxlength="50" rows="6" placeholder="50자 이내로 입력해주세요."></textarea>
+        </div>
+        <div class="c-modal-foot">
+            <button type="button" class="btn btn-line" data-counsel-reject-close>닫기</button>
+            <button type="button" class="btn btn-primary" id="counsel-reject-confirm">거부 처리</button>
+        </div>
+    </div>
+</div>
 
 <script>
 (function () {
-    function updateStatus(uid, status) {
+    const rejectModal = document.getElementById('counsel-reject-reason-modal');
+    const rejectReasonInput = document.getElementById('counsel-reject-reason-input');
+    const rejectConfirmButton = document.getElementById('counsel-reject-confirm');
+    let rejectCounselUid = '';
+
+    function closeRejectModal() {
+        rejectModal.classList.remove('is-open');
+        rejectModal.hidden = true;
+        document.body.classList.remove('popup-open');
+        rejectCounselUid = '';
+    }
+
+    function openRejectModal(counselUid) {
+        rejectCounselUid = counselUid;
+        rejectReasonInput.value = '';
+        rejectModal.hidden = false;
+        rejectModal.classList.add('is-open');
+        document.body.classList.add('popup-open');
+        rejectReasonInput.focus();
+    }
+
+    function updateStatus(uid, status, rejectReason = '') {
         fetch('/mypage/fccounsel/status', {
             method: 'POST',
             headers: {
@@ -88,7 +125,8 @@
             },
             body: new URLSearchParams({
                 counsel_uid: uid,
-                status: status
+                status: status,
+                reject_reason: rejectReason
             })
         })
         .then(res => res.json())
@@ -99,6 +137,7 @@
             }
 
             alert(res.msg);
+            if (status === 'CANCEL') closeRejectModal();
             location.reload();
         })
         .catch(() => {
@@ -114,9 +153,23 @@
 
     document.querySelectorAll('.js-counsel-cancel').forEach(btn => {
         btn.addEventListener('click', function () {
-            if (!confirm('상담을 거부 처리하시겠습니까?')) return;
-            updateStatus(this.dataset.uid, 'CANCEL');
+            openRejectModal(this.dataset.uid);
         });
+    });
+
+    rejectConfirmButton.addEventListener('click', function () {
+        const rejectReason = rejectReasonInput.value.trim();
+        if (rejectReason === '') {
+            alert('상담 거부 사유를 입력해주세요.');
+            rejectReasonInput.focus();
+            return;
+        }
+        updateStatus(rejectCounselUid, 'CANCEL', rejectReason);
+    });
+
+    rejectModal.querySelectorAll('[data-counsel-reject-close]').forEach((button) => button.addEventListener('click', closeRejectModal));
+    document.addEventListener('keydown', function (event) {
+        if (event.key === 'Escape' && !rejectModal.hidden) closeRejectModal();
     });
 })();
 </script>

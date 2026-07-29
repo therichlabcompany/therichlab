@@ -191,11 +191,12 @@ $statusMap = [
 
                                     </div>
 
+                                    <?php $statusDate = $row['status'] === 'CANCEL' ? ($row['updated_at'] ?? $row['created_at']) : $row['created_at']; ?>
                                     <p class="date">
 
                                         <?= $status['dateText'] ?> :
 
-                                        <time><?= date('Y.m.d', strtotime($row['created_at'])) ?></time>
+                                        <time><?= esc(date('Y.m.d', strtotime($statusDate))) ?></time>
 
                                     </p>
 
@@ -223,7 +224,15 @@ $statusMap = [
                                     $canWriteReview = ($row['status'] === 'COMPLETE' && empty($row['review_id']));
                                     ?>
 
-                                    <?php if (!empty($map['button'])): ?>
+                                    <?php if ($row['status'] === 'CANCEL'): ?>
+                                        <button
+                                            type="button"
+                                            class="consult-status-action js-counsel-reject-modal"
+                                            data-reject-at="<?= esc($row['updated_at'] ?? $row['created_at'] ?? '') ?>"
+                                            data-reject-reason="<?= esc($row['reject_reason'] ?? '') ?>">
+                                            상담거부
+                                        </button>
+                                    <?php elseif (!empty($map['button'])): ?>
                                         <button
                                             type="button"
                                             class="consult-status-action"
@@ -272,6 +281,55 @@ $statusMap = [
         </section>
     </div>
 </main>
+<div class="c-modal sm" role="dialog" aria-modal="true" aria-labelledby="counsel-reject-modal-title" id="counsel-reject-modal" hidden>
+    <button type="button" class="c-modal-backdrop" data-counsel-reject-close aria-label="닫기"></button>
+    <div class="c-modal-panel">
+        <div class="c-modal-head">
+            <h2 class="c-modal-title" id="counsel-reject-modal-title">상담 거부 사유</h2>
+            <button type="button" class="c-modal-close" data-counsel-reject-close aria-label="닫기"></button>
+        </div>
+        <div class="c-modal-body">
+            <p class="c-modal-meta"><time id="counsel-reject-at">-</time></p>
+            <textarea class="form-textarea" id="counsel-reject-reason" readonly rows="6"></textarea>
+        </div>
+        <div class="c-modal-foot">
+            <button type="button" class="btn btn-line" data-counsel-reject-close>닫기</button>
+        </div>
+    </div>
+</div>
+<script>
+(() => {
+    const modal = document.getElementById('counsel-reject-modal');
+    const rejectedAt = document.getElementById('counsel-reject-at');
+    const rejectReason = document.getElementById('counsel-reject-reason');
+    if (!modal || !rejectedAt || !rejectReason) return;
+
+    const formatDateTime = (value) => {
+        const matched = String(value || '').match(/^(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2})(?::(\d{2}))?/);
+        return matched ? `${matched[1]}.${matched[2]}.${matched[3]} ${matched[4]}:${matched[5]}:${matched[6] || '00'}` : '-';
+    };
+    const closeModal = () => {
+        modal.classList.remove('is-open');
+        modal.hidden = true;
+        document.body.classList.remove('popup-open');
+    };
+
+    document.querySelectorAll('.js-counsel-reject-modal').forEach((button) => {
+        button.addEventListener('click', (event) => {
+            event.stopPropagation();
+            rejectedAt.textContent = formatDateTime(button.dataset.rejectAt);
+            rejectReason.value = button.dataset.rejectReason || '등록된 상담 거부 사유가 없습니다.';
+            modal.hidden = false;
+            modal.classList.add('is-open');
+            document.body.classList.add('popup-open');
+        });
+    });
+    modal.querySelectorAll('[data-counsel-reject-close]').forEach((button) => button.addEventListener('click', closeModal));
+    document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape' && !modal.hidden) closeModal();
+    });
+})();
+</script>
 <style>
     .recommend-list:has(.empty-consult) {
         display: flex;
