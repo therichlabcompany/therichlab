@@ -23,7 +23,7 @@ $isReject     = !empty($review) && $review['status'] === 'REJECT';
         </button>
     </div>
 <?php endif; ?>
-        <form class="form-box" method="post" enctype="multipart/form-data">
+        <form class="form-box" id="fc-reviewed-form" method="post" enctype="multipart/form-data">
             <div class="form-field">
                 <span class="form-label">심의필 번호 입력 <b>*</b></span>
                 <p class="form-text">심의필 증빙 회신문 번호를 입력해주세요.</p>
@@ -281,7 +281,7 @@ $isReject     = !empty($review) && $review['status'] === 'REJECT';
 
     (function() {
 
-        const form = document.querySelector('.form-box');
+        const form = document.getElementById('fc-reviewed-form');
         if (!form) return;
 
         let selectedFile = null;
@@ -444,6 +444,8 @@ $isReject     = !empty($review) && $review['status'] === 'REJECT';
                 const result = await res.json();
 
                 if (result.result === 'success') {
+                    closeConfirmModal();
+                    alert('심의필 정보 <?= empty($review) ? '등록' : '수정' ?>이 완료되었습니다.');
                     location.reload();
                 } else {
                     alert(result.msg || '저장 실패');
