@@ -1,6 +1,10 @@
 <main>
     <div class="page-inner-narrow">
         <h1 class="page-main-title">FC 회원가입</h1>
+        <?php if (session('phone_auth_error')): ?>
+            <p class="insurance-in-alert warn" role="alert"><?= esc(session('phone_auth_error')) ?></p>
+            <script>window.addEventListener('DOMContentLoaded', function () { alert(<?= json_encode(session('phone_auth_error'), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>); });</script>
+        <?php endif; ?>
         <p class="page-main-lead">
             입력하신 정보는 관리자가 확인 후<br class="br-mo" />
             승인 절차를 거쳐 고객에게 노출됩니다.<br class="br-mo" />

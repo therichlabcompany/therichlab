@@ -1061,10 +1061,16 @@ HTML);
             ]);
 
             $manager = $mobileOk->createSdkManager();
+            $returnUrl = $mobileOk->returnUrl();
+            if ($returnMode === 'redirect') {
+                // PASS 앱 왕복에서 세션 쿠키가 누락되더라도 결과 화면을 JSON으로
+                // 직접 노출하지 않도록 redirect 목적지를 returnUrl에도 보존한다.
+                $returnUrl .= '?return_mode=redirect&redirect_to=' . rawurlencode($redirectTo);
+            }
             $payload = $mobileOk->makeRequestPayload(
                 $manager,
                 $clientTxId,
-                $mobileOk->returnUrl()
+                $returnUrl
             );
 
             // MobileOK 표준창 스크립트는 이 응답을 JSON.parse()한 객체로 팝업에 전달한다.
@@ -1121,7 +1127,17 @@ HTML);
 
         $payload = [];
         $contentType = strtolower($request->getHeaderLine('Content-Type'));
-        $isRedirectReturn = $session->get('phone_auth_return_mode') === 'redirect';
+        $redirectTo = (string) $session->get('phone_auth_redirect_to');
+        $requestedRedirectTo = (string) $request->getGet('redirect_to');
+        $allowedRedirectTargets = ['member/join', 'member/fcJoin1', 'mypage/info', 'mypage/fcinfo'];
+        if (in_array($requestedRedirectTo, $allowedRedirectTargets, true)) {
+            $redirectTo = $requestedRedirectTo;
+        }
+        if (!in_array($redirectTo, $allowedRedirectTargets, true)) {
+            $redirectTo = 'member/join';
+        }
+        $isRedirectReturn = $session->get('phone_auth_return_mode') === 'redirect'
+            || $request->getGet('return_mode') === 'redirect';
 
         if (str_contains($contentType, 'application/json')) {
             try {
@@ -1153,17 +1169,17 @@ HTML);
                     'requestUri' => (string) current_url(true),
                 ]));
 
-                return $this->response->setStatusCode(500)->setJSON([
+                return $this->mobileOkResultResponse([
                     'status' => 'error',
                     'message' => '휴대폰 본인인증 결과를 처리하지 못했습니다.',
-                ]);
+                ], $isRedirectReturn, $redirectTo, 500);
             }
         }
 
         // MobileOK 콜백이 이미 처리된 오류 응답을 다시 전달할 수 있다.
         // 이 경우 인증 데이터로 해석하지 않고 원래 오류를 그대로 반환한다.
         if (($payload['status'] ?? '') === 'error') {
-            return $this->response->setJSON($payload);
+            return $this->mobileOkResultResponse($payload, $isRedirectReturn, $redirectTo);
         }
 
         if (!$payload) {
@@ -1183,10 +1199,10 @@ HTML);
                 'sessionRequestedAt' => (string) $session->get('phone_auth_requested_at'),
             ]));
 
-            return $this->response->setJSON([
+            return $this->mobileOkResultResponse([
                 'status' => 'error',
                 'message' => '본인인증 결과가 없습니다.',
-            ]);
+            ], $isRedirectReturn, $redirectTo);
         }
 
         $resultData = $payload['payload'] ?? $payload;
@@ -1216,10 +1232,10 @@ HTML);
                 'resultData' => $resultData,
             ]));
 
-            return $this->response->setJSON([
+            return $this->mobileOkResultResponse([
                 'status' => 'error',
                 'message' => $resultMsg !== '' ? $resultMsg : '본인인증에 실패했습니다.',
-            ]);
+            ], $isRedirectReturn, $redirectTo);
         }
 
         if ($sessionTxId !== '' && $resultTxId !== '' && $sessionTxId !== $resultTxId) {
@@ -1242,10 +1258,10 @@ HTML);
                 'resultData' => $resultData,
             ]));
 
-            return $this->response->setJSON([
+            return $this->mobileOkResultResponse([
                 'status' => 'error',
                 'message' => '본인인증 거래 정보가 일치하지 않습니다.',
-            ]);
+            ], $isRedirectReturn, $redirectTo);
         }
 
         if ($issueDate !== '' && $mobileOk->isExpired($issueDate)) {
@@ -1268,10 +1284,10 @@ HTML);
                 'resultData' => $resultData,
             ]));
 
-            return $this->response->setJSON([
+            return $this->mobileOkResultResponse([
                 'status' => 'error',
                 'message' => '본인인증 유효 시간이 만료되었습니다.',
-            ]);
+            ], $isRedirectReturn, $redirectTo);
         }
 
         $phone = $mobileOk->normalizePhone((string) ($resultData['userPhone'] ?? $resultData['phone'] ?? ''));
@@ -1329,10 +1345,10 @@ HTML);
                 'phoneFieldLengths' => $phoneFieldSummary,
             ]));
 
-            return $this->response->setJSON([
+            return $this->mobileOkResultResponse([
                 'status' => 'error',
                 'message' => '휴대폰 번호를 확인할 수 없습니다.',
-            ]);
+            ], $isRedirectReturn, $redirectTo);
         }
 
         if ($name === '' && $siteId === '') {
@@ -1355,10 +1371,10 @@ HTML);
                 'resultData' => $resultData,
             ]));
 
-            return $this->response->setJSON([
+            return $this->mobileOkResultResponse([
                 'status' => 'error',
                 'message' => '본인인증 결과를 확인할 수 없습니다.',
-            ]);
+            ], $isRedirectReturn, $redirectTo);
         }
 
         $isAccountFind = $session->get('phone_auth_purpose') === 'account_find';
@@ -1390,13 +1406,13 @@ HTML);
                 ->get()
                 ->getRowArray();
 
-            return $this->response->setJSON([
+            return $this->mobileOkResultResponse([
                 'status' => 'error',
                 'duplicate' => true,
                 'message' => $recentLeave
                     ? $this->rejoinRestrictionMessage($recentLeave['deleted_at'] ?? null)
                     : '이미 사용 중인 휴대폰 번호입니다.',
-            ]);
+            ], $isRedirectReturn, $redirectTo);
         }
 
         $session->set([
@@ -1424,7 +1440,7 @@ HTML);
         if ($isRedirectReturn) {
             // WebView redirect 방식은 콜백 함수를 호출하지 않으므로 가입 화면을 다시 열어
             // 세션에 저장한 인증 결과를 화면에 반영한다.
-            return redirect()->to('/' . ltrim((string) $session->get('phone_auth_redirect_to'), '/'));
+            return redirect()->to('/' . $redirectTo);
         }
 
         return $this->response->setJSON([
@@ -1438,6 +1454,19 @@ HTML);
             'issueDate' => $issueDate,
             'phone_verified' => 'Y',
         ]);
+    }
+
+    private function mobileOkResultResponse(array $payload, bool $isRedirectReturn, string $redirectTo, int $statusCode = 200)
+    {
+        if ($isRedirectReturn) {
+            $message = (string) ($payload['message'] ?? '휴대폰 본인인증에 실패했습니다.');
+            return redirect()
+                ->to('/' . ltrim($redirectTo, '/'))
+                ->with('error', $message)
+                ->with('phone_auth_error', $message);
+        }
+
+        return $this->response->setStatusCode($statusCode)->setJSON($payload);
     }
 
     /**

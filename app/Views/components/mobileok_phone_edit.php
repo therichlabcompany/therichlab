@@ -2,6 +2,10 @@
 <script src="<?= esc($mobileOkJsUrl) ?>"></script>
 <?php endif; ?>
 
+<?php if (session('phone_auth_error')): ?>
+<script>window.addEventListener('DOMContentLoaded', function () { alert(<?= json_encode(session('phone_auth_error'), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>); });</script>
+<?php endif; ?>
+
 <script>
 (() => {
     const enabled = <?= json_encode((bool) ($mobileOkEnabled ?? false)) ?>;

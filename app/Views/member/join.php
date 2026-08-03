@@ -1,6 +1,10 @@
 <main>
     <div class="page-inner-narrow">
         <h1 class="page-main-title">회원가입</h1>
+        <?php if (session('phone_auth_error')): ?>
+            <p class="insurance-in-alert warn" role="alert"><?= esc(session('phone_auth_error')) ?></p>
+            <script>window.addEventListener('DOMContentLoaded', function () { alert(<?= json_encode(session('phone_auth_error'), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>); });</script>
+        <?php endif; ?>
 
         <form id="signupForm" class="form-box" method="post" action="/member/register">
             <input type="hidden" name="member_type" value="USER">
