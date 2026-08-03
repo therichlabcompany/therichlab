@@ -51,8 +51,8 @@ class ScheduledTaskService
             ->where('status', 'LEAVE')
             ->where('deleted_at <=', $cutoff)
             ->groupStart()
-                ->notLike('email', 'withdrawn-%@deleted.invalid', 'after', false)
-                ->orWhere('phone NOT LIKE', 'W%')
+                ->notLike('email', 'withdrawn-', 'after')
+                ->orNotLike('phone', 'W', 'after')
             ->groupEnd()
             ->get()
             ->getResultArray();
