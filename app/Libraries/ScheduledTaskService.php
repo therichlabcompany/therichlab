@@ -8,6 +8,7 @@ class ScheduledTaskService
 {
     private const LEAVE_RETENTION_DAYS = 7;
     private const PUSH_STALE_MINUTES = 30;
+    private const PUSH_TARGET_BATCH_SIZE = 10;
 
     public function __construct(private readonly BaseConnection $db)
     {
@@ -261,6 +262,7 @@ class ScheduledTaskService
             ->where('push_id', $pushId)
             ->where('send_status', 'WAIT')
             ->orderBy('target_id', 'ASC')
+            ->limit(self::PUSH_TARGET_BATCH_SIZE)
             ->get()
             ->getResultArray();
 
@@ -305,7 +307,7 @@ class ScheduledTaskService
             ++$failed;
         }
 
-        $this->finishPush($pushId, $sent, $failed, $now);
+        $this->finishPush($push, $sent, $failed, $now);
 
         return ['sent_targets' => $sent, 'failed_targets' => $failed];
     }
@@ -349,8 +351,10 @@ class ScheduledTaskService
             ]);
     }
 
-    private function finishPush(int $pushId, int $sent, int $failed, string $now): void
+    /** @param array<string, mixed> $push */
+    private function finishPush(array $push, int $sent, int $failed, string $now): void
     {
+        $pushId = (int) $push['push_id'];
         $counts = $this->db->table('my_fc_push_target')
             ->select("SUM(send_status = 'SENT') AS success_count, SUM(send_status = 'FAILED') AS fail_count", false)
             ->where('push_id', $pushId)
@@ -359,15 +363,24 @@ class ScheduledTaskService
 
         $successCount = (int) ($counts['success_count'] ?? $sent);
         $failCount = (int) ($counts['fail_count'] ?? $failed);
+        $remainingCount = $this->db->table('my_fc_push_target')
+            ->where('push_id', $pushId)
+            ->where('send_status', 'WAIT')
+            ->countAllResults();
+
+        $hasRemainingTargets = $remainingCount > 0;
+        $status = $hasRemainingTargets
+            ? (($push['send_type'] ?? '') === 'RESERVED' ? 'RESERVED' : 'READY')
+            : ($failCount > 0 && $successCount === 0 ? 'FAILED' : 'SENT');
 
         $this->db->table('my_fc_push')
             ->where('push_id', $pushId)
             ->where('status', 'SENDING')
             ->update([
-                'status' => $failCount > 0 && $successCount === 0 ? 'FAILED' : 'SENT',
+                'status' => $status,
                 'success_count' => $successCount,
                 'fail_count' => $failCount,
-                'sent_at' => $now,
+                'sent_at' => $hasRemainingTargets ? null : $now,
                 'updated_at' => $now,
             ]);
     }

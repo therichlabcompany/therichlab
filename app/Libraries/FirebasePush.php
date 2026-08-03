@@ -43,6 +43,8 @@ class FirebasePush
                     'Content-Type'  => 'application/json',
                 ],
                 'json' => $payload,
+                'connect_timeout' => 3,
+                'timeout' => 5,
             ]);
 
             $status = $response->getStatusCode();
