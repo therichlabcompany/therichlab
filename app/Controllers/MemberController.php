@@ -359,6 +359,9 @@ HTML);
         $agreements = $this->signupAgreementDocuments();
         $mobileOk = service('mobileOk');
         $isApp = $this->isAppWebView();
+        if ($isApp) {
+            $this->clearMismatchedAppPhoneAuth('member/join');
+        }
         $mobileOkRequestUrl = base_url('member/phone-auth/request');
         if ($isApp) {
             // WebView는 표준창 popup/callback 대신 같은 WebView에서 돌아오는 redirect를 사용한다.
@@ -463,6 +466,45 @@ HTML);
         return $documents;
     }
 
+    /**
+     * 앱 WebView에서 가입 유형을 바꾼 경우 이전 화면의 본인인증 결과를 재사용하지 않는다.
+     * PASS 인증 완료 뒤 동일 화면으로 돌아온 경우에는 결과를 유지한다.
+     */
+    private function clearMismatchedAppPhoneAuth(string $expectedRedirectTo): void
+    {
+        $session = session();
+        $currentRedirectTo = (string) $session->get('phone_auth_redirect_to');
+
+        if ($currentRedirectTo === '' || $currentRedirectTo === $expectedRedirectTo) {
+            return;
+        }
+
+        $session->remove([
+            'phone_auth_tx_id',
+            'phone_auth_requested_at',
+            'phone_auth_verified',
+            'phone_auth_phone',
+            'phone_auth_name',
+            'phone_auth_birth',
+            'phone_auth_gender',
+            'phone_auth_ci',
+            'phone_auth_di',
+            'phone_auth_site_id',
+            'phone_auth_provider_id',
+            'phone_auth_service_type',
+            'phone_auth_req_auth_type',
+            'phone_auth_req_date',
+            'phone_auth_issuer',
+            'phone_auth_nation',
+            'phone_auth_issue_date',
+            'phone_auth_result_code',
+            'phone_auth_result_msg',
+            'phone_auth_verified_at',
+            'phone_auth_return_mode',
+            'phone_auth_redirect_to',
+        ]);
+    }
+
     public function fcJoin_step1(): string
     {
         //return pageView('welcome_message');
@@ -474,6 +516,9 @@ HTML);
 
         $mobileOk = service('mobileOk');
         $isApp = $this->isAppWebView();
+        if ($isApp) {
+            $this->clearMismatchedAppPhoneAuth('member/fcJoin1');
+        }
         $mobileOkRequestUrl = base_url('member/phone-auth/request');
         if ($isApp) {
             $mobileOkRequestUrl .= '?return_mode=redirect&redirect_to=member/fcJoin1';
