@@ -35,7 +35,10 @@ class CronController extends BaseController
                 'result' => $result,
             ]);
         } catch (\Throwable $e) {
-            log_message('error', 'Scheduler URL request failed.');
+            log_message('error', 'Scheduler URL request failed [{type}]: {message}', [
+                'type' => get_class($e),
+                'message' => $this->safeErrorMessage($e->getMessage()),
+            ]);
             return $this->response->setStatusCode(500)->setJSON([
                 'status' => 'error',
                 'message' => '스케줄러 실행에 실패했습니다.',
@@ -63,5 +66,13 @@ class CronController extends BaseController
         }
 
         return $lock;
+    }
+
+    private function safeErrorMessage(string $message): string
+    {
+        $message = preg_replace('/(?:[A-Za-z0-9_-]{20,}:)?APA91[A-Za-z0-9_-]+/', '[redacted-token]', $message) ?? $message;
+        $message = preg_replace('/(password\s*[=:]\s*)[^\s,;]+/i', '$1[redacted]', $message) ?? $message;
+
+        return mb_substr($message !== '' ? $message : 'Unknown scheduler error.', 0, 1000);
     }
 }
