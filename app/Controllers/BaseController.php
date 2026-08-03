@@ -45,6 +45,14 @@ abstract class BaseController extends Controller
         // $this->session = service('session');
     }
 
+    protected function isAppWebView(): bool
+    {
+        $userAgent = $this->request->getHeaderLine('User-Agent');
+
+        return str_contains($userAgent, 'myfc_ios')
+            || str_contains($userAgent, 'myfc_android');
+    }
+
     /**
      * 레이아웃을 포함한 뷰를 렌더링하는 메서드
      * 
@@ -122,16 +130,7 @@ abstract class BaseController extends Controller
         //echo $userAgent;
 
 
-        $isApp = false;
-
-
-        // Flutter WebView에서 지정한 User-Agent 체크
-        if (
-            strpos($userAgent, 'myfc_ios') !== false
-            || strpos($userAgent, 'myfc_android') !== false
-        ) {
-            $isApp = true;
-        }
+        $isApp = $this->isAppWebView();
 
         $appToken = null;
 

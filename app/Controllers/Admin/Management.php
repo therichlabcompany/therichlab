@@ -1056,7 +1056,11 @@ class Management extends BaseController
             $data['region_code'] = trim((string) $this->request->getPost('region_code')) ?: null;
             $data['insurance_type'] = trim((string) $this->request->getPost('insurance_type')) ?: null;
             $data['review_id'] = $this->request->getPost('review_id') !== '' ? (int) $this->request->getPost('review_id') : null;
-            $data['language_code'] = trim((string) $this->request->getPost('language_code')) ?: null;
+            $languageCode = fc_language_normalize((string) $this->request->getPost('language_code'));
+            if ($adType === 'language_fc' && $languageCode === '') {
+                return redirect()->back()->withInput()->with('error', '언어별 FC 광고의 언어를 선택해주세요.');
+            }
+            $data['language_code'] = $languageCode ?: null;
         } else {
             $data['ad_type'] = 'banner';
             $data['banner_position'] = $kind;

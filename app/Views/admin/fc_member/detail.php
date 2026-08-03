@@ -626,7 +626,7 @@ foreach ($activityItems ?? [] as $item) {
                             </div>
                             <div class="field-row">
                                 <div class="field-label">상담 가능한 언어</div>
-                                <div class="field-value"><?= $value($profile, 'language') ?></div>
+                                <div class="field-value"><?= !empty($profile['language']) ? esc(fc_language_labels($profile['language'])) : '-' ?></div>
                             </div>
                         </div>
                     </div>

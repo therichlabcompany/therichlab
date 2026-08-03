@@ -420,7 +420,7 @@ class FcMember extends BaseController
             'license_no' => preg_replace('/[^0-9]/', '', (string) $this->request->getPost('license_no')) ?: null,
             'time_from' => $this->request->getPost('time_from') !== '' ? (int) $this->request->getPost('time_from') : null,
             'time_to' => $this->request->getPost('time_to') !== '' ? (int) $this->request->getPost('time_to') : null,
-            'language' => trim((string) $this->request->getPost('language')) ?: null,
+            'language' => fc_language_normalize((string) $this->request->getPost('language')) ?: null,
             'step' => 2,
             'created_at' => $now,
         ];
@@ -517,7 +517,7 @@ class FcMember extends BaseController
             'license_no' => preg_replace('/[^0-9]/', '', (string) $this->request->getPost('license_no')) ?: null,
             'time_from' => $this->request->getPost('time_from') !== '' ? (int) $this->request->getPost('time_from') : null,
             'time_to' => $this->request->getPost('time_to') !== '' ? (int) $this->request->getPost('time_to') : null,
-            'language' => trim((string) $this->request->getPost('language')) ?: null,
+            'language' => fc_language_normalize((string) $this->request->getPost('language')) ?: null,
             'updated_at' => $now,
         ];
 

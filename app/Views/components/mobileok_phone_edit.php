@@ -8,6 +8,8 @@
     const requestUrl = <?= json_encode($mobileOkRequestUrl ?? '') ?>;
     const resultUrl = <?= json_encode($mobileOkResultUrl ?? '') ?>;
     const applyUrl = <?= json_encode($phoneAuthApplyUrl ?? '') ?>;
+    const useRedirect = <?= json_encode((bool) ($mobileOkUseRedirect ?? false)) ?>;
+    const redirectAuthResult = <?= json_encode($mobileOkAuthResult ?? null) ?>;
     const phoneInput = document.getElementById('phone');
     const phoneButton = document.getElementById('btnPhoneCheck');
     const nameInput = document.getElementById('name');
@@ -23,96 +25,64 @@
 
     const defaultButtonLabel = phoneButton?.dataset.defaultLabel || '다시 인증';
 
-    window.mypagePhoneAuthResult = function (result) {
-        let payload = result;
-
-        if (typeof result === 'string') {
-            try {
-                payload = JSON.parse(result);
-            } catch (error) {
-                payload = { resultMsg: result };
-            }
+    const applyAuthResult = (response) => {
+        const phone = digitsOnly(response.userPhone ?? response.phone);
+        if (!phone || !phoneInput) {
+            alert('인증된 휴대폰 번호를 확인할 수 없습니다.');
+            return;
         }
 
+        const previousPhone = digitsOnly(phoneInput.value);
+        phoneInput.value = phone;
+        phoneInput.readOnly = true;
+
+        if (nameInput && response.name) nameInput.value = response.name;
+        if (birthInput && response.birth) birthInput.value = digitsOnly(response.birth);
+
+        const gender = String(response.gender || '').toUpperCase();
+        if (gender === 'M' || gender === 'F') {
+            const genderRadio = document.querySelector(`input[name="gender"][value="${gender}"]`);
+            if (genderRadio) genderRadio.checked = true;
+            const genderInput = document.getElementById('gender');
+            const genderDisplay = document.getElementById('gender-display');
+            if (genderInput) genderInput.value = gender;
+            if (genderDisplay) genderDisplay.value = gender === 'M' ? '남성' : '여성';
+        }
+
+        phoneVerified = true;
+        setButtonLabel('다시 인증');
+        if (!applyUrl) return;
+
+        fetch(applyUrl, { method: 'POST', headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+            .then((applyResponse) => applyResponse.json())
+            .then((applyResponse) => {
+                if (applyResponse.status !== 'success') {
+                    alert(applyResponse.message || '인증 정보를 반영하지 못했습니다.');
+                } else if (applyResponse.phoneChanged || previousPhone !== phone) {
+                    alert('휴대폰 번호가 변경되었습니다.');
+                }
+            })
+            .catch(() => alert('인증 정보를 반영하는 중 오류가 발생했습니다.'));
+    };
+
+    window.mypagePhoneAuthResult = function (result) {
+        let payload = result;
+        if (typeof result === 'string') {
+            try { payload = JSON.parse(result); } catch (error) { payload = { resultMsg: result }; }
+        }
         if (!payload || payload.status === 'error' || (payload.resultCode && payload.resultCode !== '2000')) {
             alert(payload?.message || payload?.resultMsg || '휴대폰 인증에 실패했습니다.');
             return;
         }
-
         fetch(resultUrl, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-Requested-With': 'XMLHttpRequest'
-            },
+            headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
             body: JSON.stringify({ payload })
         })
             .then((response) => response.json())
-            .then((response) => {
-                if (response.status !== 'success') {
-                    alert(response.message || '휴대폰 인증 처리 중 오류가 발생했습니다.');
-                    return;
-                }
-
-                const phone = digitsOnly(response.userPhone ?? response.phone);
-                if (!phone) {
-                    alert('인증된 휴대폰 번호를 확인할 수 없습니다.');
-                    return;
-                }
-
-                const previousPhone = digitsOnly(phoneInput.value);
-                phoneInput.value = phone;
-                phoneInput.readOnly = true;
-
-                if (nameInput && response.name) {
-                    nameInput.value = response.name;
-                }
-
-                if (birthInput && response.birth) {
-                    birthInput.value = digitsOnly(response.birth);
-                }
-
-                const gender = String(response.gender || '').toUpperCase();
-                if (gender === 'M' || gender === 'F') {
-                    const genderRadio = document.querySelector(`input[name="gender"][value="${gender}"]`);
-                    if (genderRadio) {
-                        genderRadio.checked = true;
-                    }
-
-                    const genderInput = document.getElementById('gender');
-                    const genderDisplay = document.getElementById('gender-display');
-                    if (genderInput) {
-                        genderInput.value = gender;
-                    }
-                    if (genderDisplay) {
-                        genderDisplay.value = gender === 'M' ? '남성' : '여성';
-                    }
-                }
-
-                phoneVerified = true;
-                setButtonLabel('다시 인증');
-
-                if (!applyUrl) {
-                    return;
-                }
-
-                fetch(applyUrl, {
-                    method: 'POST',
-                    headers: { 'X-Requested-With': 'XMLHttpRequest' },
-                })
-                    .then((applyResponse) => applyResponse.json())
-                    .then((applyResponse) => {
-                        if (applyResponse.status !== 'success') {
-                            alert(applyResponse.message || '인증 정보를 반영하지 못했습니다.');
-                            return;
-                        }
-
-                        if (applyResponse.phoneChanged || previousPhone !== phone) {
-                            alert('휴대폰 번호가 변경되었습니다.');
-                        }
-                    })
-                    .catch(() => alert('인증 정보를 반영하는 중 오류가 발생했습니다.'));
-            })
+            .then((response) => response.status === 'success'
+                ? applyAuthResult(response)
+                : alert(response.message || '휴대폰 인증 처리 중 오류가 발생했습니다.'))
             .catch(() => alert('서버 통신 실패'));
     };
 
@@ -124,12 +94,15 @@
 
         // 인증 결과의 휴대폰 번호를 사용하므로, 기존 번호를 직접 수정하지 않는다.
         phoneVerified = false;
-        window.MOBILEOK.process(requestUrl, 'WB', 'mypagePhoneAuthResult');
+        window.MOBILEOK.process(requestUrl, useRedirect ? 'MB' : 'WB', useRedirect ? '' : 'mypagePhoneAuthResult');
     });
 
     if (phoneInput) {
         phoneInput.readOnly = true;
     }
     setButtonLabel(defaultButtonLabel);
+    if (redirectAuthResult) {
+        applyAuthResult(redirectAuthResult);
+    }
 })();
 </script>

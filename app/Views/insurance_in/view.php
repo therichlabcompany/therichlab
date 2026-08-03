@@ -23,7 +23,7 @@ $profileImage = static fn($row) => profile_image_url($row['profile_image'] ?? ''
                     <p class="insurance-in-meta"><span>작성일(<?= date('Y-m-d', strtotime($question['created_at'])) ?>)</span><span>조회수 <?= number_format($question['view_count']) ?></span></p>
                 </div>
                 <div class="insurance-in-foot">
-                    <p class="insurance-in-author"><?= (int) $question['answer_count'] ? 'FC 답변 <span>' . (int) $question['answer_count'] . '건 등록</span>' : '답변을 기다리고 있어요' ?></p><button type="button" class="insurance-in-share" onclick="navigator.clipboard?.writeText(location.href);alert('주소를 복사했습니다.')"><img src="<?= SITE_IMG_URL ?>images/ic-detail-share.svg" alt="">공유하기</button>
+                    <p class="insurance-in-author"><?= (int) $question['answer_count'] ? 'FC 답변 <span>' . (int) $question['answer_count'] . '건 등록</span>' : '답변을 기다리고 있어요' ?></p><button type="button" class="insurance-in-share" data-insurance-in-share data-share-title="<?= esc($question['title']) ?>" data-share-text="<?= esc($question['body']) ?>"><img src="<?= SITE_IMG_URL ?>images/ic-detail-share.svg" alt="">공유하기</button>
                 </div>
             </article>
             <section class="insurance-in-answers">
@@ -54,3 +54,23 @@ $profileImage = static fn($row) => profile_image_url($row['profile_image'] ?? ''
         </div>
     </div>
 </main>
+<script>
+document.addEventListener('click', function (event) {
+    const button = event.target.closest('[data-insurance-in-share]');
+    if (!button || !window.MyFC || typeof window.MyFC.share !== 'function') {
+        return;
+    }
+
+    window.MyFC.share({
+        title: button.dataset.shareTitle || document.title,
+        text: button.dataset.shareText || '',
+        url: window.location.href,
+    }).then(function (result) {
+        if (result.copied) {
+            alert('주소를 복사했습니다.');
+        }
+    }).catch(function () {
+        alert('공유 기능을 실행하지 못했습니다.');
+    });
+});
+</script>

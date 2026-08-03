@@ -69,6 +69,8 @@ const mobileOkEnabled = <?= json_encode((bool) ($mobileOkEnabled ?? false)) ?>;
 const mobileOkRequestUrl = <?= json_encode($mobileOkRequestUrl ?? '') ?>;
 const mobileOkResultUrl = <?= json_encode($mobileOkResultUrl ?? '') ?>;
 const mobileOkResultCallback = 'memberPhoneAuthResult';
+const mobileOkUseRedirect = <?= json_encode((bool) ($mobileOkUseRedirect ?? false)) ?>;
+const mobileOkAuthResult = <?= json_encode($mobileOkAuthResult ?? null) ?>;
 let emailChecked = false;
 let phoneChecked = false;
 
@@ -407,7 +409,11 @@ document.addEventListener('DOMContentLoaded', function () {
             }
 
             if (mobileOkEnabled && window.MOBILEOK && typeof window.MOBILEOK.process === 'function' && mobileOkRequestUrl) {
-                window.MOBILEOK.process(mobileOkRequestUrl, 'WB', mobileOkResultCallback);
+                window.MOBILEOK.process(
+                    mobileOkRequestUrl,
+                    mobileOkUseRedirect ? 'MB' : 'WB',
+                    mobileOkUseRedirect ? '' : mobileOkResultCallback
+                );
                 return;
             }
 
@@ -458,6 +464,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
     checkSubmit();
     bindCheckboxEvents();
+
+    // 앱 WebView의 redirect 인증 완료 후 재진입한 경우 세션 인증 결과를 복원한다.
+    if (mobileOkAuthResult) {
+        setPhoneAuthValues(mobileOkAuthResult);
+    }
 
     if (submitBtn) {
         submitBtn.addEventListener('click', async function () {

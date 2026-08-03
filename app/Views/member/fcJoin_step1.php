@@ -42,6 +42,8 @@ const mobileOkEnabled = <?= json_encode((bool) ($mobileOkEnabled ?? false)) ?>;
 const mobileOkRequestUrl = <?= json_encode($mobileOkRequestUrl ?? '') ?>;
 const mobileOkResultUrl = <?= json_encode($mobileOkResultUrl ?? '') ?>;
 const mobileOkResultCallback = 'fcMemberPhoneAuthResult';
+const mobileOkUseRedirect = <?= json_encode((bool) ($mobileOkUseRedirect ?? false)) ?>;
+const mobileOkAuthResult = <?= json_encode($mobileOkAuthResult ?? null) ?>;
 
 function digitsOnly(value) {
     return (value || '').replace(/[^0-9]/g, '');
@@ -313,7 +315,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         if (mobileOkEnabled && window.MOBILEOK && typeof window.MOBILEOK.process === 'function' && mobileOkRequestUrl) {
-            window.MOBILEOK.process(mobileOkRequestUrl, 'WB', mobileOkResultCallback);
+            window.MOBILEOK.process(
+                mobileOkRequestUrl,
+                mobileOkUseRedirect ? 'MB' : 'WB',
+                mobileOkUseRedirect ? '' : mobileOkResultCallback
+            );
             return;
         }
 
@@ -400,6 +406,9 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     setPhoneButtonLabel('default');
+    if (mobileOkAuthResult) {
+        setPhoneAuthValues(mobileOkAuthResult);
+    }
     updateSubmitState();
 });
 </script>

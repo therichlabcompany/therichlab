@@ -358,6 +358,12 @@ HTML);
 
         $agreements = $this->signupAgreementDocuments();
         $mobileOk = service('mobileOk');
+        $isApp = $this->isAppWebView();
+        $mobileOkRequestUrl = base_url('member/phone-auth/request');
+        if ($isApp) {
+            // WebView는 표준창 popup/callback 대신 같은 WebView에서 돌아오는 redirect를 사용한다.
+            $mobileOkRequestUrl .= '?return_mode=redirect&redirect_to=member/join';
+        }
         $data = [
             "header_class" => $header_class,
             "popup_page" => $popup_page,
@@ -366,8 +372,17 @@ HTML);
             "agreementPrivacy" => $agreements['PRIVACY'],
             "mobileOkEnabled" => $mobileOk->isConfigured(),
             "mobileOkJsUrl" => $mobileOk->requestJsUrl(),
-            "mobileOkRequestUrl" => base_url('member/phone-auth/request'),
+            "mobileOkRequestUrl" => $mobileOkRequestUrl,
             "mobileOkResultUrl" => $mobileOk->returnUrl(),
+            "mobileOkUseRedirect" => $isApp,
+            "mobileOkAuthResult" => $isApp && (bool) session()->get('phone_auth_verified')
+                ? [
+                    'phone' => (string) session()->get('phone_auth_phone'),
+                    'name' => (string) session()->get('phone_auth_name'),
+                    'birth' => (string) session()->get('phone_auth_birth'),
+                    'gender' => (string) session()->get('phone_auth_gender'),
+                ]
+                : null,
         ];
 
 
@@ -458,14 +473,28 @@ HTML);
 
 
         $mobileOk = service('mobileOk');
+        $isApp = $this->isAppWebView();
+        $mobileOkRequestUrl = base_url('member/phone-auth/request');
+        if ($isApp) {
+            $mobileOkRequestUrl .= '?return_mode=redirect&redirect_to=member/fcJoin1';
+        }
         $data = [
             "header_class" => $header_class,
             "popup_page" => $popup_page,
             "modal_page" => $modal_page,
             "mobileOkEnabled" => $mobileOk->isConfigured(),
             "mobileOkJsUrl" => $mobileOk->requestJsUrl(),
-            "mobileOkRequestUrl" => base_url('member/phone-auth/request'),
+            "mobileOkRequestUrl" => $mobileOkRequestUrl,
             "mobileOkResultUrl" => $mobileOk->returnUrl(),
+            "mobileOkUseRedirect" => $isApp,
+            "mobileOkAuthResult" => $isApp && (bool) session()->get('phone_auth_verified')
+                ? [
+                    'phone' => (string) session()->get('phone_auth_phone'),
+                    'name' => (string) session()->get('phone_auth_name'),
+                    'birth' => (string) session()->get('phone_auth_birth'),
+                    'gender' => (string) session()->get('phone_auth_gender'),
+                ]
+                : null,
             "mode" => "create",
         ];
 
@@ -919,6 +948,8 @@ HTML);
                 'phone_auth_gender',
                 'phone_auth_verified_at',
                 'phone_auth_tx_id',
+                'phone_auth_return_mode',
+                'phone_auth_redirect_to',
             ]);
 
             $db->transCommit();
@@ -1007,6 +1038,12 @@ HTML);
         try {
             $clientTxId = $mobileOk->makeClientTxId();
             $purpose = $session->get('phone_auth_purpose_pending') === 'account_find' ? 'account_find' : null;
+            $returnMode = $request->getGet('return_mode') === 'redirect' ? 'redirect' : 'callback';
+            $redirectTo = (string) $request->getGet('redirect_to');
+            $allowedRedirectTargets = ['member/join', 'member/fcJoin1', 'mypage/info', 'mypage/fcinfo'];
+            if (!in_array($redirectTo, $allowedRedirectTargets, true)) {
+                $redirectTo = 'member/join';
+            }
             $session->remove(['phone_auth_purpose_pending', 'phone_auth_purpose']);
             $session->set([
                 'phone_auth_tx_id' => $clientTxId,
@@ -1019,6 +1056,8 @@ HTML);
                 'phone_auth_issue_date' => null,
                 'phone_auth_result_code' => null,
                 'phone_auth_purpose' => $purpose,
+                'phone_auth_return_mode' => $returnMode,
+                'phone_auth_redirect_to' => $redirectTo,
             ]);
 
             $manager = $mobileOk->createSdkManager();
@@ -1082,6 +1121,7 @@ HTML);
 
         $payload = [];
         $contentType = strtolower($request->getHeaderLine('Content-Type'));
+        $isRedirectReturn = $session->get('phone_auth_return_mode') === 'redirect';
 
         if (str_contains($contentType, 'application/json')) {
             try {
@@ -1380,6 +1420,12 @@ HTML);
             'phone_auth_verified_at' => date('Y-m-d H:i:s'),
             'phone_auth_tx_id' => $resultTxId !== '' ? $resultTxId : $sessionTxId,
         ]);
+
+        if ($isRedirectReturn) {
+            // WebView redirect 방식은 콜백 함수를 호출하지 않으므로 가입 화면을 다시 열어
+            // 세션에 저장한 인증 결과를 화면에 반영한다.
+            return redirect()->to('/' . ltrim((string) $session->get('phone_auth_redirect_to'), '/'));
+        }
 
         return $this->response->setJSON([
             'status' => 'success',

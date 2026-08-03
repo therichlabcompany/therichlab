@@ -128,7 +128,12 @@ $status = old('status', 'apply');
                             </div>
                             <div class="edit-field">
                                 <label for="language_code">언어 코드</label>
-                                <input id="language_code" name="language_code" type="text" class="form-control" value="<?= esc(old('language_code')) ?>" placeholder="en">
+                                <select id="language_code" name="language_code" class="form-select">
+                                    <option value="">선택하세요</option>
+                                    <?php foreach (fc_language_options() as $option): ?>
+                                        <option value="<?= esc($option['value']) ?>" <?= old('language_code') === $option['value'] ? 'selected' : '' ?>><?= esc($option['label']) ?> (<?= esc($option['value']) ?>)</option>
+                                    <?php endforeach; ?>
+                                </select>
                             </div>
                         <?php endif; ?>
                     </div>

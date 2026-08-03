@@ -25,6 +25,64 @@
 
 </head>
 
+<script>
+window.MyFC = window.MyFC || {};
+
+window.MyFC.share = function (payload) {
+    const data = {
+        title: String((payload && payload.title) || document.title || 'MyFC'),
+        text: String((payload && payload.text) || ''),
+        url: String((payload && payload.url) || window.location.href),
+    };
+    const isAppWebView = <?= json_encode((bool) $isApp) ?>;
+
+    if (isAppWebView && typeof window.requestAppShareFromWeb === 'function') {
+        try {
+            // 앱은 기존 requestAppTokenFromWeb 브리지와 동일하게 JSON 문자열을 받는다.
+            window.requestAppShareFromWeb(JSON.stringify(data));
+            return Promise.resolve({ handled: true });
+        } catch (error) {
+            console.error('[BRIDGE] app share request failed', error);
+        }
+    }
+
+    if (navigator.share) {
+        return navigator.share(data)
+            .then(function () { return { handled: true }; })
+            .catch(function (error) {
+                if (error && error.name === 'AbortError') {
+                    return { handled: true, cancelled: true };
+                }
+                return { handled: false };
+            });
+    }
+
+    const copyText = function () {
+        const input = document.createElement('textarea');
+        input.value = data.url;
+        input.setAttribute('readonly', '');
+        input.style.position = 'fixed';
+        input.style.opacity = '0';
+        document.body.appendChild(input);
+        input.select();
+        document.execCommand('copy');
+        input.remove();
+    };
+
+    if (navigator.clipboard && window.isSecureContext) {
+        return navigator.clipboard.writeText(data.url)
+            .then(function () { return { handled: true, copied: true }; })
+            .catch(function () {
+                copyText();
+                return { handled: true, copied: true };
+            });
+    }
+
+    copyText();
+    return Promise.resolve({ handled: true, copied: true });
+};
+</script>
+
 <?php if($isApp && !empty($appToken)): ?>
 
 <script>

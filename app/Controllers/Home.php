@@ -438,6 +438,7 @@ class Home extends BaseController
             fc_language_options()
         );
         $iconMap = [
+            'ko' => '',
             'en' => 'ic-flag-us.png',
             'zh' => 'ic-flag-cn.png',
             'vi' => 'ic-flag-vn.png',

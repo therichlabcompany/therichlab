@@ -72,11 +72,22 @@ class MypageController extends BaseController
             "profile" => $profile, // ⭐ 핵심
         ];
         $mobileOk = service('mobileOk');
+        $isApp = $this->isAppWebView();
         $data['mobileOkEnabled'] = $mobileOk->isConfigured();
         $data['mobileOkJsUrl'] = $mobileOk->requestJsUrl();
-        $data['mobileOkRequestUrl'] = base_url('member/phone-auth/request');
+        $data['mobileOkRequestUrl'] = base_url('member/phone-auth/request')
+            . ($isApp ? '?return_mode=redirect&redirect_to=mypage/info' : '');
         $data['mobileOkResultUrl'] = $mobileOk->returnUrl();
         $data['phoneAuthApplyUrl'] = base_url('mypage/apply-phone-auth-info');
+        $data['mobileOkUseRedirect'] = $isApp;
+        $data['mobileOkAuthResult'] = $isApp && (bool) $session->get('phone_auth_verified')
+            ? [
+                'phone' => (string) $session->get('phone_auth_phone'),
+                'name' => (string) $session->get('phone_auth_name'),
+                'birth' => (string) $session->get('phone_auth_birth'),
+                'gender' => (string) $session->get('phone_auth_gender'),
+            ]
+            : null;
         $data['mode'] = 'edit';
 
 
@@ -579,11 +590,22 @@ class MypageController extends BaseController
             "profile" => $profile, // ⭐ 핵심
         ];
         $mobileOk = service('mobileOk');
+        $isApp = $this->isAppWebView();
         $data['mobileOkEnabled'] = $mobileOk->isConfigured();
         $data['mobileOkJsUrl'] = $mobileOk->requestJsUrl();
-        $data['mobileOkRequestUrl'] = base_url('member/phone-auth/request');
+        $data['mobileOkRequestUrl'] = base_url('member/phone-auth/request')
+            . ($isApp ? '?return_mode=redirect&redirect_to=mypage/fcinfo' : '');
         $data['mobileOkResultUrl'] = $mobileOk->returnUrl();
         $data['phoneAuthApplyUrl'] = base_url('mypage/apply-phone-auth-info');
+        $data['mobileOkUseRedirect'] = $isApp;
+        $data['mobileOkAuthResult'] = $isApp && (bool) $session->get('phone_auth_verified')
+            ? [
+                'phone' => (string) $session->get('phone_auth_phone'),
+                'name' => (string) $session->get('phone_auth_name'),
+                'birth' => (string) $session->get('phone_auth_birth'),
+                'gender' => (string) $session->get('phone_auth_gender'),
+            ]
+            : null;
         $data['mode'] = 'edit';
 
         return $this->renderView('mypage/fcinfo', $data);

@@ -154,7 +154,7 @@ $reviewStatus = old('fc_review_status', $m['fc_review_status'] ?? 'WAIT');
                         </div>
                         <div class="edit-field full">
                             <label for="language">상담 가능 언어</label>
-                            <input id="language" name="language" type="text" class="form-control" value="<?= esc(old('language', $profile['language'] ?? '')) ?>">
+                            <input id="language" name="language" type="text" class="form-control" value="<?= esc(old('language', $profile['language'] ?? '')) ?>" placeholder="ko,sign">
                         </div>
                     </div>
                 </div>
