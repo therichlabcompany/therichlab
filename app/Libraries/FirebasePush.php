@@ -45,15 +45,20 @@ class FirebasePush
                 'json' => $payload,
             ]);
 
+            $status = $response->getStatusCode();
+            $body = json_decode($response->getBody(), true);
+            $success = $status >= 200 && $status < 300;
+
             return [
-                'success' => true,
-                'status'  => $response->getStatusCode(),
-                'body'    => json_decode($response->getBody(), true),
+                'success' => $success,
+                'status'  => $status,
+                'body'    => $body,
+                'error' => $success ? null : (string) ($body['error']['message'] ?? 'Firebase 메시지 전송에 실패했습니다.'),
             ];
         } catch (\Throwable $e) {
             return [
                 'success' => false,
-                'error'   => $e->getMessage(),
+                'error'   => $this->safeErrorMessage($e->getMessage()),
             ];
         }
     }
@@ -88,5 +93,12 @@ class FirebasePush
         }
 
         return $result;
+    }
+
+    protected function safeErrorMessage(string $message): string
+    {
+        $message = preg_replace('/(?:[A-Za-z0-9_-]{20,}:)?APA91[A-Za-z0-9_-]+/', '[redacted-token]', $message) ?? $message;
+
+        return $message !== '' ? $message : 'Firebase 메시지 전송에 실패했습니다.';
     }
 }

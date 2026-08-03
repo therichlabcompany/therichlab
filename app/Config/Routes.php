@@ -348,5 +348,6 @@ $routes->group('admin', [
 });
 
 $routes->get('push-test', 'PushTest::index');
+$routes->post('cron/scheduled-tasks', 'CronController::scheduledTasks');
 $routes->post('fc/bookmark/toggle', 'FcBookmarkController::toggle');
 $routes->get('fc/bookmark/check', 'FcBookmarkController::check');
