@@ -4,7 +4,6 @@ if (!function_exists('fc_language_options')) {
     function fc_language_options(): array
     {
         return [
-            ['value' => 'ko', 'label' => '한국어'],
             ['value' => 'sign', 'label' => '수어'],
             ['value' => 'vi', 'label' => '베트남'],
             ['value' => 'zh', 'label' => '중국'],
@@ -21,7 +20,6 @@ if (!function_exists('fc_language_normalize')) {
     function fc_language_normalize(?string $languages): string
     {
         $aliases = [
-            'ko' => 'ko', 'kr' => 'ko', '한국' => 'ko', '한국어' => 'ko', 'korean' => 'ko',
             'sign' => 'sign', '수어' => 'sign',
             'vi' => 'vi', 'vn' => 'vi', '베트남' => 'vi', '베트남어' => 'vi',
             'zh' => 'zh', 'cn' => 'zh', '중국' => 'zh', '중국어' => 'zh',
@@ -61,10 +59,7 @@ if (!function_exists('fc_language_labels')) {
     function fc_language_labels(?string $languages): string
     {
         $normalized = fc_language_normalize($languages);
-        if ($normalized === '') {
-            return trim((string) $languages);
-        }
-        return implode(', ', array_map('fc_language_label', explode(',', $normalized)));
+        return $normalized === '' ? '' : implode(', ', array_map('fc_language_label', explode(',', $normalized)));
     }
 }
 

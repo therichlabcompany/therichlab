@@ -1762,7 +1762,7 @@ HTML);
                 throw new \Exception('소속 GA를 입력한 경우 추가 소속 보험사는 입력할 수 없습니다.');
             }
 
-            if ($position === '' || $licenseDate === '' || $licenseNo === '' || $language === '') {
+            if ($position === '' || $licenseDate === '' || $licenseNo === '') {
                 throw new \Exception('프로필 필수값을 입력해주세요.');
             }
 
@@ -1809,7 +1809,7 @@ HTML);
                 'license_no'   => $licenseNo,
                 'time_from'    => $timeFrom,
                 'time_to'      => $timeTo,
-                'language'     => $language,
+                'language'     => $language !== '' ? $language : null,
                 'updated_at'   => date('Y-m-d H:i:s'),
             ];
 

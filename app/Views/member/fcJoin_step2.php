@@ -93,8 +93,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!licenseDateVal) return alert('보험 자격 취득일을 선택해주세요.');
         if (!licenseNoVal) return alert('보험모집종사자 등록번호를 입력해주세요.');
         if (!timeFromVal || !timeToVal) return alert('상담 가능 시간을 선택해주세요.');
-        if (!languageVal) return alert('상담 가능한 언어를 선택해주세요.');
-
         const formData = new FormData();
 
         formData.append('profile_image', selectedFile || '');
