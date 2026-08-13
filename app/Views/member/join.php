@@ -77,6 +77,36 @@ const mobileOkUseRedirect = <?= json_encode((bool) ($mobileOkUseRedirect ?? fals
 const mobileOkAuthResult = <?= json_encode($mobileOkAuthResult ?? null) ?>;
 let emailChecked = false;
 let phoneChecked = false;
+const signupDraftStorageKey = 'myfc_signup_draft';
+
+function saveSignupDraft() {
+    if (!mobileOkUseRedirect) return;
+    const fields = ['email', 'password', 'password_confirm'];
+    const draft = {};
+    fields.forEach(id => {
+        const input = document.getElementById(id);
+        if (input) draft[id] = input.value;
+    });
+    draft.emailChecked = emailChecked;
+    sessionStorage.setItem(signupDraftStorageKey, JSON.stringify(draft));
+}
+
+function restoreSignupDraft() {
+    if (!mobileOkUseRedirect) return;
+    const raw = sessionStorage.getItem(signupDraftStorageKey);
+    if (!raw) return;
+    try {
+        const draft = JSON.parse(raw);
+        ['email', 'password', 'password_confirm'].forEach(id => {
+            const input = document.getElementById(id);
+            if (input && typeof draft[id] === 'string') input.value = draft[id];
+        });
+        emailChecked = draft.emailChecked === true;
+    } catch (error) {
+        // 손상된 초안은 복원하지 않는다.
+    }
+    sessionStorage.removeItem(signupDraftStorageKey);
+}
 
 function digitsOnly(value) {
     return (value || '').replace(/[^0-9]/g, '');
@@ -242,43 +272,68 @@ function focusSignupIssue() {
     return null;
 }
 
-function checkEmailDuplicate() {
+async function checkEmailDuplicate() {
     const emailInput = document.getElementById('email');
+    const button = document.getElementById('btnEmailCheck');
+    const message = document.getElementById('emailCheckMessage');
     const email = emailInput.value.trim();
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+    const showMessage = (text, isError = false) => {
+        if (!message) return;
+        message.textContent = text;
+        message.classList.toggle('is-error', isError);
+        message.classList.toggle('is-success', !isError && text !== '');
+    };
+
     if (!emailRegex.test(email)) {
+        showMessage('올바른 이메일 형식을 입력해주세요.', true);
         alert('올바른 이메일 형식이 아닙니다.');
         return;
     }
 
-    fetch('/member/check-email', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-Requested-With': 'XMLHttpRequest'
-        },
-        body: JSON.stringify({ email })
-    })
-        .then(res => res.json())
-        .then(res => {
-            if (res.status !== 'success') {
-                alert('처리 중 오류가 발생했습니다.');
-                return;
-            }
+    button.disabled = true;
+    showMessage('이메일 중복을 확인 중입니다.');
 
-            if (res.duplicate) {
-                alert(res.message || '이미 사용 중인 이메일입니다.');
-                emailChecked = false;
-            } else {
-                alert('사용 가능한 이메일입니다.');
-                emailChecked = true;
-            }
-            updateSubmitState();
-        })
-        .catch(() => {
-            alert('서버 통신 실패');
+    try {
+        const response = await fetch('/member/check-email', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: JSON.stringify({ email })
         });
+        const raw = await response.text();
+        let result;
+        try {
+            result = JSON.parse(raw);
+        } catch (error) {
+            throw new Error('invalid-response');
+        }
+        if (!response.ok || result.status !== 'success') {
+            throw new Error(result.message || 'request-failed');
+        }
+
+        if (result.duplicate) {
+            const text = result.message || '이미 사용 중인 이메일입니다.';
+            emailChecked = false;
+            showMessage(text, true);
+            alert(text);
+        } else {
+            emailChecked = true;
+            showMessage('사용 가능한 이메일입니다.');
+            alert('사용 가능한 이메일입니다.');
+        }
+    } catch (error) {
+        emailChecked = false;
+        showMessage('이메일 중복확인에 실패했습니다. 잠시 후 다시 시도해주세요.', true);
+        alert('이메일 중복확인에 실패했습니다. 잠시 후 다시 시도해주세요.');
+    } finally {
+        button.disabled = false;
+        updateSubmitState();
+    }
 }
 
 function checkPhoneDuplicate() {
@@ -385,6 +440,8 @@ document.addEventListener('DOMContentLoaded', function () {
     const agreeAll = document.getElementById('agree_all');
     const submitBtn = document.getElementById('btnSubmit');
 
+    restoreSignupDraft();
+
     if (btnEmailCheck) {
         btnEmailCheck.addEventListener('click', checkEmailDuplicate);
     }
@@ -392,6 +449,11 @@ document.addEventListener('DOMContentLoaded', function () {
     if (emailInput) {
         emailInput.addEventListener('input', function () {
             emailChecked = false;
+            const message = document.getElementById('emailCheckMessage');
+            if (message) {
+                message.textContent = '';
+                message.classList.remove('is-error', 'is-success');
+            }
             updateSubmitState();
         });
     }
@@ -413,6 +475,7 @@ document.addEventListener('DOMContentLoaded', function () {
             }
 
             if (mobileOkEnabled && window.MOBILEOK && typeof window.MOBILEOK.process === 'function' && mobileOkRequestUrl) {
+                saveSignupDraft();
                 window.MOBILEOK.process(
                     mobileOkRequestUrl,
                     mobileOkUseRedirect ? 'MB' : 'WB',

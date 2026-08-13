@@ -48,6 +48,35 @@ const mobileOkResultUrl = <?= json_encode($mobileOkResultUrl ?? '') ?>;
 const mobileOkResultCallback = 'fcMemberPhoneAuthResult';
 const mobileOkUseRedirect = <?= json_encode((bool) ($mobileOkUseRedirect ?? false)) ?>;
 const mobileOkAuthResult = <?= json_encode($mobileOkAuthResult ?? null) ?>;
+const fcSignupDraftStorageKey = 'myfc_fc_signup_draft';
+
+function saveFcSignupDraft() {
+    if (!mobileOkUseRedirect) return;
+    const draft = {};
+    ['email', 'password', 'password_confirm'].forEach(id => {
+        const input = document.getElementById(id);
+        if (input) draft[id] = input.value;
+    });
+    draft.emailChecked = fcEmailChecked;
+    sessionStorage.setItem(fcSignupDraftStorageKey, JSON.stringify(draft));
+}
+
+function restoreFcSignupDraft() {
+    if (!mobileOkUseRedirect) return;
+    const raw = sessionStorage.getItem(fcSignupDraftStorageKey);
+    if (!raw) return;
+    try {
+        const draft = JSON.parse(raw);
+        ['email', 'password', 'password_confirm'].forEach(id => {
+            const input = document.getElementById(id);
+            if (input && typeof draft[id] === 'string') input.value = draft[id];
+        });
+        fcEmailChecked = draft.emailChecked === true;
+    } catch (error) {
+        // 손상된 초안은 복원하지 않는다.
+    }
+    sessionStorage.removeItem(fcSignupDraftStorageKey);
+}
 
 function digitsOnly(value) {
     return (value || '').replace(/[^0-9]/g, '');
@@ -215,6 +244,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const btnPhoneCheck = document.getElementById('btnPhoneCheck');
     const btnSubmit = document.getElementById('btnSubmit');
 
+    restoreFcSignupDraft();
+
     // 회원가입 화면에는 이전 수정 화면 값이나 브라우저 저장 비밀번호를 사용하지 않는다.
     if (passwordInput) passwordInput.value = '';
     if (passwordConfirmInput) passwordConfirmInput.value = '';
@@ -319,6 +350,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         if (mobileOkEnabled && window.MOBILEOK && typeof window.MOBILEOK.process === 'function' && mobileOkRequestUrl) {
+            saveFcSignupDraft();
             window.MOBILEOK.process(
                 mobileOkRequestUrl,
                 mobileOkUseRedirect ? 'MB' : 'WB',

@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="MyFC 고객 지원 및 문의 안내" />
     <title>고객 지원 | MyFC</title>
-    <link rel="icon" type="image/svg+xml" href="<?= base_url('assets/images/myfc-favicon.svg') ?>" />
+    <link rel="icon" type="image/png" href="<?= asset_url('assets/images/myfc-symbol.png') ?>" />
     <link rel="stylesheet" href="<?= asset_url('assets/css/reset.css') ?>" />
     <link rel="stylesheet" href="<?= asset_url('assets/css/common.css') ?>" />
     <link rel="stylesheet" href="<?= asset_url('assets/css/customer-support.css') ?>" />

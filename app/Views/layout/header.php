@@ -6,8 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <title>MyFC</title>
-    <link rel="icon" type="image/svg+xml" href="<?= base_url('assets/images/myfc-favicon.svg') ?>" />
-    <link rel="shortcut icon" type="image/svg+xml" href="<?= base_url('assets/images/myfc-favicon.svg') ?>" />
+    <link rel="icon" type="image/png" href="<?= asset_url('assets/images/myfc-symbol.png') ?>" />
+    <link rel="shortcut icon" type="image/png" href="<?= asset_url('assets/images/myfc-symbol.png') ?>" />
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
     <link rel="stylesheet" href="<?= asset_url('assets/css/reset.css') ?>" />

@@ -35,6 +35,7 @@ $profileReadonly = true;
         />
         <button type="button" id="btnEmailCheck" <?= $isEdit ? 'disabled' : '' ?>>중복 확인</button>
     </div>
+    <p id="emailCheckMessage" class="form-text" aria-live="polite"></p>
 </div>
 
 <?php if (!$isEdit): ?>

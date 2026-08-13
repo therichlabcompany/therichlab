@@ -4,8 +4,8 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title><?= esc($title ?? '관리자 로그인') ?></title>
-    <link rel="icon" type="image/svg+xml" href="<?= base_url('assets/images/myfc-favicon.svg') ?>">
-    <link rel="shortcut icon" type="image/svg+xml" href="<?= base_url('assets/images/myfc-favicon.svg') ?>">
+    <link rel="icon" type="image/png" href="<?= asset_url('assets/images/myfc-symbol.png') ?>">
+    <link rel="shortcut icon" type="image/png" href="<?= asset_url('assets/images/myfc-symbol.png') ?>">
 
     <!-- AdminLTE 4 CSS -->
     <link rel="stylesheet" href="<?= asset_url('assets/adminlte/dist/css/adminlte.min.css') ?>">

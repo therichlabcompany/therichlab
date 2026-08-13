@@ -29,20 +29,6 @@
                     <?php if (!empty($companyLine)): ?>
                         <p><?= esc(implode(' · ', array_slice($companyLine, 0, 2))) ?></p>
                     <?php endif; ?>
-                    <?php
-                    $companyLine = [];
-
-                    if (!empty($profile['ga'])) {
-                        $companyLine[] = $profile['ga'];
-                    } else {
-                        if (!empty($profile['company'])) $companyLine[] = $profile['company'];
-                        if (!empty($profile['company_sub'])) $companyLine[] = $profile['company_sub'];
-                    }
-                    ?>
-
-                    <?php if (!empty($companyLine)): ?>
-                        <p><?= esc(implode(' · ', array_slice($companyLine, 0, 2))) ?></p>
-                    <?php endif; ?>
                 </div>
                 <div class="fc-detail-head-actions">
                     <button type="button" class="detail-capture-btn">화면캡쳐</button>
