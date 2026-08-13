@@ -1793,7 +1793,19 @@ HTML);
             $fileName = null;
 
             if ($file && $file->isValid() && !$file->hasMoved()) {
-                $fileName = upload_file($file, 'uploads/profile');
+                $fileName = upload_file($file, 'uploads/profile', ['jpg', 'jpeg', 'png', 'webp', 'gif']);
+                $privatePath = WRITEPATH . 'uploads/profile/' . $fileName;
+                $publicDirectory = FCPATH . 'uploads/profile';
+                $publicPath = $publicDirectory . '/' . $fileName;
+
+                if (!is_dir($publicDirectory) && !mkdir($publicDirectory, 0755, true) && !is_dir($publicDirectory)) {
+                    @unlink($privatePath);
+                    throw new \Exception('프로필 이미지 공개 경로를 준비하지 못했습니다.');
+                }
+                if (!copy($privatePath, $publicPath)) {
+                    @unlink($privatePath);
+                    throw new \Exception('프로필 이미지 저장에 실패했습니다.');
+                }
             }
 
             // =========================
@@ -1867,6 +1879,10 @@ HTML);
                 $oldProfilePath = WRITEPATH . 'uploads/profile/' . $oldProfileImage;
                 if (is_file($oldProfilePath)) {
                     @unlink($oldProfilePath);
+                }
+                $oldPublicProfilePath = FCPATH . 'uploads/profile/' . $oldProfileImage;
+                if (is_file($oldPublicProfilePath)) {
+                    @unlink($oldPublicProfilePath);
                 }
             }
 
