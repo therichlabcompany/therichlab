@@ -74,7 +74,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // 1. 필수 체크 (회사/GA 관계)
         // =========================
         if (!companyVal && !gaVal) {
-            await window.MyFC.alert('소속 원수사 또는 소속 GA 중 하나는 반드시 입력해야 합니다.');
+            window.alert('소속 원수사 또는 소속 GA 중 하나는 반드시 입력해야 합니다.');
             return;
         }
 
@@ -82,17 +82,17 @@ document.addEventListener('DOMContentLoaded', () => {
         // 2. GA 입력 시 company_sub 금지
         // =========================
         if (gaVal && companySubVal) {
-            await window.MyFC.alert('소속 GA를 입력한 경우, 추가 소속 보험사는 입력할 수 없습니다.');
+            window.alert('소속 GA를 입력한 경우, 추가 소속 보험사는 입력할 수 없습니다.');
             return;
         }
 
         // =========================
         // 3. 나머지 필수값 체크
         // =========================
-        if (!positionVal) return await window.MyFC.alert('직책을 입력해주세요.');
-        if (!licenseDateVal) return await window.MyFC.alert('보험 자격 취득일을 선택해주세요.');
-        if (!licenseNoVal) return await window.MyFC.alert('보험모집종사자 등록번호를 입력해주세요.');
-        if (!timeFromVal || !timeToVal) return await window.MyFC.alert('상담 가능 시간을 선택해주세요.');
+        if (!positionVal) return window.alert('직책을 입력해주세요.');
+        if (!licenseDateVal) return window.alert('보험 자격 취득일을 선택해주세요.');
+        if (!licenseNoVal) return window.alert('보험모집종사자 등록번호를 입력해주세요.');
+        if (!timeFromVal || !timeToVal) return window.alert('상담 가능 시간을 선택해주세요.');
         const formData = new FormData();
 
         formData.append('profile_image', selectedFile || '');
@@ -117,11 +117,11 @@ document.addEventListener('DOMContentLoaded', () => {
             if (result.status === 'success') {
                 location.href = '/member/fcJoin3';
             } else {
-                await window.MyFC.alert(result.message || '저장 실패');
+                window.alert(result.message || '저장 실패');
             }
 
         } catch (err) {
-            await window.MyFC.alert('서버 오류');
+            window.alert('서버 오류');
         }
     });
 
@@ -153,14 +153,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // 🔥 이미지 검증
         if (!file.type.startsWith('image/')) {
-            await window.MyFC.alert('이미지 파일만 업로드 가능합니다.');
+            window.alert('이미지 파일만 업로드 가능합니다.');
             fileInput.value = '';
             return;
         }
 
         // 1. 용량 체크 (예: 5MB)
         if (file.size > 5 * 1024 * 1024) {
-            await window.MyFC.alert('이미지 용량은 5MB 이하만 가능합니다.');
+            window.alert('이미지 용량은 5MB 이하만 가능합니다.');
             fileInput.value = '';
             return;
         }

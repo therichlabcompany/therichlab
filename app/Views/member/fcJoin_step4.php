@@ -152,7 +152,7 @@
 
         if (currentCount + files.length > 20) {
 
-            await window.MyFC.alert('최대 20개까지 가능합니다.');
+            window.alert('최대 20개까지 가능합니다.');
 
             thumbInput.value='';
 
@@ -360,7 +360,7 @@
 
             }else{
 
-                await window.MyFC.alert(result.message || '저장 실패');
+                window.alert(result.message || '저장 실패');
 
             }
 
@@ -368,7 +368,7 @@
 
             console.error(err);
 
-            await window.MyFC.alert('서버 오류');
+            window.alert('서버 오류');
 
         }
 
