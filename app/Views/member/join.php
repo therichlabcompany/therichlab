@@ -3,7 +3,7 @@
         <h1 class="page-main-title">회원가입</h1>
         <?php if (session('phone_auth_error')): ?>
             <p class="insurance-in-alert warn" role="alert"><?= esc(session('phone_auth_error')) ?></p>
-            <script>window.addEventListener('DOMContentLoaded', function () { alert(<?= json_encode(session('phone_auth_error'), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>); });</script>
+            <script>window.addEventListener('DOMContentLoaded', async function () { await window.MyFC.alert(<?= json_encode(session('phone_auth_error'), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>); });</script>
         <?php endif; ?>
 
         <form id="signupForm" class="form-box" method="post" action="/member/register">
@@ -288,7 +288,7 @@ async function checkEmailDuplicate() {
 
     if (!emailRegex.test(email)) {
         showMessage('올바른 이메일 형식을 입력해주세요.', true);
-        alert('올바른 이메일 형식이 아닙니다.');
+        await window.MyFC.alert('올바른 이메일 형식이 아닙니다.');
         return;
     }
 
@@ -320,69 +320,68 @@ async function checkEmailDuplicate() {
             const text = result.message || '이미 사용 중인 이메일입니다.';
             emailChecked = false;
             showMessage(text, true);
-            alert(text);
+            await window.MyFC.alert(text);
         } else {
             emailChecked = true;
             showMessage('사용 가능한 이메일입니다.');
-            alert('사용 가능한 이메일입니다.');
+            await window.MyFC.alert('사용 가능한 이메일입니다.');
         }
     } catch (error) {
         emailChecked = false;
         showMessage('이메일 중복확인에 실패했습니다. 잠시 후 다시 시도해주세요.', true);
-        alert('이메일 중복확인에 실패했습니다. 잠시 후 다시 시도해주세요.');
+        await window.MyFC.alert('이메일 중복확인에 실패했습니다. 잠시 후 다시 시도해주세요.');
     } finally {
         button.disabled = false;
         updateSubmitState();
     }
 }
 
-function checkPhoneDuplicate() {
+async function checkPhoneDuplicate() {
     const phoneInput = document.getElementById('phone');
     const phone = digitsOnly(phoneInput.value);
 
     if (phone.length < 10) {
-        alert('휴대폰 번호를 확인해주세요.');
+        await window.MyFC.alert('휴대폰 번호를 확인해주세요.');
         return;
     }
 
-    fetch('/member/check-phone', {
+    try {
+        const response = await fetch('/member/check-phone', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
             'X-Requested-With': 'XMLHttpRequest'
         },
         body: JSON.stringify({ phone })
-    })
-        .then(res => res.json())
-        .then(res => {
-            if (res.status !== 'success') {
-                alert(res.message || '처리 중 오류');
-                return;
-            }
-
-            if (res.duplicate) {
-                alert(res.message || '이미 사용 중인 휴대폰 번호입니다.');
-                phoneChecked = false;
-                setPhoneVerified(false);
-                setPhoneInputLocked(false);
-                setPhoneButtonLabel('default');
-                updateSubmitState();
-                return;
-            }
-
-            alert('사용 가능한 휴대폰 번호입니다.');
-            phoneChecked = true;
-            setPhoneVerified(true);
-            setPhoneInputLocked(true);
-            setPhoneButtonLabel('complete');
-            updateSubmitState();
-        })
-        .catch(() => {
-            alert('서버 통신 실패');
         });
+        const res = await response.json();
+        if (res.status !== 'success') {
+            await window.MyFC.alert(res.message || '처리 중 오류');
+            return;
+        }
+
+        if (res.duplicate) {
+            await window.MyFC.alert(res.message || '이미 사용 중인 휴대폰 번호입니다.');
+            phoneChecked = false;
+            setPhoneVerified(false);
+            setPhoneInputLocked(false);
+            setPhoneButtonLabel('default');
+            updateSubmitState();
+            return;
+        }
+
+        await window.MyFC.alert('사용 가능한 휴대폰 번호입니다.');
+        phoneChecked = true;
+        setPhoneVerified(true);
+        setPhoneInputLocked(true);
+        setPhoneButtonLabel('complete');
+        updateSubmitState();
+    } catch (error) {
+        await window.MyFC.alert('서버 통신 실패');
+    }
 }
 
-window.memberPhoneAuthResult = function (result) {
+window.memberPhoneAuthResult = async function (result) {
     let payload = result;
 
     if (typeof result === 'string') {
@@ -400,36 +399,35 @@ window.memberPhoneAuthResult = function (result) {
             resultCode: payload?.resultCode,
             resultMsg: payload?.resultMsg
         });
-        alert(payload?.message || payload?.resultMsg || '휴대폰 인증에 실패했습니다.');
+        await window.MyFC.alert(payload?.message || payload?.resultMsg || '휴대폰 인증에 실패했습니다.');
         return;
     }
 
-    fetch(mobileOkResultUrl, {
+    try {
+        const response = await fetch(mobileOkResultUrl, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
             'X-Requested-With': 'XMLHttpRequest'
         },
         body: JSON.stringify({ payload })
-    })
-        .then(res => res.json())
-        .then(res => {
-            if (res.status !== 'success') {
-                phoneChecked = false;
-                setPhoneVerified(false);
-                setPhoneInputLocked(false);
-                setPhoneButtonLabel('default');
-                updateSubmitState();
-                alert(res.message || '휴대폰 인증 처리 중 오류가 발생했습니다.');
-                return;
-            }
-
-            setPhoneAuthValues(res);
-            setPhoneButtonLabel('complete');
-        })
-        .catch(() => {
-            alert('서버 통신 실패');
         });
+        const res = await response.json();
+        if (res.status !== 'success') {
+            phoneChecked = false;
+            setPhoneVerified(false);
+            setPhoneInputLocked(false);
+            setPhoneButtonLabel('default');
+            updateSubmitState();
+            await window.MyFC.alert(res.message || '휴대폰 인증 처리 중 오류가 발생했습니다.');
+            return;
+        }
+
+        setPhoneAuthValues(res);
+        setPhoneButtonLabel('complete');
+    } catch (error) {
+        await window.MyFC.alert('서버 통신 실패');
+    }
 };
 
 document.addEventListener('DOMContentLoaded', function () {
@@ -464,7 +462,7 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     if (btnPhoneCheck) {
-        btnPhoneCheck.addEventListener('click', function () {
+        btnPhoneCheck.addEventListener('click', async function () {
             // 인증 완료 후에는 번호 입력칸을 직접 수정하지 않는다. 다시 인증하면
             // MobileOK에서 확인한 번호로만 값을 교체해 인증 상태와 입력값이 어긋나지 않게 한다.
             if (phoneChecked) {
@@ -484,7 +482,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 return;
             }
 
-            alert('휴대폰 본인인증 설정이 완료되지 않았습니다.');
+            await window.MyFC.alert('휴대폰 본인인증 설정이 완료되지 않았습니다.');
         });
     }
 
@@ -541,7 +539,7 @@ document.addEventListener('DOMContentLoaded', function () {
         submitBtn.addEventListener('click', async function () {
             const signupIssue = focusSignupIssue();
             if (signupIssue) {
-                alert(signupIssue.message);
+                await window.MyFC.alert(signupIssue.message);
                 signupIssue.target?.focus();
                 return;
             }
@@ -559,27 +557,27 @@ document.addEventListener('DOMContentLoaded', function () {
                 : (document.querySelector('input[name="gender"]:checked')?.value || '').trim();
 
             if (!password || !passwordConfirm || !name || !birth) {
-                alert('필수 정보를 입력해주세요.');
+                await window.MyFC.alert('필수 정보를 입력해주세요.');
                 return;
             }
 
             if (password !== passwordConfirm) {
-                alert('비밀번호가 일치하지 않습니다.');
+                await window.MyFC.alert('비밀번호가 일치하지 않습니다.');
                 return;
             }
 
             if (!isValidSignupPassword(password)) {
-                alert('비밀번호는 8자~20자이며 영문 대문자, 영문 소문자, 숫자, 특수문자를 각각 1개 이상 포함해야 합니다.');
+                await window.MyFC.alert('비밀번호는 8자~20자이며 영문 대문자, 영문 소문자, 숫자, 특수문자를 각각 1개 이상 포함해야 합니다.');
                 return;
             }
 
             if (!/^\d{8}$/.test(birth)) {
-                alert('생년월일은 8자리 숫자로 입력해주세요.');
+                await window.MyFC.alert('생년월일은 8자리 숫자로 입력해주세요.');
                 return;
             }
 
             if (!gender || !['M', 'F'].includes(gender)) {
-                alert('성별을 선택해주세요.');
+                await window.MyFC.alert('성별을 선택해주세요.');
                 return;
             }
 
@@ -616,10 +614,10 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (result.status === 'success') {
                     location.href = '/member/joinComplete';
                 } else {
-                    alert(result.message || '회원가입 실패');
+                    await window.MyFC.alert(result.message || '회원가입 실패');
                 }
             } catch (err) {
-                alert('서버 통신 실패');
+                await window.MyFC.alert('서버 통신 실패');
             } finally {
                 updateSubmitState();
             }

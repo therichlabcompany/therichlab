@@ -3,7 +3,7 @@
         <h1 class="page-main-title">FC 회원가입</h1>
         <?php if (session('phone_auth_error')): ?>
             <p class="insurance-in-alert warn" role="alert"><?= esc(session('phone_auth_error')) ?></p>
-            <script>window.addEventListener('DOMContentLoaded', function () { alert(<?= json_encode(session('phone_auth_error'), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>); });</script>
+            <script>window.addEventListener('DOMContentLoaded', async function () { await window.MyFC.alert(<?= json_encode(session('phone_auth_error'), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>); });</script>
         <?php endif; ?>
         <p class="page-main-lead">
             입력하신 정보는 관리자가 확인 후<br class="br-mo" />
@@ -259,7 +259,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
         if (!emailRegex.test(email)) {
-            alert('올바른 이메일 형식이 아닙니다.');
+            await window.MyFC.alert('올바른 이메일 형식이 아닙니다.');
             return;
         }
 
@@ -277,17 +277,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (result.status === 'success') {
                 if (result.duplicate) {
-                    alert(result.message || '이미 사용 중인 이메일입니다.');
+                    await window.MyFC.alert(result.message || '이미 사용 중인 이메일입니다.');
                     fcEmailChecked = false;
                 } else {
-                    alert('사용 가능한 이메일입니다.');
+                    await window.MyFC.alert('사용 가능한 이메일입니다.');
                     fcEmailChecked = true;
                 }
             } else {
-                alert(result.message || '처리 중 오류');
+                await window.MyFC.alert(result.message || '처리 중 오류');
             }
         } catch (e) {
-            alert('서버 통신 실패');
+            await window.MyFC.alert('서버 통신 실패');
         }
 
         updateSubmitState();
@@ -298,7 +298,7 @@ document.addEventListener('DOMContentLoaded', () => {
         updateSubmitState();
     });
 
-    window.fcMemberPhoneAuthResult = function (result) {
+    window.fcMemberPhoneAuthResult = async function (result) {
         let payload = result;
 
         if (typeof result === 'string') {
@@ -310,38 +310,37 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         if (!payload || payload.status === 'error' || (payload.resultCode && payload.resultCode !== '2000')) {
-            alert(payload?.message || payload?.resultMsg || '휴대폰 인증에 실패했습니다.');
+            await window.MyFC.alert(payload?.message || payload?.resultMsg || '휴대폰 인증에 실패했습니다.');
             return;
         }
 
-        fetch(mobileOkResultUrl, {
+        try {
+            const response = await fetch(mobileOkResultUrl, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 'X-Requested-With': 'XMLHttpRequest'
             },
             body: JSON.stringify({ payload })
-        })
-            .then(res => res.json())
-            .then(res => {
-                if (res.status !== 'success') {
-                    fcPhoneChecked = false;
-                    setPhoneVerified(false);
-                    setPhoneInputLocked(false);
-                    setPhoneButtonLabel('default');
-                    updateSubmitState();
-                    alert(res.message || '휴대폰 인증 처리 중 오류가 발생했습니다.');
-                    return;
+            });
+            const res = await response.json();
+            if (res.status !== 'success') {
+                fcPhoneChecked = false;
+                setPhoneVerified(false);
+                setPhoneInputLocked(false);
+                setPhoneButtonLabel('default');
+                updateSubmitState();
+                await window.MyFC.alert(res.message || '휴대폰 인증 처리 중 오류가 발생했습니다.');
+                return;
             }
 
             setPhoneAuthValues(res);
-        })
-            .catch(() => {
-                alert('서버 통신 실패');
-            });
+        } catch (error) {
+            await window.MyFC.alert('서버 통신 실패');
+        }
     };
 
-    btnPhoneCheck.addEventListener('click', () => {
+    btnPhoneCheck.addEventListener('click', async () => {
         if (fcPhoneChecked) {
             fcPhoneChecked = false;
             setPhoneVerified(false);
@@ -359,7 +358,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        alert('휴대폰 본인인증 설정이 완료되지 않았습니다.');
+        await window.MyFC.alert('휴대폰 본인인증 설정이 완료되지 않았습니다.');
     });
 
     phoneInput.addEventListener('input', function () {
@@ -387,7 +386,7 @@ document.addEventListener('DOMContentLoaded', () => {
     btnSubmit.addEventListener('click', async () => {
         const signupIssue = focusSignupIssue();
         if (signupIssue) {
-            alert(signupIssue.message);
+            await window.MyFC.alert(signupIssue.message);
             signupIssue.target?.focus();
             return;
         }
@@ -395,11 +394,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const password = document.getElementById('password').value;
         const passwordConfirm = document.getElementById('password-confirm').value;
         if (!isValidSignupPassword(password)) {
-            alert('비밀번호는 8자~20자이며 영문 대문자, 영문 소문자, 숫자, 특수문자를 각각 1개 이상 포함해야 합니다.');
+            await window.MyFC.alert('비밀번호는 8자~20자이며 영문 대문자, 영문 소문자, 숫자, 특수문자를 각각 1개 이상 포함해야 합니다.');
             return;
         }
         if (password !== passwordConfirm) {
-            alert('비밀번호가 일치하지 않습니다.');
+            await window.MyFC.alert('비밀번호가 일치하지 않습니다.');
             return;
         }
 
@@ -432,10 +431,10 @@ document.addEventListener('DOMContentLoaded', () => {
             if (result.status === 'success') {
                 location.href = '/member/fcComplete';
             } else {
-                alert(result.message || '처리 실패');
+                await window.MyFC.alert(result.message || '처리 실패');
             }
         } catch (e) {
-            alert('서버 통신 실패');
+            await window.MyFC.alert('서버 통신 실패');
         } finally {
             updateSubmitState();
         }

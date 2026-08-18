@@ -2365,10 +2365,6 @@ HTML);
                 }
             }
 
-            if(count($keepImages) + $validNewImageCount < 1){
-                throw new \Exception('스토리 이미지를 최소 1개 이상 등록해주세요.');
-            }
-
             $oldImages=$db->table('my_fc_profile_story_image')
                 ->where('member_uid',$memberUid)
                 ->get()

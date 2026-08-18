@@ -92,6 +92,94 @@
     }, duration);
   };
 
+  var alertQueue = Promise.resolve();
+
+  function showAlertModal(message) {
+    return new Promise(function (resolve) {
+      var previousFocus = document.activeElement;
+      var modal = document.createElement('div');
+      var backdrop = document.createElement('button');
+      var panel = document.createElement('div');
+      var head = document.createElement('div');
+      var title = document.createElement('h2');
+      var body = document.createElement('div');
+      var text = document.createElement('p');
+      var foot = document.createElement('div');
+      var confirmButton = document.createElement('button');
+      var settled = false;
+
+      modal.className = 'c-modal notice-link';
+      modal.setAttribute('role', 'alertdialog');
+      modal.setAttribute('aria-modal', 'true');
+      modal.setAttribute('aria-labelledby', 'myfc-alert-title');
+      modal.setAttribute('aria-describedby', 'myfc-alert-message');
+
+      backdrop.type = 'button';
+      backdrop.className = 'c-modal-backdrop';
+      backdrop.setAttribute('aria-label', '닫기');
+      panel.className = 'c-modal-panel';
+      head.className = 'c-modal-head';
+      title.className = 'c-modal-title';
+      title.id = 'myfc-alert-title';
+      title.textContent = '알림';
+      body.className = 'c-modal-body';
+      text.className = 'modal-text';
+      text.id = 'myfc-alert-message';
+      text.textContent = message == null ? '' : String(message);
+      foot.className = 'c-modal-foot';
+      confirmButton.type = 'button';
+      confirmButton.className = 'btn btn-primary';
+      confirmButton.textContent = '확인';
+
+      head.appendChild(title);
+      body.appendChild(text);
+      foot.appendChild(confirmButton);
+      panel.appendChild(head);
+      panel.appendChild(body);
+      panel.appendChild(foot);
+      modal.appendChild(backdrop);
+      modal.appendChild(panel);
+      document.body.appendChild(modal);
+
+      function close() {
+        if (settled) return;
+        settled = true;
+        document.removeEventListener('keydown', onKeydown, true);
+        modal.remove();
+        if (!document.querySelector('.c-modal.is-open')) {
+          document.body.classList.remove('popup-open');
+        }
+        if (previousFocus && typeof previousFocus.focus === 'function') {
+          previousFocus.focus();
+        }
+        resolve();
+      }
+
+      function onKeydown(event) {
+        if (event.key !== 'Escape') return;
+        event.preventDefault();
+        event.stopPropagation();
+        close();
+      }
+
+      backdrop.addEventListener('click', close);
+      confirmButton.addEventListener('click', close);
+      document.addEventListener('keydown', onKeydown, true);
+      modal.classList.add('is-open');
+      document.body.classList.add('popup-open');
+      confirmButton.focus();
+    });
+  }
+
+  // 브라우저 alert와 달리 Promise를 반환한다. 호출부는 await로 다음 동작을 대기한다.
+  MyFC.alert = function (message) {
+    var next = alertQueue.then(function () {
+      return showAlertModal(message);
+    });
+    alertQueue = next.catch(function () {});
+    return next;
+  };
+
   function handleToastButton(btn) {
     var msg = btn.dataset.toast;
     if (!msg) return;

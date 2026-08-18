@@ -349,12 +349,12 @@ document.addEventListener('DOMContentLoaded', function () {
             if (result.status === 'success') {
                 location.href = '/member/fcJoin4';
             } else {
-                alert(result.message || '저장 실패');
+                await window.MyFC.alert(result.message || '저장 실패');
             }
 
         } catch (err) {
             console.error(err);
-            alert('서버 오류가 발생했습니다.');
+            await window.MyFC.alert('서버 오류가 발생했습니다.');
         }
 
     });

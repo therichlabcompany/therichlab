@@ -216,7 +216,14 @@
 
         if(!btn) return;
 
+        // 삭제 버튼이 폼 내부에 있으므로, 상위 클릭 처리나 기본 동작에
+        // 영향을 받지 않도록 여기서 이벤트를 끝낸다.
+        e.preventDefault();
+        e.stopPropagation();
+
         const item=btn.closest('.thumb-preview');
+
+        if (!item) return;
 
         if(item.dataset.new){
 
@@ -270,14 +277,6 @@
         const previews=[
             ...thumbWrap.querySelectorAll('.thumb-preview')
         ];
-
-        if(previews.length===0){
-
-            alert('스토리 이미지를 최소 1개 이상 등록해주세요.');
-
-            return;
-
-        }
 
         const formData=new FormData();
 

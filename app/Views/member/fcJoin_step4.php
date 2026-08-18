@@ -142,7 +142,7 @@
     // ===========================
     // 이미지 추가
     // ===========================
-    thumbInput.addEventListener('change', function () {
+    thumbInput.addEventListener('change', async function () {
 
         const files = Array.from(thumbInput.files || []);
 
@@ -152,7 +152,7 @@
 
         if (currentCount + files.length > 20) {
 
-            alert('최대 20개까지 가능합니다.');
+            await window.MyFC.alert('최대 20개까지 가능합니다.');
 
             thumbInput.value='';
 
@@ -270,14 +270,6 @@
             ...thumbWrap.querySelectorAll('.thumb-preview')
         ];
 
-        if(previews.length===0){
-
-            alert('스토리 이미지를 최소 1개 이상 등록해주세요.');
-
-            return;
-
-        }
-
         const formData=new FormData();
 
         if(videoInput.files.length){
@@ -368,7 +360,7 @@
 
             }else{
 
-                alert(result.message || '저장 실패');
+                await window.MyFC.alert(result.message || '저장 실패');
 
             }
 
@@ -376,7 +368,7 @@
 
             console.error(err);
 
-            alert('서버 오류');
+            await window.MyFC.alert('서버 오류');
 
         }
 

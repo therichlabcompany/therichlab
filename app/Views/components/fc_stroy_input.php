@@ -34,7 +34,7 @@ $imagePath = !empty($story['story_image'])
 <div class="story-guide">
     <p>
         <strong>활동 스토리 이미지</strong>
-        이미지를 등록해주세요. (최대 20개 등록)
+        이미지를 등록할 수 있습니다. (최대 20개 등록)
     </p>
 
     <ul class="dash-list">
