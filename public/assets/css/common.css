@@ -854,6 +854,10 @@ textarea:focus {
   margin-top: 10px;
 }
 
+.form-text.email-edit-notice {
+  margin-top: 10px;
+}
+
 @media (max-width: 768px) {
 
   .form-input,

@@ -19,12 +19,16 @@
             <?= $phoneLocked ? 'readonly' : '' ?>
         />
 
-        <button type="button" id="btnEmailCheck"
-            <?= $isEdit ? 'disabled' : '' ?>>
-            중복 확인
-        </button>
+        <?php if (!$isEdit): ?>
+            <button type="button" id="btnEmailCheck">중복 확인</button>
+        <?php endif; ?>
 
     </div>
+    <?php if ($isEdit): ?>
+        <p class="form-text email-edit-notice">이메일은 가입 후 변경할 수 없습니다.</p>
+    <?php else: ?>
+        <p id="emailCheckMessage" class="form-text" aria-live="polite"></p>
+    <?php endif; ?>
 </div>
 
 <div class="form-field">

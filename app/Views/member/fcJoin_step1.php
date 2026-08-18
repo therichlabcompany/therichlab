@@ -254,47 +254,74 @@ document.addEventListener('DOMContentLoaded', () => {
         el.addEventListener('input', updateSubmitState);
     });
 
-    btnEmailCheck.addEventListener('click', async () => {
+    const showEmailCheckMessage = (text, isError = false) => {
+        const message = document.getElementById('emailCheckMessage');
+        if (!message) return;
+        message.textContent = text;
+        message.classList.toggle('is-error', isError);
+        message.classList.toggle('is-success', !isError && text !== '');
+    };
+
+    if (btnEmailCheck) btnEmailCheck.addEventListener('click', async () => {
         const email = emailInput.value.trim();
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
         if (!emailRegex.test(email)) {
+            fcEmailChecked = false;
+            showEmailCheckMessage('올바른 이메일 형식을 입력해주세요.', true);
             await window.MyFC.alert('올바른 이메일 형식이 아닙니다.');
             return;
         }
+
+        btnEmailCheck.disabled = true;
+        showEmailCheckMessage('이메일 중복을 확인 중입니다.');
 
         try {
             const res = await fetch('/member/check-email', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
+                    'Accept': 'application/json',
                     'X-Requested-With': 'XMLHttpRequest'
                 },
                 body: JSON.stringify({ email })
             });
 
-            const result = await res.json();
+            const raw = await res.text();
+            let result;
+            try {
+                result = JSON.parse(raw);
+            } catch (error) {
+                throw new Error('invalid-response');
+            }
 
-            if (result.status === 'success') {
+            if (res.ok && result.status === 'success') {
                 if (result.duplicate) {
-                    await window.MyFC.alert(result.message || '이미 사용 중인 이메일입니다.');
                     fcEmailChecked = false;
+                    const message = result.message || '이미 사용 중인 이메일입니다.';
+                    showEmailCheckMessage(message, true);
+                    await window.MyFC.alert(message);
                 } else {
-                    await window.MyFC.alert('사용 가능한 이메일입니다.');
                     fcEmailChecked = true;
+                    showEmailCheckMessage('사용 가능한 이메일입니다.');
+                    await window.MyFC.alert('사용 가능한 이메일입니다.');
                 }
             } else {
-                await window.MyFC.alert(result.message || '처리 중 오류');
+                throw new Error(result.message || 'request-failed');
             }
         } catch (e) {
+            fcEmailChecked = false;
+            showEmailCheckMessage('이메일 중복확인에 실패했습니다. 잠시 후 다시 시도해주세요.', true);
             await window.MyFC.alert('서버 통신 실패');
+        } finally {
+            btnEmailCheck.disabled = false;
+            updateSubmitState();
         }
-
-        updateSubmitState();
     });
 
     emailInput.addEventListener('input', () => {
         fcEmailChecked = false;
+        showEmailCheckMessage('');
         updateSubmitState();
     });
 

@@ -663,19 +663,23 @@ HTML);
 
     public function checkEmail()
     {
-        $email = $this->request->getJSON(true)['email'] ?? null;
+        $payload = $this->request->getJSON(true);
+        if (!is_array($payload)) {
+            $payload = $this->request->getPost();
+        }
+        $email = strtolower(trim((string) ($payload['email'] ?? '')));
 
-        if (!$email) {
+        if ($email === '') {
             return $this->response->setJSON([
                 'status' => 'error',
-                'message' => 'email required'
+                'message' => '이메일을 입력해주세요.'
             ]);
         }
 
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
             return $this->response->setJSON([
                 'status' => 'error',
-                'message' => 'invalid email format'
+                'message' => '올바른 이메일 형식이 아닙니다.'
             ]);
         }
 
