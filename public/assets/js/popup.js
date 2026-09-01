@@ -196,7 +196,11 @@
 
   function closeAll() {
     each(document.querySelectorAll('.c-modal.is-open'), function (node) {
+      if (!node._popupConfirmed) restorePopupSelection(node);
       node.classList.remove('is-open');
+      node._popupConfirmed = false;
+      node._popupBeforeAll = null;
+      node._popupInitialAll = false;
     });
     toggleBodyLock();
   }
@@ -214,9 +218,43 @@
     if (!popup || !popup.classList.contains('c-modal')) return;
 
     closeAll();
+    popup._popupConfirmed = false;
+    popup._popupBeforeAll = null;
+    popup._popupInitialAll = false;
     popup.classList.add('is-open');
     toggleBodyLock();
     syncState(popup, btn);
+    popup._popupInitialAll = !!popup.querySelector('.c-modal-option.is-selected[data-value="' + getAllValue(popup) + '"]');
+    popup._popupInitialSelection = getSelectedOptionValues(popup);
+    if (popup._popupInitialAll) {
+      popup._popupBeforeAll = [];
+    } else {
+      popup._popupBeforeAll = popup._popupInitialSelection.slice();
+    }
+  }
+
+  function getAllValue(popup) {
+    var value = popup.getAttribute('data-popup-all-value');
+    return value == null ? '' : String(value);
+  }
+
+  function getSelectedOptionValues(popup) {
+    var values = [];
+    each(popup.querySelectorAll('.c-modal-option.is-selected'), function (option) {
+      var value = getOptionValue(option);
+      if (value !== '' && value !== getAllValue(popup)) values.push(value);
+    });
+    return values;
+  }
+
+  function restorePopupSelection(popup) {
+    var values = popup._popupInitialSelection || [];
+    var selectedMap = {};
+    each(values, function (value) { selectedMap[value] = true; });
+    each(popup.querySelectorAll('.c-modal-option'), function (option) {
+      var value = getOptionValue(option);
+      option.classList.toggle('is-selected', popup._popupInitialAll || value !== getAllValue(popup) && value !== '' && !!selectedMap[value]);
+    });
   }
 
   /* 열 때: hidden 값 기준으로 옵션 is-selected 동기화 (단일 / 복수) */
@@ -230,6 +268,8 @@
     var found = false;
     var values;
     var selectedMap;
+    var allValue;
+    var allSelected;
 
     if (popup.hasAttribute('data-popup-multiselect')) {
       values = value
@@ -242,6 +282,8 @@
         });
 
       selectedMap = {};
+      allValue = getAllValue(popup);
+      allSelected = (allValue === '' && values.length === 0) || values.indexOf(allValue) !== -1;
       for (i = 0; i < values.length; i++) {
         selectedMap[values[i]] = true;
       }
@@ -250,10 +292,10 @@
         optionValue = options[i].getAttribute('data-value');
         optionValue = optionValue == null ? '' : String(optionValue);
 
-        if (values.length === 0) {
-          options[i].classList.toggle('is-selected', optionValue === '');
+        if (allSelected) {
+          options[i].classList.add('is-selected');
         } else {
-          options[i].classList.toggle('is-selected', optionValue !== '' && !!selectedMap[optionValue]);
+          options[i].classList.toggle('is-selected', optionValue !== allValue && optionValue !== '' && !!selectedMap[optionValue]);
         }
       }
 
@@ -285,6 +327,8 @@
     var value;
     var hasSelected;
     var emptyOpt;
+    var allToggle;
+    var allValue;
 
     if (!popup || !popup.classList.contains('is-open')) return;
 
@@ -298,6 +342,24 @@
 
     value = getOptionValue(optionBtn);
 
+    allValue = getAllValue(popup);
+    allToggle = popup.hasAttribute('data-popup-all-toggle') && value === allValue;
+    if (allToggle) {
+      if (optionBtn.classList.contains('is-selected')) {
+        var previousValues = popup._popupBeforeAll || [];
+        var previousMap = {};
+        each(previousValues, function (previousValue) { previousMap[previousValue] = true; });
+        each(options, function (option) {
+          var optionValue = getOptionValue(option);
+          option.classList.toggle('is-selected', optionValue !== allValue && !!previousMap[optionValue]);
+        });
+      } else {
+        popup._popupBeforeAll = getSelectedOptionValues(popup);
+        each(options, function (option) { option.classList.add('is-selected'); });
+      }
+      return;
+    }
+
     if (value === '') {
       for (i = 0; i < options.length; i++) {
         options[i].classList.remove('is-selected');
@@ -307,7 +369,7 @@
     }
 
     for (i = 0; i < options.length; i++) {
-      if (getOptionValue(options[i]) === '') {
+      if (getOptionValue(options[i]) === allValue) {
         options[i].classList.remove('is-selected');
       }
     }
@@ -315,8 +377,8 @@
     optionBtn.classList.toggle('is-selected');
 
     /* 비어 있지 않은 값이 하나도 선택되지 않으면 data-value=""(전체)만 선택 */
-    hasSelected = popup.querySelector('.c-modal-option.is-selected:not([data-value=""])');
-    emptyOpt = popup.querySelector('.c-modal-option[data-value=""]');
+    hasSelected = popup.querySelector('.c-modal-option.is-selected:not([data-value="' + allValue + '"])');
+    emptyOpt = popup.querySelector('.c-modal-option[data-value="' + allValue + '"]');
     if (emptyOpt) {
       emptyOpt.classList.toggle('is-selected', !hasSelected);
     }
@@ -379,6 +441,7 @@
         labelEl.classList.remove('is-placeholder');
       }
 
+      popup._popupConfirmed = true;
       closeAll();
       return;
     }
@@ -400,6 +463,7 @@
       }
     }
 
+    popup._popupConfirmed = true;
     closeAll();
   }
 

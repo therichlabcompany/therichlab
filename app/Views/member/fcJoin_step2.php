@@ -138,10 +138,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // =========================
     // 파일 선택 열기
     // =========================
-    btn.addEventListener('click', () => {
-        fileInput.click();
-    });
-
     // =========================
     // 파일 변경 → 미리보기
     // =========================

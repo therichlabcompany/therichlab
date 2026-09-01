@@ -25,13 +25,13 @@
 
         <form class="form-box" method="post" id="fc-member-basic-form"  enctype="multipart/form-data">
             <div class="fc-profile-thumb">
-                <button type="button" aria-label="프로필 이미지 등록" id="btnProfileUpload">
+                <label for="profile_image" aria-label="프로필 이미지 등록" id="btnProfileUpload">
                     <?php if ($profileImage !== ''): ?>
                         <img id="profilePreview" src="<?= esc($profileImage) ?>" alt="프로필 이미지" onerror="this.replaceWith(Object.assign(document.createElement('span'), { id: 'profilePreview', className: 'profile-image-placeholder' }));">
                     <?php else: ?>
                         <span id="profilePreview" class="profile-image-placeholder" aria-hidden="true"></span>
                     <?php endif; ?>
-                </button>
+                </label>
                 <input type="file" name="profile_image" id="profile_image" hidden />
             </div>
             <?php if ($profileImage !== ''): ?>
@@ -74,10 +74,6 @@
 <?php include_once (COMPONENT_PATH . '/mobileok_phone_edit.php'); ?>
 
 <script>
-document.getElementById('btnProfileUpload').addEventListener('click', () => {
-    document.getElementById('profile_image').click();
-});
-
 document.getElementById('profile_image').addEventListener('change', async function () {
 
     const file = this.files[0];

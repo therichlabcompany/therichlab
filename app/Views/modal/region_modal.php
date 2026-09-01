@@ -1,4 +1,4 @@
-<div id="popup-fc-region" class="c-modal" data-popup-multiselect>
+<div id="popup-fc-region" class="c-modal" data-popup-multiselect data-popup-all-toggle>
     <button type="button" class="c-modal-backdrop" data-popup-close></button>
     <div class="c-modal-panel">
         <div class="c-modal-head">

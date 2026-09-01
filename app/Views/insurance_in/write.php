@@ -16,7 +16,7 @@
                 <div class="file-upload" data-insurance-upload>
                 <div class="file-upload-rows">
                   <div data-upload-row>
-                        <input class="form-input" data-file-name readonly placeholder="파일을 선택해 주세요"><input class="visually-hidden" id="insurance-in-file" name="attach_file" type="file" accept=".pdf,.xls,.xlsx,.hwp,.jpg,.jpeg,.png,.gif"><button type="button" class="file-upload-file-trigger" onclick="document.getElementById('insurance-in-file').click()">파일찾기</button>
+                        <input class="form-input" data-file-name readonly placeholder="파일을 선택해 주세요"><input class="visually-hidden" id="insurance-in-file" name="attach_file" type="file" accept=".pdf,.xls,.xlsx,.hwp,.jpg,.jpeg,.png,.gif"><label for="insurance-in-file" class="file-upload-file-trigger">파일찾기</label>
                     </div>
                 </div>
                 </div>

@@ -5,14 +5,14 @@ $profileLanguage = fc_language_normalize($profile['language'] ?? '');
 
 
 <div class="fc-profile-thumb">
-    <button type="button" id="profile-btn" aria-label="프로필 이미지 등록">
+    <label for="profile-file" id="profile-btn" aria-label="프로필 이미지 등록">
         <?php if ($profileImage !== ''): ?>
             <img id="profile-preview" src="<?= esc($profileImage) ?>" alt="" onerror="this.replaceWith(Object.assign(document.createElement('span'), { id: 'profile-preview', className: 'profile-image-placeholder' }));" />
         <?php else: ?>
             <span id="profile-preview" class="profile-image-placeholder" aria-hidden="true"></span>
         <?php endif; ?>
         <input type="file" id="profile-file" name="profile_image" accept="image/*" hidden />
-    </button>
+    </label>
 </div>
 <?php if ($profileImage !== ''): ?>
     <div class="profile-image-actions">

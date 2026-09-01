@@ -79,8 +79,8 @@
                     </p>
                 </div>
 
-                <!-- 전문 분야 (intro + hero_line 혼합) -->
-                <?php if (!empty($activity['hero_line']) || !empty($activity['intro'])): ?>
+                <!-- 전문 분야 (한 줄 히어로 + 전문 분야) -->
+                <?php if (!empty($activity['hero_line']) || !empty($activity['specialty'])): ?>
                     <div class="fc-detail-item">
                         <h3>전문 분야</h3>
                         <p>
@@ -88,8 +88,8 @@
                                 <?= esc($activity['hero_line']) ?><br />
                             <?php endif; ?>
 
-                            <?php if (!empty($activity['intro'])): ?>
-                                <?= nl2br(esc($activity['intro'])) ?>
+                            <?php if (!empty($activity['specialty'])): ?>
+                                <?= nl2br(esc($activity['specialty'])) ?>
                             <?php endif; ?>
                         </p>
                     </div>

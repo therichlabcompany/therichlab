@@ -2029,7 +2029,9 @@ a.fc-detail-cta {
   border-radius: 6px;
 }
 
-.signup-page .fc-profile-thumb > button {
+.signup-page .fc-profile-thumb > button,
+.signup-page .fc-profile-thumb > label {
+  cursor: pointer;
   position: relative;
   width: 88px;
   height: 88px;
@@ -2041,7 +2043,8 @@ a.fc-detail-cta {
   cursor: pointer;
 }
 
-.signup-page .fc-profile-thumb > button > img {
+.signup-page .fc-profile-thumb > button > img,
+.signup-page .fc-profile-thumb > label > img {
   display: block;
   width: 100%;
   height: 100%;
@@ -2050,7 +2053,8 @@ a.fc-detail-cta {
   pointer-events: none;
 }
 
-.signup-page .fc-profile-thumb > button > .profile-image-placeholder {
+.signup-page .fc-profile-thumb > button > .profile-image-placeholder,
+.signup-page .fc-profile-thumb > label > .profile-image-placeholder {
   display: block;
   width: 100%;
   height: 100%;
@@ -2058,11 +2062,13 @@ a.fc-detail-cta {
   background: #e5e7eb;
 }
 
-.signup-page .fc-profile-thumb > button > img.is-empty {
+.signup-page .fc-profile-thumb > button > img.is-empty,
+.signup-page .fc-profile-thumb > label > img.is-empty {
   background: #e5e7eb;
 }
 
-.signup-page .fc-profile-thumb > button::after {
+.signup-page .fc-profile-thumb > button::after,
+.signup-page .fc-profile-thumb > label::after {
   content: '';
   position: absolute;
   right: 0px;
@@ -2084,7 +2090,9 @@ a.fc-detail-cta {
 }
 
 .signup-page .fc-profile-thumb > button:hover::after,
-.signup-page .fc-profile-thumb > button:focus-visible::after {
+.signup-page .fc-profile-thumb > button:focus-visible::after,
+.signup-page .fc-profile-thumb > label:hover::after,
+.signup-page .fc-profile-thumb > label:focus-visible::after {
   border-color: var(--focus-border);
   background-color: var(--bg-sub);
   background-image: linear-gradient(var(--text-sub), var(--text-sub)), linear-gradient(var(--text-sub), var(--text-sub));
@@ -2255,7 +2263,8 @@ a.fc-detail-cta {
 }
 
 .signup-page .file-upload .proof-sets > div > div > button,
-.signup-page .file-upload > div > button {
+.signup-page .file-upload > div > button,
+.signup-page .file-upload > div > label.file-upload-file-trigger {
   flex: 0 0 auto;
   height: 50px;
   padding: 0 14px;
@@ -2265,14 +2274,20 @@ a.fc-detail-cta {
   border: 1px solid var(--border-strong);
   border-radius: 8px;
   background: var(--bg);
+  cursor: pointer;
+  text-align: center;
 }
 
-.signup-page .file-upload > div > button {
+.signup-page .file-upload > div > button,
+.signup-page .file-upload > div > label.file-upload-file-trigger {
   box-sizing: border-box;
   flex: 0 0 104px;
   width: 104px;
   min-width: 104px;
   white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .signup-page .form-box hr {

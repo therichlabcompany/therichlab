@@ -105,7 +105,7 @@ if (!empty($profile['ga'])) {
                     <div data-upload-row>
                         <input class="form-input" id="consult-file-display-1" type="text" readonly placeholder="첨부 파일을 선택해 주세요" />
                         <input id="consult-file-1" class="visually-hidden" name="consult_file[]" type="file" tabindex="-1" />
-                        <button type="button" class="file-upload-file-trigger">파일 업로드</button>
+                        <label for="consult-file-1" class="file-upload-file-trigger">파일 업로드</label>
                         <button type="button" class="file-upload-row-remove" data-row-remove aria-label="첨부 항목 삭제">삭제</button>
                     </div>
                 </div>
@@ -131,7 +131,7 @@ if (!empty($profile['ga'])) {
             <div data-upload-row>
                 <input type="text" readonly placeholder="첨부 파일을 선택해 주세요" />
                 <input class="visually-hidden" name="consult_file[]" type="file" tabindex="-1" />
-                <button type="button" class="file-upload-file-trigger">파일 업로드</button>
+                <label class="file-upload-file-trigger">파일 업로드</label>
                 <button type="button" class="file-upload-row-remove" data-row-remove aria-label="첨부 항목 삭제">삭제</button>
             </div>
         </template>
@@ -229,6 +229,8 @@ if (!empty($profile['ga'])) {
             var fileInput = row.querySelector('input[type="file"]');
             if (display) display.id = 'consult-file-display-' + rowSeq;
             if (fileInput) fileInput.id = 'consult-file-' + rowSeq;
+            var fileTrigger = row.querySelector('.file-upload-file-trigger');
+            if (fileTrigger) fileTrigger.htmlFor = 'consult-file-' + rowSeq;
             rows.appendChild(row);
             syncRowState();
         }
@@ -249,11 +251,7 @@ if (!empty($profile['ga'])) {
                 return;
             }
 
-            var trigger = e.target.closest('.file-upload-file-trigger');
-            if (!trigger || !form.contains(trigger)) return;
-            var row = trigger.closest('[data-upload-row]');
-            var fileInput = row ? row.querySelector('input[type="file"]') : null;
-            if (fileInput) fileInput.click();
+            // 파일 선택은 label[for]의 기본 동작으로 처리한다.
         });
 
         form.addEventListener('change', function(e) {

@@ -18,7 +18,7 @@
         <div class="c-modal-body">
             <p class="modal-text"><strong>프로필 정보 수정이 완료 되었습니다.<br /><br />프로필 정보 수정 시<br />재심의 받으셔야 됩니다.</strong></p>
         </div>
-        <div class="c-modal-foot"><div class="c-modal-btns"><button type="button" class="btn btn-primary" data-fc-deliberation-preview>심의필 요청용 화면 미리보기</button><a href="<?= base_url('mypage/fcreviewed') ?>" class="btn btn-sub">심의필 정보 관리 바로가기</a></div></div>
+        <div class="c-modal-foot"><div class="c-modal-btns"><a href="<?= base_url('fc/view') ?>?uid=<?= rawurlencode((string) session()->get('member_uid')) ?>" class="btn btn-primary" target="_blank" rel="noopener noreferrer">심의필 요청용 화면 미리보기</a><a href="<?= base_url('mypage/fcreviewed') ?>" class="btn btn-sub">심의필 정보 관리 바로가기</a></div></div>
     </div>
 </div>
 

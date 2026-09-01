@@ -119,28 +119,6 @@
     updateMainThumb();
 
     // ===========================
-    // 클릭
-    // ===========================
-    form.addEventListener('click', function (e) {
-
-        if (e.target.closest('.fc-story-thumb-add')) {
-            thumbInput.click();
-            return;
-        }
-
-        const trigger = e.target.closest('.file-upload-file-trigger');
-
-        if (trigger) {
-
-            const fileInput = trigger.closest('.file-upload').querySelector('input[type=file]');
-
-            if (fileInput) fileInput.click();
-
-        }
-
-    });
-
-    // ===========================
     // 이미지 추가
     // ===========================
     thumbInput.addEventListener('change', function () {

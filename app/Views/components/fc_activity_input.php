@@ -82,6 +82,16 @@ endforeach;
 </div>
 
 <div class="form-field">
+    <label class="form-label" for="fc-specialty">전문 분야</label>
+    <textarea
+        class="form-textarea"
+        id="fc-specialty"
+        name="specialty"
+        rows="4"
+        placeholder="(예시) 생명보험과 손해보험을 함께 비교해 가족 구성원별 보장 공백을 점검하고, 맞춤형 보장 설계를 안내합니다."><?= esc($activity['specialty'] ?? '') ?></textarea>
+</div>
+
+<div class="form-field">
     <label class="form-label" for="fc-intro">자기소개</label>
     <textarea
         class="form-textarea"
@@ -192,14 +202,15 @@ foreach ($activityItems as $item) {
 
                                 <input
                                     class="visually-hidden"
+                                    id="proof-file-<?= (int) $row['item_id'] ?>"
                                     name="proof_file"
                                     type="file">
 
-                                <button
-                                    type="button"
+                                <label
+                                    for="proof-file-<?= (int) $row['item_id'] ?>"
                                     data-file-trigger>
                                     파일찾기
-                                </button>
+                                </label>
 
                                 <button
                                     type="button"
@@ -301,7 +312,7 @@ foreach ($activityItems as $item) {
         <div>
             <input type="text" readonly placeholder="첨부 파일을 선택해 주세요" />
             <input class="visually-hidden" name="proof_file" type="file" tabindex="-1" />
-            <button type="button" class="fc-proof-file-trigger" data-file-trigger>파일찾기</button>
+            <label class="fc-proof-file-trigger" data-file-trigger>파일찾기</label>
             <button type="button" data-row-remove>삭제</button>
         </div>
     </div>

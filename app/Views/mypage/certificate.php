@@ -40,9 +40,9 @@
 
             </ul>
             <p class="securities-add-wrap">
-                <button type="button" class="securities-add" data-securities-add aria-label="파일 항목 추가"></button>
+                <label for="securities-file-input" class="securities-add" data-securities-add aria-label="파일 항목 추가"></label>
             </p>
-            <input type="file" data-securities-file-input accept=".pdf,.jpg,.jpeg,.png,.doc,.docx,.xls,.xlsx,.ppt,.pptx" multiple hidden />
+            <input id="securities-file-input" type="file" data-securities-file-input accept=".pdf,.jpg,.jpeg,.png,.doc,.docx,.xls,.xlsx,.ppt,.pptx" multiple hidden />
         </section>
 
         <div class="form-actions">
@@ -69,10 +69,6 @@
     // ===========================
     // 파일 선택
     // ===========================
-    addBtn.addEventListener('click', function () {
-        input.click();
-    });
-
     // ===========================
     // 파일 추가
     // ===========================

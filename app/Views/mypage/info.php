@@ -10,13 +10,13 @@
         <form class="form-box" method="post">
 
             <div class="fc-profile-thumb">
-                <button type="button" id="btnProfileUpload" aria-label="프로필 이미지 등록">
+                <label for="profileImageInput" id="btnProfileUpload" aria-label="프로필 이미지 등록">
                     <?php if ($profileImage !== ''): ?>
                         <img id="profilePreview" src="<?= esc($profileImage) ?>" alt="프로필 이미지" onerror="this.replaceWith(Object.assign(document.createElement('span'), { id: 'profilePreview', className: 'profile-image-placeholder' }));">
                     <?php else: ?>
                         <span id="profilePreview" class="profile-image-placeholder" aria-hidden="true"></span>
                     <?php endif; ?>
-                </button>
+                </label>
                 <input type="file" id="profileImageInput" accept="image/*" hidden>
             </div>
             <?php if ($profileImage !== ''): ?>
@@ -85,7 +85,6 @@ const profileImageInput = document.getElementById('profileImageInput');
 let profilePreview = document.getElementById('profilePreview');
 const profileRemoveButton = document.getElementById('btnProfileRemove');
 
-profileUploadButton.addEventListener('click', () => profileImageInput.click());
 profileImageInput.addEventListener('change', async function () {
     const file = this.files[0];
     if (!file) return;

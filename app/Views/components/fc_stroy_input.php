@@ -16,7 +16,7 @@ $imagePath = !empty($story['story_image'])
     <div>
         <input class="form-input" id="fc-story-video-display" type="text" readonly placeholder="첨부 파일을 선택해 주세요" value="<?= !empty($story['story_video']) ? esc($story['story_video']) : '' ?>" />
         <input id="fc-story-video-file" class="visually-hidden" name="story_video" type="file" accept="video/*" tabindex="-1" />
-        <button type="button" class="file-upload-file-trigger">업로드</button>
+        <label class="file-upload-file-trigger" for="fc-story-video-file">업로드</label>
     </div>
 </div>
 
@@ -25,7 +25,7 @@ $imagePath = !empty($story['story_image'])
     <div>
         <input class="form-input" id="fc-story-image-display" type="text" readonly placeholder="첨부 파일을 선택해 주세요" value="<?= !empty($story['story_image']) ? esc($story['story_image']) : '' ?>" />
         <input id="fc-story-image-file" class="visually-hidden" name="story_image" type="file" accept="image/*" tabindex="-1" />
-        <button type="button" class="file-upload-file-trigger">파일첨부</button>
+        <label class="file-upload-file-trigger" for="fc-story-image-file">파일첨부</label>
     </div>
 </div>
 
@@ -53,7 +53,7 @@ $imagePath = !empty($story['story_image'])
         name="story_images"
         type="file"
         multiple
-        accept=".jpg,.jpeg,.png,.gif" />
+        accept=".jpg,.jpeg,.png,.gif,image/jpeg,image/png,image/gif" />
 
     <div
         class="fc-story-thumb-main"
@@ -89,11 +89,14 @@ $imagePath = !empty($story['story_image'])
 
     <?php endforeach; ?>
 
-    <button
-        type="button"
-        class="fc-story-thumb-add">
+    <label
+        for="fc-story-thumb-file"
+        class="fc-story-thumb-add"
+        role="button"
+        tabindex="0"
+        aria-label="이미지 추가">
         +
-    </button>
+    </label>
 
 </div>
 

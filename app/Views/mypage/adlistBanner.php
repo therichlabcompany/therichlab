@@ -30,11 +30,12 @@
                                 autocomplete="off" />
                             <input
                                 class="visually-hidden"
+                                id="banner-file"
                                 name="banner_file"
                                 type="file"
                                 tabindex="-1"
                                 accept=".png,.jpg,.jpeg,.gif,image/png,image/jpeg,image/gif" />
-                            <button type="button" class="file-upload-file-trigger">파일찾기</button>
+                            <label for="banner-file" class="file-upload-file-trigger">파일찾기</label>
                         </div>
                     </div>
                 </div>
@@ -89,11 +90,6 @@
         var display = row.querySelector('input[readonly]');
         var fileInput = row.querySelector('input[type="file"]');
         var trigger = row.querySelector('.file-upload-file-trigger');
-        if (trigger && fileInput) {
-            trigger.addEventListener('click', function() {
-                fileInput.click();
-            });
-        }
         if (fileInput && display) {
             fileInput.addEventListener('change', function() {
                 var f = fileInput.files && fileInput.files[0];

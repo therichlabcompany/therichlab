@@ -74,6 +74,14 @@
 
         row.dataset.new = "1";
 
+        const fileInput = row.querySelector('input[type=file]');
+        const fileLabel = row.querySelector('[data-file-trigger]');
+        if (fileInput && fileLabel) {
+            const fileId = 'proof-file-new-' + Date.now() + '-' + Math.random().toString(36).slice(2);
+            fileInput.id = fileId;
+            fileLabel.htmlFor = fileId;
+        }
+
         proofBlock
             .querySelector('[data-proof-rows="' + type + '"]')
             .appendChild(row);
@@ -97,18 +105,6 @@
     }
 
     panelsRoot.addEventListener('click', function (e) {
-
-        const fileBtn = e.target.closest('[data-file-trigger]');
-
-        if (fileBtn) {
-
-            const row = fileBtn.closest('[data-proof-row]');
-
-            row.querySelector('input[type=file]').click();
-
-            return;
-
-        }
 
         const removeBtn = e.target.closest('[data-row-remove]');
 
@@ -205,9 +201,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
     const region = document.getElementById('fc-region-value');
-    const insurance = document.getElementById('fc-insurance-value');
-    const history = document.getElementById('fc-history');
-    const intro = document.getElementById('fc-intro');
+        const insurance = document.getElementById('fc-insurance-value');
+        const history = document.getElementById('fc-history');
+        const specialty = document.getElementById('fc-specialty');
+        const intro = document.getElementById('fc-intro');
     const career = document.getElementById('fc-career');
 
     const proofBlock = document.getElementById('fc-proof-block');
@@ -270,6 +267,7 @@ document.addEventListener('DOMContentLoaded', function () {
         formData.append('region', region.value);
         formData.append('insurance_types', insurance.value);
         formData.append('history', history.value.trim());
+        formData.append('specialty', specialty.value.trim());
         formData.append('intro', intro.value.trim());
         formData.append('career', career.value.trim());
 

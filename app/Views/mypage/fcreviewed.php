@@ -127,6 +127,7 @@ $isReject     = !empty($review) && $review['status'] === 'REJECT';
                             placeholder="파일을 선택해 주세요"
                             value="<?= esc($review['deliberation_file'] ?? '') ?>" />
                         <input
+                            id="deliberation-file"
                             class="visually-hidden"
                             name="deliberation_file"
                             type="file"
@@ -141,7 +142,7 @@ $isReject     = !empty($review) && $review['status'] === 'REJECT';
                             .hwp,
                             .jpg,.jpeg,.png,.webp,.gif
                             "/>
-                        <button type="button" class="file-upload-file-trigger">파일찾기</button>
+                        <label for="deliberation-file" class="file-upload-file-trigger">파일찾기</label>
                     </div>
                 </div>
             </div>
@@ -288,7 +289,6 @@ $isReject     = !empty($review) && $review['status'] === 'REJECT';
 
         const fileInput = form.querySelector('input[name="deliberation_file"]');
         const fileDisplay = form.querySelector('[data-upload-row] input[readonly]');
-        const fileButton = form.querySelector('.file-upload-file-trigger');
         const confirmModal = document.getElementById('reviewed-confirm-modal');
         const confirmButton = confirmModal.querySelector('[data-reviewed-confirm]');
         let pendingFormData = null;
@@ -308,10 +308,6 @@ $isReject     = !empty($review) && $review['status'] === 'REJECT';
         // =========================
         // 파일 선택
         // =========================
-
-        fileButton.addEventListener('click', function() {
-            fileInput.click();
-        });
 
         fileInput.addEventListener('change', function() {
 

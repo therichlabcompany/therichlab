@@ -1942,6 +1942,7 @@ HTML);
             $region = trim((string) $this->request->getPost('region'));
             $insuranceTypes = trim((string) $this->request->getPost('insurance_types'));
             $heroLine = trim((string) $this->request->getPost('history'));
+            $specialty = trim((string) $this->request->getPost('specialty'));
             $intro = trim((string) $this->request->getPost('intro'));
             $career = trim((string) $this->request->getPost('career'));
 
@@ -1958,6 +1959,8 @@ HTML);
                 'insurance_types' => $insuranceTypes !== '' ? $insuranceTypes : null,
 
                 'hero_line'       => $heroLine !== '' ? $heroLine : null,
+
+                'specialty'       => $specialty !== '' ? $specialty : null,
 
                 'intro'           => $intro !== '' ? $intro : null,
 
