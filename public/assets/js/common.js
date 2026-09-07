@@ -77,8 +77,58 @@
     });
   }
 
+  /*
+   * 모바일 브라우저 파일 선택창 대응
+   *
+   * 숨겨진 file input에 포커스가 이동할 때 삼성 인터넷 등 일부 브라우저가
+   * 해당 DOM 위치로 자동 스크롤한다. 선택 전 위치를 기록하고 파일 선택 또는
+   * 취소 후 복원한다. 이벤트 위임으로 동적으로 추가되는 첨부 행에도 적용된다.
+   */
+  function initFilePickerScrollRestore() {
+    var filePickerScrollTop = null;
+
+    function remember(input) {
+      if (!input || input.type !== 'file') return;
+      filePickerScrollTop = window.scrollY || document.documentElement.scrollTop || 0;
+    }
+
+    function restore() {
+      if (filePickerScrollTop === null) return;
+
+      var scrollTop = filePickerScrollTop;
+      filePickerScrollTop = null;
+
+      window.requestAnimationFrame(function () {
+        window.scrollTo(0, scrollTop);
+        window.requestAnimationFrame(function () {
+          window.scrollTo(0, scrollTop);
+        });
+      });
+    }
+
+    document.addEventListener('pointerdown', function (event) {
+      var label = event.target.closest ? event.target.closest('label[for]') : null;
+      var input = label ? document.getElementById(label.htmlFor) : null;
+      remember(input);
+    }, true);
+
+    document.addEventListener('click', function (event) {
+      var input = event.target;
+      if (input && input.tagName === 'INPUT') remember(input);
+    }, true);
+
+    document.addEventListener('change', function (event) {
+      if (event.target && event.target.type === 'file') restore();
+    }, true);
+
+    document.addEventListener('cancel', function (event) {
+      if (event.target && event.target.type === 'file') restore();
+    }, true);
+  }
+
   function boot() {
     initProfileMenu();
+    initFilePickerScrollRestore();
     if (typeof MyFC.initUi === 'function') MyFC.initUi();
     if (typeof MyFC.initPopups === 'function') MyFC.initPopups();
   }
