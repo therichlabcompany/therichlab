@@ -2367,7 +2367,11 @@ a.fc-detail-cta {
 }
 
 .signup-page #fc-story-thumb-file {
-  position: absolute;
+  /* label로 열리는 숨김 file input에 브라우저가 포커스를 주면서
+     화면을 해당 DOM 위치로 스크롤하지 않도록 화면 고정 위치에 둔다. */
+  position: fixed;
+  top: 0;
+  left: 0;
   width: 1px;
   height: 1px;
   margin: -1px;
