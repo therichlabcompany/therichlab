@@ -64,14 +64,17 @@
     position: absolute;
     top: 4px;
     right: 4px;
-    width: 22px;
-    height: 22px;
+    z-index: 2;
+    width: 32px;
+    height: 32px;
     border-radius: 50%;
     border: none;
     background: rgba(0,0,0,0.7);
     color: #fff;
     font-size: 14px;
     cursor: pointer;
+    touch-action: manipulation;
+    pointer-events: auto;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -188,7 +191,7 @@
     // ===========================
     // 삭제
     // ===========================
-    thumbWrap.addEventListener('click',function(e){
+    function removeThumb(e) {
 
         const btn=e.target.closest('.thumb-remove');
 
@@ -213,7 +216,10 @@
 
         updateMainThumb();
 
-    });
+    }
+
+    thumbWrap.addEventListener('click', removeThumb);
+    thumbWrap.addEventListener('pointerup', removeThumb);
 
     // ===========================
     // Drag
@@ -222,7 +228,9 @@
 
         animation:150,
 
-        draggable:'.thumb-preview'
+        draggable:'.thumb-preview',
+        filter:'.thumb-remove',
+        preventOnFilter:false
 
     });
 

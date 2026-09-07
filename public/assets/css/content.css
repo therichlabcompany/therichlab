@@ -686,10 +686,11 @@ a.directory-select > span {
 }
 
 .fc-detail-card .fc-detail-head .fc-detail-head-main p {
-  margin: 0 0 4px;
-  font-size: 14px;
+  margin: 5px 0 0;
+  font-size: 16px;
+  font-weight: 700;
   line-height: 1.4;
-  color: var(--text-muted);
+  color: var(--text-sub);
 }
 
 .fc-detail-card .fc-detail-head .fc-detail-head-main h1 {
@@ -1342,6 +1343,10 @@ a.fc-detail-cta {
   .fc-detail-card .fc-detail-head .fc-detail-head-main {
     text-align: center;
     width: 100%;
+  }
+
+  .fc-detail-card .fc-detail-head .fc-detail-head-main h1 {
+    font-size: 24px;
   }
 
   .fc-detail-card .fc-detail-head .fc-detail-head-actions {
@@ -2351,6 +2356,7 @@ a.fc-detail-cta {
   align-items: center;
   gap: 12px;
   margin-top: 16px;
+  margin-bottom: 0;
 }
 
 .signup-page .fc-story-thumb-main {

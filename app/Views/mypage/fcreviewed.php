@@ -133,7 +133,7 @@ $isReject     = !empty($review) && $review['status'] === 'REJECT';
                             type="file"
                             tabindex="-1"
                             accept="
-                            .image/*,
+                            image/*,
                             application/pdf,
                             application/msword,
                             application/vnd.openxmlformats-officedocument.wordprocessingml.document,

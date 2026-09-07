@@ -1881,6 +1881,22 @@ body.popup-open {
     align-items: flex-end;
   }
 
+  /* FC 프로필 수정 확인·완료 안내는 모바일에서도 중앙 모달로 표시한다. */
+  .c-modal#fc-profile-update-confirm-modal,
+  .c-modal#fc-profile-update-complete-modal {
+    align-items: center;
+    padding: 24px;
+  }
+
+  .c-modal#fc-profile-update-confirm-modal .c-modal-panel,
+  .c-modal#fc-profile-update-complete-modal .c-modal-panel {
+    width: 100%;
+    max-width: 400px;
+    max-height: min(90vh, 640px);
+    border-radius: 16px;
+    box-shadow: 0 24px 48px rgba(15, 23, 42, 0.18);
+  }
+
   .c-modal-panel {
     max-width: none;
     width: 100%;

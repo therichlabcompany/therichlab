@@ -14,6 +14,7 @@
                     <span class="fc-detail-profile-empty" aria-hidden="true"></span>
                 <?php endif; ?>
                 <div class="fc-detail-head-main">
+                    <h1><?= esc($member['name'] ?? '') ?></h1>
                     <!-- 소속: 보험사 최대 2곳 또는 GA 최대 1곳(데이터에 맞게 노출) -->
                     <?php
                     $companyLine = [];
@@ -28,6 +29,8 @@
 
                     <?php if (!empty($companyLine)): ?>
                         <p><?= esc(implode(' · ', array_slice($companyLine, 0, 2))) ?></p>
+                    <?php else: ?>
+                        <p>-</p>
                     <?php endif; ?>
                 </div>
                 <div class="fc-detail-head-actions">
@@ -63,6 +66,8 @@
                             <?= implode(' ', array_map(function ($r) {
                                 return fc_region_label(trim($r));
                             }, explode(',', $activity['region']))) ?>
+                        <?php else: ?>
+                            -
                         <?php endif; ?>
                     </p>
                 </div>
@@ -75,23 +80,16 @@
                             <?= implode(' ', array_map(function ($i) {
                                 return fc_insurance_label(trim($i));
                             }, explode(',', $activity['insurance_types']))) ?>
+                        <?php else: ?>
+                            -
                         <?php endif; ?>
                     </p>
                 </div>
 
-                <!-- 전문 분야 (한 줄 히어로 + 전문 분야) -->
-                <?php if (!empty($activity['hero_line']) || !empty($activity['specialty'])): ?>
+                <?php if (!empty($activity['hero_line'])): ?>
                     <div class="fc-detail-item">
-                        <h3>전문 분야</h3>
-                        <p>
-                            <?php if (!empty($activity['hero_line'])): ?>
-                                <?= esc($activity['hero_line']) ?><br />
-                            <?php endif; ?>
-
-                            <?php if (!empty($activity['specialty'])): ?>
-                                <?= nl2br(esc($activity['specialty'])) ?>
-                            <?php endif; ?>
-                        </p>
+                        <h3>한 줄 히어로</h3>
+                        <p><?= nl2br(esc($activity['hero_line'])) ?></p>
                     </div>
                 <?php endif; ?>
 
@@ -105,6 +103,14 @@
                                 (<?= esc($review['approval_start']) ?> ~ <?= esc($review['approval_end']) ?>)
                             <?php endif; ?>
                         </p>
+                    </div>
+                <?php endif; ?>
+
+                <!-- 전문 분야 -->
+                <?php if (!empty($activity['specialty'])): ?>
+                    <div class="fc-detail-item">
+                        <h3>전문 분야</h3>
+                        <p><?= nl2br(esc($activity['specialty'])) ?></p>
                     </div>
                 <?php endif; ?>
 
@@ -135,7 +141,7 @@
             </div>
 
             <div class="fc-detail-cta-wrap">
-                <a href="javascript:void(0);" class="fc-detail-cta" onclick="goCounsel('<?= esc($member['member_uid']) ?>')">상담 요청하기</a>
+                <a href="javascript:void(0);" class="fc-detail-cta" onclick="goCounsel('<?= esc($member['member_uid']) ?>')">무료 상담 요청하기</a>
             </div>
         </article>
 
