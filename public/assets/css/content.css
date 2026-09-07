@@ -1947,12 +1947,6 @@ a.fc-detail-cta {
   box-sizing: border-box;
 }
 
-/* 삼성 브라우저에서 파일 선택창을 닫은 뒤 100vh가 이전 viewport 높이로
-   남아 하단에 고정 공백이 생기는 것을 방지한다. */
-.signup-page.layout-wrapper > main {
-  min-height: auto;
-  padding-bottom: 0;
-}
 .signup-page .signup-step-lead {
   margin: 24px 0 30px 0;
   text-align: center;
