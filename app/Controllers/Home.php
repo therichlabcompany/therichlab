@@ -150,10 +150,11 @@ class Home extends BaseController
 
     private function activeProductFcList(): array
     {
-        return $this->uniqueFcRows(array_merge(
-            $this->fcRows(['product_fc'], 12),
+        return array_slice($this->uniqueFcRows(array_merge(
+            // 같은 FC가 여러 상품 광고를 신청한 경우 모든 상품 코드를 합친 뒤 FC를 중복 제거한다.
+            $this->fcRows(['product_fc'], 1000),
             $this->manualMainFcList('main_product_exposure')
-        ));
+        )), 0, 12);
     }
 
     private function activeLanguageFcList(): array
@@ -173,9 +174,21 @@ class Home extends BaseController
         foreach ($rows as $row) {
             $memberUid = trim((string) ($row['member_uid'] ?? ''));
             if ($memberUid === '' || isset($seen[$memberUid])) {
+                if ($memberUid !== '' && isset($seen[$memberUid]) && (string) ($row['ad_type'] ?? '') === 'product_fc') {
+                    $index = $seen[$memberUid];
+                    $existingValues = array_filter(array_map('trim', explode(',', (string) ($uniqueRows[$index]['ad_insurance_types'] ?? ''))));
+                    $newValue = trim((string) ($row['insurance_type'] ?? ''));
+                    if ($newValue !== '' && !in_array($newValue, $existingValues, true)) {
+                        $existingValues[] = $newValue;
+                        $uniqueRows[$index]['ad_insurance_types'] = implode(',', $existingValues);
+                    }
+                }
                 continue;
             }
-            $seen[$memberUid] = true;
+            $seen[$memberUid] = count($uniqueRows);
+            if ((string) ($row['ad_type'] ?? '') === 'product_fc') {
+                $row['ad_insurance_types'] = trim((string) ($row['insurance_type'] ?? ''));
+            }
             $uniqueRows[] = $row;
         }
 

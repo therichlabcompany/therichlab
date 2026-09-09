@@ -94,8 +94,6 @@
     const thumbWrap = document.getElementById('fc-story-thumbs');
     const mainThumb = document.querySelector('.fc-story-thumb-main');
     const deliberationNotice = document.getElementById('fc-deliberation-registration-notice');
-    const fileInputs = [videoInput, imageInput, thumbInput].filter(Boolean);
-    let filePickerScrollTop = null;
 
     // 신규 파일
     let fileStore = [];
@@ -109,42 +107,6 @@
     function uid() {
         return Date.now().toString(36) + Math.random().toString(36).substring(2);
     }
-
-    // 삼성 인터넷은 숨김 file input을 열 때 해당 input 위치로 페이지를
-    // 자동 스크롤할 수 있다. 선택창 전 위치를 기억하고 취소·선택 완료 뒤 복원한다.
-    function rememberFilePickerScroll() {
-        filePickerScrollTop = window.scrollY || document.documentElement.scrollTop || 0;
-    }
-
-    function restoreFilePickerScroll() {
-        if (filePickerScrollTop === null) return;
-
-        const scrollTop = filePickerScrollTop;
-
-        window.requestAnimationFrame(function () {
-            window.scrollTo(0, scrollTop);
-            window.requestAnimationFrame(function () {
-                window.scrollTo(0, scrollTop);
-            });
-        });
-
-        filePickerScrollTop = null;
-    }
-
-    form.addEventListener('pointerdown', function (event) {
-        const trigger = event.target.closest('label[for]');
-        const input = trigger ? document.getElementById(trigger.htmlFor) : null;
-
-        if (input && input.type === 'file') {
-            rememberFilePickerScroll();
-        }
-    });
-
-    fileInputs.forEach(function (input) {
-        input.addEventListener('click', rememberFilePickerScroll);
-        input.addEventListener('cancel', restoreFilePickerScroll);
-        input.addEventListener('change', restoreFilePickerScroll);
-    });
 
     // ===========================
     // 메인 썸네일 표시

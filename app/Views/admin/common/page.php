@@ -16,6 +16,7 @@ $searchValue = $searchValue ?? '';
 $dateFrom = $dateFrom ?? '';
 $dateTo = $dateTo ?? '';
 $searchHidden = $searchHidden ?? [];
+$searchSelects = $searchSelects ?? [];
 $readyAlert = (bool) ($readyAlert ?? false);
 $pageClass = trim((string) ($pageClass ?? ''));
 $bulkForm = $bulkForm ?? [];
@@ -191,6 +192,16 @@ $isReviewManagementPage = $pageClass === 'review-management-page';
                             <span>종료일</span>
                             <input type="date" name="end_date" value="<?= esc($dateTo) ?>" class="form-control form-control-sm">
                         </label>
+                        <?php foreach ($searchSelects as $select): ?>
+                            <label class="admin-search-field">
+                                <span><?= esc($select['label'] ?? '') ?></span>
+                                <select name="<?= esc($select['name'] ?? '') ?>" class="form-control form-control-sm">
+                                    <?php foreach (($select['options'] ?? []) as $option): ?>
+                                        <option value="<?= esc($option['value'] ?? '') ?>" data-ad-type="<?= esc($option['ad_type'] ?? '') ?>" <?= (string) ($option['value'] ?? '') === (string) ($select['value'] ?? '') ? 'selected' : '' ?>><?= esc($option['label'] ?? '') ?></option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </label>
+                        <?php endforeach; ?>
                         <label class="admin-search-field admin-search-field--keyword">
                             <span>검색어</span>
                             <input type="text" name="q" value="<?= esc($searchValue) ?>" class="form-control form-control-sm" placeholder="<?= esc($searchPlaceholder) ?>">
@@ -199,6 +210,31 @@ $isReviewManagementPage = $pageClass === 'review-management-page';
                         <a href="<?= esc($searchAction) ?>" class="btn btn-outline-secondary btn-sm admin-search-button">초기화</a>
                     </form>
                 </div>
+            <?php endif; ?>
+
+            <?php if ($pageClass === 'ad-management-page'): ?>
+                <script>
+                    (() => {
+                        const typeSelect = document.querySelector('.ad-management-page select[name="ad_type"]');
+                        const detailSelect = document.querySelector('.ad-management-page select[name="ad_detail"]');
+                        if (!typeSelect || !detailSelect) return;
+
+                        const syncAdDetails = () => {
+                            const selectedType = typeSelect.value;
+                            let selectedVisible = false;
+                            Array.from(detailSelect.options).forEach((option) => {
+                                const optionType = option.dataset.adType || '';
+                                const visible = option.value === '' || selectedType === '' || optionType === selectedType;
+                                option.hidden = !visible;
+                                if (visible && option.selected) selectedVisible = true;
+                            });
+                            if (!selectedVisible) detailSelect.value = '';
+                        };
+
+                        typeSelect.addEventListener('change', syncAdDetails);
+                        syncAdDetails();
+                    })();
+                </script>
             <?php endif; ?>
 
             <?php if (!empty($summary)): ?>

@@ -444,6 +444,10 @@ body.admin-shell .admin-search-button {
   font-size: 13px;
 }
 
+body.admin-shell .ad-management-page .admin-search-form {
+  grid-template-columns: minmax(120px, 150px) minmax(120px, 150px) minmax(145px, 180px) minmax(145px, 180px) minmax(240px, 1fr) 88px 88px;
+}
+
 body.admin-shell .admin-search-button {
   display: inline-flex;
   align-items: center;
@@ -481,6 +485,10 @@ body.admin-shell .admin-search-form--dashboard {
 @media (max-width: 991px) {
   body.admin-shell .admin-search-form {
     grid-template-columns: minmax(120px, .8fr) minmax(120px, .8fr) minmax(200px, 1.5fr) 80px 80px;
+  }
+
+  body.admin-shell .ad-management-page .admin-search-form {
+    grid-template-columns: minmax(110px, 1fr) minmax(110px, 1fr) minmax(130px, 1fr) minmax(130px, 1fr) minmax(180px, 1.5fr) 80px 80px;
   }
 
   body.admin-shell .member-search-grid {

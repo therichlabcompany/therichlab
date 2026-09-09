@@ -19,10 +19,10 @@ if (!function_exists('upload_file')) {
         if (empty($allowed)) {
             $allowed = [
                 // image
-                'jpg','jpeg','png','webp','gif',
+                'jpg','jpeg','png','webp','gif','bmp','heic','heif','tif','tiff',
 
                 // document
-                'pdf','doc','docx','ppt','pptx','xls','xlsx','hwp','txt',
+            'pdf','doc','docx','ppt','pptx','xls','xlsx','hwp','hwpx','txt','rtf','odt','ods','csv',
 
                 // video
                 'mp4','mov','avi','wmv','mkv',
@@ -51,11 +51,15 @@ if (!function_exists('upload_file')) {
         // =========================
         // MIME 체크 (추가 보안)
         // =========================
-        $mime = $file->getClientMimeType();
+        // 브라우저가 전달한 MIME과 PHP가 임시 업로드 파일에서 감지한 MIME을
+        // 함께 확인한다. HWP는 브라우저별 client MIME이 달라질 수 있다.
+        $clientMime = $file->getClientMimeType();
+        $detectedMime = $file->getMimeType();
 
         $allowedMime = [
             // images
-            'image/jpeg','image/png','image/webp','image/gif',
+            'image/jpeg','image/png','image/webp','image/gif','image/bmp',
+            'image/heic','image/heif','image/tiff',
 
             // pdf/doc/ppt/xls
             'application/pdf',
@@ -66,13 +70,43 @@ if (!function_exists('upload_file')) {
             'application/vnd.ms-excel',
             'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
 
+            // HWP. Depending on the browser/server, HWP can be reported as
+            // one of the vendor MIME types or as a generic binary file.
+            'application/x-hwp',
+            'application/haansoft-hwp',
+            'application/vnd.hancom.hwp',
+            'application/x-hwpx',
+            'application/vnd.hancom.hwpx',
+            'application/haansoft-hwpx',
+
+            // Plain text documents may be reported differently by browsers.
+            'text/plain',
+            'text/csv',
+            'application/rtf',
+            'text/rtf',
+            'application/vnd.oasis.opendocument.text',
+            'application/vnd.oasis.opendocument.spreadsheet',
+
             // video
             'video/mp4',
             'video/quicktime',
             'video/x-msvideo'
         ];
 
-        if (!in_array($mime, $allowedMime)) {
+        $genericMimeAllowedExtensions = [
+            'hwp', 'hwpx', 'txt', 'rtf', 'odt', 'ods', 'csv',
+            'pdf', 'doc', 'docx', 'ppt', 'pptx', 'xls', 'xlsx',
+            'jpg', 'jpeg', 'png', 'webp', 'gif', 'bmp', 'heic', 'heif', 'tif', 'tiff',
+        ];
+        $mimeCandidates = array_values(array_unique(array_filter([$clientMime, $detectedMime])));
+        $isKnownFileWithGenericMime = in_array($ext, $genericMimeAllowedExtensions, true)
+            && in_array('application/octet-stream', $mimeCandidates, true);
+        $isHwpContainerMime = in_array($ext, ['hwp', 'hwpx'], true)
+            && in_array('application/zip', $mimeCandidates, true);
+
+        $hasAllowedMime = (bool) array_intersect($mimeCandidates, $allowedMime);
+
+        if (!$hasAllowedMime && !$isKnownFileWithGenericMime && !$isHwpContainerMime) {
             throw new \Exception('파일 타입이 올바르지 않습니다.');
         }
 

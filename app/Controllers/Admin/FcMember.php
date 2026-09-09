@@ -46,7 +46,17 @@ class FcMember extends BaseController
         $startDate = $request->getGet('start_date') ?: '';
         $endDate   = $request->getGet('end_date') ?: '';
         $keyword = trim((string) ($request->getGet('q') ?? ''));
+        $exposure = strtolower(trim((string) ($request->getGet('exposure') ?? '')));
         $error = '';
+
+        $exposureColumns = [
+            'region' => 'main_region_exposure',
+            'product' => 'main_product_exposure',
+            'language' => 'main_language_exposure',
+        ];
+        if (!isset($exposureColumns[$exposure])) {
+            $exposure = '';
+        }
 
         if ($keyword !== '' && mb_strlen($keyword) < 2) {
             $error = '검색어 입력은 최소 2자 이상 입력하셔야 됩니다.';
@@ -67,6 +77,10 @@ class FcMember extends BaseController
             )
             ->where('m.deleted_at', null)
             ->where('m.member_type', 'FC');
+
+        if ($exposure !== '') {
+            $baseBuilder->where('p.' . $exposureColumns[$exposure], 'Y');
+        }
 
         // =========================
         // date filter
@@ -146,6 +160,7 @@ class FcMember extends BaseController
             'startDate' => $startDate,
             'endDate' => $endDate,
             'keyword' => $keyword,
+            'exposure' => $exposure,
             'error' => $error,
         ]);
     }
@@ -158,6 +173,12 @@ class FcMember extends BaseController
         $startDate = $request->getGet('start_date') ?: '';
         $endDate = $request->getGet('end_date') ?: '';
         $keyword = trim((string) ($request->getGet('q') ?? ''));
+        $exposure = strtolower(trim((string) ($request->getGet('exposure') ?? '')));
+        $exposureColumns = [
+            'region' => 'main_region_exposure',
+            'product' => 'main_product_exposure',
+            'language' => 'main_language_exposure',
+        ];
 
         $builder = $db->table('my_fc_member m')
             ->select("
@@ -175,6 +196,10 @@ class FcMember extends BaseController
             ->join('my_fc_reviewed rv', 'rv.member_uid = m.member_uid', 'left')
             ->where('m.deleted_at', null)
             ->where('m.member_type', 'FC');
+
+        if (isset($exposureColumns[$exposure])) {
+            $builder->where('p.' . $exposureColumns[$exposure], 'Y');
+        }
 
         if ($startDate !== '') {
             $builder->where('m.created_at >=', $startDate . ' 00:00:00');

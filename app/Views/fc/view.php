@@ -97,12 +97,7 @@
                 <?php if (!empty($review)): ?>
                     <div class="fc-detail-item">
                         <h3>심의필 번호</h3>
-                        <p>
-                            <?= esc($review['deliberation_no']) ?>
-                            <?php if (!empty($review['approval_start']) || !empty($review['approval_end'])): ?>
-                                (<?= esc($review['approval_start']) ?> ~ <?= esc($review['approval_end']) ?>)
-                            <?php endif; ?>
-                        </p>
+                        <p><?= esc($review['deliberation_no']) ?></p>
                     </div>
                 <?php endif; ?>
 
@@ -214,6 +209,15 @@
                 <p>
                     <?= nl2br(esc($activity['intro'])) ?>
                 </p>
+            </section>
+        <?php endif; ?>
+
+        <?php if (!empty(trim((string) ($review['deliberation_opinion'] ?? '')))): ?>
+            <section class="section fc-detail-deliberation-notice">
+                <h2 class="section-title">보험계약 체결 전 주의사항</h2>
+                <div class="fc-detail-deliberation-notice-body">
+                    <?= nl2br(esc(trim((string) $review['deliberation_opinion']))) ?>
+                </div>
             </section>
         <?php endif; ?>
 

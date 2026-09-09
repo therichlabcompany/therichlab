@@ -12,7 +12,7 @@ class Management extends BaseController
 
     public function __construct()
     {
-        helper(['form', 'url']);
+        helper(['form', 'url', 'region', 'insurance', 'language']);
         $this->db = Database::connect();
     }
 
@@ -355,21 +355,41 @@ class Management extends BaseController
             return redirect()->back()->with('error', '다운로드할 파일이 없습니다.');
         }
 
-        $fullPath = WRITEPATH . 'uploads/review/' . ltrim($storedPath, '/');
-        if (!is_file($fullPath)) {
-            $altPath = WRITEPATH . ltrim($storedPath, '/');
-            if (is_file($altPath)) {
-                $fullPath = $altPath;
+        $normalizedPath = str_replace('\\', '/', $storedPath);
+        $storedName = basename($normalizedPath);
+        $candidatePaths = [
+            WRITEPATH . 'uploads/review/' . $storedName,
+            WRITEPATH . 'uploads/review/' . ltrim($normalizedPath, '/'),
+            WRITEPATH . ltrim($normalizedPath, '/'),
+        ];
+
+        $fullPath = '';
+        foreach (array_unique($candidatePaths) as $candidatePath) {
+            if (is_file($candidatePath)) {
+                $fullPath = $candidatePath;
+                break;
             }
         }
 
-        if (!is_file($fullPath)) {
+        if ($fullPath === '') {
             return redirect()->back()->with('error', '다운로드할 실제 파일이 없습니다.');
+        }
+
+        $mime = function_exists('mime_content_type')
+            ? (mime_content_type($fullPath) ?: 'application/octet-stream')
+            : 'application/octet-stream';
+
+        // HWP/HWPX MIME은 브라우저·웹서버별 지원 편차가 있어
+        // 첨부 다운로드용 일반 바이너리 타입으로 전송한다.
+        $extension = strtolower((string) pathinfo($storedName, PATHINFO_EXTENSION));
+        if (in_array($extension, ['hwp', 'hwpx'], true)) {
+            $mime = 'application/octet-stream';
         }
 
         return $this->response
             ->download($fullPath, null)
-            ->setFileName(basename($storedPath));
+            ->setFileName($storedName)
+            ->setContentType($mime, '');
     }
 
     public function deliberationDecision($id)
@@ -850,6 +870,20 @@ class Management extends BaseController
             'dateFrom' => $filters['start_date'],
             'dateTo' => $filters['end_date'],
             'searchHidden' => ['status' => $filters['status'], 'member_id' => $filters['member_id']],
+            'searchSelects' => $kind === 'normal' ? [
+                [
+                    'name' => 'ad_type',
+                    'label' => '광고 종류',
+                    'value' => $filters['ad_type'],
+                    'options' => array_merge([['value' => '', 'label' => '전체 광고 종류']], $this->adTypeOptions()),
+                ],
+                [
+                    'name' => 'ad_detail',
+                    'label' => '세부 구분',
+                    'value' => $filters['ad_detail'],
+                    'options' => array_merge([['value' => '', 'label' => '전체 세부 구분']], $this->adDetailOptions()),
+                ],
+            ] : [],
             'tabs' => $this->adListTabs($kind, $filters),
             'actions' => [
                 ['label' => $kind === 'normal' ? '일반 광고 추가' : '배너 광고 추가', 'url' => base_url('admin/ads/' . $kind . '/create')],
@@ -871,7 +905,7 @@ class Management extends BaseController
             'pageQuery' => $query,
             'rows' => array_map(function ($row) use ($kind) {
                 $adId = (int) ($row['id'] ?? 0);
-                $typeLabel = $this->adTypeLabel((string) ($row['ad_type'] ?? ''), (string) ($row['banner_position'] ?? ''));
+                $typeLabel = $this->adProductLabel($row);
                 $statusLabel = $this->adStatusLabelForRow($row);
                 $statusKey = $this->isAdActive($row) ? 'active' : strtolower((string) ($row['status'] ?? 'apply'));
                 $isBannerImageMissing = $kind !== 'normal' && $this->isAdActive($row) && !$this->bannerImageExists($row);
@@ -903,7 +937,7 @@ class Management extends BaseController
         foreach ($rows as $row) {
             $exportRows[] = [
                 $row['id'] ?? '',
-                $this->adTypeLabel((string) ($row['ad_type'] ?? ''), (string) ($row['banner_position'] ?? '')),
+                $this->adProductLabel($row),
                 $row['click_count'] ?? 0,
                 $row['start_date'] ?? '',
                 $row['end_date'] ?? '',
@@ -3957,12 +3991,24 @@ class Management extends BaseController
 
     private function adListFilters(): array
     {
+        $adType = trim((string) $this->request->getGet('ad_type'));
+        if (!array_key_exists($adType, $this->adTypeOptions(true))) {
+            $adType = '';
+        }
+
+        $adDetail = trim((string) $this->request->getGet('ad_detail'));
+        if (!array_key_exists($adDetail, $this->adDetailOptions($adType, true))) {
+            $adDetail = '';
+        }
+
         return [
             'q' => trim((string) $this->request->getGet('q')),
             'start_date' => trim((string) $this->request->getGet('start_date')),
             'end_date' => trim((string) $this->request->getGet('end_date')),
             'status' => trim((string) $this->request->getGet('status')),
             'member_id' => max(0, (int) $this->request->getGet('member_id')),
+            'ad_type' => $adType,
+            'ad_detail' => $adDetail,
         ];
     }
 
@@ -3985,6 +4031,12 @@ class Management extends BaseController
 
     private function applyAdListFilters($builder, array $filters): void
     {
+        if (($filters['ad_type'] ?? '') !== '') {
+            $builder->where('a.ad_type', $filters['ad_type']);
+        }
+
+        $this->applyAdDetailFilter($builder, (string) ($filters['ad_detail'] ?? ''));
+
         if ($filters['q'] !== '') {
             $builder->groupStart()->like('m.name', $filters['q'])->orLike('m.email', $filters['q'])->groupEnd();
         }
@@ -4036,10 +4088,9 @@ class Management extends BaseController
         $status = (string) ($row['status'] ?? '');
         $actionUrl = base_url('admin/ads/' . $kind . '/' . $id . '/decision');
         $defaultEndDate = date('Y-m-d', strtotime('+1 month'));
-        $period = esc(($row['start_date'] ?? '-') . ' ~ ' . ($row['end_date'] ?? '-'));
         $bannerEditButton = $kind === 'normal' ? '' : '<a class="btn btn-outline-primary btn-sm" href="' . base_url('admin/ads/' . $kind . '/' . $id . '/edit') . '">배너 수정</a>';
 
-        if (in_array($status, ['apply', 'pending', 'rejected'], true)) {
+        if (in_array($status, ['apply', 'pending'], true)) {
             return '
                 <div class="ad-manage-box">
                     <form action="' . $actionUrl . '" method="post" class="ad-approve-form">
@@ -4059,15 +4110,15 @@ class Management extends BaseController
 
         if ($status === 'approved' && $this->isAdActive($row)) {
             return '
-                <div class="ad-manage-box is-running"><span class="ad-manage-caption">현재 광고 진행중</span><form action="' . $actionUrl . '" method="post">
+                <div class="ad-manage-box is-running"><form action="' . $actionUrl . '" method="post">
                     ' . csrf_field() . '
                     <input type="hidden" name="decision" value="end">
                     <button type="submit" class="btn btn-outline-secondary btn-sm" onclick="return confirm(\'광고를 종료하시겠습니까?\')">광고 종료</button>
                 </form>' . $bannerEditButton . '</div>';
         }
 
-        if ($status === 'end' || ($status === 'approved' && !$this->isAdActive($row))) {
-            return '<div class="ad-manage-box is-ended"><span class="ad-manage-caption">광고 진행기간</span><strong>' . $period . '</strong>' . $bannerEditButton . '</div>';
+        if ($status === 'approved' || $status === 'end' || $status === 'rejected') {
+            return $bannerEditButton !== '' ? '<div class="ad-manage-box is-ended">' . $bannerEditButton . '</div>' : '-';
         }
 
         return '-';
@@ -4094,6 +4145,10 @@ class Management extends BaseController
 
     private function adStatusLabelForRow(array $row): string
     {
+        if ((string) ($row['status'] ?? '') === 'approved' && $this->isAdScheduled($row)) {
+            return '진행예정';
+        }
+
         if (!$this->isAdActive($row) && (string) ($row['status'] ?? '') === 'approved') {
             return '진행종료';
         }
@@ -4120,6 +4175,17 @@ class Management extends BaseController
         }
 
         return true;
+    }
+
+    private function isAdScheduled(array $row): bool
+    {
+        if ((string) ($row['status'] ?? '') !== 'approved') {
+            return false;
+        }
+
+        $startDate = (string) ($row['start_date'] ?? '');
+
+        return $startDate !== '' && date('Y-m-d') < $startDate;
     }
 
     private function adBelongsToKind(array $ad, string $kind): bool
@@ -4190,6 +4256,112 @@ class Management extends BaseController
             'language_fc' => '언어별 광고',
             'banner' => '배너 광고',
         ][$type] ?? $type;
+    }
+
+    private function adTypeOptions(bool $asMap = false): array
+    {
+        $options = [
+            ['value' => 'region_fc', 'label' => '지역별 광고'],
+            ['value' => 'product_fc', 'label' => '상담가능 상품별 광고'],
+            ['value' => 'review', 'label' => '후기 광고'],
+            ['value' => 'language_fc', 'label' => '언어별 광고'],
+        ];
+
+        if (!$asMap) {
+            return $options;
+        }
+
+        return array_fill_keys(array_column($options, 'value'), true);
+    }
+
+    private function adDetailOptions(string $type = '', bool $asMap = false): array
+    {
+        $options = [];
+        if ($type === '' || $type === 'region_fc') {
+            foreach (['seoul', 'gyeonggi', 'incheon_bucheon', 'seoul_incheon_gyeonggi', 'busan_ulsan_gyeongnam', 'daegu_gyeongbuk', 'daejeon_sejong_chungnam', 'cheongju_chungbuk', 'gwangju_jeonnam', 'jeonju_jeonbuk', 'chuncheon_gangwon', 'jeju'] as $code) {
+                $options[] = ['value' => 'region:' . $code, 'label' => '지역 · ' . fc_region_label($code)];
+            }
+        }
+        if ($type === '' || $type === 'product_fc') {
+            foreach (['all', 'whole_life', 'cancer', 'brain_cardio', 'indemnity', 'child', 'dementia', 'dental', 'pension', 'business', 'driver', 'car', 'fire'] as $code) {
+                $options[] = ['value' => 'product:' . $code, 'label' => '보험상품 · ' . fc_insurance_label($code)];
+            }
+        }
+        if ($type === '' || $type === 'review') {
+            $reviewRows = $this->db->table('my_fc_counsel_review')
+                ->select('review_id, title')
+                ->where('deleted_at', null)
+                ->orderBy('review_id', 'DESC')
+                ->get()
+                ->getResultArray();
+            foreach ($reviewRows as $review) {
+                $options[] = ['value' => 'review:' . (int) $review['review_id'], 'label' => '후기 · #' . (int) $review['review_id'] . ' ' . ((string) ($review['title'] ?? '') ?: '제목 없음')];
+            }
+        }
+        if ($type === '' || $type === 'language_fc') {
+            foreach (fc_language_options() as $language) {
+                $options[] = ['value' => 'language:' . $language['value'], 'label' => '언어 · ' . $language['label']];
+            }
+        }
+
+        foreach ($options as &$option) {
+            $option['ad_type'] = [
+                'region' => 'region_fc',
+                'product' => 'product_fc',
+                'review' => 'review',
+                'language' => 'language_fc',
+            ][strtok((string) ($option['value'] ?? ''), ':')] ?? '';
+        }
+        unset($option);
+
+        if (!$asMap) {
+            return $options;
+        }
+
+        return array_fill_keys(array_column($options, 'value'), true);
+    }
+
+    private function applyAdDetailFilter($builder, string $detail): void
+    {
+        if ($detail === '') {
+            return;
+        }
+
+        [$field, $value] = array_pad(explode(':', $detail, 2), 2, '');
+        $column = [
+            'region' => 'a.region_code',
+            'product' => 'a.insurance_type',
+            'review' => 'a.review_id',
+            'language' => 'a.language_code',
+        ][$field] ?? null;
+
+        if ($column !== null && $value !== '') {
+            $builder->where($column, $field === 'review' ? (int) $value : $value);
+        }
+    }
+
+    private function adProductLabel(array $row): string
+    {
+        $type = (string) ($row['ad_type'] ?? '');
+        $label = $this->adTypeLabel($type, (string) ($row['banner_position'] ?? ''));
+        $detail = '';
+
+        switch ($type) {
+            case 'region_fc':
+                $detail = fc_region_label((string) ($row['region_code'] ?? ''));
+                break;
+            case 'product_fc':
+                $detail = fc_insurance_label((string) ($row['insurance_type'] ?? ''));
+                break;
+            case 'review':
+                $detail = !empty($row['review_id']) ? '후기 #' . (int) $row['review_id'] : '';
+                break;
+            case 'language_fc':
+                $detail = fc_language_labels((string) ($row['language_code'] ?? ''));
+                break;
+        }
+
+        return $detail !== '' ? $label . ' · ' . $detail : $label;
     }
 
     private function adStatusLabel(string $status): string

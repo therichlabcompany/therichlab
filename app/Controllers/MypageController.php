@@ -204,7 +204,7 @@ class MypageController extends BaseController
 
     public function favoriteFc(): string
     {
-        helper(['region', 'insurance']);
+        helper(['region', 'insurance', 'language']);
         $header_class = "form-page favorite-page";
 
         $session = session();
@@ -322,7 +322,7 @@ class MypageController extends BaseController
         // ===========================
         // 로그인 체크
         // ===========================
-        helper(['region', 'insurance']);
+        helper(['region', 'insurance', 'language']);
         $member_uid = session()->get('member_uid');
 
         if (empty($member_uid)) {
@@ -1075,7 +1075,21 @@ class MypageController extends BaseController
 
         if ($file && $file->isValid() && !$file->hasMoved()) {
 
-            $fileName = upload_file($file, 'uploads/review');
+            try {
+                $fileName = upload_file($file, 'uploads/review', [
+                    // 문서
+                    'pdf', 'hwp', 'hwpx', 'doc', 'docx', 'ppt', 'pptx',
+                    'xls', 'xlsx', 'txt', 'rtf', 'odt', 'ods', 'csv',
+                    // 이미지
+                    'jpg', 'jpeg', 'png', 'webp', 'gif', 'bmp',
+                    'heic', 'heif', 'tif', 'tiff',
+                ]);
+            } catch (\Throwable $e) {
+                return $this->response->setJSON([
+                    'result' => 'fail',
+                    'msg' => '업로드할 수 없는 파일 형식입니다.'
+                ]);
+            }
 
             if (!$fileName) {
 
@@ -1837,9 +1851,34 @@ class MypageController extends BaseController
         $page = (int) ($this->request->getGet('page') ?? 1);
         $perPage = 10;
 
+        $adType = trim((string) $this->request->getGet('ad_type'));
+        $adTypes = ['region_fc', 'product_fc', 'review', 'language_fc', 'banner'];
+        if (!in_array($adType, $adTypes, true)) {
+            $adType = '';
+        }
+        $status = trim((string) $this->request->getGet('status'));
+        if (!in_array($status, ['waiting', 'active', 'ended', 'stopped'], true)) {
+            $status = '';
+        }
+        $adDetail = trim((string) $this->request->getGet('ad_detail'));
+        if (!preg_match('/^(region|product|review|language|banner):[^:]+$/', $adDetail)) {
+            $adDetail = '';
+        }
+
+        $filters = ['ad_type' => $adType, 'ad_detail' => $adDetail, 'status' => $status];
+
         $adModel = new \App\Models\AdMasterModel();
 
-        $result = $adModel->getAdListByMemberPaging($fc_member_id, $page, $perPage, $legacyMemberId);
+        $result = $adModel->getAdListByMemberPaging($fc_member_id, $page, $perPage, $legacyMemberId, $filters);
+
+        $reviewDetailOptions = [];
+        foreach ($adModel->getMemberReviewAdIds($fc_member_id, $legacyMemberId) as $reviewId) {
+            $reviewDetailOptions[] = [
+                'value' => 'review:' . $reviewId,
+                'label' => '후기 · #' . $reviewId,
+                'ad_type' => 'review',
+            ];
+        }
 
         $adList = $result['list'];
         $total  = $result['total'];
@@ -1868,26 +1907,26 @@ class MypageController extends BaseController
                 if (!empty($ad['start_date']) && !empty($ad['end_date'])) {
 
                     if ($today < $ad['start_date']) {
-                        $ad['status_text'] = '대기';
+                        $ad['status_text'] = '진행예정';
                         $ad['status_class'] = 'wait';
                     } elseif ($today > $ad['end_date']) {
-                        $ad['status_text'] = '종료';
+                        $ad['status_text'] = '진행종료';
                         $ad['status_class'] = 'end';
                     } else {
-                        $ad['status_text'] = '광고 중';
+                        $ad['status_text'] = '진행중';
                         $ad['status_class'] = 'on';
                     }
                 } else {
-                    $ad['status_text'] = '광고 중';
+                    $ad['status_text'] = '진행중';
                     $ad['status_class'] = 'on';
                 }
             } else {
 
                 $map = [
-                    'apply'    => ['신청', 'wait'],
-                    'pending'  => ['대기', 'wait'],
-                    'rejected' => ['거절', 'end'],
-                    'end'      => ['종료', 'end'],
+                    'apply'    => ['진행대기', 'wait'],
+                    'pending'  => ['진행대기', 'wait'],
+                    'rejected' => ['진행중단', 'end'],
+                    'end'      => ['진행종료', 'end'],
                 ];
 
                 $ad['status_text']  = $map[$status][0] ?? $status;
@@ -1896,14 +1935,29 @@ class MypageController extends BaseController
 
             // 광고 타입 한글 매핑
             $adTypeMap = [
-                'region_fc'   => '지역별 FC',
-                'banner'      => '배너광고',
-                'product_fc'  => '상품별 FC',
-                'review'      => '리뷰광고',
-                'language_fc' => '언어별 FC',
+                'region_fc'   => '지역별 광고',
+                'banner'      => '배너 광고',
+                'product_fc'  => '상담가능 상품별 광고',
+                'review'      => '후기 광고',
+                'language_fc' => '언어별 광고',
             ];
 
             $ad['ad_name'] = $adTypeMap[$ad['ad_type']] ?? $ad['ad_type'];
+            $adDetail = '';
+            if ($ad['ad_type'] === 'region_fc') {
+                $adDetail = fc_region_label((string) ($ad['region_code'] ?? ''));
+            } elseif ($ad['ad_type'] === 'product_fc') {
+                $adDetail = fc_insurance_label((string) ($ad['insurance_type'] ?? ''));
+            } elseif ($ad['ad_type'] === 'review' && !empty($ad['review_id'])) {
+                $adDetail = '후기 #' . (int) $ad['review_id'];
+            } elseif ($ad['ad_type'] === 'language_fc') {
+                $adDetail = fc_language_labels((string) ($ad['language_code'] ?? ''));
+            } elseif ($ad['ad_type'] === 'banner' && !empty($ad['banner_position'])) {
+                $adDetail = $ad['banner_position'] === 'bottom' ? '하단' : '상단';
+            }
+            if ($adDetail !== '') {
+                $ad['ad_name'] .= ' · ' . $adDetail;
+            }
 
             // 기간 포맷
             if (!empty($ad['start_date']) && !empty($ad['end_date'])) {
@@ -1923,6 +1977,51 @@ class MypageController extends BaseController
             "totalPages" => $totalPages,
             "perPage" => $perPage,
             "lastUpdatedAt" => $lastUpdatedAt,
+            "filters" => $filters,
+            "adTypeOptions" => [
+                ['value' => 'region_fc', 'label' => '지역별 광고'],
+                ['value' => 'product_fc', 'label' => '상담가능 상품별 광고'],
+                ['value' => 'review', 'label' => '후기 광고'],
+                ['value' => 'language_fc', 'label' => '언어별 광고'],
+                ['value' => 'banner', 'label' => '배너 광고'],
+            ],
+            "adDetailOptions" => array_merge([
+                ['value' => 'region:seoul', 'label' => '지역 · 서울', 'ad_type' => 'region_fc'],
+                ['value' => 'region:gyeonggi', 'label' => '지역 · 경기', 'ad_type' => 'region_fc'],
+                ['value' => 'region:incheon_bucheon', 'label' => '지역 · 인천/부천', 'ad_type' => 'region_fc'],
+                ['value' => 'region:seoul_incheon_gyeonggi', 'label' => '지역 · 수도권', 'ad_type' => 'region_fc'],
+                ['value' => 'region:busan_ulsan_gyeongnam', 'label' => '지역 · 부산/울산/경남', 'ad_type' => 'region_fc'],
+                ['value' => 'region:daegu_gyeongbuk', 'label' => '지역 · 대구/경북', 'ad_type' => 'region_fc'],
+                ['value' => 'region:daejeon_sejong_chungnam', 'label' => '지역 · 대전/세종/충남', 'ad_type' => 'region_fc'],
+                ['value' => 'region:cheongju_chungbuk', 'label' => '지역 · 충북', 'ad_type' => 'region_fc'],
+                ['value' => 'region:gwangju_jeonnam', 'label' => '지역 · 광주/전남', 'ad_type' => 'region_fc'],
+                ['value' => 'region:jeonju_jeonbuk', 'label' => '지역 · 전북', 'ad_type' => 'region_fc'],
+                ['value' => 'region:chuncheon_gangwon', 'label' => '지역 · 강원', 'ad_type' => 'region_fc'],
+                ['value' => 'region:jeju', 'label' => '지역 · 제주', 'ad_type' => 'region_fc'],
+                ['value' => 'product:all', 'label' => '보험상품 · 전체', 'ad_type' => 'product_fc'],
+                ['value' => 'product:whole_life', 'label' => '보험상품 · 종신보험', 'ad_type' => 'product_fc'],
+                ['value' => 'product:cancer', 'label' => '보험상품 · 암보험', 'ad_type' => 'product_fc'],
+                ['value' => 'product:brain_cardio', 'label' => '보험상품 · 뇌심장보험', 'ad_type' => 'product_fc'],
+                ['value' => 'product:indemnity', 'label' => '보험상품 · 실비보험', 'ad_type' => 'product_fc'],
+                ['value' => 'product:child', 'label' => '보험상품 · 자녀/태아보험', 'ad_type' => 'product_fc'],
+                ['value' => 'product:dementia', 'label' => '보험상품 · 치매/간병보험', 'ad_type' => 'product_fc'],
+                ['value' => 'product:dental', 'label' => '보험상품 · 치아보험', 'ad_type' => 'product_fc'],
+                ['value' => 'product:pension', 'label' => '보험상품 · 연금/변액보험', 'ad_type' => 'product_fc'],
+                ['value' => 'product:business', 'label' => '보험상품 · 사업자보험', 'ad_type' => 'product_fc'],
+                ['value' => 'product:driver', 'label' => '보험상품 · 운전자보험', 'ad_type' => 'product_fc'],
+                ['value' => 'product:car', 'label' => '보험상품 · 자동차보험', 'ad_type' => 'product_fc'],
+                ['value' => 'product:fire', 'label' => '보험상품 · 화재보험', 'ad_type' => 'product_fc'],
+                ['value' => 'language:sign', 'label' => '언어 · 수어', 'ad_type' => 'language_fc'],
+                ['value' => 'language:en', 'label' => '언어 · 영어', 'ad_type' => 'language_fc'],
+                ['value' => 'language:zh', 'label' => '언어 · 중국어', 'ad_type' => 'language_fc'],
+                ['value' => 'language:vi', 'label' => '언어 · 베트남어', 'ad_type' => 'language_fc'],
+                ['value' => 'language:th', 'label' => '언어 · 태국어', 'ad_type' => 'language_fc'],
+                ['value' => 'language:ja', 'label' => '언어 · 일본어', 'ad_type' => 'language_fc'],
+                ['value' => 'language:fil', 'label' => '언어 · 필리핀어', 'ad_type' => 'language_fc'],
+                ['value' => 'language:km', 'label' => '언어 · 캄보디아어', 'ad_type' => 'language_fc'],
+                ['value' => 'banner:top', 'label' => '배너 · 상단', 'ad_type' => 'banner'],
+                ['value' => 'banner:bottom', 'label' => '배너 · 하단', 'ad_type' => 'banner'],
+            ], $reviewDetailOptions),
         ]);
     }
 

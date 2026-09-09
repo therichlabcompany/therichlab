@@ -29,6 +29,39 @@
             </div>
         </div>
 
+        <form method="get" action="/mypage/adlist" class="ad-mgmt-filter">
+            <label>
+                <span>광고 구분</span>
+                <select name="ad_type" class="form-input js-ad-filter-type">
+                    <option value="">전체 광고 구분</option>
+                    <?php foreach (($adTypeOptions ?? []) as $option): ?>
+                        <option value="<?= esc($option['value']) ?>" <?= ($filters['ad_type'] ?? '') === $option['value'] ? 'selected' : '' ?>><?= esc($option['label']) ?></option>
+                    <?php endforeach; ?>
+                </select>
+            </label>
+            <label>
+                <span>세부 구분</span>
+                <select name="ad_detail" class="form-input js-ad-filter-detail">
+                    <option value="">전체 세부 구분</option>
+                    <?php foreach (($adDetailOptions ?? []) as $option): ?>
+                        <option value="<?= esc($option['value']) ?>" data-ad-type="<?= esc($option['ad_type']) ?>" <?= ($filters['ad_detail'] ?? '') === $option['value'] ? 'selected' : '' ?>><?= esc($option['label']) ?></option>
+                    <?php endforeach; ?>
+                </select>
+            </label>
+            <label>
+                <span>진행 상태</span>
+                <select name="status" class="form-input">
+                    <option value="">전체 상태</option>
+                    <option value="waiting" <?= ($filters['status'] ?? '') === 'waiting' ? 'selected' : '' ?>>진행대기</option>
+                    <option value="active" <?= ($filters['status'] ?? '') === 'active' ? 'selected' : '' ?>>진행중</option>
+                    <option value="ended" <?= ($filters['status'] ?? '') === 'ended' ? 'selected' : '' ?>>진행종료</option>
+                    <option value="stopped" <?= ($filters['status'] ?? '') === 'stopped' ? 'selected' : '' ?>>진행중단</option>
+                </select>
+            </label>
+            <button type="submit" class="btn btn-sm btn-primary">검색</button>
+            <a href="/mypage/adlist" class="btn btn-sm btn-outline-secondary">초기화</a>
+        </form>
+
         <div class="ad-mgmt-table-wrap">
             <table>
                 <thead>
@@ -88,10 +121,12 @@
         <nav class="c-paging" aria-label="페이지">
             <ul>
 
+                <?php $adFilterQuery = array_filter($filters ?? [], static fn ($value) => (string) $value !== ''); ?>
+
                 <!-- 이전 -->
                 <li>
                     <?php if ($page > 1): ?>
-                        <a href="?page=<?= $page - 1 ?>" rel="prev">
+                        <a href="?<?= http_build_query(array_merge($adFilterQuery, ['page' => $page - 1])) ?>" rel="prev">
                             <span class="visually-hidden">이전 페이지</span>
                         </a>
                     <?php else: ?>
@@ -109,7 +144,7 @@
 
                 <?php for ($i = $start; $i <= $end; $i++): ?>
                     <li>
-                        <a href="?page=<?= $i ?>"
+                        <a href="?<?= http_build_query(array_merge($adFilterQuery, ['page' => $i])) ?>"
                             class="<?= ($i == $page) ? 'is-active' : '' ?>"
                             <?= ($i == $page) ? 'aria-current="page"' : '' ?>>
                             <?= $i ?>
@@ -120,7 +155,7 @@
                 <!-- 다음 -->
                 <li>
                     <?php if ($page < $totalPages): ?>
-                        <a href="?page=<?= $page + 1 ?>" rel="next">
+                        <a href="?<?= http_build_query(array_merge($adFilterQuery, ['page' => $page + 1])) ?>" rel="next">
                             <span class="visually-hidden">다음 페이지</span>
                         </a>
                     <?php else: ?>
@@ -134,7 +169,7 @@
 
             <div>
                 <?php if ($page < $totalPages): ?>
-                    <a href="?page=<?= $page + 1 ?>">더보기</a>
+                    <a href="?<?= http_build_query(array_merge($adFilterQuery, ['page' => $page + 1])) ?>">더보기</a>
                 <?php endif; ?>
             </div>
         </nav>
@@ -147,5 +182,23 @@
         btn.addEventListener('click', function() {
             location.reload();
         });
+    })();
+
+    (function() {
+        var typeSelect = document.querySelector('.js-ad-filter-type');
+        var detailSelect = document.querySelector('.js-ad-filter-detail');
+        if (!typeSelect || !detailSelect) return;
+        var syncDetails = function() {
+            var type = typeSelect.value;
+            var selectedVisible = false;
+            Array.prototype.forEach.call(detailSelect.options, function(option) {
+                var visible = option.value === '' || type === '' || option.dataset.adType === type;
+                option.hidden = !visible;
+                if (visible && option.selected) selectedVisible = true;
+            });
+            if (!selectedVisible) detailSelect.value = '';
+        };
+        typeSelect.addEventListener('change', syncDetails);
+        syncDetails();
     })();
 </script>

@@ -26,16 +26,14 @@ $isReject     = !empty($review) && $review['status'] === 'REJECT';
         <form class="form-box" id="fc-reviewed-form" method="post" enctype="multipart/form-data">
             <div class="form-field">
                 <span class="form-label">심의필 번호 입력 <b>*</b></span>
-                <p class="form-text">심의필 증빙 회신문 번호를 입력해주세요.</p>
+                <p class="form-text">예시: 손해보험협회 심의필 제ㅇㅇ호 (20xx.xx.xx ~ 20xx.xx.xx)</p>
                 <input
                     class="form-input"
                     name="deliberation_no"
                     type="text"
-                    inputmode="numeric"
-                    maxlength="20"
+                    maxlength="50"
                     autocomplete="off"
-                    placeholder="202503002"
-                    title="숫자만 입력 가능합니다."
+                    placeholder="손해보험협회 심의필 제ㅇㅇ호 (20xx.xx.xx ~ 20xx.xx.xx)"
                     value="<?= esc($review['deliberation_no'] ?? '') ?>" />
             </div>
 
@@ -107,8 +105,8 @@ $isReject     = !empty($review) && $review['status'] === 'REJECT';
             </div>
 
             <div class="form-field">
-                <span class="form-label">적격(조건부 승인) 심의의견</span>
-                <p class="form-text">심의 관련 안내문을 입력해 주세요.</p>
+                <span class="form-label">보험계약 체결 전 주의사항</span>
+                <p class="form-text">보험계약 체결 전 주의사항을 입력해 주세요.</p>
                 <textarea
                     class="form-textarea"
                     name="deliberation_opinion"
@@ -139,8 +137,8 @@ $isReject     = !empty($review) && $review['status'] === 'REJECT';
                             application/vnd.openxmlformats-officedocument.wordprocessingml.document,
                             application/vnd.ms-excel,
                             application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,
-                            .hwp,
-                            .jpg,.jpeg,.png,.webp,.gif
+                            .hwp,.hwpx,.rtf,.odt,.ods,.csv,
+                            .jpg,.jpeg,.png,.webp,.gif,.bmp,.heic,.heif,.tif,.tiff
                             "/>
                         <label for="deliberation-file" class="file-upload-file-trigger">파일찾기</label>
                     </div>
@@ -320,11 +318,30 @@ $isReject     = !empty($review) && $review['status'] === 'REJECT';
             const ext = selectedFile.name.split('.').pop().toLowerCase();
 
             const allow = [
+                'pdf',
                 'doc',
                 'docx',
+                'ppt',
+                'pptx',
                 'xls',
                 'xlsx',
-                'hwp'
+                'hwp',
+                'hwpx',
+                'txt',
+                'rtf',
+                'odt',
+                'ods',
+                'csv',
+                'jpg',
+                'jpeg',
+                'png',
+                'webp',
+                'gif',
+                'bmp',
+                'heic',
+                'heif',
+                'tif',
+                'tiff'
             ];
 
             if (!allow.includes(ext)) {
@@ -360,14 +377,6 @@ $isReject     = !empty($review) && $review['status'] === 'REJECT';
             if (!deliberationNo) {
 
                 alert('심의필 번호를 입력해주세요.');
-                form.deliberation_no.focus();
-                return;
-
-            }
-
-            if (!/^[0-9]+$/.test(deliberationNo)) {
-
-                alert('심의필 번호는 숫자만 입력 가능합니다.');
                 form.deliberation_no.focus();
                 return;
 

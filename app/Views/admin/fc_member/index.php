@@ -6,6 +6,7 @@ $sort = $sort ?? 'recent_join';
 $startDate = $startDate ?? '';
 $endDate = $endDate ?? '';
 $keyword = $keyword ?? '';
+$exposure = $exposure ?? '';
 $error = $error ?? '';
 
 $fcStatusLabel = static function ($member) {
@@ -95,10 +96,42 @@ $sortUrl = static function ($value) {
     }
 
     .fc-search-grid {
-        display: grid;
-        grid-template-columns: 220px minmax(280px, 1fr) 100px 100px;
+        display: flex;
+        flex-wrap: wrap;
         gap: 10px;
         align-items: end;
+    }
+
+    .fc-search-grid > div:nth-of-type(1) {
+        flex: 0 1 220px;
+        min-width: 190px;
+    }
+
+    .fc-search-grid > div:nth-of-type(2) {
+        flex: 0 1 170px;
+        min-width: 150px;
+    }
+
+    .fc-search-grid > div:nth-of-type(3) {
+        flex: 1 1 280px;
+        min-width: 220px;
+    }
+
+    .fc-search-grid > button,
+    .fc-search-grid > a {
+        flex: 0 0 auto;
+        min-width: 88px;
+    }
+
+    .fc-search-grid select,
+    .fc-search-grid input {
+        min-width: 0;
+    }
+
+    .fc-search-grid select {
+        width: 170px;
+        padding-right: 28px;
+        white-space: nowrap;
     }
 
     .fc-search-grid label {
@@ -185,14 +218,16 @@ $sortUrl = static function ($value) {
         text-overflow: ellipsis;
     }
 
-    @media (max-width: 1200px) {
-        .fc-search-grid {
-            grid-template-columns: 1fr 1fr;
+    @media (max-width: 900px) {
+        .fc-search-grid > button,
+        .fc-search-grid > a {
+            margin-top: 2px;
         }
     }
 
     @media (max-width: 768px) {
         .fc-search-grid {
+            display: grid;
             grid-template-columns: 1fr;
         }
 
@@ -237,6 +272,15 @@ $sortUrl = static function ($value) {
                             <span>~</span>
                             <input type="date" name="end_date" class="form-control" value="<?= esc($endDate) ?>">
                         </div>
+                    </div>
+                    <div>
+                        <label for="fcExposure">메인 노출 섹션</label>
+                        <select id="fcExposure" name="exposure" class="form-select">
+                            <option value="" <?= $exposure === '' ? 'selected' : '' ?>>전체 회원</option>
+                            <option value="region" <?= $exposure === 'region' ? 'selected' : '' ?>>지역별 추천 활성</option>
+                            <option value="product" <?= $exposure === 'product' ? 'selected' : '' ?>>상황별 추천 활성</option>
+                            <option value="language" <?= $exposure === 'language' ? 'selected' : '' ?>>언어별 추천 활성</option>
+                        </select>
                     </div>
                     <div>
                         <label>검색어</label>
