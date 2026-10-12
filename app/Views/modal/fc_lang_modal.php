@@ -1,4 +1,4 @@
-<div id="popup-language" class="c-modal" data-popup-multiselect>
+<div id="popup-language" class="c-modal" data-popup-multiselect data-popup-placeholder="상담가능한 언어를 선택 해주세요.">
     <button type="button" class="c-modal-backdrop" data-popup-close aria-label="닫기"></button>
     <div class="c-modal-panel">
         <div class="c-modal-head">

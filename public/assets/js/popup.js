@@ -435,13 +435,14 @@
       if (labelEl) {
         if (labels.length > 0) {
           labelEl.textContent = labels.join(', ');
+          labelEl.classList.remove('is-placeholder');
         } else {
           selected = popup.querySelector('.c-modal-option[data-value=""]');
-          if (selected) {
-            labelEl.textContent = getPopupOptionLabel(selected);
-          }
+          labelEl.textContent = selected
+            ? getPopupOptionLabel(selected)
+            : (popup.getAttribute('data-popup-placeholder') || '');
+          labelEl.classList.add('is-placeholder');
         }
-        labelEl.classList.remove('is-placeholder');
       }
 
       popup._popupConfirmed = true;
