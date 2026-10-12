@@ -283,7 +283,10 @@
 
       selectedMap = {};
       allValue = getAllValue(popup);
-      allSelected = (allValue === '' && values.length === 0) || values.indexOf(allValue) !== -1;
+      // data-popup-all-toggle가 없는 복수 선택 팝업은 빈 값이
+      // '전체 선택'이 아니라 '아무것도 선택하지 않음'을 의미한다.
+      allSelected = popup.hasAttribute('data-popup-all-toggle')
+        && ((allValue === '' && values.length === 0) || values.indexOf(allValue) !== -1);
       for (i = 0; i < values.length; i++) {
         selectedMap[values[i]] = true;
       }

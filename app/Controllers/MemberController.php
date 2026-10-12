@@ -1806,7 +1806,13 @@ HTML);
                     @unlink($privatePath);
                     throw new \Exception('프로필 이미지 공개 경로를 준비하지 못했습니다.');
                 }
-                if (!copy($privatePath, $publicPath)) {
+
+                // public/uploads가 writable/uploads를 가리키는 배포 환경에서는
+                // 두 경로가 같은 파일이므로 자기 자신에게 copy하면 실패한다.
+                $samePublicPath = realpath($privatePath) !== false
+                    && realpath($privatePath) === realpath($publicPath);
+
+                if (!$samePublicPath && !copy($privatePath, $publicPath)) {
                     @unlink($privatePath);
                     throw new \Exception('프로필 이미지 저장에 실패했습니다.');
                 }
