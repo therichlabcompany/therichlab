@@ -17,6 +17,9 @@ $imagePath = !empty($story['story_image'])
         <input class="form-input" id="fc-story-video-display" type="text" readonly placeholder="첨부 파일을 선택해 주세요" value="<?= !empty($story['story_video']) ? esc($story['story_video']) : '' ?>" />
         <input id="fc-story-video-file" class="visually-hidden" name="story_video" type="file" accept="video/*" tabindex="-1" />
         <label class="file-upload-file-trigger" for="fc-story-video-file">업로드</label>
+        <?php if (!empty($story['story_video'])): ?>
+            <button type="button" class="file-upload-remove" id="fc-story-video-remove">삭제</button>
+        <?php endif; ?>
     </div>
 </div>
 
@@ -26,6 +29,9 @@ $imagePath = !empty($story['story_image'])
         <input class="form-input" id="fc-story-image-display" type="text" readonly placeholder="첨부 파일을 선택해 주세요" value="<?= !empty($story['story_image']) ? esc($story['story_image']) : '' ?>" />
         <input id="fc-story-image-file" class="visually-hidden" name="story_image" type="file" accept="image/*" tabindex="-1" />
         <label class="file-upload-file-trigger" for="fc-story-image-file">파일첨부</label>
+        <?php if (!empty($story['story_image'])): ?>
+            <button type="button" class="file-upload-remove" id="fc-story-image-remove">삭제</button>
+        <?php endif; ?>
     </div>
 </div>
 

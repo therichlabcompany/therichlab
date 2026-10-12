@@ -94,9 +94,38 @@
     const thumbWrap = document.getElementById('fc-story-thumbs');
     const mainThumb = document.querySelector('.fc-story-thumb-main');
     const deliberationNotice = document.getElementById('fc-deliberation-registration-notice');
+    const videoRemove = document.getElementById('fc-story-video-remove');
+    const imageRemove = document.getElementById('fc-story-image-remove');
+
+    let removeStoryVideo = false;
+    let removeStoryImage = false;
 
     // 신규 파일
     let fileStore = [];
+
+    function bindRepresentativeRemove(button, input, display, setRemoved) {
+        if (!button) return;
+
+        button.addEventListener('click', function () {
+            input.value = '';
+            display.value = '';
+            setRemoved(true);
+            button.remove();
+        });
+    }
+
+    bindRepresentativeRemove(
+        videoRemove,
+        videoInput,
+        document.getElementById('fc-story-video-display'),
+        function (value) { removeStoryVideo = value; }
+    );
+    bindRepresentativeRemove(
+        imageRemove,
+        imageInput,
+        document.getElementById('fc-story-image-display'),
+        function (value) { removeStoryImage = value; }
+    );
 
     function closeDeliberationNotice() {
         deliberationNotice.classList.remove('is-open');
@@ -282,6 +311,14 @@
                 imageInput.files[0]
             );
 
+        }
+
+        if (removeStoryVideo) {
+            formData.append('remove_story_video', '1');
+        }
+
+        if (removeStoryImage) {
+            formData.append('remove_story_image', '1');
         }
 
         previews.forEach(function(el,index){

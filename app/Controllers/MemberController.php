@@ -2282,6 +2282,7 @@ HTML);
             //---------------------------------------------------
 
             $video=$this->request->getFile('story_video');
+            $removeVideo = $this->request->getPost('remove_story_video') === '1';
 
             if($video && $video->isValid() && !$video->hasMoved()){
 
@@ -2296,6 +2297,11 @@ HTML);
                     'uploads/story/video'
                 );
 
+            } elseif ($removeVideo && !empty($story['story_video'])) {
+
+                @unlink(ROOTPATH.'public/uploads/story/video/'.basename($story['story_video']));
+                $storyData['story_video'] = null;
+
             }
 
             //---------------------------------------------------
@@ -2303,6 +2309,7 @@ HTML);
             //---------------------------------------------------
 
             $image=$this->request->getFile('story_image');
+            $removeImage = $this->request->getPost('remove_story_image') === '1';
 
             if($image && $image->isValid() && !$image->hasMoved()){
 
@@ -2316,6 +2323,11 @@ HTML);
                     $image,
                     'uploads/story/main'
                 );
+
+            } elseif ($removeImage && !empty($story['story_image'])) {
+
+                @unlink(ROOTPATH.'public/uploads/story/main/'.basename($story['story_image']));
+                $storyData['story_image'] = null;
 
             }
 
