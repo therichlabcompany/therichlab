@@ -512,6 +512,7 @@ class MypageController extends BaseController
             $db->table('my_fc_counsel_review')
                 ->where('review_id', $reviewId)
                 ->where('member_uid', $member_uid)
+                ->where('deleted_at IS NULL', null, false)
                 ->set('view_count', 'view_count + 1', false)
                 ->update();
         }
@@ -527,6 +528,7 @@ class MypageController extends BaseController
             ->join('my_fc_profile p', 'p.member_uid = c.fc_member_uid', 'left')
             ->where('r.review_id', $reviewId)
             ->where('r.member_uid', $member_uid)
+            ->where('r.deleted_at IS NULL', null, false)
             ->get()
             ->getRowArray();
 
@@ -547,6 +549,146 @@ class MypageController extends BaseController
             'result' => 'success',
             'data' => $row
         ]);
+    }
+
+    public function reviewEdit(int $reviewId): string
+    {
+        $memberUid = (string) session()->get('member_uid');
+        if ($memberUid === '') {
+            return redirect()->to('/member/login');
+        }
+
+        $review = \Config\Database::connect()->table('my_fc_counsel_review r')
+            ->select('r.*, c.fc_member_uid, m.name AS fc_name, p.profile_image, p.ga, p.company, p.company_sub, a.region, a.hero_line')
+            ->join('my_fc_counsel c', 'c.counsel_uid = r.counsel_uid', 'inner')
+            ->join('my_fc_member m', 'm.member_uid = c.fc_member_uid', 'left')
+            ->join('my_fc_profile p', 'p.member_uid = c.fc_member_uid', 'left')
+            ->join('my_fc_profile_activity a', 'a.member_uid = c.fc_member_uid', 'left')
+            ->where('r.review_id', $reviewId)
+            ->where('r.member_uid', $memberUid)
+            ->where('r.deleted_at IS NULL', null, false)
+            ->where('c.deleted_at IS NULL', null, false)
+            ->get()
+            ->getRowArray();
+
+        if (!$review) {
+            throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound();
+        }
+
+        $db = \Config\Database::connect();
+        $reviewStatsBuilder = $db->table('my_fc_counsel_review')
+            ->select('IFNULL(AVG(rating), 0) AS rating, COUNT(*) AS review_count', false)
+            ->where('fc_member_uid', $review['fc_member_uid'])
+            ->where('deleted_at IS NULL', null, false);
+        if ($db->fieldExists('display_status', 'my_fc_counsel_review')) {
+            $reviewStatsBuilder->where('display_status', 'Y');
+        }
+        $reviewStats = $reviewStatsBuilder->get()->getRowArray() ?: ['rating' => 0, 'review_count' => 0];
+        $counsel = $review;
+        $counsel['rating'] = $reviewStats['rating'];
+        $counsel['review_count'] = $reviewStats['review_count'];
+
+        return $this->renderView('mypage/counselReview', [
+            'header_class' => 'form-page',
+            'popup_page' => [],
+            'modal_page' => [],
+            'counsel' => $counsel,
+            'review' => $review,
+            'isReviewEdit' => true,
+        ]);
+    }
+
+    public function reviewUpdateAjax(int $reviewId)
+    {
+        $memberUid = (string) session()->get('member_uid');
+        if ($memberUid === '') {
+            return $this->response->setJSON(['result' => 'error', 'message' => '로그인이 필요합니다.']);
+        }
+
+        $rating = (float) $this->request->getPost('rating');
+        $title = trim((string) $this->request->getPost('title'));
+        $body = trim((string) $this->request->getPost('body'));
+        $validationError = $this->reviewInputError($rating, $title, $body);
+        if ($validationError !== null) {
+            return $this->response->setJSON(['result' => 'error', 'message' => $validationError]);
+        }
+
+        $db = \Config\Database::connect();
+        $review = $db->table('my_fc_counsel_review')
+            ->where('review_id', $reviewId)
+            ->where('member_uid', $memberUid)
+            ->where('deleted_at IS NULL', null, false)
+            ->get()
+            ->getRowArray();
+
+        if (!$review) {
+            return $this->response->setJSON(['result' => 'error', 'message' => '수정할 후기를 찾을 수 없습니다.']);
+        }
+
+        $forbiddenWord = $this->forbiddenWordViolation($title . "\n" . $body, ['ALL']);
+        if ($forbiddenWord !== null) {
+            return $this->response->setJSON([
+                'result' => 'error',
+                'message' => $this->forbiddenWordErrorMessage('후기', $forbiddenWord),
+            ]);
+        }
+
+        $updated = $db->table('my_fc_counsel_review')
+            ->where('review_id', $reviewId)
+            ->where('member_uid', $memberUid)
+            ->where('deleted_at IS NULL', null, false)
+            ->update([
+                'rating' => $rating,
+                'title' => $title,
+                'body' => $body,
+                'updated_at' => date('Y-m-d H:i:s'),
+            ]);
+
+        if (!$updated || !$db->transStatus()) {
+            return $this->response->setJSON(['result' => 'error', 'message' => '후기를 저장하지 못했습니다. 잠시 후 다시 시도해주세요.']);
+        }
+
+        session()->setFlashdata('message', '후기가 수정되었습니다.');
+        return $this->response->setJSON(['result' => 'success', 'message' => '후기가 수정되었습니다.']);
+    }
+
+    public function reviewDeleteAjax(int $reviewId)
+    {
+        $memberUid = (string) session()->get('member_uid');
+        if ($memberUid === '') {
+            return $this->response->setJSON(['result' => 'error', 'message' => '로그인이 필요합니다.']);
+        }
+
+        $db = \Config\Database::connect();
+        $deleted = $db->table('my_fc_counsel_review')
+            ->where('review_id', $reviewId)
+            ->where('member_uid', $memberUid)
+            ->where('deleted_at IS NULL', null, false)
+            ->update([
+                'deleted_at' => date('Y-m-d H:i:s'),
+                'updated_at' => date('Y-m-d H:i:s'),
+            ]);
+
+        if (!$deleted || !$db->transStatus() || $db->affectedRows() !== 1) {
+            return $this->response->setJSON(['result' => 'error', 'message' => '후기를 삭제하지 못했습니다. 새로고침 후 다시 시도해주세요.']);
+        }
+
+        session()->setFlashdata('message', '후기가 삭제되었습니다. 상담 현황에서 다시 작성할 수 있습니다.');
+        return $this->response->setJSON(['result' => 'success', 'message' => '후기가 삭제되었습니다.']);
+    }
+
+    private function reviewInputError(float $rating, string $title, string $body): ?string
+    {
+        if ($rating < 0.5 || $rating > 5) {
+            return '평점을 선택해주세요.';
+        }
+        if (mb_strlen($title) < 2 || mb_strlen($title) > 40) {
+            return '제목은 2자 이상 40자 이하로 입력해주세요.';
+        }
+        if (mb_strlen($body) < 10) {
+            return '내용은 10자 이상 입력해주세요.';
+        }
+        return null;
     }
 
 
@@ -1438,32 +1580,23 @@ class MypageController extends BaseController
 
         $db = \Config\Database::connect();
 
-        $rating = $this->request->getPost('rating');
+        $rating = (float) $this->request->getPost('rating');
         $title  = trim($this->request->getPost('title'));
         $body   = trim($this->request->getPost('body'));
 
-        // ===========================
-        // validation
-        // ===========================
-        if (empty($rating) || empty($title) || empty($body)) {
+        $validationError = $this->reviewInputError($rating, $title, $body);
+        if ($validationError !== null) {
             return $this->response->setJSON([
                 'result' => 'error',
-                'message' => '필수값을 입력해주세요.'
+                'message' => $validationError,
             ]);
         }
 
-        if ($rating < 0.5 || $rating > 5) {
+        $forbiddenWord = $this->forbiddenWordViolation($title . "\n" . $body, ['ALL']);
+        if ($forbiddenWord !== null) {
             return $this->response->setJSON([
                 'result' => 'error',
-                'message' => '잘못된 평점입니다.'
-            ]);
-        }
-
-        $titleLength = mb_strlen($title);
-        if ($titleLength < 2 || $titleLength > 40) {
-            return $this->response->setJSON([
-                'result' => 'error',
-                'message' => '제목은 2자 이상 40자 이하로 입력해주세요.'
+                'message' => $this->forbiddenWordErrorMessage('후기', $forbiddenWord),
             ]);
         }
 
@@ -1501,9 +1634,7 @@ class MypageController extends BaseController
         }
 
         // ===========================
-        // insert
-        // ===========================
-        $db->table('my_fc_counsel_review')->insert([
+        $reviewData = [
             'counsel_uid'   => $counselUid,
             'fc_member_uid' => $counsel['fc_member_uid'],
             'member_uid'    => $member_uid,
@@ -1512,7 +1643,35 @@ class MypageController extends BaseController
             'body'          => $body,
             'created_at'    => date('Y-m-d H:i:s'),
             'updated_at'    => date('Y-m-d H:i:s'),
-        ]);
+        ];
+
+        // A soft-deleted review keeps the unique counsel/member key. Reuse it
+        // when the owner writes a replacement review for the same consultation.
+        $deletedReview = $db->table('my_fc_counsel_review')
+            ->where('counsel_uid', $counselUid)
+            ->where('member_uid', $member_uid)
+            ->where('deleted_at IS NOT NULL', null, false)
+            ->get()
+            ->getRowArray();
+
+        if ($deletedReview) {
+            if ($db->fieldExists('view_count', 'my_fc_counsel_review')) {
+                $reviewData['view_count'] = 0;
+            }
+            $saved = $db->table('my_fc_counsel_review')
+                ->where('review_id', $deletedReview['review_id'])
+                ->where('deleted_at IS NOT NULL', null, false)
+                ->update($reviewData + ['deleted_at' => null]);
+        } else {
+            $saved = $db->table('my_fc_counsel_review')->insert($reviewData);
+        }
+
+        if (!$saved || !$db->transStatus()) {
+            return $this->response->setJSON([
+                'result' => 'error',
+                'message' => '후기를 저장하지 못했습니다. 잠시 후 다시 시도해주세요.',
+            ]);
+        }
 
         return $this->response->setJSON([
             'result' => 'success',

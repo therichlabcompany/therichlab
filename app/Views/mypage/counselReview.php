@@ -1,4 +1,6 @@
 <?php
+$isReviewEdit = !empty($isReviewEdit);
+$review = $review ?? [];
 $profileImage = profile_image_url($counsel['profile_image'] ?? '');
 
 $companyLine = [];
@@ -21,7 +23,7 @@ if (!empty($counsel['region'])) {
 ?>
 <main>
     <section class="page-inner-narrow">
-        <h1 class="page-main-title">후기 남기기</h1>
+        <h1 class="page-main-title"><?= $isReviewEdit ? '후기 수정하기' : '후기 남기기' ?></h1>
         <p class="page-main-lead">
             FC와의 상담은 어떠셨나요?<br />
             여러분의 후기가 다른 고객에게 큰 도움이 됩니다.<br />
@@ -42,9 +44,9 @@ if (!empty($counsel['region'])) {
                 <p>
                     <span class="c-rate">
                         <span class="c-rate-star">★</span>
-                        <?= number_format($counsel['rating'] ?? 5.0, 1) ?>
+                        <?= number_format($counsel['fc_rating'] ?? $counsel['rating'] ?? 5.0, 1) ?>
                     </span>
-                    <span class="c-rate-count">(<?= number_format($counsel['review_count'] ?? 0) ?>)</span>
+                    <span class="c-rate-count">(<?= number_format($counsel['fc_review_count'] ?? $counsel['review_count'] ?? 0) ?>)</span>
                 </p>
 
                 <p>
@@ -57,39 +59,39 @@ if (!empty($counsel['region'])) {
             </div>
         </article>
 
-        <form class="form-box" id="reviewForm">
+        <form class="form-box" id="reviewForm" data-update-url="<?= $isReviewEdit ? esc(base_url('mypage/reviewUpdateAjax/' . (int) $review['review_id'])) : '' ?>">
             <input type="hidden" name="counsel_uid" value="<?= esc($counsel['counsel_uid']) ?>">
             <input type="hidden" name="fc_member_uid" value="<?= esc($counsel['fc_member_uid']) ?>">
             <div class="review-rate">
                 <p class="form-label">상담은 전반적으로 어떠셨나요? <b>*</b></p>
                 <div class="review-rate-stars star-half" role="radiogroup">
                     <div class="star-unit">
-                        <label class="star-hit star-hit-l"><input type="radio" name="rating" value="0.5" /><span class="visually-hidden">0.5점</span></label>
-                        <label class="star-hit star-hit-r"><input type="radio" name="rating" value="1" /><span class="visually-hidden">1점</span></label>
+                        <label class="star-hit star-hit-l"><input type="radio" name="rating" value="0.5" <?= (float) ($review['rating'] ?? 0) === 0.5 ? 'checked' : '' ?>/><span class="visually-hidden">0.5점</span></label>
+                        <label class="star-hit star-hit-r"><input type="radio" name="rating" value="1" <?= (float) ($review['rating'] ?? 0) === 1.0 ? 'checked' : '' ?>/><span class="visually-hidden">1점</span></label>
                         <span class="star-bg" aria-hidden="true">★</span>
                         <span class="star-fill" aria-hidden="true">★</span>
                     </div>
                     <div class="star-unit">
-                        <label class="star-hit star-hit-l"><input type="radio" name="rating" value="1.5" /><span class="visually-hidden">1.5점</span></label>
-                        <label class="star-hit star-hit-r"><input type="radio" name="rating" value="2" /><span class="visually-hidden">2점</span></label>
+                        <label class="star-hit star-hit-l"><input type="radio" name="rating" value="1.5" <?= (float) ($review['rating'] ?? 0) === 1.5 ? 'checked' : '' ?>/><span class="visually-hidden">1.5점</span></label>
+                        <label class="star-hit star-hit-r"><input type="radio" name="rating" value="2" <?= (float) ($review['rating'] ?? 0) === 2.0 ? 'checked' : '' ?>/><span class="visually-hidden">2점</span></label>
                         <span class="star-bg" aria-hidden="true">★</span>
                         <span class="star-fill" aria-hidden="true">★</span>
                     </div>
                     <div class="star-unit">
-                        <label class="star-hit star-hit-l"><input type="radio" name="rating" value="2.5" /><span class="visually-hidden">2.5점</span></label>
-                        <label class="star-hit star-hit-r"><input type="radio" name="rating" value="3" /><span class="visually-hidden">3점</span></label>
+                        <label class="star-hit star-hit-l"><input type="radio" name="rating" value="2.5" <?= (float) ($review['rating'] ?? 0) === 2.5 ? 'checked' : '' ?>/><span class="visually-hidden">2.5점</span></label>
+                        <label class="star-hit star-hit-r"><input type="radio" name="rating" value="3" <?= (float) ($review['rating'] ?? 0) === 3.0 ? 'checked' : '' ?>/><span class="visually-hidden">3점</span></label>
                         <span class="star-bg" aria-hidden="true">★</span>
                         <span class="star-fill" aria-hidden="true">★</span>
                     </div>
                     <div class="star-unit">
-                        <label class="star-hit star-hit-l"><input type="radio" name="rating" value="3.5" /><span class="visually-hidden">3.5점</span></label>
-                        <label class="star-hit star-hit-r"><input type="radio" name="rating" value="4" /><span class="visually-hidden">4점</span></label>
+                        <label class="star-hit star-hit-l"><input type="radio" name="rating" value="3.5" <?= (float) ($review['rating'] ?? 0) === 3.5 ? 'checked' : '' ?>/><span class="visually-hidden">3.5점</span></label>
+                        <label class="star-hit star-hit-r"><input type="radio" name="rating" value="4" <?= (float) ($review['rating'] ?? 0) === 4.0 ? 'checked' : '' ?>/><span class="visually-hidden">4점</span></label>
                         <span class="star-bg" aria-hidden="true">★</span>
                         <span class="star-fill" aria-hidden="true">★</span>
                     </div>
                     <div class="star-unit">
-                        <label class="star-hit star-hit-l"><input type="radio" name="rating" value="4.5" /><span class="visually-hidden">4.5점</span></label>
-                        <label class="star-hit star-hit-r"><input type="radio" name="rating" value="5" /><span class="visually-hidden">5점</span></label>
+                        <label class="star-hit star-hit-l"><input type="radio" name="rating" value="4.5" <?= (float) ($review['rating'] ?? 0) === 4.5 ? 'checked' : '' ?>/><span class="visually-hidden">4.5점</span></label>
+                        <label class="star-hit star-hit-r"><input type="radio" name="rating" value="5" <?= (float) ($review['rating'] ?? 0) === 5.0 ? 'checked' : '' ?>/><span class="visually-hidden">5점</span></label>
                         <span class="star-bg" aria-hidden="true">★</span>
                         <span class="star-fill" aria-hidden="true">★</span>
                     </div>
@@ -98,7 +100,7 @@ if (!empty($counsel['region'])) {
             <div class="form-field">
                 <label class="form-label" for="compose-title">제목 <b>*</b></label>
                 <p class="form-text">팝업에 최대 2줄로 표시됩니다. (2~40자)</p>
-                <input class="form-input" id="compose-title" name="title" type="text" maxlength="40" placeholder="예: 꼼꼼한 상담으로 신뢰가 갔어요" />
+                <input class="form-input" id="compose-title" name="title" type="text" maxlength="40" value="<?= esc($review['title'] ?? '') ?>" placeholder="예: 꼼꼼한 상담으로 신뢰가 갔어요" />
             </div>
 
             <div class="form-field">
@@ -108,11 +110,11 @@ if (!empty($counsel['region'])) {
                     class="form-textarea"
                     id="compose-body"
                     name="body"
-                    placeholder="예: 보험 용어가 어려웠는데 쉽게 설명해주셔서 좋았어요. 필요한 보장만 추천해주셔서 신뢰가 갔습니다."></textarea>
+                    placeholder="예: 보험 용어가 어려웠는데 쉽게 설명해주셔서 좋았어요. 필요한 보장만 추천해주셔서 신뢰가 갔습니다."><?= esc($review['body'] ?? '') ?></textarea>
             </div>
 
             <div class="form-actions">
-                <button type="submit">작성 완료</button>
+                <button type="submit"><?= $isReviewEdit ? '수정 완료' : '작성 완료' ?></button>
             </div>
         </form>
     </section>
@@ -177,7 +179,9 @@ document.getElementById('reviewForm').addEventListener('submit', function (e) {
 
     const formData = new FormData(form);
 
-    fetch('/mypage/counselReviewSubmitAjax/<?= $counsel['counsel_uid'] ?>', {
+    const updateUrl = form.dataset.updateUrl;
+    const submitUrl = updateUrl || '/mypage/counselReviewSubmitAjax/<?= rawurlencode((string) $counsel['counsel_uid']) ?>';
+    fetch(submitUrl, {
         method: 'POST',
         body: formData
     })
@@ -185,7 +189,7 @@ document.getElementById('reviewForm').addEventListener('submit', function (e) {
     .then(res => {
 
         if (res.result === 'success') {
-            window.location.href = '/mypage/counselReviewLast';
+            window.location.href = updateUrl ? '/mypage/reviewList' : '/mypage/counselReviewLast';
             return;
         }
 
@@ -193,14 +197,14 @@ document.getElementById('reviewForm').addEventListener('submit', function (e) {
 
         // 실패 시 버튼 복구
         btn.disabled = false;
-        btn.innerText = '작성 완료';
+        btn.innerText = updateUrl ? '수정 완료' : '작성 완료';
     })
     .catch(() => {
         alert('서버 오류가 발생했습니다.');
 
         // 에러 시 버튼 복구
         btn.disabled = false;
-        btn.innerText = '작성 완료';
+        btn.innerText = updateUrl ? '수정 완료' : '작성 완료';
     });
 });
 </script>

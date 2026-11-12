@@ -60,6 +60,9 @@ $routes->group('mypage', function ($routes) {
     $routes->get('reviewWriteLast', 'MypageController::reviewWriteLast');  // 후기 작성 완료 - 개인
     $routes->get('reviewList', 'MypageController::reviewList');  // 후기 리스트 - 개인
     $routes->get('reviewDetailAjax/(:num)', 'MypageController::reviewDetailAjax/$1');
+    $routes->get('reviewEdit/(:num)', 'MypageController::reviewEdit/$1');
+    $routes->post('reviewUpdateAjax/(:num)', 'MypageController::reviewUpdateAjax/$1');
+    $routes->post('reviewDeleteAjax/(:num)', 'MypageController::reviewDeleteAjax/$1');
 
 
     $routes->get('fcinfo', 'MypageController::fcinfo');  // 후기 리스트 - 개인
