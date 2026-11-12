@@ -316,15 +316,33 @@ HTML);
             return redirect()->back()->withInput()->with('error', '비밀번호 규칙을 확인하고 동일하게 입력해주세요.');
         }
         $db = \Config\Database::connect();
-        $db->transStart();
-        $db->table('my_fc_member')->where('member_uid', $reset['member_uid'])
-            ->whereIn('member_type', ['USER', 'FC'])->where('status', 'ACTIVE')->where('deleted_at IS NULL', null, false)->update([
-            'password' => password_hash($password, PASSWORD_DEFAULT),
-            'password_reset_at' => date('Y-m-d H:i:s'),
-            'updated_at' => date('Y-m-d H:i:s'),
-        ]);
-        $db->table('my_fc_password_reset_token')->where('token_id', $reset['token_id'])->delete();
-        $db->transComplete();
+        $db->transBegin();
+
+        $updated = $db->table('my_fc_member')->where('member_uid', $reset['member_uid'])
+            ->whereIn('member_type', ['USER', 'FC'])->where('status', 'ACTIVE')
+            ->where('deleted_at IS NULL', null, false)->update([
+                'password' => password_hash($password, PASSWORD_DEFAULT),
+                'password_reset_at' => date('Y-m-d H:i:s'),
+                'updated_at' => date('Y-m-d H:i:s'),
+            ]);
+
+        if (!$updated || $db->affectedRows() !== 1) {
+            $db->transRollback();
+            return redirect()->back()->withInput()->with('error', '회원 상태가 변경되었거나 저장에 실패했습니다. 재설정 링크를 다시 요청해주세요.');
+        }
+
+        $tokenDeleted = $db->table('my_fc_password_reset_token')
+            ->where('token_id', $reset['token_id'])->delete();
+        if (!$tokenDeleted || !$db->transStatus()) {
+            $db->transRollback();
+            return redirect()->back()->withInput()->with('error', '비밀번호를 저장하지 못했습니다. 잠시 후 재설정 링크를 다시 요청해주세요.');
+        }
+
+        $db->transCommit();
+        if (!$db->transStatus()) {
+            return redirect()->back()->withInput()->with('error', '비밀번호를 저장하지 못했습니다. 잠시 후 재설정 링크를 다시 요청해주세요.');
+        }
+
         return redirect()->to('/member/password-reset/complete');
     }
 
