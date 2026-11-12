@@ -553,6 +553,8 @@ class MypageController extends BaseController
 
     public function reviewEdit(int $reviewId): string
     {
+        helper(['region', 'insurance']);
+
         $memberUid = (string) session()->get('member_uid');
         if ($memberUid === '') {
             return redirect()->to('/member/login');
